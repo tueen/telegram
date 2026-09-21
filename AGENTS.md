@@ -79,8 +79,8 @@ tueen/telegram/
 - `WebhookMode`: Supports automatic secret token verification (`X-Telegram-Bot-Api-Secret-Token`), raw payload parsing, and immediate response flushing via `safeResponse()`.
 - `PollingMode`: Automatically handles `offset` advancement (`update_id + 1`), transient error backoff, and manual generator iteration.
 - Client provides `$telegram->getUpdate()`, `$telegram->run(?callable $handler)`, and `$telegram->poll()`.
-- Smart resolvers on `Update`: `$update->getMessage()`, `$update->getUser()`, `$update->getChat()`.
-- Command helpers on `Message`: `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`, `$message->getText()`.
+- Smart in-memory finders on `Update`: `$update->findMessage()`, `$update->findUser()`, `$update->findChat()`.
+- Content & command helpers on `Message`: `$message->findAnyText()`, `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`.
 
 ### 4. Lifecycle Event Hooks
 - Fluent hooks on `Telegram`: `onBeforeRequest`, `onAfterRequest`, `onError`, `onResponse`.

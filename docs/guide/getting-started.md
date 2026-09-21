@@ -93,10 +93,11 @@ use Tueen\Telegram\Types\Update;
 
 // Run the bot using the configured running mode
 $telegram->run(function (Update $update) use ($telegram) {
-    if ($update->message) {
+    $message = $update->findMessage();
+    if ($message !== null) {
         $telegram->sendMessage(
-            chatId: $update->message->chat->id,
-            text: "Received: {$update->message->getText()}"
+            chatId: $message->chat->id,
+            text: "Received: {$message->findAnyText()}"
         );
     }
 });

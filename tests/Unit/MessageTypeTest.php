@@ -162,4 +162,46 @@ class MessageTypeTest extends TestCase
         $this->assertSame(MessageType::GIFT, $message->type);
         $this->assertTrue($message->isType(MessageType::GIFT));
     }
+
+    public function testFindAnyTextWithTextCaptionAndRichMessage(): void
+    {
+        // 1. Text message
+        $textMsg = new Message(['message_id' => 10, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private'], 'text' => 'Hello Text']);
+        $this->assertSame('Hello Text', $textMsg->findAnyText());
+        $this->assertSame('Hello Text', $textMsg->findText());
+
+        // 2. Caption message
+        $captionMsg = new Message(['message_id' => 11, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private'], 'caption' => 'Photo Caption']);
+        $this->assertSame('Photo Caption', $captionMsg->findAnyText());
+        $this->assertSame('Photo Caption', $captionMsg->findText());
+
+        // 3. Rich formatted message
+        $richMsg = new Message([
+            'message_id' => 12,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'rich_message' => [
+                'blocks' => [
+                    [
+                        'type' => 'paragraph',
+                        'text' => [
+                            'type' => 'bold',
+                            'text' => 'Welcome to Tueen',
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'text' => 'Enjoy modern PHP.',
+                    ],
+                ],
+            ],
+        ]);
+        $this->assertSame("Welcome to Tueen\nEnjoy modern PHP.", $richMsg->findAnyText());
+        $this->assertSame("Welcome to Tueen\nEnjoy modern PHP.", $richMsg->findText());
+
+        // 4. Message without any text
+        $emptyMsg = new Message(['message_id' => 13, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private']]);
+        $this->assertNull($emptyMsg->findAnyText());
+        $this->assertNull($emptyMsg->findText());
+    }
 }

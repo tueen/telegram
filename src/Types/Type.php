@@ -135,6 +135,9 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
                 if (is_array($value)) {
                     return self::factory($className, $value);
                 }
+                if (is_string($value) && ($className === RichText::class || is_subclass_of($className, RichText::class))) {
+                    return new RichText(['text' => $value]);
+                }
             }
         }
 

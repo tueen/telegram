@@ -120,11 +120,83 @@ trait HasMessageHelpers
     }
 
     /**
-     * Returns the text or caption of the message.
+     * Smart text finder. Returns text, caption, or extracted text from rich formatted message blocks.
+     */
+    public function findAnyText(): ?string
+    {
+        if ($this->text !== null && $this->text !== '') {
+            return $this->text;
+        }
+
+        if ($this->caption !== null && $this->caption !== '') {
+            return $this->caption;
+        }
+
+        if (isset($this->richMessage) && $this->richMessage !== null) {
+            $richText = $this->extractPlainTextFromRich($this->richMessage);
+            if ($richText !== null && $richText !== '') {
+                return $richText;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Alias for findAnyText().
+     */
+    public function findText(): ?string
+    {
+        return $this->findAnyText();
+    }
+
+    /**
+     * Returns the text or caption of the message (backward-compatible alias).
      */
     public function getText(): ?string
     {
-        return $this->text ?? $this->caption ?? null;
+        return $this->findAnyText();
+    }
+
+    /**
+     * Recursively extracts plain text from rich message blocks and rich text nodes.
+     */
+    private function extractPlainTextFromRich(mixed $node, bool $isBlockLevel = false): ?string
+    {
+        if ($node === null) {
+            return null;
+        }
+
+        if (is_string($node)) {
+            return $node;
+        }
+
+        if (is_array($node)) {
+            $parts = [];
+            foreach ($node as $item) {
+                $extracted = $this->extractPlainTextFromRich($item, false);
+                if ($extracted !== null && $extracted !== '') {
+                    $parts[] = $extracted;
+                }
+            }
+            return empty($parts) ? null : implode($isBlockLevel ? "\n" : '', $parts);
+        }
+
+        if (is_object($node)) {
+            if (isset($node->blocks) && is_array($node->blocks)) {
+                return $this->extractPlainTextFromRich($node->blocks, true);
+            }
+
+            if (isset($node->text)) {
+                return $this->extractPlainTextFromRich($node->text, false);
+            }
+
+            if (isset($node->caption)) {
+                return $this->extractPlainTextFromRich($node->caption, false);
+            }
+        }
+
+        return null;
     }
 
     /**

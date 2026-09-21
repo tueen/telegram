@@ -25,21 +25,22 @@ if ($update->isType(UpdateType::CALLBACK_QUERY)) {
 }
 ```
 
-### Smart Extractors on `Update`
-Regardless of whether an update is a standard message, edited message, channel post, or callback query button click, smart extractors pull out the relevant models:
+### Smart In-Memory Finders on `Update`
+Unlike a direct property (such as `$update->message` which is only present on standard messages), smart finder methods search across all branches of the incoming update payload (including edited messages, channel posts, callback queries, and business messages):
 
 ```php
-// 1. Get the primary Message (from message, editedMessage, channelPost, callbackQuery->message, etc.)
-$message = $update->getMessage();
+// 1. Find the primary Message (from message, editedMessage, channelPost, callbackQuery->message, etc.)
+$message = $update->findMessage();
 
-// 2. Get the acting User (from message, callbackQuery, inlineQuery, myChatMember, etc.)
-$user = $update->getUser();
+// 2. Find the acting User (from message, callbackQuery, inlineQuery, myChatMember, etc.)
+$user = $update->findUser();
 echo "From: {$user?->firstName} (@{$user?->username})\n";
 
-// 3. Get the destination Chat (from message, channelPost, callbackQuery, chatMember, etc.)
-$chat = $update->getChat();
+// 3. Find the destination Chat (from message, channelPost, callbackQuery, chatMember, etc.)
+$chat = $update->findChat();
 echo "Chat ID: {$chat?->id}\n";
 ```
+*(Note: `getMessage()`, `getUser()`, and `getChat()` are also supported as backward-compatible aliases).*
 
 ---
 
@@ -109,12 +110,16 @@ if ($message->isCommand()) {
 }
 ```
 
-### Getting Unified Text or Caption
-Media messages (photos, videos, documents) in Telegram store their text under `caption`, while standard messages use `text`.
+### Extracting Any Text, Caption, or Rich Text (`findAnyText`)
+In Telegram, text content can appear across different fields:
+- Standard text messages use `text`
+- Media messages (photos, videos, documents) use `caption`
+- Rich formatted messages use `rich_message` with structured blocks
 
-Use `$message->getText()` to retrieve whichever is present:
+Use `$message->findAnyText()` (or its alias `$message->findText()`) to retrieve whatever text content exists:
 
 ```php
-// Returns $message->text ?? $message->caption ?? null
-$text = $message->getText();
+// Returns text, caption, or extracted text from rich message blocks (or null)
+$text = $message->findAnyText();
 ```
+*(Note: `$message->getText()` is also supported as a backward-compatible alias).*

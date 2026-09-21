@@ -39,17 +39,20 @@ class UpdateTypeTest extends TestCase
         $this->assertTrue($update->isType(UpdateType::MESSAGE));
         $this->assertFalse($update->isType(UpdateType::CALLBACK_QUERY));
 
-        $msg = $update->getMessage();
+        $msg = $update->findMessage();
         $this->assertInstanceOf(Message::class, $msg);
         $this->assertSame(50, $msg->messageId);
+        $this->assertSame($msg, $update->getMessage());
 
-        $user = $update->getUser();
+        $user = $update->findUser();
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame(999, $user->id);
+        $this->assertSame($user, $update->getUser());
 
-        $chat = $update->getChat();
+        $chat = $update->findChat();
         $this->assertInstanceOf(Chat::class, $chat);
         $this->assertSame(12345, $chat->id);
+        $this->assertSame($chat, $update->getChat());
     }
 
     public function testCallbackQueryUpdateTypeAndSmartResolvers(): void

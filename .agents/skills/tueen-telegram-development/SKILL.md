@@ -50,8 +50,8 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 
 ### 6. Update & Message Helpers
 - Leverage PHP 8.4 property hooks for `$update->type` (`UpdateType`) and `$message->type` (`MessageType`).
-- Provide smart extractors: `$update->getMessage()`, `$update->getUser()`, `$update->getChat()`.
-- Provide command extractors: `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`, `$message->getText()`.
+- Provide smart in-memory finders: `$update->findMessage()`, `$update->findUser()`, `$update->findChat()`.
+- Provide content & command extractors: `$message->findAnyText()`, `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`.
 
 ### 7. Documentation & Knowledge Synchronization (Mandatory Rule)
 - Whenever any feature, class, enum, or configuration option is added or modified:

@@ -71,9 +71,9 @@ trait HasUpdateHelpers
     }
 
     /**
-     * Smart message resolver. Returns the primary message from any update flavor.
+     * Smart message finder. Returns the primary message from any update kind.
      */
-    public function getMessage(): ?Message
+    public function findMessage(): ?Message
     {
         $msg = $this->message
             ?? $this->editedMessage
@@ -88,9 +88,9 @@ trait HasUpdateHelpers
     }
 
     /**
-     * Smart user resolver. Extracts the acting User from any update kind.
+     * Smart user finder. Extracts the acting User from any update kind.
      */
-    public function getUser(): ?User
+    public function findUser(): ?User
     {
         $user = $this->message?->from
             ?? $this->editedMessage?->from
@@ -113,9 +113,9 @@ trait HasUpdateHelpers
     }
 
     /**
-     * Smart chat resolver. Extracts the target Chat from any update kind.
+     * Smart chat finder. Extracts the target Chat from any update kind.
      */
-    public function getChat(): ?Chat
+    public function findChat(): ?Chat
     {
         $chat = $this->message?->chat
             ?? $this->editedMessage?->chat
@@ -133,5 +133,29 @@ trait HasUpdateHelpers
             ?? null;
 
         return $chat instanceof Chat ? $chat : null;
+    }
+
+    /**
+     * @deprecated Use findMessage() instead.
+     */
+    public function getMessage(): ?Message
+    {
+        return $this->findMessage();
+    }
+
+    /**
+     * @deprecated Use findUser() instead.
+     */
+    public function getUser(): ?User
+    {
+        return $this->findUser();
+    }
+
+    /**
+     * @deprecated Use findChat() instead.
+     */
+    public function getChat(): ?Chat
+    {
+        return $this->findChat();
     }
 }
