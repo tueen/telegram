@@ -63,11 +63,20 @@ trait HasUpdateHelpers
     }
 
     /**
-     * Checks if this update matches a specific type.
+     * Checks if this update matches any of the given update types.
      */
-    public function isType(UpdateType $type): bool
+    public function isType(UpdateType|string ...$types): bool
     {
-        return $this->type === $type;
+        foreach ($types as $type) {
+            if ($type instanceof UpdateType && $this->type === $type) {
+                return true;
+            }
+            if (is_string($type) && $this->type->value === $type) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -133,6 +142,54 @@ trait HasUpdateHelpers
             ?? null;
 
         return $chat instanceof Chat ? $chat : null;
+    }
+
+    /**
+     * Smart user ID finder. Extracts the acting user's ID from any update kind.
+     */
+    public function findUserId(): ?int
+    {
+        return $this->findUser()?->id;
+    }
+
+    /**
+     * Smart chat ID finder. Extracts the target chat's ID from any update kind.
+     */
+    public function findChatId(): ?int
+    {
+        return $this->findChat()?->id;
+    }
+
+    /**
+     * Smart message ID finder. Extracts the primary message's ID from any update kind.
+     */
+    public function findMessageId(): ?int
+    {
+        return $this->findMessage()?->messageId;
+    }
+
+    /**
+     * @deprecated Use findUserId() instead.
+     */
+    public function getUserId(): ?int
+    {
+        return $this->findUserId();
+    }
+
+    /**
+     * @deprecated Use findChatId() instead.
+     */
+    public function getChatId(): ?int
+    {
+        return $this->findChatId();
+    }
+
+    /**
+     * @deprecated Use findMessageId() instead.
+     */
+    public function getMessageId(): ?int
+    {
+        return $this->findMessageId();
     }
 
     /**

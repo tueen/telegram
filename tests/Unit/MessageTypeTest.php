@@ -204,4 +204,85 @@ class MessageTypeTest extends TestCase
         $this->assertNull($emptyMsg->findAnyText());
         $this->assertNull($emptyMsg->findText());
     }
+
+    public function testVariadicIsTypeAndIsMessage(): void
+    {
+        $message = new Message(['message_id' => 14, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private'], 'text' => 'Testing']);
+
+        $this->assertTrue($message->isType(MessageType::PHOTO, MessageType::TEXT));
+        $this->assertTrue($message->isType('photo', 'text'));
+        $this->assertFalse($message->isType(MessageType::AUDIO, MessageType::VIDEO));
+
+        $this->assertTrue($message->isMessage());
+        $this->assertTrue($message->isMessage(MessageType::TEXT));
+        $this->assertTrue($message->isMessage('text'));
+        $this->assertFalse($message->isMessage(MessageType::VOICE));
+    }
+
+    public function testIsRepliedToMessage(): void
+    {
+        $original = new Message(['message_id' => 100, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private'], 'text' => 'Original']);
+
+        $reply = new Message([
+            'message_id' => 101,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'text' => 'Reply message',
+            'reply_to_message' => [
+                'message_id' => 100,
+                'date' => 1700000000,
+                'chat' => ['id' => 1, 'type' => 'private'],
+                'text' => 'Original',
+            ],
+        ]);
+
+        $this->assertTrue($reply->isRepliedToMessage());
+        $this->assertTrue($reply->isRepliedToMessage(100));
+        $this->assertTrue($reply->isRepliedToMessage($original));
+        $this->assertFalse($reply->isRepliedToMessage(999));
+
+        $nonReply = new Message(['message_id' => 102, 'date' => 1700000000, 'chat' => ['id' => 1, 'type' => 'private'], 'text' => 'No reply']);
+        $this->assertFalse($nonReply->isRepliedToMessage());
+        $this->assertFalse($nonReply->isRepliedToMessage(100));
+    }
+
+    public function testChatAndUserFullNameProperty(): void
+    {
+        // 1. Group / Channel Chat with Title
+        $groupChat = new \Tueen\Telegram\Types\Chat([
+            'id' => -100123,
+            'type' => 'supergroup',
+            'title' => 'Vue & PHP Enthusiasts',
+        ]);
+        $this->assertSame('Vue & PHP Enthusiasts', $groupChat->fullName);
+        $this->assertSame('Vue & PHP Enthusiasts', $groupChat->getFullName());
+
+        // 2. Private Chat with First and Last Name
+        $privateChat = new \Tueen\Telegram\Types\Chat([
+            'id' => 555,
+            'type' => 'private',
+            'first_name' => 'Elsiom',
+            'last_name' => 'Dev',
+        ]);
+        $this->assertSame('Elsiom Dev', $privateChat->fullName);
+        $this->assertSame('Elsiom Dev', $privateChat->getFullName());
+
+        // 3. Private Chat with only First Name
+        $singleNameChat = new \Tueen\Telegram\Types\Chat([
+            'id' => 556,
+            'type' => 'private',
+            'first_name' => 'Queen',
+        ]);
+        $this->assertSame('Queen', $singleNameChat->fullName);
+
+        // 4. User Full Name
+        $user = new \Tueen\Telegram\Types\User([
+            'id' => 777,
+            'is_bot' => false,
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+        ]);
+        $this->assertSame('Jane Doe', $user->fullName);
+        $this->assertSame('Jane Doe', $user->getFullName());
+    }
 }

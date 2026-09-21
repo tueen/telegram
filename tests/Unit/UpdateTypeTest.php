@@ -53,6 +53,17 @@ class UpdateTypeTest extends TestCase
         $this->assertInstanceOf(Chat::class, $chat);
         $this->assertSame(12345, $chat->id);
         $this->assertSame($chat, $update->getChat());
+
+        // Test ID finders
+        $this->assertSame(50, $update->findMessageId());
+        $this->assertSame(999, $update->findUserId());
+        $this->assertSame(12345, $update->findChatId());
+
+        // Test variadic isType
+        $this->assertTrue($update->isType(UpdateType::CALLBACK_QUERY, UpdateType::MESSAGE));
+        $this->assertTrue($update->isType('callback_query', 'message'));
+        $this->assertFalse($update->isType(UpdateType::INLINE_QUERY, UpdateType::POLL));
+        $this->assertFalse($update->isType('inline_query', 'poll'));
     }
 
     public function testCallbackQueryUpdateTypeAndSmartResolvers(): void

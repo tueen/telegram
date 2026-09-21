@@ -115,6 +115,12 @@ class CodeGenerator
         } elseif ($name === 'Message') {
             $imports[] = 'Tueen\Telegram\Types\Concerns\HasMessageHelpers';
             $traitStatement = "    use HasMessageHelpers;\n\n";
+        } elseif ($name === 'Chat' || $name === 'ChatFullInfo') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasChatHelpers';
+            $traitStatement = "    use HasChatHelpers;\n\n";
+        } elseif ($name === 'User') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasUserHelpers';
+            $traitStatement = "    use HasUserHelpers;\n\n";
         }
 
         // Filter out same-namespace imports (anything directly in Tueen\Telegram\Types\)

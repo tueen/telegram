@@ -1,92 +1,123 @@
 # Update & Message Helpers
 
-`tueen/telegram` provides helper methods and computed properties on `Update` and `Message` objects to simplify handling incoming events and eliminate boilerplate null checks.
+`tueen/telegram` provides helper methods and computed properties on `Update`, `Message`, `Chat`, and `User` objects to simplify event processing and eliminate boilerplate null checks.
 
 ---
 
-## 1. Update Types (`UpdateType`)
+## 1. Update Helpers (`Update`)
 
-Telegram updates can represent various events, such as messages, callback queries, channel posts, or reaction changes.
-
-### Automatic Type Detection
-The `Update` object exposes a computed `$type` property:
+### Checking Update Types (`isType`)
+The `Update` object exposes a `$type` property and a variadic `isType` method that accepts multiple enums or string names:
 
 ```php
 use Tueen\Telegram\Enums\UpdateType;
 
-// Check update type directly:
+// Check single type:
 if ($update->type === UpdateType::MESSAGE) {
     // Normal user message
 }
 
-// Or use the fluent helper:
-if ($update->isType(UpdateType::CALLBACK_QUERY)) {
-    // Inline keyboard button click
+// Check against multiple types at once:
+if ($update->isType(UpdateType::MESSAGE, UpdateType::EDITED_MESSAGE)) {
+    // Message or edited message
+}
+
+// Check by string values:
+if ($update->isType('callback_query', 'message')) {
+    // Matches callback_query or message
 }
 ```
 
-### Smart In-Memory Finders on `Update`
-Unlike a direct property (such as `$update->message` which is only present on standard messages), smart finder methods search across all branches of the incoming update payload (including edited messages, channel posts, callback queries, and business messages):
+### Smart In-Memory Model Finders
+Unlike direct properties (such as `$update->message` which is only set on standard messages), smart finders search across all branches of the incoming update payload (including edited messages, channel posts, callback queries, and business messages):
 
 ```php
-// 1. Find the primary Message (from message, editedMessage, channelPost, callbackQuery->message, etc.)
+// 1. Find the primary Message:
 $message = $update->findMessage();
 
-// 2. Find the acting User (from message, callbackQuery, inlineQuery, myChatMember, etc.)
+// 2. Find the acting User:
 $user = $update->findUser();
-echo "From: {$user?->firstName} (@{$user?->username})\n";
+echo "User: {$user?->fullName} (@{$user?->username})\n";
 
-// 3. Find the destination Chat (from message, channelPost, callbackQuery, chatMember, etc.)
+// 3. Find the target Chat:
 $chat = $update->findChat();
-echo "Chat ID: {$chat?->id}\n";
+echo "Chat: {$chat?->fullName} (ID: {$chat?->id})\n";
 ```
 *(Note: `getMessage()`, `getUser()`, and `getChat()` are also supported as backward-compatible aliases).*
 
+### ID Shortcut Finders
+Quickly extract IDs directly from the update without chaining null-safe calls:
+
+```php
+$userId    = $update->findUserId();    // Returns ?int
+$chatId    = $update->findChatId();    // Returns ?int
+$messageId = $update->findMessageId(); // Returns ?int
+```
+
 ---
 
-## 2. Message Types (`MessageType`)
+## 2. Message Helpers (`Message`)
 
-A `Message` in Telegram can contain various forms of media, system notifications, or text.
-
-### Automatic Content Detection
-The `Message` object detects its content type automatically:
+### Checking Message Types (`isType` & `isMessage`)
+Check message contents using property hooks or the variadic `isType` / `isMessage` helpers:
 
 ```php
 use Tueen\Telegram\Enums\MessageType;
 
-// Direct property hook:
-switch ($message->type) {
-    case MessageType::TEXT:
-        // Plain text or command
-        break;
-    case MessageType::PHOTO:
-        // Photo attachment
-        break;
-    case MessageType::VOICE:
-        // Voice note
-        break;
-    case MessageType::RICH_MESSAGE:
-        // Formatted rich text block
-        break;
-    case MessageType::PINNED_MESSAGE:
-        // A message was pinned
-        break;
+// Direct property:
+if ($message->type === MessageType::TEXT) {
+    // Plain text
 }
 
-// Or via isType:
-if ($message->isType(MessageType::STICKER)) {
-    $stickerId = $message->sticker->fileId;
+// Variadic check for multiple message types:
+if ($message->isMessage(MessageType::TEXT, MessageType::PHOTO, MessageType::DOCUMENT)) {
+    // Message has text, photo, or document
+}
+
+// Check by string names:
+if ($message->isType('photo', 'video')) {
+    // Media message
 }
 ```
 
----
-
-## 3. Bot Command Parsing
-
-`Message` provides built-in command parsing utilities:
+### Checking Replies (`isRepliedToMessage`)
+Determine whether a message is a reply to another message, or specifically a reply to a particular message ID or object:
 
 ```php
-// Checks if message starts with '/'
+// Check if message is a reply to any message:
+if ($message->isRepliedToMessage()) {
+    echo "This is a reply to message #{$message->replyToMessage?->messageId}\n";
+}
+
+// Check if message is a reply to a specific message ID:
+if ($message->isRepliedToMessage(12345)) {
+    echo "User replied specifically to message #12345\n";
+}
+
+// Check if message is a reply to a specific Message object:
+if ($message->isRepliedToMessage($promptMessage)) {
+    echo "User replied to the prompt message\n";
+}
+```
+
+### Extracting Any Text, Caption, or Rich Text (`findAnyText`)
+Text content in Telegram can reside in several places:
+- Standard messages use `text`
+- Media messages (photos, videos, documents) use `caption`
+- Formatted rich messages use `rich_message` with structured blocks
+
+Use `$message->findAnyText()` (or `$message->findText()`) to retrieve whatever text content is present:
+
+```php
+// Returns text, caption, or recursively extracted text from rich message blocks (or null)
+$text = $message->findAnyText();
+```
+*(Note: `$message->getText()` is also supported as a backward-compatible alias).*
+
+### Bot Command Parsing
+Extract commands and their arguments with built-in parsers:
+
+```php
 if ($message->isCommand()) {
     // Extract clean command name (strips slash and @botusername)
     // E.g. '/ban@my_bot 123 spam' -> 'ban'
@@ -110,16 +141,17 @@ if ($message->isCommand()) {
 }
 ```
 
-### Extracting Any Text, Caption, or Rich Text (`findAnyText`)
-In Telegram, text content can appear across different fields:
-- Standard text messages use `text`
-- Media messages (photos, videos, documents) use `caption`
-- Rich formatted messages use `rich_message` with structured blocks
+---
 
-Use `$message->findAnyText()` (or its alias `$message->findText()`) to retrieve whatever text content exists:
+## 3. Chat & User Helpers
+
+### Automatic `fullName`
+`Chat` and `User` models provide an automatic `$fullName` property:
 
 ```php
-// Returns text, caption, or extracted text from rich message blocks (or null)
-$text = $message->findAnyText();
+// On Chat: Returns title for groups/channels, or "first_name last_name" for private chats
+echo $chat->fullName;
+
+// On User: Returns "first_name last_name" (or just first_name)
+echo $user->fullName;
 ```
-*(Note: `$message->getText()` is also supported as a backward-compatible alias).*

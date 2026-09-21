@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ChatType;
+use Tueen\Telegram\Types\Concerns\HasChatHelpers;
 
 /**
  * This object represents a chat.
@@ -15,6 +16,8 @@ use Tueen\Telegram\Enums\ChatType;
  */
 class Chat extends Type
 {
+    use HasChatHelpers;
+
     /**
      * Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
      */

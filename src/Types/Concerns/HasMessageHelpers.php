@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Types\Concerns;
 
 use Tueen\Telegram\Enums\MessageType;
+use Tueen\Telegram\Types\Message;
 
 trait HasMessageHelpers
 {
@@ -112,11 +113,50 @@ trait HasMessageHelpers
     }
 
     /**
-     * Checks if this message matches a specific type.
+     * Checks if this message matches any of the given message types.
      */
-    public function isType(MessageType $type): bool
+    public function isType(MessageType|string ...$types): bool
     {
-        return $this->type === $type;
+        foreach ($types as $type) {
+            if ($type instanceof MessageType && $this->type === $type) {
+                return true;
+            }
+            if (is_string($type) && $this->type->value === $type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if this message matches any of the given message types (alias for isType).
+     */
+    public function isMessage(MessageType|string ...$types): bool
+    {
+        if (empty($types)) {
+            return true;
+        }
+
+        return $this->isType(...$types);
+    }
+
+    /**
+     * Checks if this message is a reply to another message.
+     * If an ID or Message object is provided, checks if it specifically replies to that message.
+     *
+     * @param int|Message|null $messageId Optional specific message ID or Message object to verify
+     */
+    public function isRepliedToMessage(int|Message|null $messageId = null): bool
+    {
+        $targetId = $messageId instanceof Message ? $messageId->messageId : $messageId;
+        $repliedId = $this->replyToMessage?->messageId ?? $this->externalReply?->messageId;
+
+        if ($targetId === null) {
+            return $repliedId !== null;
+        }
+
+        return $repliedId === $targetId;
     }
 
     /**
