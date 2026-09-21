@@ -23,24 +23,13 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       ]
     },
     {
-      text: 'Interactive Features & UI',
+      text: 'Client Features',
       items: [
         { text: 'Calling Methods & Types', link: `${basePath}methods-and-types` },
-        { text: 'Keyboards & Interactive UI', link: `${basePath}keyboards` },
-        { text: 'Inline Queries & Mode', link: `${basePath}inline-queries` },
-        { text: 'Commands & Bot Settings', link: `${basePath}commands-and-bot-settings` },
         { text: 'File Upload & Download', link: `${basePath}file-upload-download` },
-        { text: 'Payments & Telegram Stars', link: `${basePath}payments-and-stars` },
-        { text: 'Chat & Forum Moderation', link: `${basePath}chat-and-forum-moderation` },
-      ]
-    },
-    {
-      text: 'Architecture & Reference',
-      items: [
         { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
         { text: 'Pipeline & Middlewares', link: `${basePath}pipeline-middleware` },
         { text: 'Enums Reference', link: `${basePath}enums` },
-        { text: 'Schema & Code Generator', link: `${basePath}generator` },
       ]
     }
   ]

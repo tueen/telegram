@@ -52,6 +52,48 @@ $message = $telegram->sendMessage(
 );
 ```
 
+### 4. Passing Complex & Nested Types (Objects or Arrays)
+
+Methods that accept complex structures (such as `reply_markup`, `link_preview_options`, or `reply_parameters`) accept both **strongly-typed Type objects** and **associative arrays**:
+
+#### A. Using Strongly-Typed Type Objects
+```php
+use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\InlineKeyboardButton;
+use Tueen\Telegram\Types\LinkPreviewOptions;
+
+$telegram->sendMessage(
+    chatId: 123456,
+    text: "Check out Tueen:",
+    replyMarkup: new InlineKeyboardMarkup(
+        inlineKeyboard: [
+            [
+                new InlineKeyboardButton(text: '🌐 Website', url: 'https://tueen.dev'),
+                new InlineKeyboardButton(text: '⭐ GitHub', url: 'https://github.com/tueen/telegram'),
+            ]
+        ]
+    ),
+    linkPreviewOptions: new LinkPreviewOptions(isDisabled: true)
+);
+```
+
+#### B. Using Structured Arrays
+You can also pass arrays; the library automatically normalizes, converts nested objects/enums, and serializes them:
+```php
+$telegram->sendMessage(
+    chatId: 123456,
+    text: "Choose an option:",
+    replyMarkup: [
+        'inline_keyboard' => [
+            [
+                ['text' => 'Option 1', 'callback_data' => 'opt_1'],
+                ['text' => 'Option 2', 'callback_data' => 'opt_2'],
+            ]
+        ]
+    ]
+);
+```
+
 ---
 
 ## Types & Property Access
