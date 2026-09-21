@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Methods;
+
+use Tueen\Telegram\Methods\Method;
+use Tueen\Telegram\Attributes\ApiMethod;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Attributes\Field;
+
+/**
+ * Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success.
+ *
+ * @link https://core.telegram.org/bots/api#setchatstickerset
+ */
+#[ApiMethod('setChatStickerSet', 'POST')]
+#[ReturnType(Type::class, isArray: false)]
+class SetChatStickerSet extends Method
+{
+    /**
+     * Unique identifier for the target chat or username of the target supergroup in the format @username
+     */
+    #[Field('chat_id', required: true)]
+    public int|string $chatId;
+
+    /**
+     * Name of the sticker set to be set as the group sticker set
+     */
+    #[Field('sticker_set_name', required: true)]
+    public string $stickerSetName;
+
+    public function __construct(
+        int|string $chatId,
+        string $stickerSetName
+    )
+    {
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($stickerSetName !== null) $this->stickerSetName = $stickerSetName;
+    }
+
+    public static function make(
+        int|string $chatId,
+        string $stickerSetName
+    ): static
+    {
+        return new static($chatId, $stickerSetName);
+    }
+}

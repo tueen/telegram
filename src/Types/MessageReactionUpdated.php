@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Types\Chat;
+use Tueen\Telegram\Types\User;
+use Tueen\Telegram\Types\ReactionType;
+
+/**
+ * This object represents a change of a reaction on a message performed by a user.
+ *
+ * @link https://core.telegram.org/bots/api#messagereactionupdated
+ */
+class MessageReactionUpdated extends Type
+{
+    /**
+     * The chat containing the message the user reacted to
+     */
+    #[Field('chat', required: true)]
+    public private(set) Chat $chat;
+
+    /**
+     * Unique identifier of the message inside the chat
+     */
+    #[Field('message_id', required: true)]
+    public private(set) int $messageId;
+
+    /**
+     * Optional. The user that changed the reaction, if the user isn't anonymous
+     */
+    #[Field('user', required: false)]
+    public private(set) ?User $user = null;
+
+    /**
+     * Optional. The chat on behalf of which the reaction was changed, if the user is anonymous
+     */
+    #[Field('actor_chat', required: false)]
+    public private(set) ?Chat $actorChat = null;
+
+    /**
+     * Date of the change in Unix time
+     */
+    #[Field('date', required: true)]
+    public private(set) int $date;
+
+    /**
+     * Previous list of reaction types that were set by the user
+     * @var ReactionType[]|null
+     */
+    #[Field('old_reaction', required: true)]
+    #[ArrayOf(ReactionType::class)]
+    public private(set) array $oldReaction;
+
+    /**
+     * New list of reaction types that have been set by the user
+     * @var ReactionType[]|null
+     */
+    #[Field('new_reaction', required: true)]
+    #[ArrayOf(ReactionType::class)]
+    public private(set) array $newReaction;
+
+}

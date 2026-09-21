@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Methods;
+
+use Tueen\Telegram\Methods\Method;
+use Tueen\Telegram\Attributes\ApiMethod;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Attributes\Field;
+
+/**
+ * Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
+ *
+ * @link https://core.telegram.org/bots/api#setchatdescription
+ */
+#[ApiMethod('setChatDescription', 'POST')]
+#[ReturnType(Type::class, isArray: false)]
+class SetChatDescription extends Method
+{
+    /**
+     * Unique identifier for the target chat or username of the target channel in the format @username
+     */
+    #[Field('chat_id', required: true)]
+    public int|string $chatId;
+
+    /**
+     * New chat description, 0-255 characters
+     */
+    #[Field('description', required: false)]
+    public ?string $description = null;
+
+    public function __construct(
+        int|string $chatId,
+        ?string $description = null
+    )
+    {
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($description !== null) $this->description = $description;
+    }
+
+    public static function make(
+        int|string $chatId,
+        ?string $description = null
+    ): static
+    {
+        return new static($chatId, $description);
+    }
+}

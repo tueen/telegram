@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Pipeline;
+
+use Tueen\Telegram\Client\Request;
+use Tueen\Telegram\Client\Response;
+use Tueen\Telegram\Config;
+use Tueen\Telegram\Exceptions\NetworkException;
+
+class RetryMiddleware implements MiddlewareInterface
+{
+    public function __construct(
+        private readonly int $maxRetries = 3
+    ) {}
+
+    public function handle(Request $request, Config $config, callable $next): Response
+    {
+        $attempts = 0;
+        $max = max(1, $this->maxRetries ?: $config->retryCount);
+
+        while (true) {
+            $attempts++;
+            try {
+                $response = $next($request, $config);
+
+                // Check for 429 Too Many Requests
+                if ($response->getErrorCode() === 429 && $attempts < $max) {
+                    $retryAfter = (int)($response->getParameters()['retry_after'] ?? 1);
+                    sleep(min($retryAfter, 10));
+                    continue;
+                }
+
+                return $response;
+            } catch (NetworkException $e) {
+                if ($attempts >= $max) {
+                    throw $e;
+                }
+                usleep(500000 * $attempts); // 0.5s exponential backoff
+            }
+        }
+    }
+}

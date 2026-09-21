@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+
+/**
+ * Describes an inline message sent by a guest bot.
+ *
+ * @link https://core.telegram.org/bots/api#sentguestmessage
+ */
+class SentGuestMessage extends Type
+{
+    /**
+     * Identifier of the sent inline message
+     */
+    #[Field('inline_message_id', required: true)]
+    public private(set) string $inlineMessageId;
+
+}

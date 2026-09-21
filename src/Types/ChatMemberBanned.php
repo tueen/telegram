@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Types\User;
+
+/**
+ * Represents a chat member that was banned in the chat and can't return to the chat or view chat messages.
+ *
+ * @link https://core.telegram.org/bots/api#chatmemberbanned
+ */
+class ChatMemberBanned extends ChatMember
+{
+    /**
+     * The member's status in the chat, always "kicked"
+     */
+    #[Field('status', required: true)]
+    public private(set) string $status;
+
+    /**
+     * Information about the user
+     */
+    #[Field('user', required: true)]
+    public private(set) User $user;
+
+    /**
+     * Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
+     */
+    #[Field('until_date', required: true)]
+    public private(set) int $untilDate;
+
+}

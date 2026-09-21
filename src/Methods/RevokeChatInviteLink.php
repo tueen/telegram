@@ -1,0 +1,50 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Methods;
+
+use Tueen\Telegram\Methods\Method;
+use Tueen\Telegram\Attributes\ApiMethod;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\ChatInviteLink;
+
+/**
+ * Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object.
+ *
+ * @link https://core.telegram.org/bots/api#revokechatinvitelink
+ */
+#[ApiMethod('revokeChatInviteLink', 'POST')]
+#[ReturnType(ChatInviteLink::class, isArray: false)]
+class RevokeChatInviteLink extends Method
+{
+    /**
+     * Unique identifier of the target chat or username of the target channel in the format @username
+     */
+    #[Field('chat_id', required: true)]
+    public int|string $chatId;
+
+    /**
+     * The invite link to revoke
+     */
+    #[Field('invite_link', required: true)]
+    public string $inviteLink;
+
+    public function __construct(
+        int|string $chatId,
+        string $inviteLink
+    )
+    {
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
+    }
+
+    public static function make(
+        int|string $chatId,
+        string $inviteLink
+    ): static
+    {
+        return new static($chatId, $inviteLink);
+    }
+}

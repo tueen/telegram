@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Types\User;
+
+/**
+ * This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot.
+ *
+ * @link https://core.telegram.org/bots/api#managedbotupdated
+ */
+class ManagedBotUpdated extends Type
+{
+    /**
+     * User that created the bot
+     */
+    #[Field('user', required: true)]
+    public private(set) User $user;
+
+    /**
+     * Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
+     */
+    #[Field('bot', required: true)]
+    public private(set) User $bot;
+
+}

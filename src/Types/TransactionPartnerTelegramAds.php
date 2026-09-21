@@ -1,0 +1,24 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+
+/**
+ * Describes a withdrawal transaction to the Telegram Ads platform.
+ *
+ * @link https://core.telegram.org/bots/api#transactionpartnertelegramads
+ */
+class TransactionPartnerTelegramAds extends TransactionPartner
+{
+    /**
+     * Type of the transaction partner, always "telegram_ads"
+     */
+    #[Field('type', required: true)]
+    public private(set) string $type;
+
+}

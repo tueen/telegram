@@ -1,0 +1,55 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+use Tueen\Telegram\Types\Type;
+use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Types\PhotoSize;
+
+/**
+ * This object represents a video message.
+ *
+ * @link https://core.telegram.org/bots/api#videonote
+ */
+class VideoNote extends Type
+{
+    /**
+     * Identifier for this file, which can be used to download or reuse the file
+     */
+    #[Field('file_id', required: true)]
+    public private(set) string $fileId;
+
+    /**
+     * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
+     */
+    #[Field('file_unique_id', required: true)]
+    public private(set) string $fileUniqueId;
+
+    /**
+     * Video width and height (diameter of the video message) as defined by the sender
+     */
+    #[Field('length', required: true)]
+    public private(set) int $length;
+
+    /**
+     * Duration of the video in seconds as defined by the sender
+     */
+    #[Field('duration', required: true)]
+    public private(set) int $duration;
+
+    /**
+     * Optional. Video thumbnail
+     */
+    #[Field('thumbnail', required: false)]
+    public private(set) ?PhotoSize $thumbnail = null;
+
+    /**
+     * Optional. File size in bytes
+     */
+    #[Field('file_size', required: false)]
+    public private(set) ?int $fileSize = null;
+
+}

@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Methods;
+
+use Tueen\Telegram\Methods\Method;
+use Tueen\Telegram\Attributes\ApiMethod;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Attributes\Field;
+
+/**
+ * Deletes a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns True on success.
+ *
+ * @link https://core.telegram.org/bots/api#deletestory
+ */
+#[ApiMethod('deleteStory', 'POST')]
+#[ReturnType(Type::class, isArray: false)]
+class DeleteStory extends Method
+{
+    /**
+     * Unique identifier of the business connection
+     */
+    #[Field('business_connection_id', required: true)]
+    public string $businessConnectionId;
+
+    /**
+     * Unique identifier of the story to delete
+     */
+    #[Field('story_id', required: true)]
+    public int $storyId;
+
+    public function __construct(
+        string $businessConnectionId,
+        int $storyId
+    )
+    {
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($storyId !== null) $this->storyId = $storyId;
+    }
+
+    public static function make(
+        string $businessConnectionId,
+        int $storyId
+    ): static
+    {
+        return new static($businessConnectionId, $storyId);
+    }
+}
