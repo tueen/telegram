@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\BackgroundTypeType;
 use Tueen\Telegram\Types\Document;
 use Tueen\Telegram\Types\BackgroundFill;
 
@@ -21,7 +22,7 @@ class BackgroundTypePattern extends BackgroundType
      * Type of the background, always "pattern"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) BackgroundTypeType|string $type;
 
     /**
      * Document with the pattern

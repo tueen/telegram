@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\BotCommandScopeType;
 
 /**
  * Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user.
@@ -19,6 +20,6 @@ class BotCommandScopeDefault extends BotCommandScope
      * Scope type, must be default
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) BotCommandScopeType|string $type;
 
 }

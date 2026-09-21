@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StickerType;
 use Tueen\Telegram\Types\PhotoSize;
 use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\MaskPosition;
@@ -34,7 +35,7 @@ class Sticker extends Type
      * Type of the sticker, currently one of "regular", "mask", "custom_emoji". The type of the sticker is independent from its format, which is determined by the fields is_animated and is_video.
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) StickerType|string $type;
 
     /**
      * Sticker width

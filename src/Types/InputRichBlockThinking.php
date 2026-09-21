@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\InputRichBlockType;
 use Tueen\Telegram\Types\RichText;
 
 /**
@@ -20,7 +21,7 @@ class InputRichBlockThinking extends InputRichBlock
      * Type of the block, always "thinking"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) InputRichBlockType|string $type;
 
     /**
      * Text of the block. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.

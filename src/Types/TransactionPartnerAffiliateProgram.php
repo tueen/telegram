@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\TransactionPartnerType;
 use Tueen\Telegram\Types\User;
 
 /**
@@ -20,7 +21,7 @@ class TransactionPartnerAffiliateProgram extends TransactionPartner
      * Type of the transaction partner, always "affiliate_program"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) TransactionPartnerType|string $type;
 
     /**
      * Optional. Information about the bot that sponsored the affiliate program

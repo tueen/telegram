@@ -86,7 +86,7 @@ class CodeGenerator
             $required = $field['required'] ?? false;
             $fieldDesc = $field['description'] ?? '';
 
-            $phpType = $this->mapTypesToPhp($fieldTypes, $required, $imports);
+            $phpType = $this->mapTypesToPhp($name, $fieldName, $fieldTypes, $required, $imports);
             $isArray = $this->isArrayType($fieldTypes);
             $itemType = $this->extractArrayItemType($fieldTypes);
 
@@ -224,7 +224,7 @@ PHP;
                 $imports[] = 'Tueen\Telegram\Attributes\RequiresUpload';
             }
 
-            $phpType = $this->mapMethodParamType($fieldTypes, $required, $imports);
+            $phpType = $this->mapMethodParamType($methodName, $fieldName, $fieldTypes, $required, $imports);
 
             $propDoc = "    /**\n     * {$fieldDesc}\n     */";
             $attrs = [];
@@ -360,10 +360,109 @@ PHP;
         return null;
     }
 
-    private function mapTypesToPhp(array $types, bool $required, array &$imports): string
+    private function resolveEnumForMethodParam(string $methodName, string $fieldName): ?string
+    {
+        if (in_array($fieldName, ['parse_mode', 'question_parse_mode', 'explanation_parse_mode', 'description_parse_mode', 'text_parse_mode'], true)) {
+            return 'ParseMode';
+        }
+        if ($fieldName === 'currency') {
+            return 'Currency';
+        }
+        if ($fieldName === 'icon_color') {
+            return 'ForumIconColor';
+        }
+        if ($fieldName === 'active_period') {
+            return 'StoryActivePeriod';
+        }
+
+        return match ("{$methodName}.{$fieldName}") {
+            'sendChatAction.action' => 'ChatAction',
+            'sendDice.emoji' => 'DiceEmoji',
+            'sendPoll.type' => 'PollType',
+            'uploadStickerFile.sticker_format',
+            'setStickerSetThumbnail.format' => 'StickerFormat',
+            'createNewStickerSet.sticker_type' => 'StickerType',
+            'createForumTopic.icon_color' => 'ForumIconColor',
+            'postStory.active_period',
+            'repostStory.active_period' => 'StoryActivePeriod',
+            'answerChatJoinRequestQuery.result' => 'ChatJoinRequestResult',
+            default => null,
+        };
+    }
+
+    private function resolveEnumForTypeProperty(string $typeName, string $fieldName): ?string
+    {
+        if (in_array($fieldName, ['parse_mode', 'question_parse_mode', 'explanation_parse_mode', 'description_parse_mode', 'text_parse_mode'], true)) {
+            return 'ParseMode';
+        }
+        if ($fieldName === 'currency') {
+            return 'Currency';
+        }
+        if ($fieldName === 'icon_color') {
+            return 'ForumIconColor';
+        }
+        if ($fieldName === 'active_period') {
+            return 'StoryActivePeriod';
+        }
+
+        if ($typeName === 'Chat' && $fieldName === 'type') return 'ChatType';
+        if (str_starts_with($typeName, 'ChatMember') && $fieldName === 'status') return 'ChatMemberStatus';
+        if ($typeName === 'MessageEntity' && $fieldName === 'type') return 'MessageEntityType';
+        if ($typeName === 'Poll' && $fieldName === 'type') return 'PollType';
+        if ($typeName === 'Sticker' && $fieldName === 'format') return 'StickerFormat';
+        if ($typeName === 'Sticker' && $fieldName === 'type') return 'StickerType';
+        if ($typeName === 'StickerSet' && $fieldName === 'sticker_type') return 'StickerType';
+        if ($typeName === 'InputSticker' && $fieldName === 'format') return 'StickerFormat';
+        if ($typeName === 'Dice' && $fieldName === 'emoji') return 'DiceEmoji';
+        if ($typeName === 'MaskPosition' && $fieldName === 'point') return 'MaskPositionPoint';
+        if (str_starts_with($typeName, 'BotCommandScope') && $fieldName === 'type') return 'BotCommandScopeType';
+        if (str_starts_with($typeName, 'MenuButton') && $fieldName === 'type') return 'MenuButtonType';
+        if (str_starts_with($typeName, 'ReactionType') && $fieldName === 'type') return 'ReactionTypeType';
+        if (str_starts_with($typeName, 'MessageOrigin') && $fieldName === 'type') return 'MessageOriginType';
+        if (str_starts_with($typeName, 'InputMedia') && $fieldName === 'type') return 'InputMediaType';
+        if (str_starts_with($typeName, 'PaidMedia') && $fieldName === 'type') return 'PaidMediaType';
+        if (str_starts_with($typeName, 'InputPaidMedia') && $fieldName === 'type') return 'InputPaidMediaType';
+        if (str_starts_with($typeName, 'BackgroundFill') && $fieldName === 'type') return 'BackgroundFillType';
+        if (str_starts_with($typeName, 'BackgroundType') && $fieldName === 'type') return 'BackgroundTypeType';
+        if (str_starts_with($typeName, 'ChatBoostSource') && $fieldName === 'source') return 'ChatBoostSourceSource';
+        if (str_starts_with($typeName, 'StoryAreaType') && $fieldName === 'type') return 'StoryAreaTypeType';
+        if (str_starts_with($typeName, 'TransactionPartner') && $fieldName === 'type') return 'TransactionPartnerType';
+        if (str_starts_with($typeName, 'RevenueWithdrawalState') && $fieldName === 'type') return 'RevenueWithdrawalStateType';
+        if (str_starts_with($typeName, 'OwnedGift') && $fieldName === 'type') return 'OwnedGiftType';
+        if ($typeName === 'UniqueGiftInfo' && $fieldName === 'origin') return 'UniqueGiftInfoOrigin';
+        if ($typeName === 'UniqueGiftModel' && $fieldName === 'rarity') return 'UniqueGiftModelRarity';
+        if ($typeName === 'SuggestedPostInfo' && $fieldName === 'state') return 'SuggestedPostInfoState';
+        if ($typeName === 'SuggestedPostRefunded' && $fieldName === 'reason') return 'SuggestedPostRefundedReason';
+        if ($typeName === 'VideoQuality' && $fieldName === 'codec') return 'VideoQualityCodec';
+        if (str_starts_with($typeName, 'InputProfilePhoto') && $fieldName === 'type') return 'InputProfilePhotoType';
+        if (str_starts_with($typeName, 'InputStoryContent') && $fieldName === 'type') return 'InputStoryContentType';
+        if (str_starts_with($typeName, 'PassportElementError') && $fieldName === 'type') return 'PassportType';
+        if (str_starts_with($typeName, 'PassportElementError') && $fieldName === 'source') return 'PassportSource';
+        if (str_starts_with($typeName, 'InlineQueryResult') && $fieldName === 'type') return 'InlineQueryResultType';
+        if (($typeName === 'InlineKeyboardButton' || $typeName === 'KeyboardButton') && $fieldName === 'style') return 'ButtonStyle';
+        if ($typeName === 'StarSubscription' && in_array($fieldName, ['status', 'state'], true)) return 'SubscriptionState';
+        if (str_starts_with($typeName, 'InputRichBlock') && $fieldName === 'buttons_align') return 'InputRichBlockButtonsAlign';
+        if (str_starts_with($typeName, 'InputRichBlock') && $fieldName === 'type') return 'InputRichBlockType';
+        if (str_starts_with($typeName, 'RichBlock') && $fieldName === 'buttons_align') return 'RichBlockButtonsAlign';
+        if (str_starts_with($typeName, 'RichBlock') && $fieldName === 'list_item_type') return 'RichBlockListItemType';
+        if (str_starts_with($typeName, 'RichBlockTableCell') && $fieldName === 'align') return 'RichBlockTableCellAlign';
+        if (str_starts_with($typeName, 'RichBlockTableCell') && $fieldName === 'valign') return 'RichBlockTableCellValign';
+        if (str_starts_with($typeName, 'RichBlock') && $fieldName === 'type') return 'RichBlockType';
+        if (str_starts_with($typeName, 'RichText') && $fieldName === 'type') return 'RichTextType';
+
+        return null;
+    }
+
+    private function mapTypesToPhp(string $typeName, string $fieldName, array $types, bool $required, array &$imports): string
     {
         $phpTypes = [];
         $hasNull = !$required;
+
+        $enum = $this->resolveEnumForTypeProperty($typeName, $fieldName);
+        if ($enum !== null) {
+            $imports[] = "Tueen\\Telegram\\Enums\\{$enum}";
+            $phpTypes[] = $enum;
+        }
 
         foreach ($types as $t) {
             if ($t === 'Integer') {
@@ -404,9 +503,15 @@ PHP;
         return $typeStr ?: 'mixed';
     }
 
-    private function mapMethodParamType(array $types, bool $required, array &$imports): string
+    private function mapMethodParamType(string $methodName, string $fieldName, array $types, bool $required, array &$imports): string
     {
         $phpTypes = [];
+
+        $enum = $this->resolveEnumForMethodParam($methodName, $fieldName);
+        if ($enum !== null) {
+            $imports[] = "Tueen\\Telegram\\Enums\\{$enum}";
+            $phpTypes[] = $enum;
+        }
 
         foreach ($types as $t) {
             if ($t === 'Integer') {
@@ -514,7 +619,7 @@ PHP;
                     $allImports[] = 'Tueen\Telegram\Types\Custom\InputFile';
                 }
 
-                $phpType = $this->mapMethodParamType($fTypes, $required, $allImports);
+                $phpType = $this->mapMethodParamType($rawName, $field['name'], $fTypes, $required, $allImports);
 
                 $def = $required ? '' : ' = null';
                 $paramList[] = "{$phpType} \${$c}{$def}";

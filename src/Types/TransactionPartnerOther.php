@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\TransactionPartnerType;
 
 /**
  * Describes a transaction with an unknown source or recipient.
@@ -19,6 +20,6 @@ class TransactionPartnerOther extends TransactionPartner
      * Type of the transaction partner, always "other"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) TransactionPartnerType|string $type;
 
 }

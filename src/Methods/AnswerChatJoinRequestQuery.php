@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Enums\ChatJoinRequestResult;
 
 /**
  * Use this method to process a received chat join request query. Returns True on success.
@@ -29,11 +30,11 @@ class AnswerChatJoinRequestQuery extends Method
      * Result of the query. Must be either "approve" to allow the user to join the chat, "decline" to disallow the user to join the chat, or "queue" to leave the decision to other administrators.
      */
     #[Field('result', required: true)]
-    public string $result;
+    public ChatJoinRequestResult|string $result;
 
     public function __construct(
         string $chatJoinRequestQueryId,
-        string $result
+        ChatJoinRequestResult|string $result
     )
     {
         if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
@@ -42,7 +43,7 @@ class AnswerChatJoinRequestQuery extends Method
 
     public static function make(
         string $chatJoinRequestQueryId,
-        string $result
+        ChatJoinRequestResult|string $result
     ): static
     {
         return new static($chatJoinRequestQueryId, $result);

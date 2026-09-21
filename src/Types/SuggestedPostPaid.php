@@ -8,6 +8,7 @@ use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\Currency;
 use Tueen\Telegram\Types\StarAmount;
 
 /**
@@ -27,7 +28,7 @@ class SuggestedPostPaid extends Type
      * Currency in which the payment was made. Currently, one of "XTR" for Telegram Stars or "TON" for TON grams.
      */
     #[Field('currency', required: true)]
-    public private(set) string $currency;
+    public private(set) Currency|string $currency;
 
     /**
      * Optional. The amount of the currency that was received by the channel in nanograms; for payments in TON grams only

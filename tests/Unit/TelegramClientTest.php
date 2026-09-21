@@ -211,4 +211,32 @@ class TelegramClientTest extends TestCase
         $this->assertInstanceOf(Message::class, $update->message);
         $this->assertSame('/start', $update->message->text);
     }
+
+    public function testSendWithEnums(): void
+    {
+        $mockHttp = $this->createMock(HttpClientInterface::class);
+
+        $sentRequests = [];
+        $mockHttp->method('send')->willReturnCallback(function ($cfg, Request $req) use (&$sentRequests) {
+            $sentRequests[$req->endpoint] = $req->parameters;
+            return new Response(200, ['ok' => true, 'result' => true]);
+        });
+
+        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+
+        // 1. sendChatAction with ChatAction enum
+        $telegram->sendChatAction(chatId: 12345, action: \Tueen\Telegram\Enums\ChatAction::TYPING);
+        $this->assertArrayHasKey('sendChatAction', $sentRequests);
+        $this->assertSame('typing', $sentRequests['sendChatAction']['action']);
+
+        // 2. sendMessage with ParseMode enum
+        $telegram->sendMessage(chatId: 12345, text: '<b>Hi</b>', parseMode: \Tueen\Telegram\Enums\ParseMode::HTML);
+        $this->assertArrayHasKey('sendMessage', $sentRequests);
+        $this->assertSame('HTML', $sentRequests['sendMessage']['parse_mode']);
+
+        // 3. sendDice with DiceEmoji enum
+        $telegram->sendDice(chatId: 12345, emoji: \Tueen\Telegram\Enums\DiceEmoji::SLOT);
+        $this->assertArrayHasKey('sendDice', $sentRequests);
+        $this->assertSame('🎰', $sentRequests['sendDice']['emoji']);
+    }
 }

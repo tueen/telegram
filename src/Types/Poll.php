@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\MessageEntity;
 use Tueen\Telegram\Types\PollOption;
+use Tueen\Telegram\Enums\PollType;
 use Tueen\Telegram\Types\PollMedia;
 
 /**
@@ -68,7 +69,7 @@ class Poll extends Type
      * Poll type, currently can be "regular" or "quiz"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PollType|string $type;
 
     /**
      * True, if the poll allows multiple answers

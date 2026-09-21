@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\InputMediaType;
 
 /**
  * Represents a location to be sent.
@@ -19,7 +20,7 @@ class InputMediaLocation extends InputPollMedia
      * Type of the media, must be location
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) InputMediaType|string $type;
 
     /**
      * Latitude of the location

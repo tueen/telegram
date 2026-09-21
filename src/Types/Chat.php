@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ChatType;
 
 /**
  * This object represents a chat.
@@ -25,7 +26,7 @@ class Chat extends Type
      * Type of the chat, can be either "private", "group", "supergroup" or "channel"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) ChatType|string $type;
 
     /**
      * Optional. Title, for supergroups, channels and group chats

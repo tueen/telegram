@@ -10,6 +10,7 @@ use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Story;
 use Tueen\Telegram\Types\InputStoryContent;
+use Tueen\Telegram\Enums\ParseMode;
 
 /**
  * Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success.
@@ -48,7 +49,7 @@ class EditStory extends Method
      * Mode for parsing entities in the story caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -67,7 +68,7 @@ class EditStory extends Method
         int $storyId,
         InputStoryContent $content,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?array $areas = null
     )
@@ -86,7 +87,7 @@ class EditStory extends Method
         int $storyId,
         InputStoryContent $content,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?array $areas = null
     ): static

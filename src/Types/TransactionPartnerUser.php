@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\TransactionPartnerType;
 use Tueen\Telegram\Types\User;
 use Tueen\Telegram\Types\AffiliateInfo;
 use Tueen\Telegram\Types\PaidMedia;
@@ -23,7 +24,7 @@ class TransactionPartnerUser extends TransactionPartner
      * Type of the transaction partner, always "user"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) TransactionPartnerType|string $type;
 
     /**
      * Type of the transaction, currently one of "invoice_payment" for payments via invoices, "paid_media_payment" for payments for paid media, "gift_purchase" for gifts sent by the bot, "premium_purchase" for Telegram Premium subscriptions gifted by the bot, "business_account_transfer" for direct transfers from managed business accounts

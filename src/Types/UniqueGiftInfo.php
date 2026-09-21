@@ -8,6 +8,7 @@ use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\UniqueGift;
+use Tueen\Telegram\Enums\UniqueGiftInfoOrigin;
 use Tueen\Telegram\Types\MessageEntity;
 
 /**
@@ -27,7 +28,7 @@ class UniqueGiftInfo extends Type
      * Origin of the gift. Currently, either "upgrade" for gifts upgraded from regular gifts, "transfer" for gifts transferred from other users or channels, "resale" for gifts bought from other users, "gifted_upgrade" for upgrades purchased after the gift was sent, or "offer" for gifts bought or sold through gift purchase offers.
      */
     #[Field('origin', required: true)]
-    public private(set) string $origin;
+    public private(set) UniqueGiftInfoOrigin|string $origin;
 
     /**
      * Optional. Text of the message that was added to the gift

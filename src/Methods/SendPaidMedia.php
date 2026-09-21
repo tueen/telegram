@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -77,7 +78,7 @@ class SendPaidMedia extends Method
      * Mode for parsing entities in the media caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -136,7 +137,7 @@ class SendPaidMedia extends Method
         ?int $directMessagesTopicId = null,
         ?string $payload = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?bool $showCaptionAboveMedia = null,
         ?bool $disableNotification = null,
@@ -175,7 +176,7 @@ class SendPaidMedia extends Method
         ?int $directMessagesTopicId = null,
         ?string $payload = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?bool $showCaptionAboveMedia = null,
         ?bool $disableNotification = null,

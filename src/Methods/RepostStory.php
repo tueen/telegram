@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Story;
+use Tueen\Telegram\Enums\StoryActivePeriod;
 
 /**
  * Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success.
@@ -41,7 +42,7 @@ class RepostStory extends Method
      * Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
      */
     #[Field('active_period', required: true)]
-    public int $activePeriod;
+    public StoryActivePeriod|int $activePeriod;
 
     /**
      * Pass True to keep the story accessible after it expires
@@ -59,7 +60,7 @@ class RepostStory extends Method
         string $businessConnectionId,
         int $fromChatId,
         int $fromStoryId,
-        int $activePeriod,
+        StoryActivePeriod|int $activePeriod,
         ?bool $postToChatPage = null,
         ?bool $protectContent = null
     )
@@ -76,7 +77,7 @@ class RepostStory extends Method
         string $businessConnectionId,
         int $fromChatId,
         int $fromStoryId,
-        int $activePeriod,
+        StoryActivePeriod|int $activePeriod,
         ?bool $postToChatPage = null,
         ?bool $protectContent = null
     ): static

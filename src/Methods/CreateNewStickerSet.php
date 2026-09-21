@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Enums\StickerType;
 
 /**
  * Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success.
@@ -47,7 +48,7 @@ class CreateNewStickerSet extends Method
      * Type of stickers in the set, pass "regular", "mask", or "custom_emoji". By default, a regular sticker set is created.
      */
     #[Field('sticker_type', required: false)]
-    public ?string $stickerType = null;
+    public StickerType|string|null $stickerType = null;
 
     /**
      * Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only
@@ -60,7 +61,7 @@ class CreateNewStickerSet extends Method
         string $name,
         string $title,
         array $stickers,
-        ?string $stickerType = null,
+        StickerType|string|null $stickerType = null,
         ?bool $needsRepainting = null
     )
     {
@@ -77,7 +78,7 @@ class CreateNewStickerSet extends Method
         string $name,
         string $title,
         array $stickers,
-        ?string $stickerType = null,
+        StickerType|string|null $stickerType = null,
         ?bool $needsRepainting = null
     ): static
     {

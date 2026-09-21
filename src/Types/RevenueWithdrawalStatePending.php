@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\RevenueWithdrawalStateType;
 
 /**
  * The withdrawal is in progress.
@@ -19,6 +20,6 @@ class RevenueWithdrawalStatePending extends RevenueWithdrawalState
      * Type of the state, always "pending"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) RevenueWithdrawalStateType|string $type;
 
 }

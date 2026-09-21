@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\MessageEntity;
 
 /**
@@ -32,7 +33,7 @@ class InputChecklistTask extends Type
      * Optional. Mode for parsing entities in the text. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ?string $parseMode = null;
+    public private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed.

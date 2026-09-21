@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\RevenueWithdrawalStateType;
 
 /**
  * The withdrawal succeeded.
@@ -19,7 +20,7 @@ class RevenueWithdrawalStateSucceeded extends RevenueWithdrawalState
      * Type of the state, always "succeeded"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) RevenueWithdrawalStateType|string $type;
 
     /**
      * Date the withdrawal was completed in Unix time

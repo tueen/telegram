@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\InputMediaType;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\MessageEntity;
 
 /**
@@ -20,7 +22,7 @@ class InputMediaAnimation extends InputPollMedia
      * Type of the media, must be animation
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) InputMediaType|string $type;
 
     /**
      * File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files
@@ -44,7 +46,7 @@ class InputMediaAnimation extends InputPollMedia
      * Optional. Mode for parsing entities in the animation caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ?string $parseMode = null;
+    public private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode

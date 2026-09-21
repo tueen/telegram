@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ForumIconColor;
 
 /**
  * This object represents a forum topic.
@@ -31,7 +32,7 @@ class ForumTopic extends Type
      * Color of the topic icon in RGB format
      */
     #[Field('icon_color', required: true)]
-    public private(set) int $iconColor;
+    public private(set) ForumIconColor|int $iconColor;
 
     /**
      * Optional. Unique identifier of the custom emoji shown as the topic icon

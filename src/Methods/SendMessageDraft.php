@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Enums\ParseMode;
 
 /**
  * Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendMessage with the complete message to persist it in the user's chat. Returns True on success.
@@ -47,7 +48,7 @@ class SendMessageDraft extends Method
      * Mode for parsing entities in the message text. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in message text, which can be specified instead of parse_mode
@@ -72,7 +73,7 @@ class SendMessageDraft extends Method
         int $draftId,
         ?int $messageThreadId = null,
         ?string $text = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $entities = null,
         ?bool $canStop = null,
         ?bool $keepOnStop = null
@@ -93,7 +94,7 @@ class SendMessageDraft extends Method
         int $draftId,
         ?int $messageThreadId = null,
         ?string $text = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $entities = null,
         ?bool $canStop = null,
         ?bool $keepOnStop = null

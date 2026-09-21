@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Enums\ParseMode;
 
 /**
  * Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success.
@@ -53,7 +54,7 @@ class SendGift extends Method
      * Mode for parsing entities in the text. See formatting options for more details. Entities other than "bold", "italic", "underline", "strikethrough", "spoiler", "custom_emoji", and "date_time" are ignored.
      */
     #[Field('text_parse_mode', required: false)]
-    public ?string $textParseMode = null;
+    public ParseMode|string|null $textParseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than "bold", "italic", "underline", "strikethrough", "spoiler", "custom_emoji", and "date_time" are ignored.
@@ -67,7 +68,7 @@ class SendGift extends Method
         int|string|null $chatId = null,
         ?bool $payForUpgrade = null,
         ?string $text = null,
-        ?string $textParseMode = null,
+        ParseMode|string|null $textParseMode = null,
         ?array $textEntities = null
     )
     {
@@ -86,7 +87,7 @@ class SendGift extends Method
         int|string|null $chatId = null,
         ?bool $payForUpgrade = null,
         ?string $text = null,
-        ?string $textParseMode = null,
+        ParseMode|string|null $textParseMode = null,
         ?array $textEntities = null
     ): static
     {

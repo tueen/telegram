@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\MessageOriginType;
 
 /**
  * The message was originally sent by an unknown user.
@@ -19,7 +20,7 @@ class MessageOriginHiddenUser extends MessageOrigin
      * Type of the message origin, always "hidden_user"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) MessageOriginType|string $type;
 
     /**
      * Date the message was sent originally in Unix time

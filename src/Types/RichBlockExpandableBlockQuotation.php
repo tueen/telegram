@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\RichBlockType;
 use Tueen\Telegram\Types\RichText;
 
 /**
@@ -20,7 +21,7 @@ class RichBlockExpandableBlockQuotation extends RichBlock
      * Type of the block, always "expandable_blockquote"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) RichBlockType|string $type;
 
     /**
      * Content of the block

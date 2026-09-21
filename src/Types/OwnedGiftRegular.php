@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\OwnedGiftType;
 use Tueen\Telegram\Types\Gift;
 use Tueen\Telegram\Types\User;
 use Tueen\Telegram\Types\MessageEntity;
@@ -22,7 +23,7 @@ class OwnedGiftRegular extends OwnedGift
      * Type of the gift, always "regular"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) OwnedGiftType|string $type;
 
     /**
      * Information about the regular gift

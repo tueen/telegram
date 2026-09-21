@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\BotCommandScopeType;
 
 /**
  * Represents the scope of bot commands, covering all group and supergroup chat administrators.
@@ -19,6 +20,6 @@ class BotCommandScopeAllChatAdministrators extends BotCommandScope
      * Scope type, must be all_chat_administrators
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) BotCommandScopeType|string $type;
 
 }

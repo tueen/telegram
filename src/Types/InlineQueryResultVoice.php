@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\InlineQueryResultType;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\MessageEntity;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\InputMessageContent;
@@ -22,7 +24,7 @@ class InlineQueryResultVoice extends InlineQueryResult
      * Type of the result, must be voice
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) InlineQueryResultType|string $type;
 
     /**
      * Unique identifier for this result, 1-64 bytes
@@ -52,7 +54,7 @@ class InlineQueryResultVoice extends InlineQueryResult
      * Optional. Mode for parsing entities in the voice message caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ?string $parseMode = null;
+    public private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode

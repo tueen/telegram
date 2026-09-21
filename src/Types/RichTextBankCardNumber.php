@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\RichTextType;
 use Tueen\Telegram\Types\RichText;
 
 /**
@@ -20,7 +21,7 @@ class RichTextBankCardNumber extends RichText
      * Type of the rich text, always "bank_card_number"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) RichTextType|string $type;
 
     /**
      * The text

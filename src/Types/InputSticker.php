@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StickerFormat;
 use Tueen\Telegram\Types\MaskPosition;
 
 /**
@@ -26,7 +27,7 @@ class InputSticker extends Type
      * Format of the added sticker, must be one of "static" for a .WEBP or .PNG image, "animated" for a .TGS animation, "video" for a .WEBM video
      */
     #[Field('format', required: true)]
-    public private(set) string $format;
+    public private(set) StickerFormat|string $format;
 
     /**
      * List of 1-20 emoji associated with the sticker

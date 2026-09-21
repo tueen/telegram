@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\DiceEmoji;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -53,7 +54,7 @@ class SendDice extends Method
      * Emoji on which the dice throw animation is based. Currently, must be one of "🎲", "🎯", "🏀", "⚽", "🎳", or "🎰". Dice can have values 1-6 for "🎲", "🎯" and "🎳", values 1-5 for "🏀" and "⚽", and values 1-64 for "🎰". Defaults to "🎲".
      */
     #[Field('emoji', required: false)]
-    public ?string $emoji = null;
+    public DiceEmoji|string|null $emoji = null;
 
     /**
      * Sends the message silently. Users will receive a notification with no sound.
@@ -102,7 +103,7 @@ class SendDice extends Method
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
-        ?string $emoji = null,
+        DiceEmoji|string|null $emoji = null,
         ?bool $disableNotification = null,
         ?bool $protectContent = null,
         ?bool $allowPaidBroadcast = null,
@@ -131,7 +132,7 @@ class SendDice extends Method
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
-        ?string $emoji = null,
+        DiceEmoji|string|null $emoji = null,
         ?bool $disableNotification = null,
         ?bool $protectContent = null,
         ?bool $allowPaidBroadcast = null,

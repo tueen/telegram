@@ -11,6 +11,7 @@ use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
+use Tueen\Telegram\Enums\StickerFormat;
 
 /**
  * Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success.
@@ -38,12 +39,12 @@ class UploadStickerFile extends Method
      * Format of the sticker, must be one of "static", "animated", "video"
      */
     #[Field('sticker_format', required: true)]
-    public string $stickerFormat;
+    public StickerFormat|string $stickerFormat;
 
     public function __construct(
         int $userId,
         InputFile $sticker,
-        string $stickerFormat
+        StickerFormat|string $stickerFormat
     )
     {
         if ($userId !== null) $this->userId = $userId;
@@ -54,7 +55,7 @@ class UploadStickerFile extends Method
     public static function make(
         int $userId,
         InputFile $sticker,
-        string $stickerFormat
+        StickerFormat|string $stickerFormat
     ): static
     {
         return new static($userId, $sticker, $stickerFormat);

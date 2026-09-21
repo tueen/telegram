@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\OwnedGiftType;
 use Tueen\Telegram\Types\UniqueGift;
 use Tueen\Telegram\Types\User;
 
@@ -21,7 +22,7 @@ class OwnedGiftUnique extends OwnedGift
      * Type of the gift, always "unique"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) OwnedGiftType|string $type;
 
     /**
      * Information about the unique gift

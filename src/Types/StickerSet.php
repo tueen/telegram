@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StickerType;
 use Tueen\Telegram\Types\Sticker;
 use Tueen\Telegram\Types\PhotoSize;
 
@@ -33,7 +34,7 @@ class StickerSet extends Type
      * Type of stickers in the set, currently one of "regular", "mask", "custom_emoji"
      */
     #[Field('sticker_type', required: true)]
-    public private(set) string $stickerType;
+    public private(set) StickerType|string $stickerType;
 
     /**
      * List of all set stickers

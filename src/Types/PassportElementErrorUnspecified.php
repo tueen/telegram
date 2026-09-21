@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PassportSource;
+use Tueen\Telegram\Enums\PassportType;
 
 /**
  * Represents an issue in an unspecified place. The error is considered resolved when new data is added.
@@ -19,13 +21,13 @@ class PassportElementErrorUnspecified extends PassportElementError
      * Error source, must be unspecified
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) PassportSource|string $source;
 
     /**
      * Type of element of the user's Telegram Passport which has the issue
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PassportType|string $type;
 
     /**
      * Base64-encoded element hash

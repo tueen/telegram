@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StoryAreaTypeType;
 
 /**
  * Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area.
@@ -19,7 +20,7 @@ class StoryAreaTypeUniqueGift extends StoryAreaType
      * Type of the area, always "unique_gift"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) StoryAreaTypeType|string $type;
 
     /**
      * Unique name of the gift

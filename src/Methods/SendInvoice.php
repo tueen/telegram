@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\Currency;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -50,7 +51,7 @@ class SendInvoice extends Method
      * Three-letter ISO 4217 currency code, see more on currencies. Pass "XTR" for payments in Telegram Stars.
      */
     #[Field('currency', required: true)]
-    public string $currency;
+    public Currency|string $currency;
 
     /**
      * Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -213,7 +214,7 @@ class SendInvoice extends Method
         string $title,
         string $description,
         string $payload,
-        string $currency,
+        Currency|string $currency,
         array $prices,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -280,7 +281,7 @@ class SendInvoice extends Method
         string $title,
         string $description,
         string $payload,
-        string $currency,
+        Currency|string $currency,
         array $prices,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,

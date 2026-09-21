@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Custom\StringResult;
+use Tueen\Telegram\Enums\Currency;
 
 /**
  * Use this method to create a link for an invoice. Returns the created invoice link as String on success.
@@ -41,7 +42,7 @@ class CreateInvoiceLink extends Method
      * Three-letter ISO 4217 currency code, see more on currencies. Pass "XTR" for payments in Telegram Stars.
      */
     #[Field('currency', required: true)]
-    public string $currency;
+    public Currency|string $currency;
 
     /**
      * Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -155,7 +156,7 @@ class CreateInvoiceLink extends Method
         string $title,
         string $description,
         string $payload,
-        string $currency,
+        Currency|string $currency,
         array $prices,
         ?string $businessConnectionId = null,
         ?string $providerToken = null,
@@ -204,7 +205,7 @@ class CreateInvoiceLink extends Method
         string $title,
         string $description,
         string $payload,
-        string $currency,
+        Currency|string $currency,
         array $prices,
         ?string $businessConnectionId = null,
         ?string $providerToken = null,

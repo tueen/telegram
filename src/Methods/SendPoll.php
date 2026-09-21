@@ -9,6 +9,8 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\PollType;
 use Tueen\Telegram\Types\InputPollMedia;
 use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -59,7 +61,7 @@ class SendPoll extends Method
      * Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed.
      */
     #[Field('question_parse_mode', required: false)]
-    public ?string $questionParseMode = null;
+    public ParseMode|string|null $questionParseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode.
@@ -77,7 +79,7 @@ class SendPoll extends Method
      * Poll type, "quiz" or "regular", defaults to "regular"
      */
     #[Field('type', required: false)]
-    public ?string $type = null;
+    public PollType|string|null $type = null;
 
     /**
      * Pass True if the poll allows multiple answers, defaults to False
@@ -137,7 +139,7 @@ class SendPoll extends Method
      * Mode for parsing entities in the explanation. See formatting options for more details.
      */
     #[Field('explanation_parse_mode', required: false)]
-    public ?string $explanationParseMode = null;
+    public ParseMode|string|null $explanationParseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode.
@@ -179,7 +181,7 @@ class SendPoll extends Method
      * Mode for parsing entities in the poll description. See formatting options for more details.
      */
     #[Field('description_parse_mode', required: false)]
-    public ?string $descriptionParseMode = null;
+    public ParseMode|string|null $descriptionParseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the poll description, which can be specified instead of description_parse_mode
@@ -235,10 +237,10 @@ class SendPoll extends Method
         array $options,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
-        ?string $questionParseMode = null,
+        ParseMode|string|null $questionParseMode = null,
         ?array $questionEntities = null,
         ?bool $isAnonymous = null,
-        ?string $type = null,
+        PollType|string|null $type = null,
         ?bool $allowsMultipleAnswers = null,
         ?bool $allowsRevoting = null,
         ?bool $shuffleOptions = null,
@@ -248,14 +250,14 @@ class SendPoll extends Method
         ?array $countryCodes = null,
         ?array $correctOptionIds = null,
         ?string $explanation = null,
-        ?string $explanationParseMode = null,
+        ParseMode|string|null $explanationParseMode = null,
         ?array $explanationEntities = null,
         ?InputPollMedia $explanationMedia = null,
         ?int $openPeriod = null,
         ?int $closeDate = null,
         ?bool $isClosed = null,
         ?string $description = null,
-        ?string $descriptionParseMode = null,
+        ParseMode|string|null $descriptionParseMode = null,
         ?array $descriptionEntities = null,
         ?InputPollMedia $media = null,
         ?bool $disableNotification = null,
@@ -308,10 +310,10 @@ class SendPoll extends Method
         array $options,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
-        ?string $questionParseMode = null,
+        ParseMode|string|null $questionParseMode = null,
         ?array $questionEntities = null,
         ?bool $isAnonymous = null,
-        ?string $type = null,
+        PollType|string|null $type = null,
         ?bool $allowsMultipleAnswers = null,
         ?bool $allowsRevoting = null,
         ?bool $shuffleOptions = null,
@@ -321,14 +323,14 @@ class SendPoll extends Method
         ?array $countryCodes = null,
         ?array $correctOptionIds = null,
         ?string $explanation = null,
-        ?string $explanationParseMode = null,
+        ParseMode|string|null $explanationParseMode = null,
         ?array $explanationEntities = null,
         ?InputPollMedia $explanationMedia = null,
         ?int $openPeriod = null,
         ?int $closeDate = null,
         ?bool $isClosed = null,
         ?string $description = null,
-        ?string $descriptionParseMode = null,
+        ParseMode|string|null $descriptionParseMode = null,
         ?array $descriptionEntities = null,
         ?InputPollMedia $media = null,
         ?bool $disableNotification = null,

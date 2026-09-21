@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ButtonStyle;
 use Tueen\Telegram\Types\KeyboardButtonRequestUsers;
 use Tueen\Telegram\Types\KeyboardButtonRequestChat;
 use Tueen\Telegram\Types\KeyboardButtonRequestManagedBot;
@@ -36,7 +37,7 @@ class KeyboardButton extends Type
      * Optional. Style of the button. Must be one of "danger" (red), "success" (green) or "primary" (blue). If omitted, then an app-specific style is used.
      */
     #[Field('style', required: false)]
-    public private(set) ?string $style = null;
+    public private(set) ButtonStyle|string|null $style = null;
 
     /**
      * Optional. If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a "users_shared" service message. Available in private chats only.

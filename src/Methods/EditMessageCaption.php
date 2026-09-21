@@ -9,6 +9,7 @@ use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 
 /**
@@ -54,7 +55,7 @@ class EditMessageCaption extends Method
      * Mode for parsing entities in the message caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -80,7 +81,7 @@ class EditMessageCaption extends Method
         ?int $messageId = null,
         ?string $inlineMessageId = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?bool $showCaptionAboveMedia = null,
         ?InlineKeyboardMarkup $replyMarkup = null
@@ -103,7 +104,7 @@ class EditMessageCaption extends Method
         ?int $messageId = null,
         ?string $inlineMessageId = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?bool $showCaptionAboveMedia = null,
         ?InlineKeyboardMarkup $replyMarkup = null

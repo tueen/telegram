@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ChatBoostSourceSource;
 use Tueen\Telegram\Types\User;
 
 /**
@@ -20,7 +21,7 @@ class ChatBoostSourceGiftCode extends ChatBoostSource
      * Source of the boost, always "gift_code"
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) ChatBoostSourceSource|string $source;
 
     /**
      * User for which the gift code was created

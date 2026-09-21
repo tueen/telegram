@@ -8,6 +8,7 @@ use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\InputRichBlock;
+use Tueen\Telegram\Enums\InputRichBlockType;
 
 /**
  * An item of a list to be sent.
@@ -46,6 +47,6 @@ class InputRichBlockListItem extends Type
      * Optional. For ordered lists, the type of the item label; must be one of "a" for lowercase letters, "A" for uppercase letters, "i" for lowercase Roman numerals, "I" for uppercase Roman numerals, or "1" for decimal numbers
      */
     #[Field('type', required: false)]
-    public private(set) ?string $type = null;
+    public private(set) InputRichBlockType|string|null $type = null;
 
 }

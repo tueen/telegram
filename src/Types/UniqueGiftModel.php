@@ -8,6 +8,7 @@ use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\Sticker;
+use Tueen\Telegram\Enums\UniqueGiftModelRarity;
 
 /**
  * This object describes the model of a unique gift.
@@ -38,6 +39,6 @@ class UniqueGiftModel extends Type
      * Optional. Rarity of the model if it is a crafted model. Currently, can be "uncommon", "rare", "epic", or "legendary".
      */
     #[Field('rarity', required: false)]
-    public private(set) ?string $rarity = null;
+    public private(set) UniqueGiftModelRarity|string|null $rarity = null;
 
 }

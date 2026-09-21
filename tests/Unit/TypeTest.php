@@ -43,7 +43,8 @@ class TypeTest extends TestCase
         // Check nested type instances
         $this->assertInstanceOf(Chat::class, $message->chat);
         $this->assertSame(12345, $message->chat->id);
-        $this->assertSame('private', $message->chat->type);
+        $this->assertSame(\Tueen\Telegram\Enums\ChatType::PRIVATE, $message->chat->type);
+        $this->assertSame('private', $message->chat->type->value);
 
         $this->assertInstanceOf(User::class, $message->from);
         $this->assertSame(67890, $message->from->id);
@@ -117,7 +118,8 @@ class TypeTest extends TestCase
         $chatMember = Type::factory(ChatMember::class, $ownerData);
 
         $this->assertInstanceOf(ChatMemberOwner::class, $chatMember);
-        $this->assertSame('creator', $chatMember->status);
+        $this->assertSame(\Tueen\Telegram\Enums\ChatMemberStatus::CREATOR, $chatMember->status);
+        $this->assertSame('creator', $chatMember->status->value);
         $this->assertSame(100, $chatMember->user->id);
     }
 

@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\BackgroundFillType;
 
 /**
  * The background is a gradient fill.
@@ -19,7 +20,7 @@ class BackgroundFillGradient extends BackgroundFill
      * Type of the background fill, always "gradient"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) BackgroundFillType|string $type;
 
     /**
      * Top color of the gradient in the RGB24 format

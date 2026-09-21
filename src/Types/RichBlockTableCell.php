@@ -8,6 +8,8 @@ use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Types\RichText;
+use Tueen\Telegram\Enums\RichBlockTableCellAlign;
+use Tueen\Telegram\Enums\RichBlockTableCellValign;
 
 /**
  * Cell in a table.
@@ -44,12 +46,12 @@ class RichBlockTableCell extends Type
      * Horizontal cell content alignment. Currently, must be one of "left", "center", or "right".
      */
     #[Field('align', required: true)]
-    public private(set) string $align;
+    public private(set) RichBlockTableCellAlign|string $align;
 
     /**
      * Vertical cell content alignment. Currently, must be one of "top", "middle", or "bottom".
      */
     #[Field('valign', required: true)]
-    public private(set) string $valign;
+    public private(set) RichBlockTableCellValign|string $valign;
 
 }

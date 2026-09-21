@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\RichBlockType;
 use Tueen\Telegram\Types\RichBlock;
 use Tueen\Telegram\Types\RichBlockCaption;
 
@@ -21,7 +22,7 @@ class RichBlockCollage extends RichBlock
      * Type of the block, always "collage"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) RichBlockType|string $type;
 
     /**
      * Elements of the collage

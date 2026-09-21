@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PaidMediaType;
 
 /**
  * The paid media isn't available before the payment.
@@ -19,7 +20,7 @@ class PaidMediaPreview extends PaidMedia
      * Type of the paid media, always "preview"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PaidMediaType|string $type;
 
     /**
      * Optional. Media width as defined by the sender

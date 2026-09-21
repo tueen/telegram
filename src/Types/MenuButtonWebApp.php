@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\MenuButtonType;
 use Tueen\Telegram\Types\WebAppInfo;
 
 /**
@@ -20,7 +21,7 @@ class MenuButtonWebApp extends MenuButton
      * Type of the button, must be web_app
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) MenuButtonType|string $type;
 
     /**
      * Text on the button

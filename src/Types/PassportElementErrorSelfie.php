@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PassportSource;
+use Tueen\Telegram\Enums\PassportType;
 
 /**
  * Represents an issue with the selfie with a document. The error is considered resolved when the file with the selfie changes.
@@ -19,13 +21,13 @@ class PassportElementErrorSelfie extends PassportElementError
      * Error source, must be selfie
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) PassportSource|string $source;
 
     /**
      * The section of the user's Telegram Passport which has the issue, one of "passport", "driver_license", "identity_card", "internal_passport"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PassportType|string $type;
 
     /**
      * Base64-encoded hash of the file with the selfie

@@ -10,6 +10,8 @@ use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Story;
 use Tueen\Telegram\Types\InputStoryContent;
+use Tueen\Telegram\Enums\StoryActivePeriod;
+use Tueen\Telegram\Enums\ParseMode;
 
 /**
  * Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success.
@@ -36,7 +38,7 @@ class PostStory extends Method
      * Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
      */
     #[Field('active_period', required: true)]
-    public int $activePeriod;
+    public StoryActivePeriod|int $activePeriod;
 
     /**
      * Caption of the story, 0-2048 characters after entities parsing
@@ -48,7 +50,7 @@ class PostStory extends Method
      * Mode for parsing entities in the story caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -77,9 +79,9 @@ class PostStory extends Method
     public function __construct(
         string $businessConnectionId,
         InputStoryContent $content,
-        int $activePeriod,
+        StoryActivePeriod|int $activePeriod,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?array $areas = null,
         ?bool $postToChatPage = null,
@@ -100,9 +102,9 @@ class PostStory extends Method
     public static function make(
         string $businessConnectionId,
         InputStoryContent $content,
-        int $activePeriod,
+        StoryActivePeriod|int $activePeriod,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?array $areas = null,
         ?bool $postToChatPage = null,

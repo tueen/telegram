@@ -12,6 +12,7 @@ use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -76,7 +77,7 @@ class SendAudio extends Method
      * Mode for parsing entities in the audio caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public ?string $parseMode = null;
+    public ParseMode|string|null $parseMode = null;
 
     /**
      * A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -159,7 +160,7 @@ class SendAudio extends Method
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?int $duration = null,
         ?string $performer = null,
@@ -204,7 +205,7 @@ class SendAudio extends Method
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
         ?string $caption = null,
-        ?string $parseMode = null,
+        ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
         ?int $duration = null,
         ?string $performer = null,

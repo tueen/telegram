@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PassportSource;
+use Tueen\Telegram\Enums\PassportType;
 
 /**
  * Represents an issue in one of the data fields that was provided by the user. The error is considered resolved when the field's value changes.
@@ -19,13 +21,13 @@ class PassportElementErrorDataField extends PassportElementError
      * Error source, must be data
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) PassportSource|string $source;
 
     /**
      * The section of the user's Telegram Passport which has the error, one of "personal_details", "passport", "driver_license", "identity_card", "internal_passport", "address"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PassportType|string $type;
 
     /**
      * Name of the data field which has the error

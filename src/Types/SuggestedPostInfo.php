@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\SuggestedPostInfoState;
 use Tueen\Telegram\Types\SuggestedPostPrice;
 
 /**
@@ -20,7 +21,7 @@ class SuggestedPostInfo extends Type
      * State of the suggested post. Currently, it can be one of "pending", "approved", "declined".
      */
     #[Field('state', required: true)]
-    public private(set) string $state;
+    public private(set) SuggestedPostInfoState|string $state;
 
     /**
      * Optional. Proposed price of the post. If the field is omitted, then the post is unpaid.

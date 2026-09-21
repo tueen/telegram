@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ChatMemberStatus;
 use Tueen\Telegram\Types\User;
 
 /**
@@ -20,7 +21,7 @@ class ChatMemberMember extends ChatMember
      * The member's status in the chat, always "member"
      */
     #[Field('status', required: true)]
-    public private(set) string $status;
+    public private(set) ChatMemberStatus|string $status;
 
     /**
      * Optional. Tag of the member

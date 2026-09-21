@@ -110,15 +110,26 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
         }
 
         $type = $prop->getType();
-        if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
-            $className = $type->getName();
-            if (is_subclass_of($className, Type::class) || $className === Type::class) {
-                if (is_array($value)) {
-                    return self::factory($className, $value);
+        $targetTypes = [];
+        if ($type instanceof \ReflectionNamedType) {
+            $targetTypes[] = $type;
+        } elseif ($type instanceof \ReflectionUnionType) {
+            $targetTypes = $type->getTypes();
+        }
+
+        foreach ($targetTypes as $t) {
+            if (!$t->isBuiltin()) {
+                $className = $t->getName();
+                if (enum_exists($className)) {
+                    $enumVal = $className::tryFrom($value);
+                    if ($enumVal !== null) {
+                        return $enumVal;
+                    }
+                } elseif (is_subclass_of($className, Type::class) || $className === Type::class) {
+                    if (is_array($value)) {
+                        return self::factory($className, $value);
+                    }
                 }
-            }
-            if (enum_exists($className)) {
-                return $className::tryFrom($value) ?? $value;
             }
         }
 

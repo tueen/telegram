@@ -7,6 +7,8 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PassportSource;
+use Tueen\Telegram\Enums\PassportType;
 
 /**
  * Represents an issue with the reverse side of a document. The error is considered resolved when the file with reverse side of the document changes.
@@ -19,13 +21,13 @@ class PassportElementErrorReverseSide extends PassportElementError
      * Error source, must be reverse_side
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) PassportSource|string $source;
 
     /**
      * The section of the user's Telegram Passport which has the issue, one of "driver_license", "identity_card"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PassportType|string $type;
 
     /**
      * Base64-encoded hash of the file with the reverse side of the document

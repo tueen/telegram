@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ChatBoostSourceSource;
 use Tueen\Telegram\Types\User;
 
 /**
@@ -20,7 +21,7 @@ class ChatBoostSourceGiveaway extends ChatBoostSource
      * Source of the boost, always "giveaway"
      */
     #[Field('source', required: true)]
-    public private(set) string $source;
+    public private(set) ChatBoostSourceSource|string $source;
 
     /**
      * Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.

@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\PaidMediaType;
 use Tueen\Telegram\Types\LivePhoto;
 
 /**
@@ -20,7 +21,7 @@ class PaidMediaLivePhoto extends PaidMedia
      * Type of the paid media, always "live_photo"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) PaidMediaType|string $type;
 
     /**
      * The photo

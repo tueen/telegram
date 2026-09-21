@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Types\MessageEntity;
 use Tueen\Telegram\Types\InputPollOptionMedia;
 
@@ -27,7 +28,7 @@ class InputPollOption extends Type
      * Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.
      */
     #[Field('text_parse_mode', required: false)]
-    public private(set) ?string $textParseMode = null;
+    public private(set) ParseMode|string|null $textParseMode = null;
 
     /**
      * Optional. A JSON-serialized list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode.

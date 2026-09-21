@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StoryAreaTypeType;
 
 /**
  * Describes a story area containing weather information. Currently, a story can have up to 3 weather areas.
@@ -19,7 +20,7 @@ class StoryAreaTypeWeather extends StoryAreaType
      * Type of the area, always "weather"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) StoryAreaTypeType|string $type;
 
     /**
      * Temperature, in degree Celsius

@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\Currency;
 use Tueen\Telegram\Types\LabeledPrice;
 
 /**
@@ -44,7 +45,7 @@ class InputInvoiceMessageContent extends InputMessageContent
      * Three-letter ISO 4217 currency code, see more on currencies. Pass "XTR" for payments in Telegram Stars.
      */
     #[Field('currency', required: true)]
-    public private(set) string $currency;
+    public private(set) Currency|string $currency;
 
     /**
      * Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.

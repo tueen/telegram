@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\StoryAreaTypeType;
 use Tueen\Telegram\Types\ReactionType;
 
 /**
@@ -20,7 +21,7 @@ class StoryAreaTypeSuggestedReaction extends StoryAreaType
      * Type of the area, always "suggested_reaction"
      */
     #[Field('type', required: true)]
-    public private(set) string $type;
+    public private(set) StoryAreaTypeType|string $type;
 
     /**
      * Type of the reaction

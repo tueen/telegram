@@ -7,6 +7,7 @@ namespace Tueen\Telegram\Types;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Enums\VideoQualityCodec;
 
 /**
  * This object represents a video file of a specific quality.
@@ -43,7 +44,7 @@ class VideoQuality extends Type
      * Codec that was used to encode the video, for example, "h264", "h265", or "av01"
      */
     #[Field('codec', required: true)]
-    public private(set) string $codec;
+    public private(set) VideoQualityCodec|string $codec;
 
     /**
      * Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.
