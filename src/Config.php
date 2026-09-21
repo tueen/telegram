@@ -7,6 +7,8 @@ namespace Tueen\Telegram;
 use Closure;
 use Psr\Log\LoggerInterface;
 use Tueen\Telegram\Client\HttpClientInterface;
+use Tueen\Telegram\Enums\ErrorHandlingMode;
+use Tueen\Telegram\Exceptions\ApiException;
 
 class Config
 {
@@ -21,7 +23,10 @@ class Config
         public readonly ?Closure $uploadProgress = null,
         public readonly ?Closure $downloadProgress = null,
         public readonly int $retryCount = 3,
-        public readonly bool $testEnvironment = false
+        public readonly bool $testEnvironment = false,
+        public readonly ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION,
+        /** @var list<class-string<\Throwable>> */
+        public readonly array $convertExceptionsToError = [ApiException::class]
     ) {}
 
     public static function builder(string $botToken = ''): ConfigBuilder

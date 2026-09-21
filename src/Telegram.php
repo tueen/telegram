@@ -11,6 +11,7 @@ use Tueen\Telegram\Client\GuzzleHttpClient;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\Response;
+use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\TelegramException;
 use Tueen\Telegram\Methods\Method;
@@ -22,6 +23,7 @@ use Tueen\Telegram\Types\Custom\ArrayResult;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\IntegerResult;
 use Tueen\Telegram\Types\Custom\StringResult;
+use Tueen\Telegram\Types\Error;
 use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;
@@ -36,6 +38,18 @@ class Telegram
     private Config $config;
     private HttpClientInterface $httpClient;
     private Pipeline $pipeline;
+
+    /** @var list<callable> */
+    private array $beforeRequestHooks = [];
+
+    /** @var list<callable> */
+    private array $afterRequestHooks = [];
+
+    /** @var list<callable> */
+    private array $errorHooks = [];
+
+    /** @var list<callable> */
+    private array $responseHooks = [];
 
     public function __construct(string|Config $tokenOrConfig)
     {
@@ -73,6 +87,50 @@ class Telegram
     }
 
     /**
+     * Register a callback to be called before sending a request.
+     *
+     * @param callable(Request, Config): void $callback
+     */
+    public function onBeforeRequest(callable $callback): static
+    {
+        $this->beforeRequestHooks[] = $callback;
+        return $this;
+    }
+
+    /**
+     * Register a callback to be called after a raw HTTP response is received.
+     *
+     * @param callable(Response, Request): void $callback
+     */
+    public function onAfterRequest(callable $callback): static
+    {
+        $this->afterRequestHooks[] = $callback;
+        return $this;
+    }
+
+    /**
+     * Register a callback to be called when an error occurs.
+     *
+     * @param callable(\Throwable, Request): void $callback
+     */
+    public function onError(callable $callback): static
+    {
+        $this->errorHooks[] = $callback;
+        return $this;
+    }
+
+    /**
+     * Register a callback to be called when a final response (Type or Error) is produced.
+     *
+     * @param callable(Type, Request): void $callback
+     */
+    public function onResponse(callable $callback): static
+    {
+        $this->responseHooks[] = $callback;
+        return $this;
+    }
+
+    /**
      * Sends a Method object to the Telegram Bot API.
      */
     public function send(Method $method, ?Closure $uploadProgress = null, ?Closure $downloadProgress = null): mixed
@@ -88,20 +146,46 @@ class Telegram
             downloadProgress: $downloadProgress ?? $this->config->downloadProgress
         );
 
-        $response = $this->pipeline->run(
-            $request,
-            $this->config,
-            fn(Request $req, Config $cfg): Response => $this->httpClient->send($cfg, $req)
-        );
+        $this->triggerBeforeRequest($request);
 
-        if (!$response->isOk()) {
-            throw ApiException::fromResponse($response->data);
+        try {
+            $response = $this->pipeline->run(
+                $request,
+                $this->config,
+                fn(Request $req, Config $cfg): Response => $this->httpClient->send($cfg, $req)
+            );
+
+            $this->triggerAfterRequest($response, $request);
+
+            if (!$response->isOk()) {
+                throw ApiException::fromResponse($response->data);
+            }
+
+            $result = $response->getResult();
+            $returnInfo = $method->getReturnTypeInfo();
+            $unwrapped = $this->unwrapResult($result, $returnInfo?->type, $returnInfo?->isArray ?? false);
+
+            if ($unwrapped instanceof Type) {
+                $this->triggerResponse($unwrapped, $request);
+            }
+
+            return $unwrapped;
+        } catch (\Throwable $e) {
+            $this->triggerError($e, $request);
+
+            if ($this->shouldCatchException($e)) {
+                if ($e instanceof ApiException && isset($response) && is_array($response->data)) {
+                    $error = Error::fromResponse($response->data, $e);
+                } else {
+                    $error = Error::fromThrowable($e);
+                }
+
+                $this->triggerResponse($error, $request);
+                return $error;
+            }
+
+            throw $e;
         }
-
-        $result = $response->getResult();
-        $returnInfo = $method->getReturnTypeInfo();
-
-        return $this->unwrapResult($result, $returnInfo?->type, $returnInfo?->isArray ?? false);
     }
 
     /**
@@ -248,7 +332,7 @@ class Telegram
      * @param resource|string $destination Target local path or stream resource
      * @param callable|null $progress fn(int $downloadedBytes, int $totalBytes, float $percentage)
      */
-    public function downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult
+    public function downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult|Error
     {
         $filePath = null;
 
@@ -260,18 +344,74 @@ class Telegram
                 $filePath = $file;
             } else {
                 // It's a file_id, retrieve File object first
-                /** @var File $fileObj */
                 $fileObj = $this->getFile(fileId: $file);
+                if ($fileObj instanceof Error) {
+                    return $fileObj;
+                }
                 $filePath = $fileObj->filePath;
             }
         }
 
         if (empty($filePath)) {
-            throw new TelegramException("Unable to resolve file path for download.");
+            $exception = new TelegramException("Unable to resolve file path for download.");
+            if ($this->shouldCatchException($exception)) {
+                return Error::fromThrowable($exception);
+            }
+            throw $exception;
         }
 
-        $ok = $this->httpClient->download($this->config, $filePath, $destination, $progress);
-        return new BooleanResult($ok);
+        try {
+            $ok = $this->httpClient->download($this->config, $filePath, $destination, $progress);
+            return new BooleanResult($ok);
+        } catch (\Throwable $e) {
+            if ($this->shouldCatchException($e)) {
+                return Error::fromThrowable($e);
+            }
+            throw $e;
+        }
+    }
+
+    private function triggerBeforeRequest(Request $request): void
+    {
+        foreach ($this->beforeRequestHooks as $hook) {
+            $hook($request, $this->config);
+        }
+    }
+
+    private function triggerAfterRequest(Response $response, Request $request): void
+    {
+        foreach ($this->afterRequestHooks as $hook) {
+            $hook($response, $request);
+        }
+    }
+
+    private function triggerError(\Throwable $error, Request $request): void
+    {
+        foreach ($this->errorHooks as $hook) {
+            $hook($error, $request);
+        }
+    }
+
+    private function triggerResponse(Type $result, Request $request): void
+    {
+        foreach ($this->responseHooks as $hook) {
+            $hook($result, $request);
+        }
+    }
+
+    private function shouldCatchException(\Throwable $e): bool
+    {
+        if ($this->config->errorHandlingMode !== ErrorHandlingMode::ERROR_OBJECT) {
+            return false;
+        }
+
+        foreach ($this->config->convertExceptionsToError as $class) {
+            if ($e instanceof $class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

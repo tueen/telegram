@@ -595,7 +595,10 @@ PHP;
                 }
             }
 
-            $retType = implode('|', array_unique($docReturnTypes)) ?: 'Type';
+            $docReturnTypes[] = 'Error';
+            $allImports[] = 'Tueen\Telegram\Types\Error';
+
+            $retType = implode('|', array_unique($docReturnTypes)) ?: 'Type|Error';
 
             $paramList = [];
             foreach ($fields as $field) {

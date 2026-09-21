@@ -118,17 +118,22 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
         }
 
         foreach ($targetTypes as $t) {
-            if (!$t->isBuiltin()) {
-                $className = $t->getName();
-                if (enum_exists($className)) {
-                    $enumVal = $className::tryFrom($value);
-                    if ($enumVal !== null) {
-                        return $enumVal;
-                    }
-                } elseif (is_subclass_of($className, Type::class) || $className === Type::class) {
-                    if (is_array($value)) {
-                        return self::factory($className, $value);
-                    }
+            if ($t->isBuiltin()) {
+                if ($t->getName() === 'array' && is_array($value)) {
+                    return $value;
+                }
+                continue;
+            }
+
+            $className = $t->getName();
+            if (enum_exists($className)) {
+                $enumVal = $className::tryFrom($value);
+                if ($enumVal !== null) {
+                    return $enumVal;
+                }
+            } elseif (is_subclass_of($className, Type::class) || $className === Type::class) {
+                if (is_array($value)) {
+                    return self::factory($className, $value);
                 }
             }
         }
@@ -294,6 +299,23 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     public function offsetUnset(mixed $offset): void
     {
         $this->__unset((string)$offset);
+    }
+
+    /**
+     * Determines whether the response is successful.
+     * Always returns true for valid Type objects, and false for Error objects.
+     */
+    public function ok(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Alias for ok().
+     */
+    public function isOk(): bool
+    {
+        return true;
     }
 
     // IteratorAggregate
