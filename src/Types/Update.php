@@ -27,6 +27,7 @@ use Tueen\Telegram\Types\ChatBoostRemoved;
 use Tueen\Telegram\Types\ManagedBotUpdated;
 use Tueen\Telegram\Types\BotSubscriptionUpdated;
 use Tueen\Telegram\Types\MessageGenerationStopped;
+use Tueen\Telegram\Types\Concerns\HasUpdateHelpers;
 
 /**
  * This object represents an incoming update.
@@ -36,6 +37,8 @@ use Tueen\Telegram\Types\MessageGenerationStopped;
  */
 class Update extends Type
 {
+    use HasUpdateHelpers;
+
     /**
      * The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially.
      */

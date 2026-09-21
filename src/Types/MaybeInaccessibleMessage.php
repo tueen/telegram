@@ -24,7 +24,10 @@ class MaybeInaccessibleMessage extends Type
      */
     public static function resolveChildClass(array $data): string
     {
+        if (isset($data['date']) && (int)$data['date'] === 0) {
+            return InaccessibleMessage::class;
+        }
 
-        return static::class;
+        return Message::class;
     }
 }

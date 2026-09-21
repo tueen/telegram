@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tueen\Telegram\Enums;
 
-use InvalidArgumentException;
-
+/**
+ * Backed enum representing all Telegram Bot API 10.3 Update types.
+ */
 enum UpdateType: string
 {
     case MESSAGE = 'message';
@@ -14,7 +17,6 @@ enum UpdateType: string
     case BUSINESS_MESSAGE = 'business_message';
     case EDITED_BUSINESS_MESSAGE = 'edited_business_message';
     case DELETED_BUSINESS_MESSAGES = 'deleted_business_messages';
-    case GUEST_MESSAGE = 'guest_message';
     case MESSAGE_REACTION = 'message_reaction';
     case MESSAGE_REACTION_COUNT = 'message_reaction_count';
     case INLINE_QUERY = 'inline_query';
@@ -31,31 +33,7 @@ enum UpdateType: string
     case CHAT_BOOST = 'chat_boost';
     case REMOVED_CHAT_BOOST = 'removed_chat_boost';
     case MANAGED_BOT = 'managed_bot';
-    case SUBSCRIPTION = 'subscription';
-    case STOPPED_MESSAGE_GENERATION = 'stopped_message_generation';
-
-    public static function messageTypes(): array
-    {
-        return [
-            self::MESSAGE,
-            self::EDITED_MESSAGE,
-            self::CHANNEL_POST,
-            self::EDITED_CHANNEL_POST,
-            self::BUSINESS_MESSAGE,
-            self::EDITED_BUSINESS_MESSAGE,
-            self::GUEST_MESSAGE,
-        ];
-    }
-
-    public function isMessageType(): bool
-    {
-        return in_array($this, self::messageTypes(), true);
-    }
-
-    public function validateMessageType(): void
-    {
-        if (!$this->isMessageType()) {
-            throw new InvalidArgumentException('UpdateType must be a message type');
-        }
-    }
+    case BOT_SUBSCRIPTION = 'bot_subscription';
+    case MESSAGE_GENERATION_STOPPED = 'message_generation_stopped';
+    case UNKNOWN = 'unknown';
 }

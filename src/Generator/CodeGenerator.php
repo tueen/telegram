@@ -109,6 +109,15 @@ class CodeGenerator
             $propLines[] = $propLine;
         }
 
+        $traitStatement = '';
+        if ($name === 'Update') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasUpdateHelpers';
+            $traitStatement = "    use HasUpdateHelpers;\n\n";
+        } elseif ($name === 'Message') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasMessageHelpers';
+            $traitStatement = "    use HasMessageHelpers;\n\n";
+        }
+
         $propsCode = implode("\n\n", $propLines);
         $importsCode = implode("\n", array_unique(array_map(fn($i) => "use {$i};", $imports)));
 
@@ -128,7 +137,7 @@ namespace Tueen\Telegram\Types;
  */
 class {$name} extends {$parentClass}
 {
-{$propsCode}
+{$traitStatement}{$propsCode}
 {$polymorphicMethod}
 }
 
@@ -137,6 +146,23 @@ PHP;
 
     private function buildPolymorphicMethod(string $parentName, array $subtypes): string
     {
+        if ($parentName === 'MaybeInaccessibleMessage') {
+            return <<<PHP
+
+    /**
+     * Resolves concrete child class dynamically based on discriminator fields.
+     */
+    public static function resolveChildClass(array \$data): string
+    {
+        if (isset(\$data['date']) && (int)\$data['date'] === 0) {
+            return InaccessibleMessage::class;
+        }
+
+        return Message::class;
+    }
+PHP;
+        }
+
         $cases = [];
         foreach ($subtypes as $sub) {
             $subDef = $this->spec['types'][$sub] ?? [];

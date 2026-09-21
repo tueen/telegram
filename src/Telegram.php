@@ -19,6 +19,9 @@ use Tueen\Telegram\Pipeline\LoggingMiddleware;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Pipeline\Pipeline;
 use Tueen\Telegram\Pipeline\RetryMiddleware;
+use Tueen\Telegram\Running\PollingMode;
+use Tueen\Telegram\Running\RunningModeInterface;
+use Tueen\Telegram\Running\WebhookMode;
 use Tueen\Telegram\Types\Custom\ArrayResult;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\IntegerResult;
@@ -38,6 +41,7 @@ class Telegram
     private Config $config;
     private HttpClientInterface $httpClient;
     private Pipeline $pipeline;
+    private ?RunningModeInterface $runningMode = null;
 
     /** @var list<callable> */
     private array $beforeRequestHooks = [];
@@ -67,6 +71,8 @@ class Telegram
         if ($this->config->logger !== null) {
             $this->pipeline->pipe(new LoggingMiddleware($this->config->logger));
         }
+
+        $this->runningMode = $this->config->runningMode;
     }
 
     /**
@@ -415,24 +421,60 @@ class Telegram
     }
 
     /**
-     * Helper to parse and handle incoming webhook requests.
+     * Sets the active running mode (e.g. WebhookMode or PollingMode).
+     */
+    public function setRunningMode(RunningModeInterface $mode): static
+    {
+        $this->runningMode = $mode;
+        return $this;
+    }
+
+    /**
+     * Gets the active running mode, defaulting to WebhookMode.
+     */
+    public function getRunningMode(): RunningModeInterface
+    {
+        return $this->runningMode ??= new WebhookMode();
+    }
+
+    /**
+     * Resolves an incoming update using the active running mode or provided raw payload.
+     */
+    public function getUpdate(?string $rawInput = null): Update
+    {
+        $mode = $this->getRunningMode();
+        if ($rawInput !== null && $mode instanceof WebhookMode) {
+            $mode->setRawInput($rawInput);
+        }
+
+        if ($mode instanceof WebhookMode) {
+            return $mode->getUpdate($this);
+        }
+
+        $update = $mode->processUpdate($this);
+        if ($update instanceof Update) {
+            return $update;
+        }
+
+        throw new TelegramException("Running mode did not return an Update object.");
+    }
+
+    /**
+     * Executes the bot with an optional update handler according to the configured running mode.
+     *
+     * @param callable(Update): mixed|null $handler
+     */
+    public function run(?callable $handler = null): mixed
+    {
+        return $this->getRunningMode()->processUpdate($this, $handler);
+    }
+
+    /**
+     * Alias for getUpdate() for backward compatibility.
      */
     public function handleWebhook(?string $rawInput = null): Update
     {
-        if ($rawInput === null) {
-            $rawInput = file_get_contents('php://input');
-        }
-
-        if (empty($rawInput)) {
-            throw new TelegramException("Empty webhook payload received.");
-        }
-
-        $data = json_decode($rawInput, true);
-        if (!is_array($data)) {
-            throw new TelegramException("Invalid JSON payload in webhook: " . json_last_error_msg());
-        }
-
-        return new Update($data);
+        return $this->getUpdate($rawInput);
     }
 
     /**
@@ -442,27 +484,8 @@ class Telegram
      */
     public function poll(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null): Generator
     {
-        $offset = 0;
-
-        while (true) {
-            try {
-                /** @var Update[] $updates */
-                $updates = $this->getUpdates(
-                    offset: $offset,
-                    limit: $limit,
-                    timeout: $timeout,
-                    allowedUpdates: $allowedUpdates
-                );
-
-                foreach ($updates as $update) {
-                    $offset = max($offset, $update->updateId + 1);
-                    yield $update;
-                }
-            } catch (TelegramException $e) {
-                // Yield error or backoff
-                sleep(2);
-            }
-        }
+        $mode = new PollingMode(timeout: $timeout, limit: $limit, allowedUpdates: $allowedUpdates);
+        return $mode->getUpdatesGenerator($this);
     }
 
     public function getConfig(): Config

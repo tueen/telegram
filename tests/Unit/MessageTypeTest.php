@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+use Tueen\Telegram\Enums\MessageType;
+use Tueen\Telegram\Types\Message;
+
+class MessageTypeTest extends TestCase
+{
+    public function testTextMessageAndCommandHelpers(): void
+    {
+        $message = new Message([
+            'message_id' => 1,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'text' => '/start 12345 hello_world',
+        ]);
+
+        $this->assertSame(MessageType::TEXT, $message->type);
+        $this->assertSame(MessageType::TEXT, $message->getType());
+        $this->assertTrue($message->isType(MessageType::TEXT));
+        $this->assertFalse($message->isType(MessageType::PHOTO));
+
+        $this->assertTrue($message->isCommand());
+        $this->assertSame('start', $message->getCommand());
+        $this->assertSame(['12345', 'hello_world'], $message->getArgs());
+        $this->assertSame('/start 12345 hello_world', $message->getText());
+    }
+
+    public function testCommandWithBotUsername(): void
+    {
+        $message = new Message([
+            'message_id' => 2,
+            'date' => 1700000000,
+            'chat' => ['id' => -100123, 'type' => 'supergroup'],
+            'text' => '/ban@my_queen_bot 999 spamming in chat',
+        ]);
+
+        $this->assertTrue($message->isCommand());
+        $this->assertSame('ban', $message->getCommand());
+        $this->assertSame(['999', 'spamming', 'in', 'chat'], $message->getArgs());
+    }
+
+    public function testNonCommandTextMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 3,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'text' => 'Just a plain text message',
+        ]);
+
+        $this->assertSame(MessageType::TEXT, $message->type);
+        $this->assertFalse($message->isCommand());
+        $this->assertNull($message->getCommand());
+        $this->assertSame([], $message->getArgs());
+    }
+
+    public function testPhotoMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 4,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'photo' => [
+                [
+                    'file_id' => 'ph_thumb',
+                    'file_unique_id' => 'u1',
+                    'width' => 100,
+                    'height' => 100,
+                ],
+                [
+                    'file_id' => 'ph_large',
+                    'file_unique_id' => 'u2',
+                    'width' => 800,
+                    'height' => 800,
+                ],
+            ],
+            'caption' => 'Check this photo',
+        ]);
+
+        $this->assertSame(MessageType::PHOTO, $message->type);
+        $this->assertTrue($message->isType(MessageType::PHOTO));
+        $this->assertSame('Check this photo', $message->getText());
+        $this->assertFalse($message->isCommand());
+    }
+
+    public function testVoiceMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 5,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'voice' => [
+                'file_id' => 'voice_123',
+                'file_unique_id' => 'u3',
+                'duration' => 12,
+            ],
+        ]);
+
+        $this->assertSame(MessageType::VOICE, $message->type);
+        $this->assertTrue($message->isType(MessageType::VOICE));
+    }
+}

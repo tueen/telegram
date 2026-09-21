@@ -10,6 +10,7 @@ use Throwable;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Running\RunningModeInterface;
 
 class ConfigBuilder
 {
@@ -27,6 +28,7 @@ class ConfigBuilder
     private ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION;
     /** @var list<class-string<Throwable>> */
     private array $convertExceptionsToError = [ApiException::class];
+    private ?RunningModeInterface $runningMode = null;
 
     public function __construct(string $botToken = '')
     {
@@ -153,6 +155,12 @@ class ConfigBuilder
         return $this;
     }
 
+    public function withRunningMode(?RunningModeInterface $mode): static
+    {
+        $this->runningMode = $mode;
+        return $this;
+    }
+
     public function build(): Config
     {
         return new Config(
@@ -168,7 +176,8 @@ class ConfigBuilder
             retryCount: $this->retryCount,
             testEnvironment: $this->testEnvironment,
             errorHandlingMode: $this->errorHandlingMode,
-            convertExceptionsToError: $this->convertExceptionsToError
+            convertExceptionsToError: $this->convertExceptionsToError,
+            runningMode: $this->runningMode
         );
     }
 }

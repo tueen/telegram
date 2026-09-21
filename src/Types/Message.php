@@ -83,6 +83,7 @@ use Tueen\Telegram\Types\VideoChatEnded;
 use Tueen\Telegram\Types\VideoChatParticipantsInvited;
 use Tueen\Telegram\Types\WebAppData;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\Concerns\HasMessageHelpers;
 
 /**
  * This object represents a message.
@@ -91,6 +92,8 @@ use Tueen\Telegram\Types\InlineKeyboardMarkup;
  */
 class Message extends MaybeInaccessibleMessage
 {
+    use HasMessageHelpers;
+
     /**
      * Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
      */

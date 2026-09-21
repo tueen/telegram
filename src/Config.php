@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Running\RunningModeInterface;
 
 class Config
 {
@@ -26,7 +27,8 @@ class Config
         public readonly bool $testEnvironment = false,
         public readonly ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION,
         /** @var list<class-string<\Throwable>> */
-        public readonly array $convertExceptionsToError = [ApiException::class]
+        public readonly array $convertExceptionsToError = [ApiException::class],
+        public readonly ?RunningModeInterface $runningMode = null
     ) {}
 
     public static function builder(string $botToken = ''): ConfigBuilder
