@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram;
 
-use BadMethodCallException;
 use Closure;
 use Generator;
 use ReflectionClass;
@@ -19,7 +18,6 @@ use Tueen\Telegram\Pipeline\LoggingMiddleware;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Pipeline\Pipeline;
 use Tueen\Telegram\Pipeline\RetryMiddleware;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;

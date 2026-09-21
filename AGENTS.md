@@ -29,7 +29,6 @@ tueen/telegram/
 │   ├── Methods/                       # All Telegram Bot API methods (185 methods)
 │   │   └── Method.php                 # Base Method class with multipart & serialization
 │   ├── Enums/                         # Standard Backed Enums (ParseMode, ChatType, etc.)
-│   ├── Properties/                    # Backward-compatibility alias layer for Enums
 │   ├── Client/                        # HTTP client abstraction (PSR-18 / Guzzle 7)
 │   │   ├── HttpClientInterface.php
 │   │   ├── GuzzleHttpClient.php

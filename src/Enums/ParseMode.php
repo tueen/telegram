@@ -4,4 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Enums;
 
-class_alias(\Tueen\Telegram\Properties\ParseMode::class, ParseMode::class);
+enum ParseMode: string
+{
+    case HTML = 'HTML';
+    case Markdown = 'Markdown';
+    case MarkdownV2 = 'MarkdownV2';
+}

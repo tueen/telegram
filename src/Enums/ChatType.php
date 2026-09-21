@@ -4,4 +4,11 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Enums;
 
-class_alias(\Tueen\Telegram\Properties\ChatType::class, ChatType::class);
+enum ChatType: string
+{
+    case Sender = 'sender';
+    case Private = 'private';
+    case Group = 'group';
+    case Supergroup = 'supergroup';
+    case Channel = 'channel';
+}

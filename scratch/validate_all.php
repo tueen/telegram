@@ -11,7 +11,6 @@ $dirs = [
     __DIR__ . '/../src/Types',
     __DIR__ . '/../src/Methods',
     __DIR__ . '/../src/Contracts',
-    __DIR__ . '/../src/Properties',
     __DIR__ . '/../src/Enums',
     __DIR__ . '/../src/Client',
     __DIR__ . '/../src/Pipeline',
