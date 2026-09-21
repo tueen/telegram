@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\KeyboardButton;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account.

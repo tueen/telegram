@@ -4,15 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\InputMediaAnimation;
-use Tueen\Telegram\Types\InputMediaAudio;
-use Tueen\Telegram\Types\InputMediaDocument;
-use Tueen\Telegram\Types\InputMediaPhoto;
-use Tueen\Telegram\Types\InputMediaVideo;
-use Tueen\Telegram\Types\InputMediaVoiceNote;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Describes a media element embedded in an outgoing rich message.

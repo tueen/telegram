@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\OwnedGiftType;
-use Tueen\Telegram\Types\UniqueGift;
-use Tueen\Telegram\Types\User;
 
 /**
  * Describes a unique gift received and owned by a user or a chat.

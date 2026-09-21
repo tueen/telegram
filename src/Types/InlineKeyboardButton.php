@@ -4,16 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ButtonStyle;
-use Tueen\Telegram\Types\WebAppInfo;
-use Tueen\Telegram\Types\LoginUrl;
-use Tueen\Telegram\Types\SwitchInlineQueryChosenChat;
-use Tueen\Telegram\Types\CopyTextButton;
-use Tueen\Telegram\Types\CallbackGame;
-use Tueen\Telegram\Types\DisabledButton;
 
 /**
  * This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button.

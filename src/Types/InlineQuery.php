@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\Location;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results.

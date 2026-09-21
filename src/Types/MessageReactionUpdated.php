@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Chat;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\ReactionType;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object represents a change of a reaction on a message performed by a user.

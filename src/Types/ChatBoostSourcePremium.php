@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ChatBoostSourceSource;
-use Tueen\Telegram\Types\User;
 
 /**
  * The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user.

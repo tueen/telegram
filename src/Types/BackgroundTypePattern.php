@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\BackgroundTypeType;
-use Tueen\Telegram\Types\Document;
-use Tueen\Telegram\Types\BackgroundFill;
 
 /**
  * The background is a .PNG or .TGV (gzipped subset of SVG with MIME type "application/x-tgwallpattern") pattern to be combined with the background fill chosen by the user.

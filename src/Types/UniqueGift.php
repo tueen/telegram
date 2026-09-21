@@ -4,14 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\UniqueGiftModel;
-use Tueen\Telegram\Types\UniqueGiftSymbol;
-use Tueen\Telegram\Types\UniqueGiftBackdrop;
-use Tueen\Telegram\Types\UniqueGiftColors;
-use Tueen\Telegram\Types\Chat;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object describes a unique gift that was upgraded from a regular gift.

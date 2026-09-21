@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\InlineQueryResultType;
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
-use Tueen\Telegram\Types\InputMessageContent;
 
 /**
  * Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.

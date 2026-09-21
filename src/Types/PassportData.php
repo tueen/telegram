@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\EncryptedPassportElement;
-use Tueen\Telegram\Types\EncryptedCredentials;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Describes Telegram Passport data shared with the bot by the user.

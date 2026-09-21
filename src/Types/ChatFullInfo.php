@@ -4,25 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\ChatPhoto;
-use Tueen\Telegram\Types\Birthdate;
-use Tueen\Telegram\Types\BusinessIntro;
-use Tueen\Telegram\Types\BusinessLocation;
-use Tueen\Telegram\Types\BusinessOpeningHours;
-use Tueen\Telegram\Types\Chat;
-use Tueen\Telegram\Types\ReactionType;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\ChatPermissions;
-use Tueen\Telegram\Types\AcceptedGiftTypes;
-use Tueen\Telegram\Types\ChatLocation;
-use Tueen\Telegram\Types\UserRating;
-use Tueen\Telegram\Types\Audio;
-use Tueen\Telegram\Types\UniqueGiftColors;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\Community;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object contains full information about a chat.

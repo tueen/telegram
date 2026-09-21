@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\Location;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Represents a result of an inline query that was chosen by the user and sent to their chat partner.

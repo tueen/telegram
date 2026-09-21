@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ChatMemberStatus;
-use Tueen\Telegram\Types\User;
 
 /**
  * Represents a chat member that isn't currently a member of the chat, but may join it themselves.

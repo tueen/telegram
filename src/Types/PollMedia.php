@@ -4,19 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Animation;
-use Tueen\Telegram\Types\Audio;
-use Tueen\Telegram\Types\Document;
-use Tueen\Telegram\Types\Link;
-use Tueen\Telegram\Types\LivePhoto;
-use Tueen\Telegram\Types\Location;
-use Tueen\Telegram\Types\PhotoSize;
-use Tueen\Telegram\Types\Sticker;
-use Tueen\Telegram\Types\Venue;
-use Tueen\Telegram\Types\Video;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * At most one of the optional fields can be present in any given object.

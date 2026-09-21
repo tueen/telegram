@@ -4,29 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\BusinessConnection;
-use Tueen\Telegram\Types\BusinessMessagesDeleted;
-use Tueen\Telegram\Types\MessageReactionUpdated;
-use Tueen\Telegram\Types\MessageReactionCountUpdated;
-use Tueen\Telegram\Types\InlineQuery;
-use Tueen\Telegram\Types\ChosenInlineResult;
-use Tueen\Telegram\Types\CallbackQuery;
-use Tueen\Telegram\Types\ShippingQuery;
-use Tueen\Telegram\Types\PreCheckoutQuery;
-use Tueen\Telegram\Types\PaidMediaPurchased;
-use Tueen\Telegram\Types\Poll;
-use Tueen\Telegram\Types\PollAnswer;
-use Tueen\Telegram\Types\ChatMemberUpdated;
-use Tueen\Telegram\Types\ChatJoinRequest;
-use Tueen\Telegram\Types\ChatBoostUpdated;
-use Tueen\Telegram\Types\ChatBoostRemoved;
-use Tueen\Telegram\Types\ManagedBotUpdated;
-use Tueen\Telegram\Types\BotSubscriptionUpdated;
-use Tueen\Telegram\Types\MessageGenerationStopped;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\Concerns\HasUpdateHelpers;
 
 /**

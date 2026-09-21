@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Gift;
-use Tueen\Telegram\Types\MessageEntity;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Describes a service message about a regular gift that was sent or received.

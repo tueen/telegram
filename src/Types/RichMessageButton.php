@@ -4,15 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\RichText;
-use Tueen\Telegram\Types\WebAppInfo;
-use Tueen\Telegram\Types\LoginUrl;
-use Tueen\Telegram\Types\SwitchInlineQueryChosenChat;
-use Tueen\Telegram\Types\CopyTextButton;
-use Tueen\Telegram\Types\DisabledButton;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button.

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\SharedUser;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object contains information about the users whose identifiers were shared with the bot using a KeyboardButtonRequestUsers button.

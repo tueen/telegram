@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\Currency;
-use Tueen\Telegram\Types\StarAmount;
 
 /**
  * Describes a service message about a successful payment for a suggested post.

@@ -4,33 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\MessageOrigin;
-use Tueen\Telegram\Types\Chat;
-use Tueen\Telegram\Types\LinkPreviewOptions;
-use Tueen\Telegram\Types\Animation;
-use Tueen\Telegram\Types\Audio;
-use Tueen\Telegram\Types\Document;
-use Tueen\Telegram\Types\LivePhoto;
-use Tueen\Telegram\Types\PaidMediaInfo;
-use Tueen\Telegram\Types\PhotoSize;
-use Tueen\Telegram\Types\Sticker;
-use Tueen\Telegram\Types\Story;
-use Tueen\Telegram\Types\Video;
-use Tueen\Telegram\Types\VideoNote;
-use Tueen\Telegram\Types\Voice;
-use Tueen\Telegram\Types\Checklist;
-use Tueen\Telegram\Types\Contact;
-use Tueen\Telegram\Types\Dice;
-use Tueen\Telegram\Types\Game;
-use Tueen\Telegram\Types\Giveaway;
-use Tueen\Telegram\Types\GiveawayWinners;
-use Tueen\Telegram\Types\Invoice;
-use Tueen\Telegram\Types\Location;
-use Tueen\Telegram\Types\Poll;
-use Tueen\Telegram\Types\Venue;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object contains information about a message that is being replied to, which may come from another chat or forum topic.

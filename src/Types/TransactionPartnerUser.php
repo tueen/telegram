@@ -4,14 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\TransactionPartnerType;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\AffiliateInfo;
-use Tueen\Telegram\Types\PaidMedia;
-use Tueen\Telegram\Types\Gift;
 
 /**
  * Describes a transaction with a user.

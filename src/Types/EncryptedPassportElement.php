@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\PassportFile;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Describes documents or other Telegram Passport elements shared with the bot by the user.

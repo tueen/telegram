@@ -68,7 +68,6 @@ class CodeGenerator
 
         $propLines = [];
         $imports = [
-            'Tueen\Telegram\Types\Type',
             'Tueen\Telegram\Attributes\Field',
             'Tueen\Telegram\Attributes\ArrayOf',
         ];
@@ -118,8 +117,16 @@ class CodeGenerator
             $traitStatement = "    use HasMessageHelpers;\n\n";
         }
 
+        // Filter out same-namespace imports (anything directly in Tueen\Telegram\Types\)
+        $imports = array_filter($imports, function (string $i): bool {
+            return !preg_match('/^Tueen\\\\Telegram\\\\Types\\\\[A-Za-z0-9_]+$/', $i);
+        });
+
+        $allImports = array_unique($imports);
+        sort($allImports);
+        $importsCode = !empty($allImports) ? implode("\n", array_map(fn($i) => "use {$i};", $allImports)) . "\n" : '';
+
         $propsCode = implode("\n\n", $propLines);
-        $importsCode = implode("\n", array_unique(array_map(fn($i) => "use {$i};", $imports)));
 
         return <<<PHP
 <?php
@@ -129,7 +136,6 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Types;
 
 {$importsCode}
-
 /**
  * {$description}
  *

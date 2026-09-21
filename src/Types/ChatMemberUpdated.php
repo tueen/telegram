@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Chat;
-use Tueen\Telegram\Types\User;
-use Tueen\Telegram\Types\ChatMember;
-use Tueen\Telegram\Types\ChatInviteLink;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * This object represents changes in the status of a chat member.

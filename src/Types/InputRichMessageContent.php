@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\InputRichMessage;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Represents the content of a rich message to be sent as the result of an inline query.

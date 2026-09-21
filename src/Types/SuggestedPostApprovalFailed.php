@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\SuggestedPostPrice;
+use Tueen\Telegram\Attributes\Field;
 
 /**
  * Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval.

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\StoryAreaTypeType;
-use Tueen\Telegram\Types\ReactionType;
 
 /**
  * Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas.

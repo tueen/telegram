@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\InlineQueryResultType;
 use Tueen\Telegram\Enums\ParseMode;
-use Tueen\Telegram\Types\MessageEntity;
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
-use Tueen\Telegram\Types\InputMessageContent;
 
 /**
  * Represents a link to an animated GIF file stored on the Telegram servers. By default, this animated GIF file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with specified content instead of the animation.

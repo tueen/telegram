@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ArrayOf;
+use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ButtonStyle;
-use Tueen\Telegram\Types\KeyboardButtonRequestUsers;
-use Tueen\Telegram\Types\KeyboardButtonRequestChat;
-use Tueen\Telegram\Types\KeyboardButtonRequestManagedBot;
-use Tueen\Telegram\Types\KeyboardButtonPollType;
-use Tueen\Telegram\Types\WebAppInfo;
 
 /**
  * This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text.
