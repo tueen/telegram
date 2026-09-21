@@ -26,9 +26,11 @@ class DeleteStickerSet extends Method
     public string $name;
 
     public function __construct(
-        string $name
+        string $name,
+        mixed ...$extra
     )
     {
         if ($name !== null) $this->name = $name;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

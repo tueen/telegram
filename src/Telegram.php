@@ -163,21 +163,41 @@ class Telegram
 
         $parameters = $constructor->getParameters();
         $passedArgs = [];
+        $consumedKeys = [];
 
         foreach ($parameters as $param) {
+            if ($param->isVariadic()) {
+                continue;
+            }
+
             $pName = $param->getName();
             $snake = Type::toSnakeCase($pName);
 
             if (array_key_exists($pName, $arguments)) {
                 $passedArgs[$pName] = $arguments[$pName];
+                $consumedKeys[$pName] = true;
             } elseif (array_key_exists($snake, $arguments)) {
                 $passedArgs[$pName] = $arguments[$snake];
+                $consumedKeys[$snake] = true;
             } elseif ($param->isDefaultValueAvailable()) {
                 $passedArgs[$pName] = $param->getDefaultValue();
             }
         }
 
-        return $reflection->newInstanceArgs($passedArgs);
+        $extraArgs = [];
+        foreach ($arguments as $k => $v) {
+            if (!isset($consumedKeys[$k])) {
+                $extraArgs[$k] = $v;
+            }
+        }
+
+        /** @var Method $instance */
+        $instance = $reflection->newInstanceArgs($passedArgs);
+        if (!empty($extraArgs)) {
+            $instance->handleExtraParameters($extraArgs);
+        }
+
+        return $instance;
     }
 
     /**

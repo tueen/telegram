@@ -26,9 +26,11 @@ class GetChatMenuButton extends Method
     public ?int $chatId = null;
 
     public function __construct(
-        ?int $chatId = null
+        ?int $chatId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

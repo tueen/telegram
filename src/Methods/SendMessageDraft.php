@@ -76,7 +76,8 @@ class SendMessageDraft extends Method
         ParseMode|string|null $parseMode = null,
         ?array $entities = null,
         ?bool $canStop = null,
-        ?bool $keepOnStop = null
+        ?bool $keepOnStop = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -87,5 +88,6 @@ class SendMessageDraft extends Method
         if ($entities !== null) $this->entities = $entities;
         if ($canStop !== null) $this->canStop = $canStop;
         if ($keepOnStop !== null) $this->keepOnStop = $keepOnStop;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

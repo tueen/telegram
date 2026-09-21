@@ -33,10 +33,12 @@ class VerifyUser extends Method
 
     public function __construct(
         int $userId,
-        ?string $customDescription = null
+        ?string $customDescription = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

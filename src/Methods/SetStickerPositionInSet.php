@@ -33,10 +33,12 @@ class SetStickerPositionInSet extends Method
 
     public function __construct(
         string $sticker,
-        int $position
+        int $position,
+        mixed ...$extra
     )
     {
         if ($sticker !== null) $this->sticker = $sticker;
         if ($position !== null) $this->position = $position;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

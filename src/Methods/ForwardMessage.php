@@ -90,7 +90,8 @@ class ForwardMessage extends Method
         ?bool $disableNotification = null,
         ?bool $protectContent = null,
         ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null
+        ?SuggestedPostParameters $suggestedPostParameters = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -103,5 +104,6 @@ class ForwardMessage extends Method
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -63,7 +63,8 @@ class EditMessageMedia extends Method
         int|string|null $chatId = null,
         ?int $messageId = null,
         ?string $inlineMessageId = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($media !== null) $this->media = $media;
@@ -72,5 +73,6 @@ class EditMessageMedia extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

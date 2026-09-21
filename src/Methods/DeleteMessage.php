@@ -43,10 +43,12 @@ class DeleteMessage extends Method
 
     public function __construct(
         int|string $chatId,
-        int $messageId
+        int $messageId,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

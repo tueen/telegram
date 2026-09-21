@@ -33,10 +33,12 @@ class SetCustomEmojiStickerSetThumbnail extends Method
 
     public function __construct(
         string $name,
-        ?string $customEmojiId = null
+        ?string $customEmojiId = null,
+        mixed ...$extra
     )
     {
         if ($name !== null) $this->name = $name;
         if ($customEmojiId !== null) $this->customEmojiId = $customEmojiId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

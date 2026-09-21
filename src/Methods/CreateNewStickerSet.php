@@ -62,7 +62,8 @@ class CreateNewStickerSet extends Method
         string $title,
         array $stickers,
         StickerType|string|null $stickerType = null,
-        ?bool $needsRepainting = null
+        ?bool $needsRepainting = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
@@ -71,5 +72,6 @@ class CreateNewStickerSet extends Method
         if ($stickers !== null) $this->stickers = $stickers;
         if ($stickerType !== null) $this->stickerType = $stickerType;
         if ($needsRepainting !== null) $this->needsRepainting = $needsRepainting;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

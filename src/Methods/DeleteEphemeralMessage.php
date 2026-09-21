@@ -40,11 +40,13 @@ class DeleteEphemeralMessage extends Method
     public function __construct(
         int|string $chatId,
         int $receiverUserId,
-        int $ephemeralMessageId
+        int $ephemeralMessageId,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
         if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

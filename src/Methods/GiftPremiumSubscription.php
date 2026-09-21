@@ -62,7 +62,8 @@ class GiftPremiumSubscription extends Method
         int $starCount,
         ?string $text = null,
         ParseMode|string|null $textParseMode = null,
-        ?array $textEntities = null
+        ?array $textEntities = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
@@ -71,5 +72,6 @@ class GiftPremiumSubscription extends Method
         if ($text !== null) $this->text = $text;
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

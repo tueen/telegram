@@ -34,10 +34,12 @@ class AnswerChatJoinRequestQuery extends Method
 
     public function __construct(
         string $chatJoinRequestQueryId,
-        ChatJoinRequestResult|string $result
+        ChatJoinRequestResult|string $result,
+        mixed ...$extra
     )
     {
         if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
         if ($result !== null) $this->result = $result;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

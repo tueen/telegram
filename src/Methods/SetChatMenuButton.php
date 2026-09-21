@@ -34,10 +34,12 @@ class SetChatMenuButton extends Method
 
     public function __construct(
         ?int $chatId = null,
-        ?MenuButton $menuButton = null
+        ?MenuButton $menuButton = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($menuButton !== null) $this->menuButton = $menuButton;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

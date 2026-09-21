@@ -47,12 +47,14 @@ class TransferGift extends Method
         string $businessConnectionId,
         string $ownedGiftId,
         int $newOwnerChatId,
-        ?int $starCount = null
+        ?int $starCount = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
         if ($newOwnerChatId !== null) $this->newOwnerChatId = $newOwnerChatId;
         if ($starCount !== null) $this->starCount = $starCount;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

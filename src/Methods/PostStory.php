@@ -85,7 +85,8 @@ class PostStory extends Method
         ?array $captionEntities = null,
         ?array $areas = null,
         ?bool $postToChatPage = null,
-        ?bool $protectContent = null
+        ?bool $protectContent = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -97,5 +98,6 @@ class PostStory extends Method
         if ($areas !== null) $this->areas = $areas;
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -174,7 +174,8 @@ class CreateInvoiceLink extends Method
         ?bool $needShippingAddress = null,
         ?bool $sendPhoneNumberToProvider = null,
         ?bool $sendEmailToProvider = null,
-        ?bool $isFlexible = null
+        ?bool $isFlexible = null,
+        mixed ...$extra
     )
     {
         if ($title !== null) $this->title = $title;
@@ -199,5 +200,6 @@ class CreateInvoiceLink extends Method
         if ($sendPhoneNumberToProvider !== null) $this->sendPhoneNumberToProvider = $sendPhoneNumberToProvider;
         if ($sendEmailToProvider !== null) $this->sendEmailToProvider = $sendEmailToProvider;
         if ($isFlexible !== null) $this->isFlexible = $isFlexible;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -33,10 +33,12 @@ class DeleteBusinessMessages extends Method
 
     public function __construct(
         string $businessConnectionId,
-        array $messageIds
+        array $messageIds,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageIds !== null) $this->messageIds = $messageIds;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

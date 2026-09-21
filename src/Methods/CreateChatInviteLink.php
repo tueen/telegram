@@ -54,7 +54,8 @@ class CreateChatInviteLink extends Method
         ?string $name = null,
         ?int $expireDate = null,
         ?int $memberLimit = null,
-        ?bool $createsJoinRequest = null
+        ?bool $createsJoinRequest = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -62,5 +63,6 @@ class CreateChatInviteLink extends Method
         if ($expireDate !== null) $this->expireDate = $expireDate;
         if ($memberLimit !== null) $this->memberLimit = $memberLimit;
         if ($createsJoinRequest !== null) $this->createsJoinRequest = $createsJoinRequest;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

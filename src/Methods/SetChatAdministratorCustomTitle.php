@@ -40,11 +40,13 @@ class SetChatAdministratorCustomTitle extends Method
     public function __construct(
         int|string $chatId,
         int $userId,
-        string $customTitle
+        string $customTitle,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($customTitle !== null) $this->customTitle = $customTitle;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

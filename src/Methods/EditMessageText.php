@@ -93,7 +93,8 @@ class EditMessageText extends Method
         ?array $entities = null,
         ?LinkPreviewOptions $linkPreviewOptions = null,
         ?InputRichMessage $richMessage = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -106,5 +107,6 @@ class EditMessageText extends Method
         if ($linkPreviewOptions !== null) $this->linkPreviewOptions = $linkPreviewOptions;
         if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

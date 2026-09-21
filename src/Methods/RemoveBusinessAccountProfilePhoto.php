@@ -33,10 +33,12 @@ class RemoveBusinessAccountProfilePhoto extends Method
 
     public function __construct(
         string $businessConnectionId,
-        ?bool $isPublic = null
+        ?bool $isPublic = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($isPublic !== null) $this->isPublic = $isPublic;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

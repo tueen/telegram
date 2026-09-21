@@ -26,9 +26,11 @@ class DeleteStickerFromSet extends Method
     public string $sticker;
 
     public function __construct(
-        string $sticker
+        string $sticker,
+        mixed ...$extra
     )
     {
         if ($sticker !== null) $this->sticker = $sticker;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -244,6 +244,9 @@ PHP;
             $constructBody[] = "        if (\${$camelName} !== null) \$this->{$camelName} = \${$camelName};";
         }
 
+        $params[] = 'mixed ...$extra';
+        $constructBody[] = "        if (!empty(\$extra)) \$this->handleExtraParameters(\$extra);";
+
         $propsCode = implode("\n\n", $props);
         $paramsCode = implode(",\n        ", $params);
         if (!empty($paramsCode)) {
@@ -610,6 +613,7 @@ PHP;
                 $paramList[] = "{$phpType} \${$c}{$def}";
             }
 
+            $paramList[] = 'mixed ...$extra';
             $paramsStr = implode(', ', $paramList);
             $lines[] = " * @method {$retType} {$rawName}({$paramsStr})";
         }

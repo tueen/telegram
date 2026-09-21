@@ -33,10 +33,12 @@ class GetChatAdministrators extends Method
 
     public function __construct(
         int|string $chatId,
-        ?bool $returnBots = null
+        ?bool $returnBots = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($returnBots !== null) $this->returnBots = $returnBots;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -27,9 +27,11 @@ class SetMyProfilePhoto extends Method
     public InputProfilePhoto $photo;
 
     public function __construct(
-        InputProfilePhoto $photo
+        InputProfilePhoto $photo,
+        mixed ...$extra
     )
     {
         if ($photo !== null) $this->photo = $photo;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

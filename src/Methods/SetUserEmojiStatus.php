@@ -40,11 +40,13 @@ class SetUserEmojiStatus extends Method
     public function __construct(
         int $userId,
         ?string $emojiStatusCustomEmojiId = null,
-        ?int $emojiStatusExpirationDate = null
+        ?int $emojiStatusExpirationDate = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($emojiStatusCustomEmojiId !== null) $this->emojiStatusCustomEmojiId = $emojiStatusCustomEmojiId;
         if ($emojiStatusExpirationDate !== null) $this->emojiStatusExpirationDate = $emojiStatusExpirationDate;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

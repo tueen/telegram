@@ -33,10 +33,12 @@ class SetBusinessAccountUsername extends Method
 
     public function __construct(
         string $businessConnectionId,
-        ?string $username = null
+        ?string $username = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($username !== null) $this->username = $username;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

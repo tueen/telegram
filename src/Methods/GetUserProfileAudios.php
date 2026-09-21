@@ -40,11 +40,13 @@ class GetUserProfileAudios extends Method
     public function __construct(
         int $userId,
         ?int $offset = null,
-        ?int $limit = null
+        ?int $limit = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

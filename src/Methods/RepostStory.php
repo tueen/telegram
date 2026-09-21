@@ -62,7 +62,8 @@ class RepostStory extends Method
         int $fromStoryId,
         StoryActivePeriod|int $activePeriod,
         ?bool $postToChatPage = null,
-        ?bool $protectContent = null
+        ?bool $protectContent = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -71,5 +72,6 @@ class RepostStory extends Method
         if ($activePeriod !== null) $this->activePeriod = $activePeriod;
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

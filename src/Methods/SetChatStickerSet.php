@@ -33,10 +33,12 @@ class SetChatStickerSet extends Method
 
     public function __construct(
         int|string $chatId,
-        string $stickerSetName
+        string $stickerSetName,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($stickerSetName !== null) $this->stickerSetName = $stickerSetName;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

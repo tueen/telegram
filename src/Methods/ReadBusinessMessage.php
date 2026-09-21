@@ -40,11 +40,13 @@ class ReadBusinessMessage extends Method
     public function __construct(
         string $businessConnectionId,
         int $chatId,
-        int $messageId
+        int $messageId,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -240,7 +240,8 @@ class SendInvoice extends Method
         ?string $messageEffectId = null,
         ?SuggestedPostParameters $suggestedPostParameters = null,
         ?ReplyParameters $replyParameters = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -274,5 +275,6 @@ class SendInvoice extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

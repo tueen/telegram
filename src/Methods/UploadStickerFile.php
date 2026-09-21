@@ -44,11 +44,13 @@ class UploadStickerFile extends Method
     public function __construct(
         int $userId,
         InputFile $sticker,
-        StickerFormat|string $stickerFormat
+        StickerFormat|string $stickerFormat,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($sticker !== null) $this->sticker = $sticker;
         if ($stickerFormat !== null) $this->stickerFormat = $stickerFormat;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

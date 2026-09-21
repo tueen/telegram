@@ -33,10 +33,12 @@ class CloseForumTopic extends Method
 
     public function __construct(
         int|string $chatId,
-        int $messageThreadId
+        int $messageThreadId,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

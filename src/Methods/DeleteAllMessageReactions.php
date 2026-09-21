@@ -40,11 +40,13 @@ class DeleteAllMessageReactions extends Method
     public function __construct(
         int|string $chatId,
         ?int $userId = null,
-        ?int $actorChatId = null
+        ?int $actorChatId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($actorChatId !== null) $this->actorChatId = $actorChatId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

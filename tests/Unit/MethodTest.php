@@ -64,4 +64,29 @@ class MethodTest extends TestCase
         $this->assertSame(987654, $method->chatId);
         $this->assertSame('Testing make method', $method->text);
     }
+
+    public function testExtraVariadicNamedParameters(): void
+    {
+        // 1. Instantiation with custom extra named arguments
+        $method = new SendMessage(
+            chatId: 112233,
+            text: 'Hello forward compatible',
+            futureTelegramParam: 'future_value',
+            another_snake_param: 42
+        );
+
+        $params = $method->getParameters();
+        $this->assertSame('future_value', $params['future_telegram_param']);
+        $this->assertSame(42, $params['another_snake_param']);
+    }
+
+    public function testPositionalExtraParametersThrowException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Extra parameters must be named arguments');
+
+        $method = new SendMessage(112233, 'Hello');
+        // Manually simulate positional extra argument
+        $method->handleExtraParameters([0 => 'invalid_positional']);
+    }
 }

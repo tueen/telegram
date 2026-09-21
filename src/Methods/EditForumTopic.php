@@ -47,12 +47,14 @@ class EditForumTopic extends Method
         int|string $chatId,
         int $messageThreadId,
         ?string $name = null,
-        ?string $iconCustomEmojiId = null
+        ?string $iconCustomEmojiId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($name !== null) $this->name = $name;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

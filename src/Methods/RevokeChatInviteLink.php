@@ -33,10 +33,12 @@ class RevokeChatInviteLink extends Method
 
     public function __construct(
         int|string $chatId,
-        string $inviteLink
+        string $inviteLink,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($inviteLink !== null) $this->inviteLink = $inviteLink;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

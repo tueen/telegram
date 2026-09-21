@@ -33,10 +33,12 @@ class SetMyName extends Method
 
     public function __construct(
         ?string $name = null,
-        ?string $languageCode = null
+        ?string $languageCode = null,
+        mixed ...$extra
     )
     {
         if ($name !== null) $this->name = $name;
         if ($languageCode !== null) $this->languageCode = $languageCode;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

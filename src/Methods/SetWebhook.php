@@ -72,7 +72,8 @@ class SetWebhook extends Method
         ?int $maxConnections = null,
         ?array $allowedUpdates = null,
         ?bool $dropPendingUpdates = null,
-        ?string $secretToken = null
+        ?string $secretToken = null,
+        mixed ...$extra
     )
     {
         if ($url !== null) $this->url = $url;
@@ -82,5 +83,6 @@ class SetWebhook extends Method
         if ($allowedUpdates !== null) $this->allowedUpdates = $allowedUpdates;
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
         if ($secretToken !== null) $this->secretToken = $secretToken;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

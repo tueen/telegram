@@ -33,10 +33,12 @@ class SetStickerSetTitle extends Method
 
     public function __construct(
         string $name,
-        string $title
+        string $title,
+        mixed ...$extra
     )
     {
         if ($name !== null) $this->name = $name;
         if ($title !== null) $this->title = $title;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

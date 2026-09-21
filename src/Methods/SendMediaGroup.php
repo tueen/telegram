@@ -90,7 +90,8 @@ class SendMediaGroup extends Method
         ?bool $protectContent = null,
         ?bool $allowPaidBroadcast = null,
         ?string $messageEffectId = null,
-        ?ReplyParameters $replyParameters = null
+        ?ReplyParameters $replyParameters = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -103,5 +104,6 @@ class SendMediaGroup extends Method
         if ($allowPaidBroadcast !== null) $this->allowPaidBroadcast = $allowPaidBroadcast;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

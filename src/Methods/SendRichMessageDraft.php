@@ -62,7 +62,8 @@ class SendRichMessageDraft extends Method
         InputRichMessage $richMessage,
         ?int $messageThreadId = null,
         ?bool $canStop = null,
-        ?bool $keepOnStop = null
+        ?bool $keepOnStop = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -71,5 +72,6 @@ class SendRichMessageDraft extends Method
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($canStop !== null) $this->canStop = $canStop;
         if ($keepOnStop !== null) $this->keepOnStop = $keepOnStop;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

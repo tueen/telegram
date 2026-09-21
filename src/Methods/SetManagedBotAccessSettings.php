@@ -40,11 +40,13 @@ class SetManagedBotAccessSettings extends Method
     public function __construct(
         int $userId,
         bool $isAccessRestricted,
-        ?array $addedUserIds = null
+        ?array $addedUserIds = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($isAccessRestricted !== null) $this->isAccessRestricted = $isAccessRestricted;
         if ($addedUserIds !== null) $this->addedUserIds = $addedUserIds;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -159,7 +159,8 @@ class PromoteChatMember extends Method
         ?bool $canManageTopics = null,
         ?bool $canManageDirectMessages = null,
         ?bool $canManageTags = null,
-        ?bool $canSendWelcomeMessages = null
+        ?bool $canSendWelcomeMessages = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -182,5 +183,6 @@ class PromoteChatMember extends Method
         if ($canManageDirectMessages !== null) $this->canManageDirectMessages = $canManageDirectMessages;
         if ($canManageTags !== null) $this->canManageTags = $canManageTags;
         if ($canSendWelcomeMessages !== null) $this->canSendWelcomeMessages = $canSendWelcomeMessages;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

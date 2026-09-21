@@ -33,10 +33,12 @@ class SendChatJoinRequestWebApp extends Method
 
     public function __construct(
         string $chatJoinRequestQueryId,
-        string $webAppUrl
+        string $webAppUrl,
+        mixed ...$extra
     )
     {
         if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
         if ($webAppUrl !== null) $this->webAppUrl = $webAppUrl;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

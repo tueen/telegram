@@ -26,9 +26,11 @@ class GetMyDefaultAdministratorRights extends Method
     public ?bool $forChannels = null;
 
     public function __construct(
-        ?bool $forChannels = null
+        ?bool $forChannels = null,
+        mixed ...$extra
     )
     {
         if ($forChannels !== null) $this->forChannels = $forChannels;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

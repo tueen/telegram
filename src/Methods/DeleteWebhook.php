@@ -26,9 +26,11 @@ class DeleteWebhook extends Method
     public ?bool $dropPendingUpdates = null;
 
     public function __construct(
-        ?bool $dropPendingUpdates = null
+        ?bool $dropPendingUpdates = null,
+        mixed ...$extra
     )
     {
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

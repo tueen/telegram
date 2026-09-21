@@ -40,11 +40,13 @@ class ApproveSuggestedPost extends Method
     public function __construct(
         int $chatId,
         int $messageId,
-        ?int $sendDate = null
+        ?int $sendDate = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($sendDate !== null) $this->sendDate = $sendDate;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -56,7 +56,8 @@ class EditMessageChecklist extends Method
         int|string $chatId,
         int $messageId,
         InputChecklist $checklist,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -64,5 +65,6 @@ class EditMessageChecklist extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($checklist !== null) $this->checklist = $checklist;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

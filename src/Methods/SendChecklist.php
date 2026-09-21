@@ -78,7 +78,8 @@ class SendChecklist extends Method
         ?bool $protectContent = null,
         ?string $messageEffectId = null,
         ?ReplyParameters $replyParameters = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -89,5 +90,6 @@ class SendChecklist extends Method
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

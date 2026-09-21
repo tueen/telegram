@@ -33,10 +33,12 @@ class SetChatTitle extends Method
 
     public function __construct(
         int|string $chatId,
-        string $title
+        string $title,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($title !== null) $this->title = $title;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

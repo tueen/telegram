@@ -34,10 +34,12 @@ class GetMyCommands extends Method
 
     public function __construct(
         ?BotCommandScope $scope = null,
-        ?string $languageCode = null
+        ?string $languageCode = null,
+        mixed ...$extra
     )
     {
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

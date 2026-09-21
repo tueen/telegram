@@ -34,10 +34,12 @@ class SetStickerMaskPosition extends Method
 
     public function __construct(
         string $sticker,
-        ?MaskPosition $maskPosition = null
+        ?MaskPosition $maskPosition = null,
+        mixed ...$extra
     )
     {
         if ($sticker !== null) $this->sticker = $sticker;
         if ($maskPosition !== null) $this->maskPosition = $maskPosition;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

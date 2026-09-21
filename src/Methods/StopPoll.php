@@ -48,12 +48,14 @@ class StopPoll extends Method
         int|string $chatId,
         int $messageId,
         ?string $businessConnectionId = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

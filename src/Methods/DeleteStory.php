@@ -33,10 +33,12 @@ class DeleteStory extends Method
 
     public function __construct(
         string $businessConnectionId,
-        int $storyId
+        int $storyId,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($storyId !== null) $this->storyId = $storyId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -49,12 +49,14 @@ class SendChatAction extends Method
         int|string $chatId,
         ChatAction|string $action,
         ?string $businessConnectionId = null,
-        ?int $messageThreadId = null
+        ?int $messageThreadId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($action !== null) $this->action = $action;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

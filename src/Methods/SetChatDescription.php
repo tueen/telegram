@@ -33,10 +33,12 @@ class SetChatDescription extends Method
 
     public function __construct(
         int|string $chatId,
-        ?string $description = null
+        ?string $description = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($description !== null) $this->description = $description;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

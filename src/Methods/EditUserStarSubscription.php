@@ -40,11 +40,13 @@ class EditUserStarSubscription extends Method
     public function __construct(
         int $userId,
         string $telegramPaymentChargeId,
-        bool $isCanceled
+        bool $isCanceled,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
         if ($isCanceled !== null) $this->isCanceled = $isCanceled;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

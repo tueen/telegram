@@ -40,11 +40,13 @@ class SetChatMemberTag extends Method
     public function __construct(
         int|string $chatId,
         int $userId,
-        ?string $tag = null
+        ?string $tag = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($tag !== null) $this->tag = $tag;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

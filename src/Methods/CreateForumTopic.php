@@ -48,12 +48,14 @@ class CreateForumTopic extends Method
         int|string $chatId,
         string $name,
         ForumIconColor|int|null $iconColor = null,
-        ?string $iconCustomEmojiId = null
+        ?string $iconCustomEmojiId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($name !== null) $this->name = $name;
         if ($iconColor !== null) $this->iconColor = $iconColor;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -27,9 +27,11 @@ class GetFile extends Method
     public string $fileId;
 
     public function __construct(
-        string $fileId
+        string $fileId,
+        mixed ...$extra
     )
     {
         if ($fileId !== null) $this->fileId = $fileId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -26,9 +26,11 @@ class GetCustomEmojiStickers extends Method
     public array $customEmojiIds;
 
     public function __construct(
-        array $customEmojiIds
+        array $customEmojiIds,
+        mixed ...$extra
     )
     {
         if ($customEmojiIds !== null) $this->customEmojiIds = $customEmojiIds;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

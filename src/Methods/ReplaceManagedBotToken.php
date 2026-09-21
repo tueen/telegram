@@ -26,9 +26,11 @@ class ReplaceManagedBotToken extends Method
     public int $userId;
 
     public function __construct(
-        int $userId
+        int $userId,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

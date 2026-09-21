@@ -34,10 +34,12 @@ class SetPassportDataErrors extends Method
 
     public function __construct(
         int $userId,
-        array $errors
+        array $errors,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($errors !== null) $this->errors = $errors;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

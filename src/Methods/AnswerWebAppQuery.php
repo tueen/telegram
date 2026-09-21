@@ -34,10 +34,12 @@ class AnswerWebAppQuery extends Method
 
     public function __construct(
         string $webAppQueryId,
-        InlineQueryResult $result
+        InlineQueryResult $result,
+        mixed ...$extra
     )
     {
         if ($webAppQueryId !== null) $this->webAppQueryId = $webAppQueryId;
         if ($result !== null) $this->result = $result;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

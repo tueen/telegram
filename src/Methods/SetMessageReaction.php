@@ -47,12 +47,14 @@ class SetMessageReaction extends Method
         int|string $chatId,
         int $messageId,
         ?array $reaction = null,
-        ?bool $isBig = null
+        ?bool $isBig = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($reaction !== null) $this->reaction = $reaction;
         if ($isBig !== null) $this->isBig = $isBig;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

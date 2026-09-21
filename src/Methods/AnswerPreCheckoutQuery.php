@@ -40,11 +40,13 @@ class AnswerPreCheckoutQuery extends Method
     public function __construct(
         string $preCheckoutQueryId,
         bool $ok,
-        ?string $errorMessage = null
+        ?string $errorMessage = null,
+        mixed ...$extra
     )
     {
         if ($preCheckoutQueryId !== null) $this->preCheckoutQueryId = $preCheckoutQueryId;
         if ($ok !== null) $this->ok = $ok;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -69,7 +69,8 @@ class SendGift extends Method
         ?bool $payForUpgrade = null,
         ?string $text = null,
         ParseMode|string|null $textParseMode = null,
-        ?array $textEntities = null
+        ?array $textEntities = null,
+        mixed ...$extra
     )
     {
         if ($giftId !== null) $this->giftId = $giftId;
@@ -79,5 +80,6 @@ class SendGift extends Method
         if ($text !== null) $this->text = $text;
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

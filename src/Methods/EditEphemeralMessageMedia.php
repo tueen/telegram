@@ -56,7 +56,8 @@ class EditEphemeralMessageMedia extends Method
         int $receiverUserId,
         int $ephemeralMessageId,
         InputMedia $media,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -64,5 +65,6 @@ class EditEphemeralMessageMedia extends Method
         if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
         if ($media !== null) $this->media = $media;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -97,7 +97,8 @@ class EditMessageLiveLocation extends Method
         ?float $horizontalAccuracy = null,
         ?int $heading = null,
         ?int $proximityAlertRadius = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($latitude !== null) $this->latitude = $latitude;
@@ -111,5 +112,6 @@ class EditMessageLiveLocation extends Method
         if ($heading !== null) $this->heading = $heading;
         if ($proximityAlertRadius !== null) $this->proximityAlertRadius = $proximityAlertRadius;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -47,12 +47,14 @@ class BanChatMember extends Method
         int|string $chatId,
         int $userId,
         ?int $untilDate = null,
-        ?bool $revokeMessages = null
+        ?bool $revokeMessages = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($untilDate !== null) $this->untilDate = $untilDate;
         if ($revokeMessages !== null) $this->revokeMessages = $revokeMessages;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

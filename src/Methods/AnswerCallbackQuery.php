@@ -54,7 +54,8 @@ class AnswerCallbackQuery extends Method
         ?string $text = null,
         ?bool $showAlert = null,
         ?string $url = null,
-        ?int $cacheTime = null
+        ?int $cacheTime = null,
+        mixed ...$extra
     )
     {
         if ($callbackQueryId !== null) $this->callbackQueryId = $callbackQueryId;
@@ -62,5 +63,6 @@ class AnswerCallbackQuery extends Method
         if ($showAlert !== null) $this->showAlert = $showAlert;
         if ($url !== null) $this->url = $url;
         if ($cacheTime !== null) $this->cacheTime = $cacheTime;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

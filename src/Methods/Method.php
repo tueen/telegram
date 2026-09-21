@@ -156,6 +156,24 @@ abstract class Method implements JsonSerializable
         return $this;
     }
 
+    /**
+     * Handles extra forward-compatible named parameters.
+     */
+    public function handleExtraParameters(array $extra): static
+    {
+        foreach ($extra as $key => $value) {
+            if (is_int($key)) {
+                throw new \InvalidArgumentException("Extra parameters must be named arguments, positional arguments are not supported.");
+            }
+            if ($value instanceof InputFile) {
+                $this->attachFile(Type::toSnakeCase((string)$key), $value);
+            } else {
+                $this->setParameter(Type::toSnakeCase((string)$key), $value);
+            }
+        }
+        return $this;
+    }
+
     private function resolveFieldName(ReflectionProperty $prop): string
     {
         $attrs = $prop->getAttributes(Field::class);

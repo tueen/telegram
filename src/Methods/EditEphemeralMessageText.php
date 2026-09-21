@@ -86,7 +86,8 @@ class EditEphemeralMessageText extends Method
         ?array $entities = null,
         ?InputRichMessage $richMessage = null,
         ?LinkPreviewOptions $linkPreviewOptions = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
+        ?InlineKeyboardMarkup $replyMarkup = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -98,5 +99,6 @@ class EditEphemeralMessageText extends Method
         if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($linkPreviewOptions !== null) $this->linkPreviewOptions = $linkPreviewOptions;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -33,10 +33,12 @@ class ApproveChatJoinRequest extends Method
 
     public function __construct(
         int|string $chatId,
-        int $userId
+        int $userId,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

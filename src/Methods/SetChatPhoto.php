@@ -36,10 +36,12 @@ class SetChatPhoto extends Method
 
     public function __construct(
         int|string $chatId,
-        InputFile $photo
+        InputFile $photo,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($photo !== null) $this->photo = $photo;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

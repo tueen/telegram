@@ -96,7 +96,8 @@ class GetBusinessAccountGifts extends Method
         ?bool $excludeFromBlockchain = null,
         ?bool $sortByPrice = null,
         ?string $offset = null,
-        ?int $limit = null
+        ?int $limit = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -110,5 +111,6 @@ class GetBusinessAccountGifts extends Method
         if ($sortByPrice !== null) $this->sortByPrice = $sortByPrice;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -33,10 +33,12 @@ class VerifyChat extends Method
 
     public function __construct(
         int|string $chatId,
-        ?string $customDescription = null
+        ?string $customDescription = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

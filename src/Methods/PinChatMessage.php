@@ -47,12 +47,14 @@ class PinChatMessage extends Method
         int|string $chatId,
         int $messageId,
         ?string $businessConnectionId = null,
-        ?bool $disableNotification = null
+        ?bool $disableNotification = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -26,9 +26,11 @@ class GetMyShortDescription extends Method
     public ?string $languageCode = null;
 
     public function __construct(
-        ?string $languageCode = null
+        ?string $languageCode = null,
+        mixed ...$extra
     )
     {
         if ($languageCode !== null) $this->languageCode = $languageCode;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

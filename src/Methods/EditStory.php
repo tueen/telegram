@@ -70,7 +70,8 @@ class EditStory extends Method
         ?string $caption = null,
         ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
-        ?array $areas = null
+        ?array $areas = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
@@ -80,5 +81,6 @@ class EditStory extends Method
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($areas !== null) $this->areas = $areas;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

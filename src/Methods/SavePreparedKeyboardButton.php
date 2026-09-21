@@ -34,10 +34,12 @@ class SavePreparedKeyboardButton extends Method
 
     public function __construct(
         int $userId,
-        KeyboardButton $button
+        KeyboardButton $button,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($button !== null) $this->button = $button;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

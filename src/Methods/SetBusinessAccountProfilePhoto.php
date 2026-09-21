@@ -41,11 +41,13 @@ class SetBusinessAccountProfilePhoto extends Method
     public function __construct(
         string $businessConnectionId,
         InputProfilePhoto $photo,
-        ?bool $isPublic = null
+        ?bool $isPublic = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($photo !== null) $this->photo = $photo;
         if ($isPublic !== null) $this->isPublic = $isPublic;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -33,10 +33,12 @@ class SetStickerEmojiList extends Method
 
     public function __construct(
         string $sticker,
-        array $emojiList
+        array $emojiList,
+        mixed ...$extra
     )
     {
         if ($sticker !== null) $this->sticker = $sticker;
         if ($emojiList !== null) $this->emojiList = $emojiList;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

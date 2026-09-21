@@ -33,10 +33,12 @@ class GetUserPersonalChatMessages extends Method
 
     public function __construct(
         int $userId,
-        int $limit
+        int $limit,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($limit !== null) $this->limit = $limit;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

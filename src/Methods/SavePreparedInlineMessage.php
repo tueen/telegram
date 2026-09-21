@@ -62,7 +62,8 @@ class SavePreparedInlineMessage extends Method
         ?bool $allowUserChats = null,
         ?bool $allowBotChats = null,
         ?bool $allowGroupChats = null,
-        ?bool $allowChannelChats = null
+        ?bool $allowChannelChats = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
@@ -71,5 +72,6 @@ class SavePreparedInlineMessage extends Method
         if ($allowBotChats !== null) $this->allowBotChats = $allowBotChats;
         if ($allowGroupChats !== null) $this->allowGroupChats = $allowGroupChats;
         if ($allowChannelChats !== null) $this->allowChannelChats = $allowChannelChats;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

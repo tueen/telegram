@@ -63,7 +63,8 @@ class AnswerInlineQuery extends Method
         ?int $cacheTime = null,
         ?bool $isPersonal = null,
         ?string $nextOffset = null,
-        ?InlineQueryResultsButton $button = null
+        ?InlineQueryResultsButton $button = null,
+        mixed ...$extra
     )
     {
         if ($inlineQueryId !== null) $this->inlineQueryId = $inlineQueryId;
@@ -72,5 +73,6 @@ class AnswerInlineQuery extends Method
         if ($isPersonal !== null) $this->isPersonal = $isPersonal;
         if ($nextOffset !== null) $this->nextOffset = $nextOffset;
         if ($button !== null) $this->button = $button;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

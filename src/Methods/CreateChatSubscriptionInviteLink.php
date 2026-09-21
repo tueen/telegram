@@ -47,12 +47,14 @@ class CreateChatSubscriptionInviteLink extends Method
         int|string $chatId,
         int $subscriptionPeriod,
         int $subscriptionPrice,
-        ?string $name = null
+        ?string $name = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($subscriptionPeriod !== null) $this->subscriptionPeriod = $subscriptionPeriod;
         if ($subscriptionPrice !== null) $this->subscriptionPrice = $subscriptionPrice;
         if ($name !== null) $this->name = $name;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

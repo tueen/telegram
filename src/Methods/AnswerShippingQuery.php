@@ -47,12 +47,14 @@ class AnswerShippingQuery extends Method
         string $shippingQueryId,
         bool $ok,
         ?array $shippingOptions = null,
-        ?string $errorMessage = null
+        ?string $errorMessage = null,
+        mixed ...$extra
     )
     {
         if ($shippingQueryId !== null) $this->shippingQueryId = $shippingQueryId;
         if ($ok !== null) $this->ok = $ok;
         if ($shippingOptions !== null) $this->shippingOptions = $shippingOptions;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

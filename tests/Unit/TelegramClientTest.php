@@ -239,4 +239,30 @@ class TelegramClientTest extends TestCase
         $this->assertArrayHasKey('sendDice', $sentRequests);
         $this->assertSame('🎰', $sentRequests['sendDice']['emoji']);
     }
+
+    public function testSendWithExtraForwardCompatibleNamedParameters(): void
+    {
+        $mockHttp = $this->createMock(HttpClientInterface::class);
+
+        $sentParams = [];
+        $mockHttp->method('send')->willReturnCallback(function ($cfg, Request $req) use (&$sentParams) {
+            $sentParams = $req->parameters;
+            return new Response(200, ['ok' => true, 'result' => true]);
+        });
+
+        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+
+        // Calling sendMessage with an unannounced new future Telegram parameter:
+        $telegram->sendMessage(
+            chatId: 123456,
+            text: 'Testing forward compatibility',
+            unannouncedFutureFeature: 'super_feature',
+            allow_paid_broadcast_future: true
+        );
+
+        $this->assertSame(123456, $sentParams['chat_id']);
+        $this->assertSame('Testing forward compatibility', $sentParams['text']);
+        $this->assertSame('super_feature', $sentParams['unannounced_future_feature']);
+        $this->assertSame('true', $sentParams['allow_paid_broadcast_future']);
+    }
 }

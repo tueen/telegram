@@ -26,9 +26,11 @@ class GetBusinessConnection extends Method
     public string $businessConnectionId;
 
     public function __construct(
-        string $businessConnectionId
+        string $businessConnectionId,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

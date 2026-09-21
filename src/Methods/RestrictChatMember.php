@@ -55,7 +55,8 @@ class RestrictChatMember extends Method
         int $userId,
         ChatPermissions $permissions,
         ?bool $useIndependentChatPermissions = null,
-        ?int $untilDate = null
+        ?int $untilDate = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -63,5 +64,6 @@ class RestrictChatMember extends Method
         if ($permissions !== null) $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
         if ($untilDate !== null) $this->untilDate = $untilDate;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

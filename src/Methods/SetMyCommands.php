@@ -41,11 +41,13 @@ class SetMyCommands extends Method
     public function __construct(
         array $commands,
         ?BotCommandScope $scope = null,
-        ?string $languageCode = null
+        ?string $languageCode = null,
+        mixed ...$extra
     )
     {
         if ($commands !== null) $this->commands = $commands;
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

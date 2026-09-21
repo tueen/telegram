@@ -40,11 +40,13 @@ class UnbanChatMember extends Method
     public function __construct(
         int|string $chatId,
         int $userId,
-        ?bool $onlyIfBanned = null
+        ?bool $onlyIfBanned = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($onlyIfBanned !== null) $this->onlyIfBanned = $onlyIfBanned;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

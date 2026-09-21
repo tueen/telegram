@@ -33,10 +33,12 @@ class SetStickerKeywords extends Method
 
     public function __construct(
         string $sticker,
-        ?array $keywords = null
+        ?array $keywords = null,
+        mixed ...$extra
     )
     {
         if ($sticker !== null) $this->sticker = $sticker;
         if ($keywords !== null) $this->keywords = $keywords;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

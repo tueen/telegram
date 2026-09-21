@@ -33,10 +33,12 @@ class RefundStarPayment extends Method
 
     public function __construct(
         int $userId,
-        string $telegramPaymentChargeId
+        string $telegramPaymentChargeId,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

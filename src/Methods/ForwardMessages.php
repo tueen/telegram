@@ -68,7 +68,8 @@ class ForwardMessages extends Method
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?bool $disableNotification = null,
-        ?bool $protectContent = null
+        ?bool $protectContent = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -78,5 +79,6 @@ class ForwardMessages extends Method
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

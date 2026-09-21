@@ -41,11 +41,13 @@ class SetBusinessAccountGiftSettings extends Method
     public function __construct(
         string $businessConnectionId,
         bool $showGiftButton,
-        AcceptedGiftTypes $acceptedGiftTypes
+        AcceptedGiftTypes $acceptedGiftTypes,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($showGiftButton !== null) $this->showGiftButton = $showGiftButton;
         if ($acceptedGiftTypes !== null) $this->acceptedGiftTypes = $acceptedGiftTypes;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

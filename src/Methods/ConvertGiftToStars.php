@@ -33,10 +33,12 @@ class ConvertGiftToStars extends Method
 
     public function __construct(
         string $businessConnectionId,
-        string $ownedGiftId
+        string $ownedGiftId,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

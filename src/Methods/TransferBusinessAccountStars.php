@@ -33,10 +33,12 @@ class TransferBusinessAccountStars extends Method
 
     public function __construct(
         string $businessConnectionId,
-        int $starCount
+        int $starCount,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($starCount !== null) $this->starCount = $starCount;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

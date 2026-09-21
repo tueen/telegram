@@ -40,11 +40,13 @@ class UnpinChatMessage extends Method
     public function __construct(
         int|string $chatId,
         ?string $businessConnectionId = null,
-        ?int $messageId = null
+        ?int $messageId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageId !== null) $this->messageId = $messageId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

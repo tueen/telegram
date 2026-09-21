@@ -51,12 +51,14 @@ class SetStickerSetThumbnail extends Method
         string $name,
         int $userId,
         StickerFormat|string $format,
-        InputFile|string|null $thumbnail = null
+        InputFile|string|null $thumbnail = null,
+        mixed ...$extra
     )
     {
         if ($name !== null) $this->name = $name;
         if ($userId !== null) $this->userId = $userId;
         if ($format !== null) $this->format = $format;
         if ($thumbnail !== null) $this->thumbnail = $thumbnail;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

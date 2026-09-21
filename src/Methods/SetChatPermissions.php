@@ -41,11 +41,13 @@ class SetChatPermissions extends Method
     public function __construct(
         int|string $chatId,
         ChatPermissions $permissions,
-        ?bool $useIndependentChatPermissions = null
+        ?bool $useIndependentChatPermissions = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($permissions !== null) $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -41,11 +41,13 @@ class AddStickerToSet extends Method
     public function __construct(
         int $userId,
         string $name,
-        InputSticker $sticker
+        InputSticker $sticker,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($name !== null) $this->name = $name;
         if ($sticker !== null) $this->sticker = $sticker;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

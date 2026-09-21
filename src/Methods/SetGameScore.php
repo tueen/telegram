@@ -68,7 +68,8 @@ class SetGameScore extends Method
         ?bool $disableEditMessage = null,
         ?int $chatId = null,
         ?int $messageId = null,
-        ?string $inlineMessageId = null
+        ?string $inlineMessageId = null,
+        mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
@@ -78,5 +79,6 @@ class SetGameScore extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

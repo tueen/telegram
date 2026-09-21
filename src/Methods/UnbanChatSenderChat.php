@@ -33,10 +33,12 @@ class UnbanChatSenderChat extends Method
 
     public function __construct(
         int|string $chatId,
-        int $senderChatId
+        int $senderChatId,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($senderChatId !== null) $this->senderChatId = $senderChatId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

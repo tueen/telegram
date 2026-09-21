@@ -34,10 +34,12 @@ class AnswerGuestQuery extends Method
 
     public function __construct(
         string $guestQueryId,
-        InlineQueryResult $result
+        InlineQueryResult $result,
+        mixed ...$extra
     )
     {
         if ($guestQueryId !== null) $this->guestQueryId = $guestQueryId;
         if ($result !== null) $this->result = $result;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

@@ -40,11 +40,13 @@ class DeclineSuggestedPost extends Method
     public function __construct(
         int $chatId,
         int $messageId,
-        ?string $comment = null
+        ?string $comment = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($comment !== null) $this->comment = $comment;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

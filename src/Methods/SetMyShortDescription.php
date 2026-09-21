@@ -33,10 +33,12 @@ class SetMyShortDescription extends Method
 
     public function __construct(
         ?string $shortDescription = null,
-        ?string $languageCode = null
+        ?string $languageCode = null,
+        mixed ...$extra
     )
     {
         if ($shortDescription !== null) $this->shortDescription = $shortDescription;
         if ($languageCode !== null) $this->languageCode = $languageCode;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

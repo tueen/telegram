@@ -21,8 +21,10 @@ class GetAvailableGifts extends Method
 {
 
 
-    public function __construct()
+    public function __construct(
+        mixed ...$extra
+    )
     {
-
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

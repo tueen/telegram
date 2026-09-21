@@ -75,7 +75,8 @@ class CopyMessages extends Method
         ?int $directMessagesTopicId = null,
         ?bool $disableNotification = null,
         ?bool $protectContent = null,
-        ?bool $removeCaption = null
+        ?bool $removeCaption = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
@@ -86,5 +87,6 @@ class CopyMessages extends Method
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($removeCaption !== null) $this->removeCaption = $removeCaption;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

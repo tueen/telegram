@@ -34,10 +34,12 @@ class SetMyDefaultAdministratorRights extends Method
 
     public function __construct(
         ?ChatAdministratorRights $rights = null,
-        ?bool $forChannels = null
+        ?bool $forChannels = null,
+        mixed ...$extra
     )
     {
         if ($rights !== null) $this->rights = $rights;
         if ($forChannels !== null) $this->forChannels = $forChannels;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

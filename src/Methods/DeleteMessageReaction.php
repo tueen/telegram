@@ -47,12 +47,14 @@ class DeleteMessageReaction extends Method
         int|string $chatId,
         int $messageId,
         ?int $userId = null,
-        ?int $actorChatId = null
+        ?int $actorChatId = null,
+        mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($userId !== null) $this->userId = $userId;
         if ($actorChatId !== null) $this->actorChatId = $actorChatId;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }

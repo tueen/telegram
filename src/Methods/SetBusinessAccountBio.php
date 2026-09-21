@@ -33,10 +33,12 @@ class SetBusinessAccountBio extends Method
 
     public function __construct(
         string $businessConnectionId,
-        ?string $bio = null
+        ?string $bio = null,
+        mixed ...$extra
     )
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($bio !== null) $this->bio = $bio;
+        if (!empty($extra)) $this->handleExtraParameters($extra);
     }
 }
