@@ -6,8 +6,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Tueen\Telegram\Generator\CodeGenerator;
 
-$specFile = 'C:/Users/Elsiom/.gemini/antigravity/brain/a244ad9a-6e9c-41d6-976d-5f19a35fe655/scratch/api.json';
+$specFile = __DIR__ . '/../resources/api.json';
 $srcDir = __DIR__ . '/../src';
+
+if (!file_exists($specFile)) {
+    echo "Error: Specification file not found at: {$specFile}\n";
+    exit(1);
+}
 
 echo "Starting Telegram Bot API generator...\n";
 $generator = new CodeGenerator($specFile, $srcDir);
