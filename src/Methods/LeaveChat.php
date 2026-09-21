@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method for your bot to leave a group, supergroup or channel. Returns True on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#leavechat
  */
 #[ApiMethod('leaveChat', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class LeaveChat extends Method
 {
     /**

@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns True on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#pinchatmessage
  */
 #[ApiMethod('pinChatMessage', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class PinChatMessage extends Method
 {
     /**

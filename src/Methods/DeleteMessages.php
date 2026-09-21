@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#deletemessages
  */
 #[ApiMethod('deleteMessages', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class DeleteMessages extends Method
 {
     /**

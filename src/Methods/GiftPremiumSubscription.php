@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Gifts a Telegram Premium subscription to the given user. Returns True on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#giftpremiumsubscription
  */
 #[ApiMethod('giftPremiumSubscription', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class GiftPremiumSubscription extends Method
 {
     /**

@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Deletes a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns True on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#deletestory
  */
 #[ApiMethod('deleteStory', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class DeleteStory extends Method
 {
     /**

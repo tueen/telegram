@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 
 /**
@@ -16,7 +17,7 @@ use Tueen\Telegram\Types\InlineKeyboardMarkup;
  * @link https://core.telegram.org/bots/api#editephemeralmessagereplymarkup
  */
 #[ApiMethod('editEphemeralMessageReplyMarkup', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class EditEphemeralMessageReplyMarkup extends Method
 {
     /**

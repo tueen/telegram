@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\InputRichMessage;
 use Tueen\Telegram\Types\LinkPreviewOptions;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
@@ -18,7 +19,7 @@ use Tueen\Telegram\Types\InlineKeyboardMarkup;
  * @link https://core.telegram.org/bots/api#editephemeralmessagetext
  */
 #[ApiMethod('editEphemeralMessageText', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class EditEphemeralMessageText extends Method
 {
     /**

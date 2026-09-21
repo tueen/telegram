@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\StringResult;
 
 /**
  * Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#exportchatinvitelink
  */
 #[ApiMethod('exportChatInviteLink', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(StringResult::class, isArray: false)]
 class ExportChatInviteLink extends Method
 {
     /**

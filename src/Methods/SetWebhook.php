@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
 
@@ -18,7 +19,7 @@ use Tueen\Telegram\Attributes\RequiresUpload;
  * @link https://core.telegram.org/bots/api#setwebhook
  */
 #[ApiMethod('setWebhook', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class SetWebhook extends Method
 {
     /**

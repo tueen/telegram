@@ -306,6 +306,24 @@ PHP;
         if (str_starts_with($first, 'Array of ')) {
             $isArray = true;
             $first = substr($first, 9);
+            if (str_starts_with($first, 'Array of ')) {
+                $first = substr($first, 9);
+            }
+        }
+
+        if ($first === 'Boolean') {
+            $imports[] = 'Tueen\Telegram\Types\Custom\BooleanResult';
+            return ['BooleanResult', $isArray];
+        }
+
+        if ($first === 'Integer') {
+            $imports[] = 'Tueen\Telegram\Types\Custom\IntegerResult';
+            return ['IntegerResult', $isArray];
+        }
+
+        if ($first === 'String') {
+            $imports[] = 'Tueen\Telegram\Types\Custom\StringResult';
+            return ['StringResult', $isArray];
         }
 
         // Check if class exists in Types
@@ -314,6 +332,7 @@ PHP;
             return [$first, $isArray];
         }
 
+        $imports[] = 'Tueen\Telegram\Types\Type';
         return ['Type', $isArray];
     }
 
@@ -443,11 +462,47 @@ PHP;
                 return $bReq <=> $aReq;
             });
 
-            [$returnClass, $returnIsArray] = $this->mapReturnType($returns, $allImports);
-            $retType = $returnClass === 'Boolean' ? 'bool' : $returnClass;
-            if ($returnIsArray) {
-                $retType .= '[]';
+            $docReturnTypes = [];
+            foreach ($returns as $ret) {
+                $isArray = false;
+                $curr = $ret;
+                if (str_starts_with($curr, 'Array of ')) {
+                    $isArray = true;
+                    $curr = substr($curr, 9);
+                    if (str_starts_with($curr, 'Array of ')) {
+                        $curr = substr($curr, 9);
+                    }
+                }
+
+                if ($curr === 'Boolean') {
+                    $allImports[] = 'Tueen\Telegram\Types\Custom\BooleanResult';
+                    $docReturnTypes[] = 'BooleanResult';
+                } elseif ($curr === 'Integer') {
+                    $allImports[] = 'Tueen\Telegram\Types\Custom\IntegerResult';
+                    $docReturnTypes[] = 'IntegerResult';
+                } elseif ($curr === 'String') {
+                    $allImports[] = 'Tueen\Telegram\Types\Custom\StringResult';
+                    $docReturnTypes[] = 'StringResult';
+                } elseif (isset($this->spec['types'][$curr])) {
+                    $allImports[] = "Tueen\\Telegram\\Types\\{$curr}";
+                    if ($isArray) {
+                        $allImports[] = 'Tueen\Telegram\Types\Custom\ArrayResult';
+                        $docReturnTypes[] = "ArrayResult<{$curr}>";
+                    } else {
+                        $docReturnTypes[] = $curr;
+                    }
+                } else {
+                    if ($isArray) {
+                        $allImports[] = 'Tueen\Telegram\Types\Custom\ArrayResult';
+                        $docReturnTypes[] = 'ArrayResult';
+                    } else {
+                        $allImports[] = 'Tueen\Telegram\Types\Type';
+                        $docReturnTypes[] = 'Type';
+                    }
+                }
             }
+
+            $retType = implode('|', array_unique($docReturnTypes)) ?: 'Type';
 
             $paramList = [];
             foreach ($fields as $field) {

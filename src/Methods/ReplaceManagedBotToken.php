@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\StringResult;
 
 /**
  * Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success.
@@ -15,7 +16,7 @@ use Tueen\Telegram\Attributes\Field;
  * @link https://core.telegram.org/bots/api#replacemanagedbottoken
  */
 #[ApiMethod('replaceManagedBotToken', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(StringResult::class, isArray: false)]
 class ReplaceManagedBotToken extends Method
 {
     /**

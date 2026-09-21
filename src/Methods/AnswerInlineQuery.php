@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\InlineQueryResultsButton;
 
 /**
@@ -17,7 +18,7 @@ use Tueen\Telegram\Types\InlineQueryResultsButton;
  * @link https://core.telegram.org/bots/api#answerinlinequery
  */
 #[ApiMethod('answerInlineQuery', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class AnswerInlineQuery extends Method
 {
     /**

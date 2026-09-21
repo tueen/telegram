@@ -18,6 +18,10 @@ use Tueen\Telegram\Pipeline\LoggingMiddleware;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Pipeline\Pipeline;
 use Tueen\Telegram\Pipeline\RetryMiddleware;
+use Tueen\Telegram\Types\Custom\ArrayResult;
+use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Types\Custom\IntegerResult;
+use Tueen\Telegram\Types\Custom\StringResult;
 use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;
@@ -181,16 +185,35 @@ class Telegram
      */
     private function unwrapResult(mixed $result, ?string $expectedType = null, bool $isArray = false): mixed
     {
-        if ($result === null || is_scalar($result)) {
-            return $result;
+        if (is_bool($result)) {
+            return new BooleanResult($result);
+        }
+
+        if (is_int($result)) {
+            return new IntegerResult($result);
+        }
+
+        if (is_string($result)) {
+            return new StringResult($result);
+        }
+
+        if ($result === null) {
+            return null;
         }
 
         if ($isArray && is_array($result)) {
             $targetClass = $expectedType ?? Type::class;
-            return Type::castArrayOf($result, $targetClass);
+            $items = Type::castArrayOf($result, $targetClass);
+            return new ArrayResult($items);
         }
 
         if (is_array($result)) {
+            if (array_is_list($result)) {
+                $targetClass = $expectedType ?? Type::class;
+                $items = Type::castArrayOf($result, $targetClass);
+                return new ArrayResult($items);
+            }
+
             $targetClass = $expectedType ?? Type::class;
             return Type::factory($targetClass, $result);
         }
@@ -205,7 +228,7 @@ class Telegram
      * @param resource|string $destination Target local path or stream resource
      * @param callable|null $progress fn(int $downloadedBytes, int $totalBytes, float $percentage)
      */
-    public function downloadFile(mixed $file, mixed $destination, ?callable $progress = null): bool
+    public function downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult
     {
         $filePath = null;
 
@@ -227,7 +250,8 @@ class Telegram
             throw new TelegramException("Unable to resolve file path for download.");
         }
 
-        return $this->httpClient->download($this->config, $filePath, $destination, $progress);
+        $ok = $this->httpClient->download($this->config, $filePath, $destination, $progress);
+        return new BooleanResult($ok);
     }
 
     /**

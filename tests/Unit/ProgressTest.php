@@ -76,7 +76,8 @@ class ProgressTest extends TestCase
 
         $result = $telegram->downloadFile('photos/test.jpg', 'temp.jpg', progress: $callback);
 
-        $this->assertTrue($result);
+        $this->assertInstanceOf(\Tueen\Telegram\Types\Custom\BooleanResult::class, $result);
+        $this->assertTrue($result->isTrue());
         $this->assertCount(2, $downloadEvents);
         $this->assertSame([500, 1000, 50.0], $downloadEvents[0]);
         $this->assertSame([1000, 1000, 100.0], $downloadEvents[1]);

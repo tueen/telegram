@@ -8,6 +8,7 @@ use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\ChatAdministratorRights;
 
 /**
@@ -16,7 +17,7 @@ use Tueen\Telegram\Types\ChatAdministratorRights;
  * @link https://core.telegram.org/bots/api#setmydefaultadministratorrights
  */
 #[ApiMethod('setMyDefaultAdministratorRights', 'POST')]
-#[ReturnType(Type::class, isArray: false)]
+#[ReturnType(BooleanResult::class, isArray: false)]
 class SetMyDefaultAdministratorRights extends Method
 {
     /**
