@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
-use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;

@@ -198,7 +198,6 @@ PHP;
         });
 
         $imports = [
-            'Tueen\Telegram\Methods\Method',
             'Tueen\Telegram\Attributes\ApiMethod',
             'Tueen\Telegram\Attributes\ReturnType',
             'Tueen\Telegram\Attributes\Field',
@@ -253,6 +252,7 @@ PHP;
             $paramsCode = "\n        " . $paramsCode . "\n    ";
         }
         $constructCode = implode("\n", $constructBody);
+        $imports = array_filter($imports, fn($i) => !str_starts_with($i, 'Tueen\\Telegram\\Methods\\') && $i !== 'Method');
         $importsCode = implode("\n", array_unique(array_map(fn($i) => "use {$i};", $imports)));
 
         $arrayFlag = $returnIsArray ? 'true' : 'false';
