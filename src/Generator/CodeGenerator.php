@@ -469,16 +469,56 @@ PHP;
 
         $docblockContent = implode("\n", $lines);
 
+        // 1. Write the full Mixin contract file in src/Contracts/TelegramMethods.php
+        $contractsDir = dirname($this->typesDir) . '/Contracts';
+        if (!is_dir($contractsDir)) {
+            mkdir($contractsDir, 0777, true);
+        }
+
+        $mixinCode = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Contracts;
+
+use Tueen\Telegram\Types;
+
+/**
+ * Dynamic Telegram Bot API 10.3 Methods Mixin.
+ *
+ * This contract defines all 185 Telegram Bot API method signatures for IDE autocompletion,
+ * parameter hints, and type safety, keeping the core Telegram client facade lightweight.
+ *
+{$docblockContent}
+ */
+abstract class TelegramMethods
+{
+}
+
+PHP;
+
+        $mixinPath = $contractsDir . '/TelegramMethods.php';
+        file_put_contents($mixinPath, $mixinCode);
+        echo "Updated Contracts/TelegramMethods.php mixin with " . count($methods) . " method signatures.\n";
+
+        // 2. Ensure src/Telegram.php has a clean, concise docblock referencing the mixin
         $telegramFile = dirname($this->typesDir) . '/Telegram.php';
         $content = file_get_contents($telegramFile);
 
-        $pattern = '/\/\*\*\s*\n\s*\* Tueen Telegram Client - The Royal Client for Telegram Bot API\..*?\*\//s';
-        $replacement = "/**\n * Tueen Telegram Client - The Royal Client for Telegram Bot API.\n *\n" . $docblockContent . "\n */";
+        $cleanDocblock = <<<PHP
+/**
+ * Tueen Telegram Client - The Royal Client for Telegram Bot API.
+ *
+ * @mixin \Tueen\Telegram\Contracts\TelegramMethods
+ */
+PHP;
 
-        $newContent = preg_replace($pattern, $replacement, $content);
+        $pattern = '/\/\*\*\s*\n\s*\* Tueen Telegram Client - The Royal Client for Telegram Bot API\..*?\*\//s';
+        $newContent = preg_replace($pattern, $cleanDocblock, $content);
         if ($newContent !== null) {
             file_put_contents($telegramFile, $newContent);
-            echo "Updated Telegram.php docblock with " . count($methods) . " method signatures.\n";
+            echo "Updated Telegram.php with clean @mixin contract.\n";
         }
     }
 }

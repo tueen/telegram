@@ -18,7 +18,9 @@ Welcome to `tueen/telegram` — **The Royal Telegram Bot API Client for PHP 8.4 
 ```
 tueen/telegram/
 ├── src/
-│   ├── Telegram.php                   # Royal Facade and main client entry point
+│   ├── Telegram.php                   # Royal Facade and main client entry point (@mixin TelegramMethods)
+│   ├── Contracts/
+│   │   └── TelegramMethods.php        # Method signatures mixin (all 185 Bot API methods for IDE)
 │   ├── Config.php                     # Immutable client configuration
 │   ├── ConfigBuilder.php              # Fluent configuration builder
 │   ├── Types/                         # All Telegram Bot API types (400 types)
