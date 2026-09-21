@@ -93,6 +93,11 @@ tueen/telegram/
 - Whenever any feature, class, enum, or method is added or modified:
   - Keep `docs/` completely updated with full documentation, guides, and real-world examples.
   - Update `AGENTS.md` and `.agents/skills/` with any architectural changes. Only modify or add what is strictly necessary.
+- **Documentation Versioning:**
+  - `docs/versions.json` defines the active `current` version (e.g. `1.0.0-alpha.1`) and `archived` historical versions.
+  - To archive the current documentation: `cd docs && npm run docs:archive <version> [next-version]`.
+  - To change current version tag: `cd docs && npm run docs:version <version>`.
+  - Archived versions snapshot their sidebar in `docs/versions/<version>/sidebar.json` and are served with zero configuration under `/versions/<version>/`.
 
 ### 7. Testing & Verification
 - Run test suite: `vendor/bin/phpunit`

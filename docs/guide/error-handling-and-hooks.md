@@ -8,7 +8,7 @@
 
 ## 1. Universal `ok()` / `isOk()` Check
 
-Every response object produced by the library inherits from [`Type`](/guide/methods-and-types) and provides `ok(): bool` and `isOk(): bool`:
+Every response object produced by the library inherits from [`Type`](./methods-and-types) and provides `ok(): bool` and `isOk(): bool`:
 
 - **Successful Types (`Message`, `User`, `BooleanResult`, etc.):** Always return `true`.
 - **`Error` Objects:** Always return `false`.

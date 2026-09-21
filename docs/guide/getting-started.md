@@ -102,4 +102,4 @@ $telegram->run(function (Update $update) use ($telegram) {
 });
 ```
 
-Learn more about execution strategies in the [Running Modes Guide](/guide/running-modes).
+Learn more about execution strategies in the [Running Modes Guide](./running-modes).

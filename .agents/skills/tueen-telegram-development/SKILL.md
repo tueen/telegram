@@ -58,6 +58,10 @@ This skill provides step-by-step procedures and rules for developing, testing, a
   - Immediately update `docs/` (sidebar, guides, code snippets) with comprehensive explanations and examples.
   - Update `AGENTS.md` and this skill file to record any new architectural conventions or rules.
   - Only update what is relevant and necessary to keep docs clean and accurate.
+- **Documentation Versioning:**
+  - `docs/versions.json` specifies `current` version (e.g. `1.0.0-alpha.1`) and `archived` releases.
+  - To archive a released version: `npm run docs:archive <version> [next-version]`.
+  - To bump current version: `npm run docs:version <version>`.
 
 ---
 
