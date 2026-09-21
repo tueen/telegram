@@ -1,6 +1,6 @@
 # Enums Reference
 
-`tueen/telegram` ships with **51 first-class PHP 8.4 Backed Enums** covering every Telegram Bot API string constant. Using native Enums prevents typos, enforces type safety, and gives you rich IDE autocompletion.
+`tueen/telegram` provides Backed Enums for Telegram Bot API string constants, ensuring type safety and IDE autocompletion.
 
 ---
 
@@ -127,7 +127,7 @@ PollType::QUIZ;    // 'quiz'
 
 ## 2. Update & Message Enums
 
-### `UpdateType` (34 Update Types)
+### `UpdateType`
 Every update received from Telegram is classified into an `UpdateType` enum:
 
 | Enum Case | Value | Trigger |
@@ -158,7 +158,7 @@ Every update received from Telegram is classified into an `UpdateType` enum:
 
 ---
 
-### `MessageType` (53 Message Types)
+### `MessageType`
 Classifies the content of a `Message` object:
 
 | Category | Enum Cases |
@@ -174,7 +174,7 @@ Classifies the content of a `Message` object:
 
 ---
 
-## 3. All 51 Library Enums
+## 3. Complete Enums Reference
 
 For reference, here is the complete index of Enums available in `Tueen\Telegram\Enums`:
 

@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Tueen Telegram"
-  text: "The Royal Telegram Bot API Client"
-  tagline: "Built for PHP 8.4 & 8.5 with Property Hooks, Running Modes, Dual Error Handling, and 100% Bot API 10.3 Coverage."
+  text: "Telegram Bot API Client for PHP"
+  tagline: "Strictly typed, forward-compatible Telegram Bot API client with running modes, dual error handling, and pipeline middleware."
   actions:
     - theme: brand
       text: Get Started
@@ -14,16 +14,16 @@ hero:
       link: https://github.com/tueen/telegram
 
 features:
-  - title: PHP 8.4 & 8.5 Native
-    details: Leverages property hooks, asymmetric visibility (public private(set)), and modern pipeline architecture.
-  - title: Nutgram-Style Running Modes
-    details: Seamlessly toggle between WebhookMode (with secret token validation and safeResponse) and PollingMode (with automatic offset advancement).
-  - title: Universal ok() & Dual Error Handling
-    details: Universal ok() checks across all models. Choose between standard exceptions or non-throwing Error objects.
+  - title: Modern PHP Architecture
+    details: Built with strict typing, property hooks, and an extensible onion middleware pipeline.
+  - title: Flexible Running Modes
+    details: Seamlessly switch between WebhookMode (with secret token validation and safeResponse) and PollingMode.
+  - title: Dual Error Handling & ok()
+    details: Universal ok() checks across all models. Choose between standard exceptions or typed Error objects.
   - title: Smart Update & Message Helpers
-    details: Instant type detection via $update->type and $message->type, smart extractors ($update->getUser()), and command parsing ($msg->getCommand()).
-  - title: 100% Full API 10.3 Coverage
-    details: All 185 Bot API methods, 400+ Types, and property Enums generated with strict typing and complete IDE autocompletion.
-  - title: File Uploads & Progress Tracking
+    details: Instant type detection via $update->type, smart model extractors, and command argument parsing.
+  - title: Complete API & Enum Coverage
+    details: Complete coverage of Bot API methods, types, and enums with full IDE autocompletion.
+  - title: File Transfers & Progress
     details: Upload files via InputFile and stream downloads with real-time percentage progress callbacks.
 ---

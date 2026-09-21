@@ -1,6 +1,6 @@
 # Methods & Types
 
-`tueen/telegram` provides full, native support for all 185 Telegram Bot API methods and 400+ Types with 100% strict typing, PHP 8.4 asymmetric visibility, and native Enums.
+`tueen/telegram` provides native, strictly typed support for Telegram Bot API methods and types with full IDE autocompletion and enums.
 
 ---
 
@@ -103,7 +103,7 @@ All API responses are automatically deserialized into strongly-typed objects in 
 ### Dual Access: camelCase and snake_case
 
 ```php
-// CamelCase property access (PHP 8.4 asymmetric visibility)
+// CamelCase property access
 echo $message->messageId;
 echo $message->chat->firstName;
 

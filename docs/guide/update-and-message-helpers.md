@@ -1,15 +1,15 @@
 # Update & Message Helpers
 
-`tueen/telegram` takes full advantage of **PHP 8.4 Property Hooks** and smart helper traits to eliminate boilerplate null-checking and streamline bot development.
+`tueen/telegram` provides helper methods and computed properties on `Update` and `Message` objects to simplify handling incoming events and eliminate boilerplate null checks.
 
 ---
 
 ## 1. Update Types (`UpdateType`)
 
-Telegram updates can represent 23+ different events (messages, button clicks, channel posts, reaction changes, etc.).
+Telegram updates can represent various events, such as messages, callback queries, channel posts, or reaction changes.
 
-### Automatic Type Detection with Property Hooks
-The `Update` object exposes a `$type` property powered by PHP 8.4 Property Hooks:
+### Automatic Type Detection
+The `Update` object exposes a computed `$type` property:
 
 ```php
 use Tueen\Telegram\Enums\UpdateType;

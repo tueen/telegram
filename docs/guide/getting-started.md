@@ -2,7 +2,7 @@
 
 ## Introduction
 
-`tueen/telegram` is the royal Telegram Bot API client for PHP. It is designed to be lightweight, ultrafast, strictly typed, and forward-compatible with the entire Telegram Bot API specification.
+`tueen/telegram` is a modern Telegram Bot API client for PHP. It provides strict typing, full IDE autocompletion, and forward compatibility with the Telegram Bot API specification.
 
 ---
 
@@ -68,14 +68,14 @@ if ($bot->ok()) {
 
 ## Sending a Message
 
-You can call any of Telegram's 185 Bot API methods directly using PHP 8 named arguments:
+You can call any Telegram Bot API method directly using named arguments:
 
 ```php
 use Tueen\Telegram\Enums\ParseMode;
 
 $message = $telegram->sendMessage(
     chatId: 123456789,
-    text: 'Hello, <b>Queen</b>! Welcome to the royal bot client.',
+    text: 'Hello from <b>tueen/telegram</b>!',
     parseMode: ParseMode::HTML
 );
 
