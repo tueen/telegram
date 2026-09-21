@@ -19,6 +19,13 @@ trait HasUpdateHelpers
     }
 
     /**
+     * Primary file_id of any media in the contained message, or null.
+     */
+    public ?string $fileId {
+        get => $this->findFileId();
+    }
+
+    /**
      * Resolves the UpdateType enum for this update.
      */
     public function resolveUpdateType(): UpdateType
@@ -190,6 +197,22 @@ trait HasUpdateHelpers
     public function getMessageId(): ?int
     {
         return $this->findMessageId();
+    }
+
+    /**
+     * Finds the primary file_id from the contained message, if available.
+     */
+    public function findFileId(): ?string
+    {
+        return $this->findMessage()?->findFileId();
+    }
+
+    /**
+     * Alias for findFileId().
+     */
+    public function getFileId(): ?string
+    {
+        return $this->findFileId();
     }
 
     /**

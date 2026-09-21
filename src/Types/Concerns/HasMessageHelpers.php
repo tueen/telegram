@@ -6,6 +6,10 @@ namespace Tueen\Telegram\Types\Concerns;
 
 use Tueen\Telegram\Enums\MessageType;
 use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Types\PaidMediaLivePhoto;
+use Tueen\Telegram\Types\PaidMediaPhoto;
+use Tueen\Telegram\Types\PaidMediaVideo;
+use Tueen\Telegram\Types\PhotoSize;
 
 trait HasMessageHelpers
 {
@@ -14,6 +18,13 @@ trait HasMessageHelpers
      */
     public MessageType $type {
         get => $this->resolveMessageType();
+    }
+
+    /**
+     * Primary file_id of any media attached to this message, or null.
+     */
+    public ?string $fileId {
+        get => $this->findFileId();
     }
 
     /**
@@ -237,6 +248,117 @@ trait HasMessageHelpers
         }
 
         return null;
+    }
+
+    /**
+     * Resolves the largest PhotoSize from a given array of PhotoSizes or the message's photos.
+     *
+     * @param PhotoSize[]|null $photos
+     */
+    public function findLargestPhoto(?array $photos = null): ?PhotoSize
+    {
+        $photos ??= $this->photo;
+
+        if (empty($photos)) {
+            return null;
+        }
+
+        $largest = null;
+        $maxDim = -1;
+
+        foreach ($photos as $p) {
+            $width = $p instanceof PhotoSize ? $p->width : (is_array($p) ? ($p['width'] ?? 0) : 0);
+            $height = $p instanceof PhotoSize ? $p->height : (is_array($p) ? ($p['height'] ?? 0) : 0);
+            $dim = $width * $height;
+
+            if ($dim >= $maxDim) {
+                $maxDim = $dim;
+                $largest = $p;
+            }
+        }
+
+        return $largest instanceof PhotoSize ? $largest : (is_array($largest) ? new PhotoSize($largest) : null);
+    }
+
+    /**
+     * Alias for findLargestPhoto().
+     *
+     * @param PhotoSize[]|null $photos
+     */
+    public function getLargestPhoto(?array $photos = null): ?PhotoSize
+    {
+        return $this->findLargestPhoto($photos);
+    }
+
+    /**
+     * Finds the primary file_id from any media attached to this message.
+     * For photos, always resolves the file_id of the largest resolution photo.
+     */
+    public function findFileId(): ?string
+    {
+        if (!empty($this->photo)) {
+            return $this->findLargestPhoto($this->photo)?->fileId;
+        }
+
+        if ($this->animation !== null) {
+            return $this->animation->fileId;
+        }
+
+        if ($this->video !== null) {
+            return $this->video->fileId;
+        }
+
+        if ($this->audio !== null) {
+            return $this->audio->fileId;
+        }
+
+        if ($this->document !== null) {
+            return $this->document->fileId;
+        }
+
+        if ($this->voice !== null) {
+            return $this->voice->fileId;
+        }
+
+        if ($this->videoNote !== null) {
+            return $this->videoNote->fileId;
+        }
+
+        if ($this->sticker !== null) {
+            return $this->sticker->fileId;
+        }
+
+        if ($this->livePhoto !== null) {
+            return $this->livePhoto->fileId;
+        }
+
+        if ($this->paidMedia !== null && !empty($this->paidMedia->paidMedia)) {
+            foreach ($this->paidMedia->paidMedia as $item) {
+                if ($item instanceof PaidMediaPhoto && !empty($item->photo)) {
+                    return $this->findLargestPhoto($item->photo)?->fileId;
+                }
+                if ($item instanceof PaidMediaVideo && isset($item->video)) {
+                    return $item->video->fileId;
+                }
+                if ($item instanceof PaidMediaLivePhoto && isset($item->livePhoto)) {
+                    return $item->livePhoto->fileId;
+                }
+            }
+        }
+
+        if (!empty($this->newChatPhoto)) {
+            return $this->findLargestPhoto($this->newChatPhoto)?->fileId;
+        }
+
+        return null;
+    }
+
+    /**
+     * Alias for findFileId().
+     */
+    public function getFileId(): ?string
+    {
+        return $this->findFileId();
     }
 
     /**

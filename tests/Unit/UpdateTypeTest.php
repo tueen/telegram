@@ -151,4 +151,37 @@ class UpdateTypeTest extends TestCase
         $this->assertSame(-100998877, $update->getChat()?->id);
         $this->assertSame(70, $update->getMessage()?->messageId);
     }
+
+    public function testFindFileIdFromUpdate(): void
+    {
+        $update = new Update([
+            'update_id' => 1005,
+            'message' => [
+                'message_id' => 80,
+                'date' => 1700000000,
+                'chat' => ['id' => 123, 'type' => 'private'],
+                'photo' => [
+                    ['file_id' => 'ph_small', 'file_unique_id' => 'u1', 'width' => 100, 'height' => 100],
+                    ['file_id' => 'ph_biggest', 'file_unique_id' => 'u2', 'width' => 1200, 'height' => 900],
+                ],
+            ],
+        ]);
+
+        $this->assertSame('ph_biggest', $update->findFileId());
+        $this->assertSame('ph_biggest', $update->getFileId());
+        $this->assertSame('ph_biggest', $update->fileId);
+
+        $textUpdate = new Update([
+            'update_id' => 1006,
+            'message' => [
+                'message_id' => 81,
+                'date' => 1700000000,
+                'chat' => ['id' => 123, 'type' => 'private'],
+                'text' => 'Just text',
+            ],
+        ]);
+
+        $this->assertNull($textUpdate->findFileId());
+        $this->assertNull($textUpdate->fileId);
+    }
 }

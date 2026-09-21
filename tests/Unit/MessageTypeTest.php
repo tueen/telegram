@@ -285,4 +285,85 @@ class MessageTypeTest extends TestCase
         $this->assertSame('Jane Doe', $user->fullName);
         $this->assertSame('Jane Doe', $user->getFullName());
     }
+
+    public function testFindFileIdAndLargestPhoto(): void
+    {
+        // 1. Photo message with small, medium, and large variants
+        $photoMessage = new Message([
+            'message_id' => 30,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'photo' => [
+                ['file_id' => 'thumb_id', 'file_unique_id' => 'u1', 'width' => 90, 'height' => 90],
+                ['file_id' => 'medium_id', 'file_unique_id' => 'u2', 'width' => 320, 'height' => 240],
+                ['file_id' => 'huge_id', 'file_unique_id' => 'u3', 'width' => 1920, 'height' => 1080],
+            ],
+        ]);
+
+        $this->assertSame('huge_id', $photoMessage->findFileId());
+        $this->assertSame('huge_id', $photoMessage->getFileId());
+        $this->assertSame('huge_id', $photoMessage->fileId);
+
+        $largestPhoto = $photoMessage->findLargestPhoto();
+        $this->assertNotNull($largestPhoto);
+        $this->assertSame('huge_id', $largestPhoto->fileId);
+        $this->assertSame(1920, $largestPhoto->width);
+        $this->assertSame(1080, $largestPhoto->height);
+
+        // 2. Video message
+        $videoMessage = new Message([
+            'message_id' => 31,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'video' => [
+                'file_id' => 'vid_999',
+                'file_unique_id' => 'uv1',
+                'width' => 1280,
+                'height' => 720,
+                'duration' => 60,
+            ],
+        ]);
+        $this->assertSame('vid_999', $videoMessage->findFileId());
+        $this->assertSame('vid_999', $videoMessage->fileId);
+
+        // 3. Document message
+        $docMessage = new Message([
+            'message_id' => 32,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'document' => [
+                'file_id' => 'doc_456',
+                'file_unique_id' => 'ud1',
+            ],
+        ]);
+        $this->assertSame('doc_456', $docMessage->findFileId());
+
+        // 4. Sticker message
+        $stickerMessage = new Message([
+            'message_id' => 33,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'sticker' => [
+                'file_id' => 'stk_789',
+                'file_unique_id' => 'us1',
+                'type' => 'regular',
+                'width' => 512,
+                'height' => 512,
+                'is_animated' => false,
+                'is_video' => false,
+            ],
+        ]);
+        $this->assertSame('stk_789', $stickerMessage->findFileId());
+
+        // 5. Text message has no file_id
+        $textMessage = new Message([
+            'message_id' => 34,
+            'date' => 1700000000,
+            'chat' => ['id' => 1, 'type' => 'private'],
+            'text' => 'No files here',
+        ]);
+        $this->assertNull($textMessage->findFileId());
+        $this->assertNull($textMessage->fileId);
+        $this->assertNull($textMessage->findLargestPhoto());
+    }
 }

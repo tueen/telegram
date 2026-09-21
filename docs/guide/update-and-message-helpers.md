@@ -45,13 +45,14 @@ echo "Chat: {$chat?->fullName} (ID: {$chat?->id})\n";
 ```
 *(Note: `getMessage()`, `getUser()`, and `getChat()` are also supported as backward-compatible aliases).*
 
-### ID Shortcut Finders
+### ID & File Shortcut Finders
 Quickly extract IDs directly from the update without chaining null-safe calls:
 
 ```php
 $userId    = $update->findUserId();    // Returns ?int
 $chatId    = $update->findChatId();    // Returns ?int
 $messageId = $update->findMessageId(); // Returns ?int
+$fileId    = $update->findFileId();    // Returns ?string (or $update->fileId)
 ```
 
 ---
@@ -113,6 +114,25 @@ Use `$message->findAnyText()` (or `$message->findText()`) to retrieve whatever t
 $text = $message->findAnyText();
 ```
 *(Note: `$message->getText()` is also supported as a backward-compatible alias).*
+
+### Media & File ID Extraction (`findFileId` & `findLargestPhoto`)
+Telegram media messages attach files across different properties (`photo`, `video`, `document`, `audio`, `voice`, `animation`, `sticker`, `paidMedia`, etc.).
+
+Use `$message->findFileId()` (or `$message->fileId`) to immediately obtain the active `file_id`:
+
+```php
+// Automatically inspects photo, video, document, audio, voice, animation, sticker, etc.
+$fileId = $message->findFileId(); // or $message->fileId
+
+// For photos with multiple resolutions, findFileId() automatically resolves the highest resolution:
+if ($message->isType(MessageType::PHOTO)) {
+    $largeFileId = $message->findFileId();
+    
+    // You can also retrieve the largest PhotoSize object directly:
+    $largestPhoto = $message->findLargestPhoto();
+    echo "Dimensions: {$largestPhoto->width}x{$largestPhoto->height}\n";
+}
+```
 
 ### Bot Command Parsing
 Extract commands and their arguments with built-in parsers:
