@@ -1,20 +1,18 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tueen\Telegram\Enums;
 
 enum ChatAction: string
 {
-    case Typing = 'typing';
-    case UploadPhoto = 'upload_photo';
-    case RecordVideo = 'record_video';
-    case UploadVideo = 'upload_video';
-    case RecordVoice = 'record_voice';
-    case UploadVoice = 'upload_voice';
-    case UploadDocument = 'upload_document';
-    case ChooseSticker = 'choose_sticker';
-    case FindLocation = 'find_location';
-    case RecordVideoNote = 'record_video_note';
-    case UploadVideoNote = 'upload_video_note';
+    case TYPING = 'typing';
+    case UPLOAD_PHOTO = 'upload_photo';
+    case RECORD_VIDEO = 'record_video';
+    case UPLOAD_VIDEO = 'upload_video';
+    case RECORD_VOICE = 'record_voice';
+    case UPLOAD_VOICE = 'upload_voice';
+    case UPLOAD_DOCUMENT = 'upload_document';
+    case CHOOSE_STICKER = 'choose_sticker';
+    case FIND_LOCATION = 'find_location';
+    case RECORD_VIDEO_NOTE = 'record_video_note';
+    case UPLOAD_VIDEO_NOTE = 'upload_video_note';
 }

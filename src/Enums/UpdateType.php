@@ -1,32 +1,61 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Tueen\Telegram\Enums;
+
+use InvalidArgumentException;
 
 enum UpdateType: string
 {
-    case Message = 'message';
-    case EditedMessage = 'edited_message';
-    case ChannelPost = 'channel_post';
-    case EditedChannelPost = 'edited_channel_post';
-    case BusinessConnection = 'business_connection';
-    case BusinessMessage = 'business_message';
-    case EditedBusinessMessage = 'edited_business_message';
-    case DeletedBusinessMessages = 'deleted_business_messages';
-    case MessageReaction = 'message_reaction';
-    case MessageReactionCount = 'message_reaction_count';
-    case InlineQuery = 'inline_query';
-    case ChosenInlineResult = 'chosen_inline_result';
-    case CallbackQuery = 'callback_query';
-    case ShippingQuery = 'shipping_query';
-    case PreCheckoutQuery = 'pre_checkout_query';
-    case PurchasedPaidMedia = 'purchased_paid_media';
-    case Poll = 'poll';
-    case PollAnswer = 'poll_answer';
-    case MyChatMember = 'my_chat_member';
-    case ChatMember = 'chat_member';
-    case ChatJoinRequest = 'chat_join_request';
-    case ChatBoost = 'chat_boost';
-    case RemovedChatBoost = 'removed_chat_boost';
+    case MESSAGE = 'message';
+    case EDITED_MESSAGE = 'edited_message';
+    case CHANNEL_POST = 'channel_post';
+    case EDITED_CHANNEL_POST = 'edited_channel_post';
+    case BUSINESS_CONNECTION = 'business_connection';
+    case BUSINESS_MESSAGE = 'business_message';
+    case EDITED_BUSINESS_MESSAGE = 'edited_business_message';
+    case DELETED_BUSINESS_MESSAGES = 'deleted_business_messages';
+    case GUEST_MESSAGE = 'guest_message';
+    case MESSAGE_REACTION = 'message_reaction';
+    case MESSAGE_REACTION_COUNT = 'message_reaction_count';
+    case INLINE_QUERY = 'inline_query';
+    case CHOSEN_INLINE_RESULT = 'chosen_inline_result';
+    case CALLBACK_QUERY = 'callback_query';
+    case SHIPPING_QUERY = 'shipping_query';
+    case PRE_CHECKOUT_QUERY = 'pre_checkout_query';
+    case PURCHASED_PAID_MEDIA = 'purchased_paid_media';
+    case POLL = 'poll';
+    case POLL_ANSWER = 'poll_answer';
+    case MY_CHAT_MEMBER = 'my_chat_member';
+    case CHAT_MEMBER = 'chat_member';
+    case CHAT_JOIN_REQUEST = 'chat_join_request';
+    case CHAT_BOOST = 'chat_boost';
+    case REMOVED_CHAT_BOOST = 'removed_chat_boost';
+    case MANAGED_BOT = 'managed_bot';
+    case SUBSCRIPTION = 'subscription';
+    case STOPPED_MESSAGE_GENERATION = 'stopped_message_generation';
+
+    public static function messageTypes(): array
+    {
+        return [
+            self::MESSAGE,
+            self::EDITED_MESSAGE,
+            self::CHANNEL_POST,
+            self::EDITED_CHANNEL_POST,
+            self::BUSINESS_MESSAGE,
+            self::EDITED_BUSINESS_MESSAGE,
+            self::GUEST_MESSAGE,
+        ];
+    }
+
+    public function isMessageType(): bool
+    {
+        return in_array($this, self::messageTypes(), true);
+    }
+
+    public function validateMessageType(): void
+    {
+        if (!$this->isMessageType()) {
+            throw new InvalidArgumentException('UpdateType must be a message type');
+        }
+    }
 }
