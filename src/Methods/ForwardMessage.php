@@ -104,20 +104,4 @@ class ForwardMessage extends Method
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
     }
-
-    public static function make(
-        int|string $chatId,
-        int|string $fromChatId,
-        int $messageId,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?int $videoStartTimestamp = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null
-    ): static
-    {
-        return new static($chatId, $fromChatId, $messageId, $messageThreadId, $directMessagesTopicId, $videoStartTimestamp, $disableNotification, $protectContent, $messageEffectId, $suggestedPostParameters);
-    }
 }

@@ -31,11 +31,4 @@ class GetBusinessConnection extends Method
     {
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
     }
-
-    public static function make(
-        string $businessConnectionId
-    ): static
-    {
-        return new static($businessConnectionId);
-    }
 }

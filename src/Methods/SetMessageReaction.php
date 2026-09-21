@@ -55,14 +55,4 @@ class SetMessageReaction extends Method
         if ($reaction !== null) $this->reaction = $reaction;
         if ($isBig !== null) $this->isBig = $isBig;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageId,
-        ?array $reaction = null,
-        ?bool $isBig = null
-    ): static
-    {
-        return new static($chatId, $messageId, $reaction, $isBig);
-    }
 }

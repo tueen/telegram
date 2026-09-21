@@ -166,27 +166,4 @@ class SendPaidMedia extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $starCount,
-        array $media,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?string $payload = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $showCaptionAboveMedia = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $starCount, $media, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $payload, $caption, $parseMode, $captionEntities, $showCaptionAboveMedia, $disableNotification, $protectContent, $allowPaidBroadcast, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

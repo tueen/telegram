@@ -56,14 +56,4 @@ class StopPoll extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageId,
-        ?string $businessConnectionId = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $messageId, $businessConnectionId, $replyMarkup);
-    }
 }

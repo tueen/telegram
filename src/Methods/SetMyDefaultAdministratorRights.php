@@ -40,12 +40,4 @@ class SetMyDefaultAdministratorRights extends Method
         if ($rights !== null) $this->rights = $rights;
         if ($forChannels !== null) $this->forChannels = $forChannels;
     }
-
-    public static function make(
-        ?ChatAdministratorRights $rights = null,
-        ?bool $forChannels = null
-    ): static
-    {
-        return new static($rights, $forChannels);
-    }
 }

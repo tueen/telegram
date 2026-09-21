@@ -236,35 +236,4 @@ class SendVideo extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile|string $video,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?EphemeralMessageParameters $ephemeralMessageParameters = null,
-        ?int $duration = null,
-        ?int $width = null,
-        ?int $height = null,
-        InputFile|string|null $thumbnail = null,
-        InputFile|string|null $cover = null,
-        ?int $startTimestamp = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $showCaptionAboveMedia = null,
-        ?bool $hasSpoiler = null,
-        ?bool $supportsStreaming = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $video, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $ephemeralMessageParameters, $duration, $width, $height, $thumbnail, $cover, $startTimestamp, $caption, $parseMode, $captionEntities, $showCaptionAboveMedia, $hasSpoiler, $supportsStreaming, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

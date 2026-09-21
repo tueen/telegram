@@ -39,12 +39,4 @@ class UnpinAllForumTopicMessages extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageThreadId
-    ): static
-    {
-        return new static($chatId, $messageThreadId);
-    }
 }

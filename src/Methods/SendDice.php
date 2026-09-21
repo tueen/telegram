@@ -126,22 +126,4 @@ class SendDice extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        DiceEmoji|string|null $emoji = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $emoji, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

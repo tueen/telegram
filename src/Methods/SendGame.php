@@ -105,20 +105,4 @@ class SendGame extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $gameShortName,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?ReplyParameters $replyParameters = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $gameShortName, $businessConnectionId, $messageThreadId, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $replyParameters, $replyMarkup);
-    }
 }

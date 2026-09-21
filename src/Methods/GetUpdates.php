@@ -55,14 +55,4 @@ class GetUpdates extends Method
         if ($timeout !== null) $this->timeout = $timeout;
         if ($allowedUpdates !== null) $this->allowedUpdates = $allowedUpdates;
     }
-
-    public static function make(
-        ?int $offset = null,
-        ?int $limit = null,
-        ?int $timeout = null,
-        ?array $allowedUpdates = null
-    ): static
-    {
-        return new static($offset, $limit, $timeout, $allowedUpdates);
-    }
 }

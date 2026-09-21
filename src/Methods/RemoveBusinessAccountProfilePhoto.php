@@ -39,12 +39,4 @@ class RemoveBusinessAccountProfilePhoto extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($isPublic !== null) $this->isPublic = $isPublic;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        ?bool $isPublic = null
-    ): static
-    {
-        return new static($businessConnectionId, $isPublic);
-    }
 }

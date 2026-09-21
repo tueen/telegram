@@ -31,11 +31,4 @@ class UnhideGeneralForumTopic extends Method
     {
         if ($chatId !== null) $this->chatId = $chatId;
     }
-
-    public static function make(
-        int|string $chatId
-    ): static
-    {
-        return new static($chatId);
-    }
 }

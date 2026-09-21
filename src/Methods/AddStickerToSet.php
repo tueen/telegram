@@ -48,13 +48,4 @@ class AddStickerToSet extends Method
         if ($name !== null) $this->name = $name;
         if ($sticker !== null) $this->sticker = $sticker;
     }
-
-    public static function make(
-        int $userId,
-        string $name,
-        InputSticker $sticker
-    ): static
-    {
-        return new static($userId, $name, $sticker);
-    }
 }

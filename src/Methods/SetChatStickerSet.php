@@ -39,12 +39,4 @@ class SetChatStickerSet extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($stickerSetName !== null) $this->stickerSetName = $stickerSetName;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $stickerSetName
-    ): static
-    {
-        return new static($chatId, $stickerSetName);
-    }
 }

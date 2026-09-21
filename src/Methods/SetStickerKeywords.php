@@ -39,12 +39,4 @@ class SetStickerKeywords extends Method
         if ($sticker !== null) $this->sticker = $sticker;
         if ($keywords !== null) $this->keywords = $keywords;
     }
-
-    public static function make(
-        string $sticker,
-        ?array $keywords = null
-    ): static
-    {
-        return new static($sticker, $keywords);
-    }
 }

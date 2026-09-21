@@ -111,21 +111,4 @@ class GetChatGifts extends Method
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?bool $excludeUnsaved = null,
-        ?bool $excludeSaved = null,
-        ?bool $excludeUnlimited = null,
-        ?bool $excludeLimitedUpgradable = null,
-        ?bool $excludeLimitedNonUpgradable = null,
-        ?bool $excludeFromBlockchain = null,
-        ?bool $excludeUnique = null,
-        ?bool $sortByPrice = null,
-        ?string $offset = null,
-        ?int $limit = null
-    ): static
-    {
-        return new static($chatId, $excludeUnsaved, $excludeSaved, $excludeUnlimited, $excludeLimitedUpgradable, $excludeLimitedNonUpgradable, $excludeFromBlockchain, $excludeUnique, $sortByPrice, $offset, $limit);
-    }
 }

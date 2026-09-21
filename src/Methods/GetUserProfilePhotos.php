@@ -47,13 +47,4 @@ class GetUserProfilePhotos extends Method
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
     }
-
-    public static function make(
-        int $userId,
-        ?int $offset = null,
-        ?int $limit = null
-    ): static
-    {
-        return new static($userId, $offset, $limit);
-    }
 }

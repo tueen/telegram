@@ -111,21 +111,4 @@ class GetBusinessAccountGifts extends Method
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        ?bool $excludeUnsaved = null,
-        ?bool $excludeSaved = null,
-        ?bool $excludeUnlimited = null,
-        ?bool $excludeLimitedUpgradable = null,
-        ?bool $excludeLimitedNonUpgradable = null,
-        ?bool $excludeUnique = null,
-        ?bool $excludeFromBlockchain = null,
-        ?bool $sortByPrice = null,
-        ?string $offset = null,
-        ?int $limit = null
-    ): static
-    {
-        return new static($businessConnectionId, $excludeUnsaved, $excludeSaved, $excludeUnlimited, $excludeLimitedUpgradable, $excludeLimitedNonUpgradable, $excludeUnique, $excludeFromBlockchain, $sortByPrice, $offset, $limit);
-    }
 }

@@ -31,11 +31,4 @@ class GetCustomEmojiStickers extends Method
     {
         if ($customEmojiIds !== null) $this->customEmojiIds = $customEmojiIds;
     }
-
-    public static function make(
-        array $customEmojiIds
-    ): static
-    {
-        return new static($customEmojiIds);
-    }
 }

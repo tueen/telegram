@@ -39,12 +39,4 @@ class RefundStarPayment extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
     }
-
-    public static function make(
-        int $userId,
-        string $telegramPaymentChargeId
-    ): static
-    {
-        return new static($userId, $telegramPaymentChargeId);
-    }
 }

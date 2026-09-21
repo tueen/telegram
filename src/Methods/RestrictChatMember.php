@@ -64,15 +64,4 @@ class RestrictChatMember extends Method
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
         if ($untilDate !== null) $this->untilDate = $untilDate;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        ChatPermissions $permissions,
-        ?bool $useIndependentChatPermissions = null,
-        ?int $untilDate = null
-    ): static
-    {
-        return new static($chatId, $userId, $permissions, $useIndependentChatPermissions, $untilDate);
-    }
 }

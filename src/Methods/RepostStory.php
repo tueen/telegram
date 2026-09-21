@@ -72,16 +72,4 @@ class RepostStory extends Method
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int $fromChatId,
-        int $fromStoryId,
-        StoryActivePeriod|int $activePeriod,
-        ?bool $postToChatPage = null,
-        ?bool $protectContent = null
-    ): static
-    {
-        return new static($businessConnectionId, $fromChatId, $fromStoryId, $activePeriod, $postToChatPage, $protectContent);
-    }
 }

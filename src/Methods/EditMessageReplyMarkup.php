@@ -64,15 +64,4 @@ class EditMessageReplyMarkup extends Method
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        ?string $businessConnectionId = null,
-        int|string|null $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $messageId, $inlineMessageId, $replyMarkup);
-    }
 }

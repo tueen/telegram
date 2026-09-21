@@ -73,16 +73,4 @@ class AnswerInlineQuery extends Method
         if ($nextOffset !== null) $this->nextOffset = $nextOffset;
         if ($button !== null) $this->button = $button;
     }
-
-    public static function make(
-        string $inlineQueryId,
-        array $results,
-        ?int $cacheTime = null,
-        ?bool $isPersonal = null,
-        ?string $nextOffset = null,
-        ?InlineQueryResultsButton $button = null
-    ): static
-    {
-        return new static($inlineQueryId, $results, $cacheTime, $isPersonal, $nextOffset, $button);
-    }
 }

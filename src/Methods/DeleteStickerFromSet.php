@@ -31,11 +31,4 @@ class DeleteStickerFromSet extends Method
     {
         if ($sticker !== null) $this->sticker = $sticker;
     }
-
-    public static function make(
-        string $sticker
-    ): static
-    {
-        return new static($sticker);
-    }
 }

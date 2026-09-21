@@ -40,12 +40,4 @@ class AnswerGuestQuery extends Method
         if ($guestQueryId !== null) $this->guestQueryId = $guestQueryId;
         if ($result !== null) $this->result = $result;
     }
-
-    public static function make(
-        string $guestQueryId,
-        InlineQueryResult $result
-    ): static
-    {
-        return new static($guestQueryId, $result);
-    }
 }

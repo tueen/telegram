@@ -83,17 +83,4 @@ class SetWebhook extends Method
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
         if ($secretToken !== null) $this->secretToken = $secretToken;
     }
-
-    public static function make(
-        string $url,
-        ?InputFile $certificate = null,
-        ?string $ipAddress = null,
-        ?int $maxConnections = null,
-        ?array $allowedUpdates = null,
-        ?bool $dropPendingUpdates = null,
-        ?string $secretToken = null
-    ): static
-    {
-        return new static($url, $certificate, $ipAddress, $maxConnections, $allowedUpdates, $dropPendingUpdates, $secretToken);
-    }
 }

@@ -179,28 +179,4 @@ class SendDocument extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile|string $document,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?EphemeralMessageParameters $ephemeralMessageParameters = null,
-        InputFile|string|null $thumbnail = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $disableContentTypeDetection = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $document, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $ephemeralMessageParameters, $thumbnail, $caption, $parseMode, $captionEntities, $disableContentTypeDetection, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

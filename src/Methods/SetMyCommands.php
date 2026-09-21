@@ -48,13 +48,4 @@ class SetMyCommands extends Method
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        array $commands,
-        ?BotCommandScope $scope = null,
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($commands, $scope, $languageCode);
-    }
 }

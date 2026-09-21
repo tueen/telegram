@@ -39,12 +39,4 @@ class VerifyChat extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?string $customDescription = null
-    ): static
-    {
-        return new static($chatId, $customDescription);
-    }
 }

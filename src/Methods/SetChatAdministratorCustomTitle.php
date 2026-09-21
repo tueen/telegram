@@ -47,13 +47,4 @@ class SetChatAdministratorCustomTitle extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($customTitle !== null) $this->customTitle = $customTitle;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        string $customTitle
-    ): static
-    {
-        return new static($chatId, $userId, $customTitle);
-    }
 }

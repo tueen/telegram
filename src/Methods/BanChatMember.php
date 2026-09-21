@@ -55,14 +55,4 @@ class BanChatMember extends Method
         if ($untilDate !== null) $this->untilDate = $untilDate;
         if ($revokeMessages !== null) $this->revokeMessages = $revokeMessages;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        ?int $untilDate = null,
-        ?bool $revokeMessages = null
-    ): static
-    {
-        return new static($chatId, $userId, $untilDate, $revokeMessages);
-    }
 }

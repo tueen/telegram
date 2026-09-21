@@ -31,11 +31,4 @@ class GetChatMenuButton extends Method
     {
         if ($chatId !== null) $this->chatId = $chatId;
     }
-
-    public static function make(
-        ?int $chatId = null
-    ): static
-    {
-        return new static($chatId);
-    }
 }

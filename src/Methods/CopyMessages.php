@@ -87,18 +87,4 @@ class CopyMessages extends Method
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($removeCaption !== null) $this->removeCaption = $removeCaption;
     }
-
-    public static function make(
-        int|string $chatId,
-        int|string $fromChatId,
-        array $messageIds,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $removeCaption = null
-    ): static
-    {
-        return new static($chatId, $fromChatId, $messageIds, $messageThreadId, $directMessagesTopicId, $disableNotification, $protectContent, $removeCaption);
-    }
 }

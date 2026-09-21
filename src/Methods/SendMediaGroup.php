@@ -104,20 +104,4 @@ class SendMediaGroup extends Method
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
     }
-
-    public static function make(
-        int|string $chatId,
-        array $media,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?ReplyParameters $replyParameters = null
-    ): static
-    {
-        return new static($chatId, $media, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $replyParameters);
-    }
 }

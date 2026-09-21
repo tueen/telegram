@@ -278,24 +278,9 @@ class {$className} extends Method
     {
 {$constructCode}
     }
-
-    public static function make({$paramsCode}): static
-    {
-        return new static({$this->buildMakeArgs($fields)});
-    }
 }
 
 PHP;
-    }
-
-    private function buildMakeArgs(array $fields): string
-    {
-        $args = [];
-        foreach ($fields as $field) {
-            $c = Type::toCamelCase($field['name']);
-            $args[] = "\${$c}";
-        }
-        return implode(', ', $args);
     }
 
     private function mapReturnType(array $returns, array &$imports): array

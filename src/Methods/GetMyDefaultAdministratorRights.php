@@ -31,11 +31,4 @@ class GetMyDefaultAdministratorRights extends Method
     {
         if ($forChannels !== null) $this->forChannels = $forChannels;
     }
-
-    public static function make(
-        ?bool $forChannels = null
-    ): static
-    {
-        return new static($forChannels);
-    }
 }

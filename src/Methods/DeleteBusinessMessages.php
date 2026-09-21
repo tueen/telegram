@@ -39,12 +39,4 @@ class DeleteBusinessMessages extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageIds !== null) $this->messageIds = $messageIds;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        array $messageIds
-    ): static
-    {
-        return new static($businessConnectionId, $messageIds);
-    }
 }

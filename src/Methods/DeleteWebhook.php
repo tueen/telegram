@@ -31,11 +31,4 @@ class DeleteWebhook extends Method
     {
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
     }
-
-    public static function make(
-        ?bool $dropPendingUpdates = null
-    ): static
-    {
-        return new static($dropPendingUpdates);
-    }
 }

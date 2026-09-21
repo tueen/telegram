@@ -39,12 +39,4 @@ class TransferBusinessAccountStars extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($starCount !== null) $this->starCount = $starCount;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int $starCount
-    ): static
-    {
-        return new static($businessConnectionId, $starCount);
-    }
 }

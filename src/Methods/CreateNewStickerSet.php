@@ -72,16 +72,4 @@ class CreateNewStickerSet extends Method
         if ($stickerType !== null) $this->stickerType = $stickerType;
         if ($needsRepainting !== null) $this->needsRepainting = $needsRepainting;
     }
-
-    public static function make(
-        int $userId,
-        string $name,
-        string $title,
-        array $stickers,
-        StickerType|string|null $stickerType = null,
-        ?bool $needsRepainting = null
-    ): static
-    {
-        return new static($userId, $name, $title, $stickers, $stickerType, $needsRepainting);
-    }
 }

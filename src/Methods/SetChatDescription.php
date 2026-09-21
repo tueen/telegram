@@ -39,12 +39,4 @@ class SetChatDescription extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($description !== null) $this->description = $description;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?string $description = null
-    ): static
-    {
-        return new static($chatId, $description);
-    }
 }

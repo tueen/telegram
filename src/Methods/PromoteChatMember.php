@@ -183,30 +183,4 @@ class PromoteChatMember extends Method
         if ($canManageTags !== null) $this->canManageTags = $canManageTags;
         if ($canSendWelcomeMessages !== null) $this->canSendWelcomeMessages = $canSendWelcomeMessages;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        ?bool $isAnonymous = null,
-        ?bool $canManageChat = null,
-        ?bool $canDeleteMessages = null,
-        ?bool $canManageVideoChats = null,
-        ?bool $canRestrictMembers = null,
-        ?bool $canPromoteMembers = null,
-        ?bool $canChangeInfo = null,
-        ?bool $canInviteUsers = null,
-        ?bool $canPostStories = null,
-        ?bool $canEditStories = null,
-        ?bool $canDeleteStories = null,
-        ?bool $canPostMessages = null,
-        ?bool $canEditMessages = null,
-        ?bool $canPinMessages = null,
-        ?bool $canManageTopics = null,
-        ?bool $canManageDirectMessages = null,
-        ?bool $canManageTags = null,
-        ?bool $canSendWelcomeMessages = null
-    ): static
-    {
-        return new static($chatId, $userId, $isAnonymous, $canManageChat, $canDeleteMessages, $canManageVideoChats, $canRestrictMembers, $canPromoteMembers, $canChangeInfo, $canInviteUsers, $canPostStories, $canEditStories, $canDeleteStories, $canPostMessages, $canEditMessages, $canPinMessages, $canManageTopics, $canManageDirectMessages, $canManageTags, $canSendWelcomeMessages);
-    }
 }

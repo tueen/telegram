@@ -187,29 +187,4 @@ class SendLivePhoto extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile|string $livePhoto,
-        InputFile|string $photo,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?EphemeralMessageParameters $ephemeralMessageParameters = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $showCaptionAboveMedia = null,
-        ?bool $hasSpoiler = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $livePhoto, $photo, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $ephemeralMessageParameters, $caption, $parseMode, $captionEntities, $showCaptionAboveMedia, $hasSpoiler, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

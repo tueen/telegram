@@ -55,14 +55,4 @@ class UpgradeGift extends Method
         if ($keepOriginalDetails !== null) $this->keepOriginalDetails = $keepOriginalDetails;
         if ($starCount !== null) $this->starCount = $starCount;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        string $ownedGiftId,
-        ?bool $keepOriginalDetails = null,
-        ?int $starCount = null
-    ): static
-    {
-        return new static($businessConnectionId, $ownedGiftId, $keepOriginalDetails, $starCount);
-    }
 }

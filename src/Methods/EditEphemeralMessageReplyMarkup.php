@@ -56,14 +56,4 @@ class EditEphemeralMessageReplyMarkup extends Method
         if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $receiverUserId, $ephemeralMessageId, $replyMarkup);
-    }
 }

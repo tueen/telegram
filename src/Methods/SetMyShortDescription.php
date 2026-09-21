@@ -39,12 +39,4 @@ class SetMyShortDescription extends Method
         if ($shortDescription !== null) $this->shortDescription = $shortDescription;
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        ?string $shortDescription = null,
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($shortDescription, $languageCode);
-    }
 }

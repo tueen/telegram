@@ -65,15 +65,4 @@ class EditMessageChecklist extends Method
         if ($checklist !== null) $this->checklist = $checklist;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int|string $chatId,
-        int $messageId,
-        InputChecklist $checklist,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $messageId, $checklist, $replyMarkup);
-    }
 }

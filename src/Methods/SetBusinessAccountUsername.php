@@ -39,12 +39,4 @@ class SetBusinessAccountUsername extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($username !== null) $this->username = $username;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        ?string $username = null
-    ): static
-    {
-        return new static($businessConnectionId, $username);
-    }
 }

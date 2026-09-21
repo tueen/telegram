@@ -47,13 +47,4 @@ class SetChatMemberTag extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($tag !== null) $this->tag = $tag;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        ?string $tag = null
-    ): static
-    {
-        return new static($chatId, $userId, $tag);
-    }
 }

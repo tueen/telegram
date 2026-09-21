@@ -79,17 +79,4 @@ class ForwardMessages extends Method
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
     }
-
-    public static function make(
-        int|string $chatId,
-        int|string $fromChatId,
-        array $messageIds,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null
-    ): static
-    {
-        return new static($chatId, $fromChatId, $messageIds, $messageThreadId, $directMessagesTopicId, $disableNotification, $protectContent);
-    }
 }

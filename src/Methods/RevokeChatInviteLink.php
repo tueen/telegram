@@ -39,12 +39,4 @@ class RevokeChatInviteLink extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($inviteLink !== null) $this->inviteLink = $inviteLink;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $inviteLink
-    ): static
-    {
-        return new static($chatId, $inviteLink);
-    }
 }

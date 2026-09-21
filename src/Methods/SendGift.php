@@ -80,17 +80,4 @@ class SendGift extends Method
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
     }
-
-    public static function make(
-        string $giftId,
-        ?int $userId = null,
-        int|string|null $chatId = null,
-        ?bool $payForUpgrade = null,
-        ?string $text = null,
-        ParseMode|string|null $textParseMode = null,
-        ?array $textEntities = null
-    ): static
-    {
-        return new static($giftId, $userId, $chatId, $payForUpgrade, $text, $textParseMode, $textEntities);
-    }
 }

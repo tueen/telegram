@@ -47,13 +47,4 @@ class EditChatSubscriptionInviteLink extends Method
         if ($inviteLink !== null) $this->inviteLink = $inviteLink;
         if ($name !== null) $this->name = $name;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $inviteLink,
-        ?string $name = null
-    ): static
-    {
-        return new static($chatId, $inviteLink, $name);
-    }
 }

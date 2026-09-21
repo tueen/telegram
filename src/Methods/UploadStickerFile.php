@@ -51,13 +51,4 @@ class UploadStickerFile extends Method
         if ($sticker !== null) $this->sticker = $sticker;
         if ($stickerFormat !== null) $this->stickerFormat = $stickerFormat;
     }
-
-    public static function make(
-        int $userId,
-        InputFile $sticker,
-        StickerFormat|string $stickerFormat
-    ): static
-    {
-        return new static($userId, $sticker, $stickerFormat);
-    }
 }

@@ -39,12 +39,4 @@ class BanChatSenderChat extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($senderChatId !== null) $this->senderChatId = $senderChatId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $senderChatId
-    ): static
-    {
-        return new static($chatId, $senderChatId);
-    }
 }

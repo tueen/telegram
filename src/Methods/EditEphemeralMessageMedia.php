@@ -65,15 +65,4 @@ class EditEphemeralMessageMedia extends Method
         if ($media !== null) $this->media = $media;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
-        InputMedia $media,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $receiverUserId, $ephemeralMessageId, $media, $replyMarkup);
-    }
 }

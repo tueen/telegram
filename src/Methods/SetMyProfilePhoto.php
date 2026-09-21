@@ -32,11 +32,4 @@ class SetMyProfilePhoto extends Method
     {
         if ($photo !== null) $this->photo = $photo;
     }
-
-    public static function make(
-        InputProfilePhoto $photo
-    ): static
-    {
-        return new static($photo);
-    }
 }

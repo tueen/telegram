@@ -56,14 +56,4 @@ class ReplaceStickerInSet extends Method
         if ($oldSticker !== null) $this->oldSticker = $oldSticker;
         if ($sticker !== null) $this->sticker = $sticker;
     }
-
-    public static function make(
-        int $userId,
-        string $name,
-        string $oldSticker,
-        InputSticker $sticker
-    ): static
-    {
-        return new static($userId, $name, $oldSticker, $sticker);
-    }
 }

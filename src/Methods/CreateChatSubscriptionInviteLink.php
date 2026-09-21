@@ -55,14 +55,4 @@ class CreateChatSubscriptionInviteLink extends Method
         if ($subscriptionPrice !== null) $this->subscriptionPrice = $subscriptionPrice;
         if ($name !== null) $this->name = $name;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $subscriptionPeriod,
-        int $subscriptionPrice,
-        ?string $name = null
-    ): static
-    {
-        return new static($chatId, $subscriptionPeriod, $subscriptionPrice, $name);
-    }
 }

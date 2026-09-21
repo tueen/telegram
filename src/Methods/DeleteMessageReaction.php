@@ -55,14 +55,4 @@ class DeleteMessageReaction extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($actorChatId !== null) $this->actorChatId = $actorChatId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageId,
-        ?int $userId = null,
-        ?int $actorChatId = null
-    ): static
-    {
-        return new static($chatId, $messageId, $userId, $actorChatId);
-    }
 }

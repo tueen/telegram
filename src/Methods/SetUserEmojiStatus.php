@@ -47,13 +47,4 @@ class SetUserEmojiStatus extends Method
         if ($emojiStatusCustomEmojiId !== null) $this->emojiStatusCustomEmojiId = $emojiStatusCustomEmojiId;
         if ($emojiStatusExpirationDate !== null) $this->emojiStatusExpirationDate = $emojiStatusExpirationDate;
     }
-
-    public static function make(
-        int $userId,
-        ?string $emojiStatusCustomEmojiId = null,
-        ?int $emojiStatusExpirationDate = null
-    ): static
-    {
-        return new static($userId, $emojiStatusCustomEmojiId, $emojiStatusExpirationDate);
-    }
 }

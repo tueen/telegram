@@ -40,12 +40,4 @@ class AnswerWebAppQuery extends Method
         if ($webAppQueryId !== null) $this->webAppQueryId = $webAppQueryId;
         if ($result !== null) $this->result = $result;
     }
-
-    public static function make(
-        string $webAppQueryId,
-        InlineQueryResult $result
-    ): static
-    {
-        return new static($webAppQueryId, $result);
-    }
 }

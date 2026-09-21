@@ -72,16 +72,4 @@ class GiftPremiumSubscription extends Method
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
     }
-
-    public static function make(
-        int $userId,
-        int $monthCount,
-        int $starCount,
-        ?string $text = null,
-        ParseMode|string|null $textParseMode = null,
-        ?array $textEntities = null
-    ): static
-    {
-        return new static($userId, $monthCount, $starCount, $text, $textParseMode, $textEntities);
-    }
 }

@@ -39,12 +39,4 @@ class DeleteStory extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($storyId !== null) $this->storyId = $storyId;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int $storyId
-    ): static
-    {
-        return new static($businessConnectionId, $storyId);
-    }
 }

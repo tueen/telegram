@@ -39,12 +39,4 @@ class SetStickerEmojiList extends Method
         if ($sticker !== null) $this->sticker = $sticker;
         if ($emojiList !== null) $this->emojiList = $emojiList;
     }
-
-    public static function make(
-        string $sticker,
-        array $emojiList
-    ): static
-    {
-        return new static($sticker, $emojiList);
-    }
 }

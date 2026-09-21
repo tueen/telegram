@@ -55,14 +55,4 @@ class EditForumTopic extends Method
         if ($name !== null) $this->name = $name;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageThreadId,
-        ?string $name = null,
-        ?string $iconCustomEmojiId = null
-    ): static
-    {
-        return new static($chatId, $messageThreadId, $name, $iconCustomEmojiId);
-    }
 }

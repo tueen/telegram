@@ -47,13 +47,4 @@ class SetBusinessAccountName extends Method
         if ($firstName !== null) $this->firstName = $firstName;
         if ($lastName !== null) $this->lastName = $lastName;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        string $firstName,
-        ?string $lastName = null
-    ): static
-    {
-        return new static($businessConnectionId, $firstName, $lastName);
-    }
 }

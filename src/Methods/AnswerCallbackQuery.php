@@ -63,15 +63,4 @@ class AnswerCallbackQuery extends Method
         if ($url !== null) $this->url = $url;
         if ($cacheTime !== null) $this->cacheTime = $cacheTime;
     }
-
-    public static function make(
-        string $callbackQueryId,
-        ?string $text = null,
-        ?bool $showAlert = null,
-        ?string $url = null,
-        ?int $cacheTime = null
-    ): static
-    {
-        return new static($callbackQueryId, $text, $showAlert, $url, $cacheTime);
-    }
 }

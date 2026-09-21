@@ -162,26 +162,4 @@ class SendVideoNote extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile|string $videoNote,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?EphemeralMessageParameters $ephemeralMessageParameters = null,
-        ?int $duration = null,
-        ?int $length = null,
-        InputFile|string|null $thumbnail = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $videoNote, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $ephemeralMessageParameters, $duration, $length, $thumbnail, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

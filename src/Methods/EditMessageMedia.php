@@ -73,16 +73,4 @@ class EditMessageMedia extends Method
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        InputMedia $media,
-        ?string $businessConnectionId = null,
-        int|string|null $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($media, $businessConnectionId, $chatId, $messageId, $inlineMessageId, $replyMarkup);
-    }
 }

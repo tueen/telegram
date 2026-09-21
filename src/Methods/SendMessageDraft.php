@@ -88,18 +88,4 @@ class SendMessageDraft extends Method
         if ($canStop !== null) $this->canStop = $canStop;
         if ($keepOnStop !== null) $this->keepOnStop = $keepOnStop;
     }
-
-    public static function make(
-        int $chatId,
-        int $draftId,
-        ?int $messageThreadId = null,
-        ?string $text = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $entities = null,
-        ?bool $canStop = null,
-        ?bool $keepOnStop = null
-    ): static
-    {
-        return new static($chatId, $draftId, $messageThreadId, $text, $parseMode, $entities, $canStop, $keepOnStop);
-    }
 }

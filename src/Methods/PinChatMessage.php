@@ -55,14 +55,4 @@ class PinChatMessage extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $messageId,
-        ?string $businessConnectionId = null,
-        ?bool $disableNotification = null
-    ): static
-    {
-        return new static($chatId, $messageId, $businessConnectionId, $disableNotification);
-    }
 }

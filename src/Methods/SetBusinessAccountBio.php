@@ -39,12 +39,4 @@ class SetBusinessAccountBio extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($bio !== null) $this->bio = $bio;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        ?string $bio = null
-    ): static
-    {
-        return new static($businessConnectionId, $bio);
-    }
 }

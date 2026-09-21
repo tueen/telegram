@@ -39,12 +39,4 @@ class SendChatJoinRequestWebApp extends Method
         if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
         if ($webAppUrl !== null) $this->webAppUrl = $webAppUrl;
     }
-
-    public static function make(
-        string $chatJoinRequestQueryId,
-        string $webAppUrl
-    ): static
-    {
-        return new static($chatJoinRequestQueryId, $webAppUrl);
-    }
 }

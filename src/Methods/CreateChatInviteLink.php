@@ -63,15 +63,4 @@ class CreateChatInviteLink extends Method
         if ($memberLimit !== null) $this->memberLimit = $memberLimit;
         if ($createsJoinRequest !== null) $this->createsJoinRequest = $createsJoinRequest;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?string $name = null,
-        ?int $expireDate = null,
-        ?int $memberLimit = null,
-        ?bool $createsJoinRequest = null
-    ): static
-    {
-        return new static($chatId, $name, $expireDate, $memberLimit, $createsJoinRequest);
-    }
 }

@@ -47,13 +47,4 @@ class UnpinChatMessage extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageId !== null) $this->messageId = $messageId;
     }
-
-    public static function make(
-        int|string $chatId,
-        ?string $businessConnectionId = null,
-        ?int $messageId = null
-    ): static
-    {
-        return new static($chatId, $businessConnectionId, $messageId);
-    }
 }

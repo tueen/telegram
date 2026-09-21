@@ -40,12 +40,4 @@ class AnswerChatJoinRequestQuery extends Method
         if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
         if ($result !== null) $this->result = $result;
     }
-
-    public static function make(
-        string $chatJoinRequestQueryId,
-        ChatJoinRequestResult|string $result
-    ): static
-    {
-        return new static($chatJoinRequestQueryId, $result);
-    }
 }

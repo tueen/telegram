@@ -47,13 +47,4 @@ class ReadBusinessMessage extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int $chatId,
-        int $messageId
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $messageId);
-    }
 }

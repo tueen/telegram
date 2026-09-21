@@ -47,13 +47,4 @@ class ApproveSuggestedPost extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($sendDate !== null) $this->sendDate = $sendDate;
     }
-
-    public static function make(
-        int $chatId,
-        int $messageId,
-        ?int $sendDate = null
-    ): static
-    {
-        return new static($chatId, $messageId, $sendDate);
-    }
 }

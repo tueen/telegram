@@ -275,41 +275,4 @@ class SendInvoice extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $title,
-        string $description,
-        string $payload,
-        Currency|string $currency,
-        array $prices,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?string $providerToken = null,
-        ?int $maxTipAmount = null,
-        ?array $suggestedTipAmounts = null,
-        ?string $startParameter = null,
-        ?string $providerData = null,
-        ?string $photoUrl = null,
-        ?int $photoSize = null,
-        ?int $photoWidth = null,
-        ?int $photoHeight = null,
-        ?bool $needName = null,
-        ?bool $needPhoneNumber = null,
-        ?bool $needEmail = null,
-        ?bool $needShippingAddress = null,
-        ?bool $sendPhoneNumberToProvider = null,
-        ?bool $sendEmailToProvider = null,
-        ?bool $isFlexible = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $title, $description, $payload, $currency, $prices, $messageThreadId, $directMessagesTopicId, $providerToken, $maxTipAmount, $suggestedTipAmounts, $startParameter, $providerData, $photoUrl, $photoSize, $photoWidth, $photoHeight, $needName, $needPhoneNumber, $needEmail, $needShippingAddress, $sendPhoneNumberToProvider, $sendEmailToProvider, $isFlexible, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

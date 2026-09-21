@@ -39,12 +39,4 @@ class ConvertGiftToStars extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        string $ownedGiftId
-    ): static
-    {
-        return new static($businessConnectionId, $ownedGiftId);
-    }
 }

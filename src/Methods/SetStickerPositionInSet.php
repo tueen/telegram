@@ -39,12 +39,4 @@ class SetStickerPositionInSet extends Method
         if ($sticker !== null) $this->sticker = $sticker;
         if ($position !== null) $this->position = $position;
     }
-
-    public static function make(
-        string $sticker,
-        int $position
-    ): static
-    {
-        return new static($sticker, $position);
-    }
 }

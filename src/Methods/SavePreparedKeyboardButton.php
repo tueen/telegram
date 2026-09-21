@@ -40,12 +40,4 @@ class SavePreparedKeyboardButton extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($button !== null) $this->button = $button;
     }
-
-    public static function make(
-        int $userId,
-        KeyboardButton $button
-    ): static
-    {
-        return new static($userId, $button);
-    }
 }

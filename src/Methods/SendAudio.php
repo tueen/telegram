@@ -196,30 +196,4 @@ class SendAudio extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile|string $audio,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ?int $directMessagesTopicId = null,
-        ?EphemeralMessageParameters $ephemeralMessageParameters = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?int $duration = null,
-        ?string $performer = null,
-        ?string $title = null,
-        InputFile|string|null $thumbnail = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?SuggestedPostParameters $suggestedPostParameters = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $audio, $businessConnectionId, $messageThreadId, $directMessagesTopicId, $ephemeralMessageParameters, $caption, $parseMode, $captionEntities, $duration, $performer, $title, $thumbnail, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $suggestedPostParameters, $replyParameters, $replyMarkup);
-    }
 }

@@ -39,12 +39,4 @@ class SetStickerSetTitle extends Method
         if ($name !== null) $this->name = $name;
         if ($title !== null) $this->title = $title;
     }
-
-    public static function make(
-        string $name,
-        string $title
-    ): static
-    {
-        return new static($name, $title);
-    }
 }

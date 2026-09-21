@@ -81,17 +81,4 @@ class EditStory extends Method
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($areas !== null) $this->areas = $areas;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int $storyId,
-        InputStoryContent $content,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?array $areas = null
-    ): static
-    {
-        return new static($businessConnectionId, $storyId, $content, $caption, $parseMode, $captionEntities, $areas);
-    }
 }

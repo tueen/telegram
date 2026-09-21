@@ -97,19 +97,4 @@ class EditMessageCaption extends Method
         if ($showCaptionAboveMedia !== null) $this->showCaptionAboveMedia = $showCaptionAboveMedia;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        ?string $businessConnectionId = null,
-        int|string|null $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $showCaptionAboveMedia = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $messageId, $inlineMessageId, $caption, $parseMode, $captionEntities, $showCaptionAboveMedia, $replyMarkup);
-    }
 }

@@ -47,13 +47,4 @@ class DeleteEphemeralMessage extends Method
         if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
         if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId
-    ): static
-    {
-        return new static($chatId, $receiverUserId, $ephemeralMessageId);
-    }
 }

@@ -107,20 +107,4 @@ class EditMessageText extends Method
         if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        ?string $businessConnectionId = null,
-        int|string|null $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null,
-        ?string $text = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $entities = null,
-        ?LinkPreviewOptions $linkPreviewOptions = null,
-        ?InputRichMessage $richMessage = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $messageId, $inlineMessageId, $text, $parseMode, $entities, $linkPreviewOptions, $richMessage, $replyMarkup);
-    }
 }

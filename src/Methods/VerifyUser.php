@@ -39,12 +39,4 @@ class VerifyUser extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
     }
-
-    public static function make(
-        int $userId,
-        ?string $customDescription = null
-    ): static
-    {
-        return new static($userId, $customDescription);
-    }
 }

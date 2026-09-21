@@ -47,13 +47,4 @@ class SetManagedBotAccessSettings extends Method
         if ($isAccessRestricted !== null) $this->isAccessRestricted = $isAccessRestricted;
         if ($addedUserIds !== null) $this->addedUserIds = $addedUserIds;
     }
-
-    public static function make(
-        int $userId,
-        bool $isAccessRestricted,
-        ?array $addedUserIds = null
-    ): static
-    {
-        return new static($userId, $isAccessRestricted, $addedUserIds);
-    }
 }

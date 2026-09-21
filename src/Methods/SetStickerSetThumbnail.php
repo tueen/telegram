@@ -59,14 +59,4 @@ class SetStickerSetThumbnail extends Method
         if ($format !== null) $this->format = $format;
         if ($thumbnail !== null) $this->thumbnail = $thumbnail;
     }
-
-    public static function make(
-        string $name,
-        int $userId,
-        StickerFormat|string $format,
-        InputFile|string|null $thumbnail = null
-    ): static
-    {
-        return new static($name, $userId, $format, $thumbnail);
-    }
 }

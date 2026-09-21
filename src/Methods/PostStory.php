@@ -98,19 +98,4 @@ class PostStory extends Method
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        InputStoryContent $content,
-        StoryActivePeriod|int $activePeriod,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?array $areas = null,
-        ?bool $postToChatPage = null,
-        ?bool $protectContent = null
-    ): static
-    {
-        return new static($businessConnectionId, $content, $activePeriod, $caption, $parseMode, $captionEntities, $areas, $postToChatPage, $protectContent);
-    }
 }

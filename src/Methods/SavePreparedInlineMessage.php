@@ -72,16 +72,4 @@ class SavePreparedInlineMessage extends Method
         if ($allowGroupChats !== null) $this->allowGroupChats = $allowGroupChats;
         if ($allowChannelChats !== null) $this->allowChannelChats = $allowChannelChats;
     }
-
-    public static function make(
-        int $userId,
-        InlineQueryResult $result,
-        ?bool $allowUserChats = null,
-        ?bool $allowBotChats = null,
-        ?bool $allowGroupChats = null,
-        ?bool $allowChannelChats = null
-    ): static
-    {
-        return new static($userId, $result, $allowUserChats, $allowBotChats, $allowGroupChats, $allowChannelChats);
-    }
 }

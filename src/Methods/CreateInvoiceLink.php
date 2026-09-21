@@ -200,32 +200,4 @@ class CreateInvoiceLink extends Method
         if ($sendEmailToProvider !== null) $this->sendEmailToProvider = $sendEmailToProvider;
         if ($isFlexible !== null) $this->isFlexible = $isFlexible;
     }
-
-    public static function make(
-        string $title,
-        string $description,
-        string $payload,
-        Currency|string $currency,
-        array $prices,
-        ?string $businessConnectionId = null,
-        ?string $providerToken = null,
-        ?int $subscriptionPeriod = null,
-        ?int $maxTipAmount = null,
-        ?array $suggestedTipAmounts = null,
-        ?string $providerData = null,
-        ?string $photoUrl = null,
-        ?int $photoSize = null,
-        ?int $photoWidth = null,
-        ?int $photoHeight = null,
-        ?bool $needName = null,
-        ?bool $needPhoneNumber = null,
-        ?bool $needEmail = null,
-        ?bool $needShippingAddress = null,
-        ?bool $sendPhoneNumberToProvider = null,
-        ?bool $sendEmailToProvider = null,
-        ?bool $isFlexible = null
-    ): static
-    {
-        return new static($title, $description, $payload, $currency, $prices, $businessConnectionId, $providerToken, $subscriptionPeriod, $maxTipAmount, $suggestedTipAmounts, $providerData, $photoUrl, $photoSize, $photoWidth, $photoHeight, $needName, $needPhoneNumber, $needEmail, $needShippingAddress, $sendPhoneNumberToProvider, $sendEmailToProvider, $isFlexible);
-    }
 }

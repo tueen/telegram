@@ -39,12 +39,4 @@ class GetUserPersonalChatMessages extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($limit !== null) $this->limit = $limit;
     }
-
-    public static function make(
-        int $userId,
-        int $limit
-    ): static
-    {
-        return new static($userId, $limit);
-    }
 }

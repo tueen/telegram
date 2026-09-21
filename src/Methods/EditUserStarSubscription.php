@@ -47,13 +47,4 @@ class EditUserStarSubscription extends Method
         if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
         if ($isCanceled !== null) $this->isCanceled = $isCanceled;
     }
-
-    public static function make(
-        int $userId,
-        string $telegramPaymentChargeId,
-        bool $isCanceled
-    ): static
-    {
-        return new static($userId, $telegramPaymentChargeId, $isCanceled);
-    }
 }

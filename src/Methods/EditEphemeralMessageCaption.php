@@ -89,18 +89,4 @@ class EditEphemeralMessageCaption extends Method
         if ($showCaptionAboveMedia !== null) $this->showCaptionAboveMedia = $showCaptionAboveMedia;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
-        ?string $caption = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $captionEntities = null,
-        ?bool $showCaptionAboveMedia = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $receiverUserId, $ephemeralMessageId, $caption, $parseMode, $captionEntities, $showCaptionAboveMedia, $replyMarkup);
-    }
 }

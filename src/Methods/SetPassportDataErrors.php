@@ -40,12 +40,4 @@ class SetPassportDataErrors extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($errors !== null) $this->errors = $errors;
     }
-
-    public static function make(
-        int $userId,
-        array $errors
-    ): static
-    {
-        return new static($userId, $errors);
-    }
 }

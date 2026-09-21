@@ -55,14 +55,4 @@ class TransferGift extends Method
         if ($newOwnerChatId !== null) $this->newOwnerChatId = $newOwnerChatId;
         if ($starCount !== null) $this->starCount = $starCount;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        string $ownedGiftId,
-        int $newOwnerChatId,
-        ?int $starCount = null
-    ): static
-    {
-        return new static($businessConnectionId, $ownedGiftId, $newOwnerChatId, $starCount);
-    }
 }

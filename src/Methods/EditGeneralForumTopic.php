@@ -39,12 +39,4 @@ class EditGeneralForumTopic extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($name !== null) $this->name = $name;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $name
-    ): static
-    {
-        return new static($chatId, $name);
-    }
 }

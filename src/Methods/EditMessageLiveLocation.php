@@ -112,21 +112,4 @@ class EditMessageLiveLocation extends Method
         if ($proximityAlertRadius !== null) $this->proximityAlertRadius = $proximityAlertRadius;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        float $latitude,
-        float $longitude,
-        ?string $businessConnectionId = null,
-        int|string|null $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null,
-        ?int $livePeriod = null,
-        ?float $horizontalAccuracy = null,
-        ?int $heading = null,
-        ?int $proximityAlertRadius = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($latitude, $longitude, $businessConnectionId, $chatId, $messageId, $inlineMessageId, $livePeriod, $horizontalAccuracy, $heading, $proximityAlertRadius, $replyMarkup);
-    }
 }

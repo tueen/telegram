@@ -31,11 +31,4 @@ class GetMyName extends Method
     {
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($languageCode);
-    }
 }

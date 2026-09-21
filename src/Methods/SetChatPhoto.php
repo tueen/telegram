@@ -42,12 +42,4 @@ class SetChatPhoto extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($photo !== null) $this->photo = $photo;
     }
-
-    public static function make(
-        int|string $chatId,
-        InputFile $photo
-    ): static
-    {
-        return new static($chatId, $photo);
-    }
 }

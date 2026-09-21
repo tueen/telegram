@@ -31,11 +31,4 @@ class ReplaceManagedBotToken extends Method
     {
         if ($userId !== null) $this->userId = $userId;
     }
-
-    public static function make(
-        int $userId
-    ): static
-    {
-        return new static($userId);
-    }
 }

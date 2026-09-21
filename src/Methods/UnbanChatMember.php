@@ -47,13 +47,4 @@ class UnbanChatMember extends Method
         if ($userId !== null) $this->userId = $userId;
         if ($onlyIfBanned !== null) $this->onlyIfBanned = $onlyIfBanned;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId,
-        ?bool $onlyIfBanned = null
-    ): static
-    {
-        return new static($chatId, $userId, $onlyIfBanned);
-    }
 }

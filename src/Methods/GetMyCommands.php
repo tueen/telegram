@@ -40,12 +40,4 @@ class GetMyCommands extends Method
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        ?BotCommandScope $scope = null,
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($scope, $languageCode);
-    }
 }

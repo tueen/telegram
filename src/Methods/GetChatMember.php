@@ -39,12 +39,4 @@ class GetChatMember extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $userId
-    ): static
-    {
-        return new static($chatId, $userId);
-    }
 }

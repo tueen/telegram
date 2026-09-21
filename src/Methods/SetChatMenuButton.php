@@ -40,12 +40,4 @@ class SetChatMenuButton extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($menuButton !== null) $this->menuButton = $menuButton;
     }
-
-    public static function make(
-        ?int $chatId = null,
-        ?MenuButton $menuButton = null
-    ): static
-    {
-        return new static($chatId, $menuButton);
-    }
 }

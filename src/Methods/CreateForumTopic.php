@@ -56,14 +56,4 @@ class CreateForumTopic extends Method
         if ($iconColor !== null) $this->iconColor = $iconColor;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $name,
-        ForumIconColor|int|null $iconColor = null,
-        ?string $iconCustomEmojiId = null
-    ): static
-    {
-        return new static($chatId, $name, $iconColor, $iconCustomEmojiId);
-    }
 }

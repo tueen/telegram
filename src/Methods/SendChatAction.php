@@ -57,14 +57,4 @@ class SendChatAction extends Method
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
     }
-
-    public static function make(
-        int|string $chatId,
-        ChatAction|string $action,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null
-    ): static
-    {
-        return new static($chatId, $action, $businessConnectionId, $messageThreadId);
-    }
 }

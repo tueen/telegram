@@ -99,19 +99,4 @@ class EditEphemeralMessageText extends Method
         if ($linkPreviewOptions !== null) $this->linkPreviewOptions = $linkPreviewOptions;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
-        ?string $text = null,
-        ParseMode|string|null $parseMode = null,
-        ?array $entities = null,
-        ?InputRichMessage $richMessage = null,
-        ?LinkPreviewOptions $linkPreviewOptions = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $receiverUserId, $ephemeralMessageId, $text, $parseMode, $entities, $richMessage, $linkPreviewOptions, $replyMarkup);
-    }
 }

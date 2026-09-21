@@ -79,17 +79,4 @@ class SetGameScore extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
     }
-
-    public static function make(
-        int $userId,
-        int $score,
-        ?bool $force = null,
-        ?bool $disableEditMessage = null,
-        ?int $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null
-    ): static
-    {
-        return new static($userId, $score, $force, $disableEditMessage, $chatId, $messageId, $inlineMessageId);
-    }
 }

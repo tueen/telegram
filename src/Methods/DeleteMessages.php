@@ -39,12 +39,4 @@ class DeleteMessages extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageIds !== null) $this->messageIds = $messageIds;
     }
-
-    public static function make(
-        int|string $chatId,
-        array $messageIds
-    ): static
-    {
-        return new static($chatId, $messageIds);
-    }
 }

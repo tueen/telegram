@@ -40,12 +40,4 @@ class SetStickerMaskPosition extends Method
         if ($sticker !== null) $this->sticker = $sticker;
         if ($maskPosition !== null) $this->maskPosition = $maskPosition;
     }
-
-    public static function make(
-        string $sticker,
-        ?MaskPosition $maskPosition = null
-    ): static
-    {
-        return new static($sticker, $maskPosition);
-    }
 }

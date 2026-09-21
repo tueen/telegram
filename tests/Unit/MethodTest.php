@@ -53,9 +53,9 @@ class MethodTest extends TestCase
         $this->assertSame($file, $files['photo']);
     }
 
-    public function testMethodStaticMake(): void
+    public function testMethodInstantiation(): void
     {
-        $method = SendMessage::make(
+        $method = new SendMessage(
             chatId: 987654,
             text: 'Testing make method'
         );

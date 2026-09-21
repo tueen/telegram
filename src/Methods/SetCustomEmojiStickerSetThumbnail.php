@@ -39,12 +39,4 @@ class SetCustomEmojiStickerSetThumbnail extends Method
         if ($name !== null) $this->name = $name;
         if ($customEmojiId !== null) $this->customEmojiId = $customEmojiId;
     }
-
-    public static function make(
-        string $name,
-        ?string $customEmojiId = null
-    ): static
-    {
-        return new static($name, $customEmojiId);
-    }
 }

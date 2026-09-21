@@ -39,12 +39,4 @@ class SetMyName extends Method
         if ($name !== null) $this->name = $name;
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        ?string $name = null,
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($name, $languageCode);
-    }
 }

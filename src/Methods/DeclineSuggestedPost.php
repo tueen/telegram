@@ -47,13 +47,4 @@ class DeclineSuggestedPost extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($comment !== null) $this->comment = $comment;
     }
-
-    public static function make(
-        int $chatId,
-        int $messageId,
-        ?string $comment = null
-    ): static
-    {
-        return new static($chatId, $messageId, $comment);
-    }
 }

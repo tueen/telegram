@@ -55,14 +55,4 @@ class GetGameHighScores extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
     }
-
-    public static function make(
-        int $userId,
-        ?int $chatId = null,
-        ?int $messageId = null,
-        ?string $inlineMessageId = null
-    ): static
-    {
-        return new static($userId, $chatId, $messageId, $inlineMessageId);
-    }
 }

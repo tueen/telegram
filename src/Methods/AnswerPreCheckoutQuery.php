@@ -47,13 +47,4 @@ class AnswerPreCheckoutQuery extends Method
         if ($ok !== null) $this->ok = $ok;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
     }
-
-    public static function make(
-        string $preCheckoutQueryId,
-        bool $ok,
-        ?string $errorMessage = null
-    ): static
-    {
-        return new static($preCheckoutQueryId, $ok, $errorMessage);
-    }
 }

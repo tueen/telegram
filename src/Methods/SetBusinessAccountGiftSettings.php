@@ -48,13 +48,4 @@ class SetBusinessAccountGiftSettings extends Method
         if ($showGiftButton !== null) $this->showGiftButton = $showGiftButton;
         if ($acceptedGiftTypes !== null) $this->acceptedGiftTypes = $acceptedGiftTypes;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        bool $showGiftButton,
-        AcceptedGiftTypes $acceptedGiftTypes
-    ): static
-    {
-        return new static($businessConnectionId, $showGiftButton, $acceptedGiftTypes);
-    }
 }

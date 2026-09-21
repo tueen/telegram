@@ -39,12 +39,4 @@ class SetChatTitle extends Method
         if ($chatId !== null) $this->chatId = $chatId;
         if ($title !== null) $this->title = $title;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $title
-    ): static
-    {
-        return new static($chatId, $title);
-    }
 }

@@ -39,12 +39,4 @@ class SetMyDescription extends Method
         if ($description !== null) $this->description = $description;
         if ($languageCode !== null) $this->languageCode = $languageCode;
     }
-
-    public static function make(
-        ?string $description = null,
-        ?string $languageCode = null
-    ): static
-    {
-        return new static($description, $languageCode);
-    }
 }

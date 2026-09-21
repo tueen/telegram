@@ -48,13 +48,4 @@ class SetBusinessAccountProfilePhoto extends Method
         if ($photo !== null) $this->photo = $photo;
         if ($isPublic !== null) $this->isPublic = $isPublic;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        InputProfilePhoto $photo,
-        ?bool $isPublic = null
-    ): static
-    {
-        return new static($businessConnectionId, $photo, $isPublic);
-    }
 }

@@ -32,11 +32,4 @@ class GetFile extends Method
     {
         if ($fileId !== null) $this->fileId = $fileId;
     }
-
-    public static function make(
-        string $fileId
-    ): static
-    {
-        return new static($fileId);
-    }
 }

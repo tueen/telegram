@@ -90,18 +90,4 @@ class SendChecklist extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        string $businessConnectionId,
-        int|string $chatId,
-        InputChecklist $checklist,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?string $messageEffectId = null,
-        ?ReplyParameters $replyParameters = null,
-        ?InlineKeyboardMarkup $replyMarkup = null
-    ): static
-    {
-        return new static($businessConnectionId, $chatId, $checklist, $disableNotification, $protectContent, $messageEffectId, $replyParameters, $replyMarkup);
-    }
 }

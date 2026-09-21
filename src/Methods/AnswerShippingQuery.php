@@ -55,14 +55,4 @@ class AnswerShippingQuery extends Method
         if ($shippingOptions !== null) $this->shippingOptions = $shippingOptions;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
     }
-
-    public static function make(
-        string $shippingQueryId,
-        bool $ok,
-        ?array $shippingOptions = null,
-        ?string $errorMessage = null
-    ): static
-    {
-        return new static($shippingQueryId, $ok, $shippingOptions, $errorMessage);
-    }
 }

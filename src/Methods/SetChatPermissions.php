@@ -48,13 +48,4 @@ class SetChatPermissions extends Method
         if ($permissions !== null) $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
     }
-
-    public static function make(
-        int|string $chatId,
-        ChatPermissions $permissions,
-        ?bool $useIndependentChatPermissions = null
-    ): static
-    {
-        return new static($chatId, $permissions, $useIndependentChatPermissions);
-    }
 }

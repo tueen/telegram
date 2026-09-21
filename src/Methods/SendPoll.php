@@ -303,44 +303,4 @@ class SendPoll extends Method
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
     }
-
-    public static function make(
-        int|string $chatId,
-        string $question,
-        array $options,
-        ?string $businessConnectionId = null,
-        ?int $messageThreadId = null,
-        ParseMode|string|null $questionParseMode = null,
-        ?array $questionEntities = null,
-        ?bool $isAnonymous = null,
-        PollType|string|null $type = null,
-        ?bool $allowsMultipleAnswers = null,
-        ?bool $allowsRevoting = null,
-        ?bool $shuffleOptions = null,
-        ?bool $allowAddingOptions = null,
-        ?bool $hideResultsUntilCloses = null,
-        ?bool $membersOnly = null,
-        ?array $countryCodes = null,
-        ?array $correctOptionIds = null,
-        ?string $explanation = null,
-        ParseMode|string|null $explanationParseMode = null,
-        ?array $explanationEntities = null,
-        ?InputPollMedia $explanationMedia = null,
-        ?int $openPeriod = null,
-        ?int $closeDate = null,
-        ?bool $isClosed = null,
-        ?string $description = null,
-        ParseMode|string|null $descriptionParseMode = null,
-        ?array $descriptionEntities = null,
-        ?InputPollMedia $media = null,
-        ?bool $disableNotification = null,
-        ?bool $protectContent = null,
-        ?bool $allowPaidBroadcast = null,
-        ?string $messageEffectId = null,
-        ?ReplyParameters $replyParameters = null,
-        InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null
-    ): static
-    {
-        return new static($chatId, $question, $options, $businessConnectionId, $messageThreadId, $questionParseMode, $questionEntities, $isAnonymous, $type, $allowsMultipleAnswers, $allowsRevoting, $shuffleOptions, $allowAddingOptions, $hideResultsUntilCloses, $membersOnly, $countryCodes, $correctOptionIds, $explanation, $explanationParseMode, $explanationEntities, $explanationMedia, $openPeriod, $closeDate, $isClosed, $description, $descriptionParseMode, $descriptionEntities, $media, $disableNotification, $protectContent, $allowPaidBroadcast, $messageEffectId, $replyParameters, $replyMarkup);
-    }
 }
