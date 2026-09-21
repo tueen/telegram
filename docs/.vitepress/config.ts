@@ -11,12 +11,26 @@ export default defineConfig({
     ],
     sidebar: [
       {
-        text: 'Introduction',
+        text: 'Getting Started',
         items: [
-          { text: 'Getting Started', link: '/guide/getting-started' },
-          { text: 'Methods & Types', link: '/guide/methods-and-types' },
+          { text: 'Introduction & Setup', link: '/guide/getting-started' },
+          { text: 'Configuration', link: '/guide/configuration' },
+        ]
+      },
+      {
+        text: 'Updates & Running Modes',
+        items: [
+          { text: 'Running Modes (Webhook & Polling)', link: '/guide/running-modes' },
+          { text: 'Update & Message Helpers', link: '/guide/update-and-message-helpers' },
+        ]
+      },
+      {
+        text: 'Client Features',
+        items: [
+          { text: 'Calling Methods & Types', link: '/guide/methods-and-types' },
+          { text: 'Error Handling & Hooks', link: '/guide/error-handling-and-hooks' },
           { text: 'File Upload & Download', link: '/guide/file-upload-download' },
-          { text: 'Pipeline & Middleware', link: '/guide/pipeline-middleware' }
+          { text: 'Pipeline & Middlewares', link: '/guide/pipeline-middleware' },
         ]
       }
     ],

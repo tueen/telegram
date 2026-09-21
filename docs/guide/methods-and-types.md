@@ -1,12 +1,16 @@
 # Methods & Types
 
-## Dynamic and Typed Method Calling
+`tueen/telegram` provides full, native support for all 185 Telegram Bot API methods and 400+ Types with 100% strict typing, PHP 8.4 asymmetric visibility, and native Enums.
 
-There are two primary ways to call methods in `tueen/telegram`:
+---
 
-### 1. Dynamic Method Calls (Recommended for Simplicity)
+## Method Invocations
 
-You can call any Telegram method directly using camelCase and named arguments:
+You can invoke API methods either dynamically or via dedicated Method classes:
+
+### 1. Dynamic Method Calls (Recommended)
+
+Call any Telegram method directly using camelCase and named arguments:
 
 ```php
 use Tueen\Telegram\Enums\ParseMode;
@@ -14,11 +18,13 @@ use Tueen\Telegram\Enums\ParseMode;
 $message = $telegram->sendMessage(
     chatId: 12345678,
     text: "Hello from <b>Tueen</b>!",
-    parseMode: ParseMode::HTML->value
+    parseMode: ParseMode::HTML // Direct Enum instance
 );
 ```
 
-### 2. Method Objects (Recommended for Complex Payloads & Architecture)
+Full IDE autocompletion and parameter docblocks are provided via the `@mixin TelegramMethods` contract.
+
+### 2. Method Objects (For Custom Pipelines & Architecture)
 
 Every Telegram Bot API method has a dedicated class in `Tueen\Telegram\Methods`:
 
@@ -32,6 +38,21 @@ $method = new SendMessage(
 
 $message = $telegram->send($method);
 ```
+
+### 3. Forward-Compatible Unknown / New Parameters
+
+If Telegram introduces a new parameter before the library updates, you can pass it immediately as a named parameter or via variadic `$extra`:
+
+```php
+// If Telegram adds 'new_feature_flag' tomorrow:
+$message = $telegram->sendMessage(
+    chatId: 12345678,
+    text: "Testing new feature",
+    newFeatureFlag: true // Seamlessly passed to the API
+);
+```
+
+---
 
 ## Types & Property Access
 
@@ -52,9 +73,37 @@ echo $message['message_id'];
 echo $message['chat']['first_name'];
 ```
 
+---
+
+## Custom Result Wrapper Types
+
+Methods that return primitive types (such as `boolean`, `integer`, or arrays) are wrapped in typed classes inside `Tueen\Telegram\Types\Custom\` so you can always check `$result->ok()`:
+
+- **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`)
+  ```php
+  $result = $telegram->deleteMessage(chatId: 123, messageId: 456);
+  if ($result->ok() && $result->value) {
+      echo "Deleted successfully";
+  }
+  ```
+- **`IntegerResult`** (e.g. from `getChatMemberCount`)
+  ```php
+  $count = $telegram->getChatMemberCount(chatId: -100123);
+  echo "Members: " . $count->value;
+  ```
+- **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
+  ```php
+  $updates = $telegram->getUpdates();
+  foreach ($updates as $update) {
+      echo $update->updateId;
+  }
+  ```
+
+---
+
 ## Forward Compatibility & Dynamic Fallback
 
-If Telegram adds a new field tomorrow that isn't yet part of the library, your application will **never crash**:
+If Telegram adds new fields or entire response types in future API versions, your application will **never crash**:
 
 - The unknown field is preserved in `$extra` storage.
 - You can access it immediately via `$message->newField` or `$message['new_field']`.

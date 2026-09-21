@@ -23,12 +23,20 @@ tueen/telegram/
 │   │   └── TelegramMethods.php        # Method signatures mixin (all 185 Bot API methods for IDE)
 │   ├── Config.php                     # Immutable client configuration
 │   ├── ConfigBuilder.php              # Fluent configuration builder
+│   ├── Running/                       # Running modes (Nutgram-style execution strategies)
+│   │   ├── RunningModeInterface.php
+│   │   ├── WebhookMode.php            # Webhook runner (secret_token validation, safeResponse)
+│   │   └── PollingMode.php            # Long-polling runner (offset tracking, auto-backoff)
 │   ├── Types/                         # All Telegram Bot API types (400 types)
-│   │   ├── Type.php                   # Base Type with dynamic fallback & ArrayAccess
+│   │   ├── Type.php                   # Base Type with universal ok() check, dynamic fallback & ArrayAccess
+│   │   ├── Error.php                  # Typed error object for non-throwing error handling
+│   │   ├── Concerns/                  # Type helper traits with PHP 8.4 property hooks
+│   │   │   ├── HasUpdateHelpers.php   # $update->type, isType, getMessage, getUser, getChat
+│   │   │   └── HasMessageHelpers.php  # $message->type, isType, isCommand, getCommand, getArgs
 │   │   └── Custom/InputFile.php       # Multipart file wrapper
 │   ├── Methods/                       # All Telegram Bot API methods (185 methods)
 │   │   └── Method.php                 # Base Method class with multipart & serialization
-│   ├── Enums/                         # Standard Backed Enums (ParseMode, ChatType, etc.)
+│   ├── Enums/                         # Standard Backed Enums (ParseMode, ChatType, UpdateType, MessageType, ErrorHandlingMode, etc.)
 │   ├── Client/                        # HTTP client abstraction (PSR-18 / Guzzle 7)
 │   │   ├── HttpClientInterface.php
 │   │   ├── GuzzleHttpClient.php
@@ -54,19 +62,38 @@ tueen/telegram/
 
 ### 1. PHP 8.4 & 8.5 Features
 - **Asymmetric Visibility:** Used across response Type objects: `public private(set) int $id;`.
-- **Property Hooks:** Used for computed, validated, and normalized properties.
+- **Property Hooks:** Used for computed, validated, and normalized properties (e.g. `$update->type`, `$message->type`).
 - **Dynamic Forward-Compatibility:** 
   - Unknown fields returned by future Telegram updates are automatically saved in `$extra` and accessible via `$type->fieldName`, `$type->field_name`, and `$type['field_name']`.
   - Unknown objects fallback to the base `Type` class, preventing runtime deserialization crashes.
 - **PHP 8.5 Pipe Operator:** Middleware pipeline and data transforms are compatible with PHP 8.5 `|>` and `$telegram->pipe()`.
 
-### 2. File Uploads & Progress
+### 2. Universal `ok()` & Dual Error Handling Modes
+- All API types inherit from `Type` and provide `ok(): bool` and `isOk(): bool` (returning `true`).
+- `ErrorHandlingMode::EXCEPTION` (default) throws typed exceptions (`ApiException`, `RateLimitException`, etc.).
+- `ErrorHandlingMode::ERROR_OBJECT` returns `Tueen\Telegram\Types\Error` instances (where `ok()` returns `false`), allowing non-throwing code styles.
+- Internal/network errors caught via `withCatchAllErrors()` receive negative error codes (e.g. `-28`) to easily distinguish them from Telegram API HTTP errors.
+
+### 3. Running Modes & Smart Helpers (Nutgram-Style)
+- Support both `WebhookMode` and `PollingMode` via `RunningModeInterface`.
+- `WebhookMode`: Supports automatic secret token verification (`X-Telegram-Bot-Api-Secret-Token`), raw payload parsing, and immediate response flushing via `safeResponse()`.
+- `PollingMode`: Automatically handles `offset` advancement (`update_id + 1`), transient error backoff, and manual generator iteration.
+- Client provides `$telegram->getUpdate()`, `$telegram->run(?callable $handler)`, and `$telegram->poll()`.
+- Smart resolvers on `Update`: `$update->getMessage()`, `$update->getUser()`, `$update->getChat()`.
+- Command helpers on `Message`: `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`, `$message->getText()`.
+
+### 4. Lifecycle Event Hooks
+- Fluent hooks on `Telegram`: `onBeforeRequest`, `onAfterRequest`, `onError`, `onResponse`.
+
+### 5. File Uploads & Progress
 - Always use `Tueen\Telegram\Types\Custom\InputFile` for uploading files (`fromPath`, `fromResource`, `fromString`, `fromStream`).
 - Progress callbacks accept `(int $bytesUploaded, int $totalBytes, float $percentage)`.
 
-### 3. Code Generation
-- When updating API specifications: run `php bin/generate.php` to regenerate all types and methods from `scratch/api.json` or latest schema.
+### 6. Documentation & Knowledge Synchronization (Mandatory Rule)
+- Whenever any feature, class, enum, or method is added or modified:
+  - Keep `docs/` completely updated with full documentation, guides, and real-world examples.
+  - Update `AGENTS.md` and `.agents/skills/` with any architectural changes. Only modify or add what is strictly necessary.
 
-### 4. Testing
+### 7. Testing & Verification
 - Run test suite: `vendor/bin/phpunit`
-- Lint code: `php scratch/validate_all.php`
+- Lint code: `composer lint` (or `php scratch/validate_all.php`)

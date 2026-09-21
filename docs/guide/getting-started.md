@@ -2,7 +2,9 @@
 
 ## Introduction
 
-`tueen/telegram` is the royal Telegram Bot API client for PHP 8.4 and PHP 8.5. It is designed to be lightweight, ultrafast, strictly typed, and future-proof.
+`tueen/telegram` is the royal Telegram Bot API client for PHP 8.4 and PHP 8.5. It is designed to be lightweight, ultrafast, strictly typed, and forward-compatible with the entire Telegram Bot API 10.3 specification.
+
+---
 
 ## Requirements
 
@@ -10,15 +12,22 @@
 - **Composer 2.x**
 - Extensions: `json`, `curl` or stream wrappers
 
+---
+
 ## Installation
+
+Install the package via Composer:
 
 ```bash
 composer require tueen/telegram
 ```
 
-## Basic Setup
+---
 
-You can initialize the client either directly with your bot token:
+## Client Initialization
+
+### Direct Initialization
+If you just need standard defaults:
 
 ```php
 use Tueen\Telegram\Telegram;
@@ -26,23 +35,71 @@ use Tueen\Telegram\Telegram;
 $telegram = new Telegram('YOUR_BOT_TOKEN');
 ```
 
-Or using the fluent `ConfigBuilder`:
+### Fluent ConfigBuilder
+For advanced options (proxies, timeouts, error modes, test environment):
 
 ```php
 use Tueen\Telegram\Telegram;
 
-$telegram = Telegram::create('YOUR_BOT_TOKEN')
+$config = Telegram::create('YOUR_BOT_TOKEN')
     ->withTimeout(30.0)
     ->withProxy('http://127.0.0.1:10809')
     ->withRetryCount(3)
+    ->withErrorObjectMode()
     ->build();
+
+$telegram = new Telegram($config);
 ```
 
-## First Call: getMe
+---
+
+## First API Call: `getMe`
 
 ```php
 $bot = $telegram->getMe();
 
-echo "Bot ID: " . $bot->id . PHP_EOL;
-echo "Bot Username: @" . $bot->username . PHP_EOL;
+if ($bot->ok()) {
+    echo "Bot ID: {$bot->id}\n";
+    echo "Bot Username: @{$bot->username}\n";
+}
 ```
+
+---
+
+## Sending a Message
+
+You can call any of Telegram's 185 Bot API methods directly using PHP 8 named arguments:
+
+```php
+use Tueen\Telegram\Enums\ParseMode;
+
+$message = $telegram->sendMessage(
+    chatId: 123456789,
+    text: 'Hello, <b>Queen</b>! Welcome to the royal bot client.',
+    parseMode: ParseMode::HTML
+);
+
+echo "Message sent with ID: {$message->messageId}\n";
+```
+
+---
+
+## Handling Incoming Updates
+
+Choose between **Webhook Mode** (recommended for production) and **Polling Mode** (ideal for CLI/local testing):
+
+```php
+use Tueen\Telegram\Types\Update;
+
+// Run the bot using the configured running mode
+$telegram->run(function (Update $update) use ($telegram) {
+    if ($update->message) {
+        $telegram->sendMessage(
+            chatId: $update->message->chat->id,
+            text: "Received: {$update->message->getText()}"
+        );
+    }
+});
+```
+
+Learn more about execution strategies in the [Running Modes Guide](/guide/running-modes).

@@ -36,18 +36,42 @@ This skill provides step-by-step procedures and rules for developing, testing, a
   $telegram->downloadFile($fileId, $destination, progress: $progressCallback);
   ```
 
+### 4. Running Modes & Handlers
+- Support interchangeable execution strategies via `RunningModeInterface` (`WebhookMode`, `PollingMode`).
+- Provide `$telegram->getUpdate()`, `$telegram->run(?callable $handler)`, and `$telegram->poll()`.
+- Ensure `WebhookMode` handles `secret_token` validation and `safeResponse()` without blocking the server.
+- Ensure `PollingMode` maintains correct update offsets (`update_id + 1`) and backoff logic.
+
+### 5. Dual Error Handling & Universal `ok()` Guarantee
+- Every API response extends `Type` and returns `true` from `ok()` and `isOk()`.
+- On failure under `ErrorHandlingMode::ERROR_OBJECT`, return `Tueen\Telegram\Types\Error` where `ok()` returns `false`.
+- Ensure internal/cURL/network exceptions converted to `Error` receive negative integer error codes.
+- Support lifecycle event hooks: `onBeforeRequest`, `onAfterRequest`, `onError`, `onResponse`.
+
+### 6. Update & Message Helpers
+- Leverage PHP 8.4 property hooks for `$update->type` (`UpdateType`) and `$message->type` (`MessageType`).
+- Provide smart extractors: `$update->getMessage()`, `$update->getUser()`, `$update->getChat()`.
+- Provide command extractors: `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`, `$message->getText()`.
+
+### 7. Documentation & Knowledge Synchronization (Mandatory Rule)
+- Whenever any feature, class, enum, or configuration option is added or modified:
+  - Immediately update `docs/` (sidebar, guides, code snippets) with comprehensive explanations and examples.
+  - Update `AGENTS.md` and this skill file to record any new architectural conventions or rules.
+  - Only update what is relevant and necessary to keep docs clean and accurate.
+
 ---
 
 ## 🛠️ Verification Commands
 
 Before committing any changes:
 
-1. **Lint all 600+ classes:**
+1. **Lint all 650+ classes:**
    ```powershell
-   php scratch/validate_all.php
+   composer lint
    ```
 
 2. **Run PHPUnit test suite:**
    ```powershell
    vendor/bin/phpunit
    ```
+
