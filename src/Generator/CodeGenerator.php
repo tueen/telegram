@@ -34,6 +34,9 @@ class CodeGenerator
         echo "Generating Methods...\n";
         $this->generateMethods();
 
+        echo "Updating Telegram facade docblocks with all 185 methods...\n";
+        $this->generateTelegramDocblock();
+
         echo "Done generating code.\n";
     }
 
@@ -422,4 +425,61 @@ PHP;
 
         return $typeStr ?: 'mixed';
     }
+
+    private function generateTelegramDocblock(): void
+    {
+        $methods = $this->spec['methods'] ?? [];
+        $lines = [];
+        $dummyImports = [];
+
+        foreach ($methods as $rawName => $methodDef) {
+            $returns = $methodDef['returns'] ?? ['Boolean'];
+            $fields = $methodDef['fields'] ?? [];
+
+            // Sort fields so required come first
+            usort($fields, function (array $a, array $b): int {
+                $aReq = ($a['required'] ?? false) ? 1 : 0;
+                $bReq = ($b['required'] ?? false) ? 1 : 0;
+                return $bReq <=> $aReq;
+            });
+
+            [$returnClass, $returnIsArray] = $this->mapReturnType($returns, $dummyImports);
+            $retType = $returnClass === 'Boolean' ? 'bool' : "Types\\{$returnClass}";
+            if ($returnIsArray) {
+                $retType .= '[]';
+            }
+
+            $paramList = [];
+            foreach ($fields as $field) {
+                $c = Type::toCamelCase($field['name']);
+                $required = $field['required'] ?? false;
+                $fTypes = $field['types'] ?? [];
+                $phpType = $this->mapMethodParamType($fTypes, $required, $dummyImports);
+                // clean namespace prefix for docblock
+                $phpType = str_replace('Tueen\Telegram\Types\\', 'Types\\', $phpType);
+                $phpType = str_replace('InputFile', 'Types\Custom\InputFile', $phpType);
+
+                $def = $required ? '' : ' = null';
+                $paramList[] = "{$phpType} \${$c}{$def}";
+            }
+
+            $paramsStr = implode(', ', $paramList);
+            $lines[] = " * @method {$retType} {$rawName}({$paramsStr})";
+        }
+
+        $docblockContent = implode("\n", $lines);
+
+        $telegramFile = dirname($this->typesDir) . '/Telegram.php';
+        $content = file_get_contents($telegramFile);
+
+        $pattern = '/\/\*\*\s*\n\s*\* Tueen Telegram Client - The Royal Client for Telegram Bot API\..*?\*\//s';
+        $replacement = "/**\n * Tueen Telegram Client - The Royal Client for Telegram Bot API.\n *\n" . $docblockContent . "\n */";
+
+        $newContent = preg_replace($pattern, $replacement, $content);
+        if ($newContent !== null) {
+            file_put_contents($telegramFile, $newContent);
+            echo "Updated Telegram.php docblock with " . count($methods) . " method signatures.\n";
+        }
+    }
 }
+
