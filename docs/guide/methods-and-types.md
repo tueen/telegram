@@ -91,11 +91,16 @@ Methods that return primitive types (such as `boolean`, `integer`, or arrays) ar
   $count = $telegram->getChatMemberCount(chatId: -100123);
   echo "Members: " . $count->value;
   ```
+- **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`)
+  ```php
+  $link = $telegram->exportChatInviteLink(chatId: -100123);
+  echo "Invite link: " . $link->value;
+  ```
 - **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
   ```php
   $updates = $telegram->getUpdates();
   foreach ($updates as $update) {
-      echo $update->updateId;
+    echo $update->updateId;
   }
   ```
 

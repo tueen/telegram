@@ -120,12 +120,21 @@ const frozenSidebar = [
     ]
   },
   {
-    text: 'Client Features',
+    text: 'Bot Features & UI',
     items: [
       { text: 'Calling Methods & Types', link: `${versionPrefix}methods-and-types` },
-      { text: 'Error Handling & Hooks', link: `${versionPrefix}error-handling-and-hooks` },
+      { text: 'Keyboards & Interactive UI', link: `${versionPrefix}keyboards` },
       { text: 'File Upload & Download', link: `${versionPrefix}file-upload-download` },
+      { text: 'Payments & Telegram Stars', link: `${versionPrefix}payments-and-stars` },
+    ]
+  },
+  {
+    text: 'Architecture & Reference',
+    items: [
+      { text: 'Error Handling & Hooks', link: `${versionPrefix}error-handling-and-hooks` },
       { text: 'Pipeline & Middlewares', link: `${versionPrefix}pipeline-middleware` },
+      { text: 'Enums Reference', link: `${versionPrefix}enums` },
+      { text: 'Schema & Code Generator', link: `${versionPrefix}generator` },
     ]
   }
 ]

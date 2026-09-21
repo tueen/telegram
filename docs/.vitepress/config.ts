@@ -6,7 +6,7 @@ import versions from '../versions.json'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
+export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
   return [
     {
       text: 'Getting Started',
@@ -23,12 +23,21 @@ function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       ]
     },
     {
-      text: 'Client Features',
+      text: 'Bot Features & UI',
       items: [
         { text: 'Calling Methods & Types', link: `${basePath}methods-and-types` },
-        { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
+        { text: 'Keyboards & Interactive UI', link: `${basePath}keyboards` },
         { text: 'File Upload & Download', link: `${basePath}file-upload-download` },
+        { text: 'Payments & Telegram Stars', link: `${basePath}payments-and-stars` },
+      ]
+    },
+    {
+      text: 'Architecture & Reference',
+      items: [
+        { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
         { text: 'Pipeline & Middlewares', link: `${basePath}pipeline-middleware` },
+        { text: 'Enums Reference', link: `${basePath}enums` },
+        { text: 'Schema & Code Generator', link: `${basePath}generator` },
       ]
     }
   ]

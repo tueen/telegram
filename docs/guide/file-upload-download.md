@@ -1,33 +1,79 @@
 # File Upload & Download
 
-## File Uploads with `InputFile`
+`tueen/telegram` makes file transfers seamless using the `InputFile` wrapper, streaming HTTP transports, and real-time upload/download progress callbacks.
 
-`tueen/telegram` makes file uploads seamless using the `InputFile` class.
+---
+
+## 1. File Uploads with `InputFile`
+
+`InputFile` can wrap local files, streams, raw strings, or PSR-7 streams:
 
 ### From Local File Path
 ```php
 use Tueen\Telegram\Types\Custom\InputFile;
 
 $photo = InputFile::fromPath('/path/to/cat.jpg');
+
+$telegram->sendPhoto(
+    chatId: 123456,
+    photo: $photo,
+    caption: 'My cute cat!'
+);
 ```
 
 ### From Stream Resource
 ```php
-$fp = fopen('https://example.com/stream.mp3', 'rb');
-$audio = InputFile::fromResource($fp, 'stream.mp3');
+$fp = fopen('https://example.com/audio.mp3', 'rb');
+$audio = InputFile::fromResource($fp, 'audio.mp3');
+
+$telegram->sendAudio(
+    chatId: 123456,
+    audio: $audio
+);
 ```
 
-### From Raw String Data
+### From Raw In-Memory String
 ```php
-$csv = InputFile::fromString("id,name\n1,Alice", 'report.csv', 'text/csv');
+$csv = InputFile::fromString("id,name\n1,Alice\n2,Bob", 'report.csv', 'text/csv');
+
+$telegram->sendDocument(
+    chatId: 123456,
+    document: $csv
+);
 ```
 
-## Real-Time Upload Progress
+---
+
+## 2. Sending Media Groups (Albums)
+
+To send multiple photos or videos as an album in a single message:
+
+```php
+$telegram->sendMediaGroup(
+    chatId: 123456,
+    media: [
+        [
+            'type' => 'photo',
+            'media' => 'https://example.com/photo1.jpg',
+            'caption' => 'Holiday album'
+        ],
+        [
+            'type' => 'photo',
+            'media' => 'https://example.com/photo2.jpg',
+        ]
+    ]
+);
+```
+
+---
+
+## 3. Real-Time Upload Progress
 
 You can track upload progress per-request:
 
 ```php
 use Tueen\Telegram\Methods\SendDocument;
+use Tueen\Telegram\Types\Custom\InputFile;
 
 $telegram->send(
     new SendDocument(
@@ -40,13 +86,17 @@ $telegram->send(
 );
 ```
 
-## Streaming File Downloads with Progress
+---
 
-Download files directly to disk without exhausting memory:
+## 4. Streaming File Downloads with Progress
+
+Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
+
+`$telegram->downloadFile` downloads directly to a local file or stream without loading the entire payload into RAM:
 
 ```php
 $telegram->downloadFile(
-    file: 'photos/file_0.jpg', // or $message->photo[0]->fileId
+    file: 'photos/file_0.jpg', // or File object / file_id
     destination: '/local/path/saved.jpg',
     progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {
         printf("Download: %.2f%%\r", $percentage);
