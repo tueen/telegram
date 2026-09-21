@@ -430,7 +430,7 @@ PHP;
     {
         $methods = $this->spec['methods'] ?? [];
         $lines = [];
-        $dummyImports = [];
+        $allImports = [];
 
         foreach ($methods as $rawName => $methodDef) {
             $returns = $methodDef['returns'] ?? ['Boolean'];
@@ -443,8 +443,8 @@ PHP;
                 return $bReq <=> $aReq;
             });
 
-            [$returnClass, $returnIsArray] = $this->mapReturnType($returns, $dummyImports);
-            $retType = $returnClass === 'Boolean' ? 'bool' : "Types\\{$returnClass}";
+            [$returnClass, $returnIsArray] = $this->mapReturnType($returns, $allImports);
+            $retType = $returnClass === 'Boolean' ? 'bool' : $returnClass;
             if ($returnIsArray) {
                 $retType .= '[]';
             }
@@ -454,10 +454,12 @@ PHP;
                 $c = Type::toCamelCase($field['name']);
                 $required = $field['required'] ?? false;
                 $fTypes = $field['types'] ?? [];
-                $phpType = $this->mapMethodParamType($fTypes, $required, $dummyImports);
-                // clean namespace prefix for docblock
-                $phpType = str_replace('Tueen\Telegram\Types\\', 'Types\\', $phpType);
-                $phpType = str_replace('InputFile', 'Types\Custom\InputFile', $phpType);
+
+                if (in_array('InputFile', $fTypes, true)) {
+                    $allImports[] = 'Tueen\Telegram\Types\Custom\InputFile';
+                }
+
+                $phpType = $this->mapMethodParamType($fTypes, $required, $allImports);
 
                 $def = $required ? '' : ' = null';
                 $paramList[] = "{$phpType} \${$c}{$def}";
@@ -466,6 +468,10 @@ PHP;
             $paramsStr = implode(', ', $paramList);
             $lines[] = " * @method {$retType} {$rawName}({$paramsStr})";
         }
+
+        $allImports = array_unique($allImports);
+        sort($allImports);
+        $useStatements = implode("\n", array_map(fn($i) => "use {$i};", $allImports));
 
         $docblockContent = implode("\n", $lines);
 
@@ -482,7 +488,7 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Contracts;
 
-use Tueen\Telegram\Types;
+{$useStatements}
 
 /**
  * Dynamic Telegram Bot API 10.3 Methods Mixin.
