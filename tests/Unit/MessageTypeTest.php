@@ -104,4 +104,62 @@ class MessageTypeTest extends TestCase
         $this->assertSame(MessageType::VOICE, $message->type);
         $this->assertTrue($message->isType(MessageType::VOICE));
     }
+
+    public function testRichMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 6,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'rich_message' => [
+                'type' => 'rich_text',
+            ],
+        ]);
+
+        $this->assertSame(MessageType::RICH_MESSAGE, $message->type);
+        $this->assertTrue($message->isType(MessageType::RICH_MESSAGE));
+    }
+
+    public function testLivePhotoMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 7,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'live_photo' => [
+                'file_id' => 'lp_123',
+                'file_unique_id' => 'u4',
+                'width' => 800,
+                'height' => 800,
+            ],
+        ]);
+
+        $this->assertSame(MessageType::LIVE_PHOTO, $message->type);
+        $this->assertTrue($message->isType(MessageType::LIVE_PHOTO));
+    }
+
+    public function testGiftMessage(): void
+    {
+        $message = new Message([
+            'message_id' => 8,
+            'date' => 1700000000,
+            'chat' => ['id' => 123, 'type' => 'private'],
+            'gift' => [
+                'id' => 'gift_123',
+                'sticker' => [
+                    'file_id' => 'stk_1',
+                    'file_unique_id' => 'u5',
+                    'type' => 'regular',
+                    'width' => 512,
+                    'height' => 512,
+                    'is_animated' => false,
+                    'is_video' => false,
+                ],
+                'star_count' => 10,
+            ],
+        ]);
+
+        $this->assertSame(MessageType::GIFT, $message->type);
+        $this->assertTrue($message->isType(MessageType::GIFT));
+    }
 }
