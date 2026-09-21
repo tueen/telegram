@@ -120,12 +120,15 @@ const frozenSidebar = [
     ]
   },
   {
-    text: 'Bot Features & UI',
+    text: 'Interactive Features & UI',
     items: [
       { text: 'Calling Methods & Types', link: `${versionPrefix}methods-and-types` },
       { text: 'Keyboards & Interactive UI', link: `${versionPrefix}keyboards` },
+      { text: 'Inline Queries & Mode', link: `${versionPrefix}inline-queries` },
+      { text: 'Commands & Bot Settings', link: `${versionPrefix}commands-and-bot-settings` },
       { text: 'File Upload & Download', link: `${versionPrefix}file-upload-download` },
       { text: 'Payments & Telegram Stars', link: `${versionPrefix}payments-and-stars` },
+      { text: 'Chat & Forum Moderation', link: `${versionPrefix}chat-and-forum-moderation` },
     ]
   },
   {

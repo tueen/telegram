@@ -2,7 +2,7 @@
 
 ## Introduction
 
-`tueen/telegram` is the royal Telegram Bot API client for PHP 8.4 and PHP 8.5. It is designed to be lightweight, ultrafast, strictly typed, and forward-compatible with the entire Telegram Bot API 10.3 specification.
+`tueen/telegram` is the royal Telegram Bot API client for PHP. It is designed to be lightweight, ultrafast, strictly typed, and forward-compatible with the entire Telegram Bot API specification.
 
 ---
 

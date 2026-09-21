@@ -4,9 +4,9 @@
   "type": "module",
   "description": "Documentation for tueen/telegram",
   "scripts": {
-    "docs:dev": "vitepress dev",
+    "docs:dev": "vitepress dev --host 127.0.0.1",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview",
+    "docs:preview": "vitepress preview --host 127.0.0.1",
     "docs:archive": "node scripts/archive-version.mjs",
     "docs:version": "node scripts/archive-version.mjs --set-current"
   },
