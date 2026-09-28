@@ -63,7 +63,11 @@ for (const item of versions.archived) {
 export default defineConfig({
   title: "Tueen Telegram",
   description: "The Royal Telegram Bot API Client for Tueen",
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/icon.png' }]
+  ],
   themeConfig: {
+    logo: '/icon.png',
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
