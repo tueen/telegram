@@ -17,36 +17,36 @@ class ShippingAddress extends Type
      * Two-letter ISO 3166-1 alpha-2 country code
      */
     #[Field('country_code', required: true)]
-    private(set) string $countryCode;
+    private(set) ?string $countryCode = null;
 
     /**
      * State, if applicable
      */
     #[Field('state', required: true)]
-    private(set) string $state;
+    private(set) ?string $state = null;
 
     /**
      * City
      */
     #[Field('city', required: true)]
-    private(set) string $city;
+    private(set) ?string $city = null;
 
     /**
      * First line for the address
      */
     #[Field('street_line1', required: true)]
-    private(set) string $streetLine1;
+    private(set) ?string $streetLine1 = null;
 
     /**
      * Second line for the address
      */
     #[Field('street_line2', required: true)]
-    private(set) string $streetLine2;
+    private(set) ?string $streetLine2 = null;
 
     /**
      * Address post code
      */
     #[Field('post_code', required: true)]
-    private(set) string $postCode;
+    private(set) ?string $postCode = null;
 
 }

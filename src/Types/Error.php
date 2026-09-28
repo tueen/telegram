@@ -6,6 +6,9 @@ namespace Tueen\Telegram\Types;
 
 use Throwable;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ErrorMatcher;
 
 /**
  * Represents an error response from Telegram Bot API or an internal client/network error.
@@ -22,6 +25,13 @@ class Error extends Type
     private(set) ?array $parameters = null;
 
     private(set) ?Throwable $exception = null;
+
+    /**
+     * Standardized error code reason derived via ErrorMatcher.
+     */
+    public TelegramErrorCode $reason {
+        get => ErrorMatcher::matchCode($this->errorCode, $this->description);
+    }
 
     public function __construct(
         string $description,
@@ -61,6 +71,55 @@ class Error extends Type
     }
 
     /**
+     * Checks if this error matches a specific Telegram error code.
+     */
+    public function is(TelegramErrorCode $code): bool
+    {
+        return $this->reason === $code;
+    }
+
+    /**
+     * Helper check for ChatNotFound error.
+     */
+    public function isChatNotFound(): bool
+    {
+        return $this->reason === TelegramErrorCode::ChatNotFound;
+    }
+
+    /**
+     * Helper check for BotBlocked error.
+     */
+    public function isBotBlocked(): bool
+    {
+        return $this->reason === TelegramErrorCode::BotBlocked;
+    }
+
+    /**
+     * Helper check for RateLimit / FloodWait error.
+     */
+    public function isRateLimit(): bool
+    {
+        return $this->reason === TelegramErrorCode::FloodWait;
+    }
+
+    /**
+     * Converts this Error object into a typed ApiException instance.
+     */
+    public function toException(): ApiException
+    {
+        if ($this->exception instanceof ApiException) {
+            return $this->exception;
+        }
+
+        return ErrorMatcher::createException(
+            $this->description,
+            $this->errorCode,
+            $this->parameters,
+            $this->exception
+        );
+    }
+
+    /**
      * Factory from Telegram API response payload.
      */
     public static function fromResponse(array $response, ?Throwable $previous = null): self
@@ -69,7 +128,11 @@ class Error extends Type
         $description = (string)($response['description'] ?? 'Unknown Telegram API Error');
         $parameters = $response['parameters'] ?? null;
 
-        return new self($description, $errorCode, $parameters, $previous);
+        $exception = $previous instanceof ApiException
+            ? $previous
+            : ErrorMatcher::createException($description, $errorCode, $parameters, $previous);
+
+        return new self($description, $errorCode, $parameters, $exception);
     }
 
     /**
@@ -101,6 +164,11 @@ class Error extends Type
         if (isset($this->parameters['retry_after'])) {
             return (int)$this->parameters['retry_after'];
         }
+
+        if (preg_match('/retry after (\d+)/i', $this->description, $m)) {
+            return (int)$m[1];
+        }
+
         return null;
     }
 

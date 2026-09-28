@@ -17,24 +17,24 @@ class UniqueGiftBackdropColors extends Type
      * The color in the center of the backdrop in RGB format
      */
     #[Field('center_color', required: true)]
-    private(set) int $centerColor;
+    private(set) ?int $centerColor = null;
 
     /**
      * The color on the edges of the backdrop in RGB format
      */
     #[Field('edge_color', required: true)]
-    private(set) int $edgeColor;
+    private(set) ?int $edgeColor = null;
 
     /**
      * The color to be applied to the symbol in RGB format
      */
     #[Field('symbol_color', required: true)]
-    private(set) int $symbolColor;
+    private(set) ?int $symbolColor = null;
 
     /**
      * The color for the text on the backdrop in RGB format
      */
     #[Field('text_color', required: true)]
-    private(set) int $textColor;
+    private(set) ?int $textColor = null;
 
 }

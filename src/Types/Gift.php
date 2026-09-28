@@ -17,19 +17,19 @@ class Gift extends Type
      * Unique identifier of the gift
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * The sticker that represents the gift
      */
     #[Field('sticker', required: true)]
-    private(set) Sticker $sticker;
+    private(set) ?Sticker $sticker = null;
 
     /**
      * The number of Telegram Stars that must be paid to send the sticker
      */
     #[Field('star_count', required: true)]
-    private(set) int $starCount;
+    private(set) ?int $starCount = null;
 
     /**
      * Optional. The number of Telegram Stars that must be paid to upgrade the gift to a unique one

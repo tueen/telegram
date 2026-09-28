@@ -20,25 +20,25 @@ class InlineQueryResultPhoto extends InlineQueryResult
      * Type of the result, must be photo
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid URL of the photo. Photo must be in JPEG format. Photo size must not exceed 5MB.
      */
     #[Field('photo_url', required: true)]
-    private(set) string $photoUrl;
+    private(set) ?string $photoUrl = null;
 
     /**
      * URL of the thumbnail for the photo
      */
     #[Field('thumbnail_url', required: true)]
-    private(set) string $thumbnailUrl;
+    private(set) ?string $thumbnailUrl = null;
 
     /**
      * Optional. Width of the photo

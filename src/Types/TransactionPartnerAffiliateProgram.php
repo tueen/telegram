@@ -18,7 +18,7 @@ class TransactionPartnerAffiliateProgram extends TransactionPartner
      * Type of the transaction partner, always "affiliate_program"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
     /**
      * Optional. Information about the bot that sponsored the affiliate program
@@ -30,6 +30,6 @@ class TransactionPartnerAffiliateProgram extends TransactionPartner
      * The number of Telegram Stars received by the bot for each 1000 Telegram Stars received by the affiliate program sponsor from referred users
      */
     #[Field('commission_per_mille', required: true)]
-    private(set) int $commissionPerMille;
+    private(set) ?int $commissionPerMille = null;
 
 }

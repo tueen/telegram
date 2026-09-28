@@ -19,7 +19,7 @@ class RichBlockButtons extends RichBlock
      * Type of the block, always "buttons"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The buttons
@@ -27,7 +27,7 @@ class RichBlockButtons extends RichBlock
      */
     #[Field('buttons', required: true)]
     #[ArrayOf(RichMessageButton::class)]
-    private(set) array $buttons;
+    private(set) ?array $buttons = null;
 
     /**
      * Optional. Horizontal alignment of the buttons. Currently, must be one of "left", "center", or "right".

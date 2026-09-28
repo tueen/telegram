@@ -18,43 +18,43 @@ class Sticker extends Type
      * Identifier for this file, which can be used to download or reuse the file
      */
     #[Field('file_id', required: true)]
-    private(set) string $fileId;
+    private(set) ?string $fileId = null;
 
     /**
      * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
      */
     #[Field('file_unique_id', required: true)]
-    private(set) string $fileUniqueId;
+    private(set) ?string $fileUniqueId = null;
 
     /**
      * Type of the sticker, currently one of "regular", "mask", "custom_emoji". The type of the sticker is independent from its format, which is determined by the fields is_animated and is_video.
      */
     #[Field('type', required: true)]
-    private(set) StickerType|string $type;
+    private(set) StickerType|string|null $type = null;
 
     /**
      * Sticker width
      */
     #[Field('width', required: true)]
-    private(set) int $width;
+    private(set) ?int $width = null;
 
     /**
      * Sticker height
      */
     #[Field('height', required: true)]
-    private(set) int $height;
+    private(set) ?int $height = null;
 
     /**
      * True, if the sticker is animated
      */
     #[Field('is_animated', required: true)]
-    private(set) bool $isAnimated;
+    private(set) ?bool $isAnimated = null;
 
     /**
      * True, if the sticker is a video sticker
      */
     #[Field('is_video', required: true)]
-    private(set) bool $isVideo;
+    private(set) ?bool $isVideo = null;
 
     /**
      * Optional. Sticker thumbnail in the .WEBP or .JPG format

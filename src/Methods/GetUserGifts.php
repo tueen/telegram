@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\OwnedGifts;
 
 /**
  * Returns the gifts owned and hosted by a user. Returns OwnedGifts on success.
  *
  * @link https://core.telegram.org/bots/api#getusergifts
+ *
+ * @throws UserNotFoundException
+ * @throws ChatNotFoundException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('getUserGifts', 'POST')]
 #[ReturnType(OwnedGifts::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::ChatNotFound, TelegramErrorCode::FloodWait])]
 class GetUserGifts extends Method
 {
     /**

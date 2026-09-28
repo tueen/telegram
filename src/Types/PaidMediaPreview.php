@@ -18,7 +18,7 @@ class PaidMediaPreview extends PaidMedia
      * Type of the paid media, always "preview"
      */
     #[Field('type', required: true)]
-    private(set) PaidMediaType|string $type;
+    private(set) PaidMediaType|string|null $type = null;
 
     /**
      * Optional. Media width as defined by the sender

@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\BotKickedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\MediaEmptyException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\StarsAmountInvalidException;
 use Tueen\Telegram\Types\ForceReply;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\Message;
@@ -20,9 +29,18 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to send paid media. On success, the sent Message is returned.
  *
  * @link https://core.telegram.org/bots/api#sendpaidmedia
+ *
+ * @throws ChatNotFoundException
+ * @throws StarsAmountInvalidException
+ * @throws MediaEmptyException
+ * @throws BotBlockedException
+ * @throws BotKickedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendPaidMedia', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::StarsAmountInvalid, TelegramErrorCode::MediaEmpty, TelegramErrorCode::BotBlocked, TelegramErrorCode::BotKicked, TelegramErrorCode::FloodWait])]
 class SendPaidMedia extends Method
 {
     /**

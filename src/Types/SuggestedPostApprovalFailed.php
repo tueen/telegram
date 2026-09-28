@@ -23,6 +23,6 @@ class SuggestedPostApprovalFailed extends Type
      * Expected price of the post
      */
     #[Field('price', required: true)]
-    private(set) SuggestedPostPrice $price;
+    private(set) ?SuggestedPostPrice $price = null;
 
 }

@@ -17,6 +17,6 @@ class BotName extends Type
      * The bot's name
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
 }

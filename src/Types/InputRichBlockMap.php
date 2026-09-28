@@ -18,13 +18,13 @@ class InputRichBlockMap extends InputRichBlock
      * Type of the block, always "map"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Location of the center of the map
      */
     #[Field('location', required: true)]
-    private(set) Location $location;
+    private(set) ?Location $location = null;
 
     /**
      * Optional. Map zoom level; 0-24

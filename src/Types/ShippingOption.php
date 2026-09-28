@@ -18,13 +18,13 @@ class ShippingOption extends Type
      * Shipping option identifier
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Option title
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * List of price portions
@@ -32,6 +32,6 @@ class ShippingOption extends Type
      */
     #[Field('prices', required: true)]
     #[ArrayOf(LabeledPrice::class)]
-    private(set) array $prices;
+    private(set) ?array $prices = null;
 
 }

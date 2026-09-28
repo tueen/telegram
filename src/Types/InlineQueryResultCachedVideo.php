@@ -20,25 +20,25 @@ class InlineQueryResultCachedVideo extends InlineQueryResult
      * Type of the result, must be video
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier for the video file
      */
     #[Field('video_file_id', required: true)]
-    private(set) string $videoFileId;
+    private(set) ?string $videoFileId = null;
 
     /**
      * Title for the result
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Short description of the result

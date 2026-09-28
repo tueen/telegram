@@ -19,7 +19,7 @@ class RichBlockPhoto extends RichBlock
      * Type of the block, always "photo"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Available sizes of the photo
@@ -27,7 +27,7 @@ class RichBlockPhoto extends RichBlock
      */
     #[Field('photo', required: true)]
     #[ArrayOf(PhotoSize::class)]
-    private(set) array $photo;
+    private(set) ?array $photo = null;
 
     /**
      * Optional. True, if the media preview is covered by a spoiler animation

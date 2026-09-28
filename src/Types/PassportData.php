@@ -20,12 +20,12 @@ class PassportData extends Type
      */
     #[Field('data', required: true)]
     #[ArrayOf(EncryptedPassportElement::class)]
-    private(set) array $data;
+    private(set) ?array $data = null;
 
     /**
      * Encrypted credentials required to decrypt the data
      */
     #[Field('credentials', required: true)]
-    private(set) EncryptedCredentials $credentials;
+    private(set) ?EncryptedCredentials $credentials = null;
 
 }

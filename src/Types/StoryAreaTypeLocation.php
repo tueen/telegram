@@ -18,19 +18,19 @@ class StoryAreaTypeLocation extends StoryAreaType
      * Type of the area, always "location"
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string|null $type = null;
 
     /**
      * Location latitude in degrees
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Location longitude in degrees
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Optional. Address of the location

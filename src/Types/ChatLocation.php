@@ -17,12 +17,12 @@ class ChatLocation extends Type
      * The location to which the supergroup is connected. Can't be a live location.
      */
     #[Field('location', required: true)]
-    private(set) Location $location;
+    private(set) ?Location $location = null;
 
     /**
      * Location address; 1-64 characters, as defined by the chat owner
      */
     #[Field('address', required: true)]
-    private(set) string $address;
+    private(set) ?string $address = null;
 
 }

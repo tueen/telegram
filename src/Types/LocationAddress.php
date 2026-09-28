@@ -17,7 +17,7 @@ class LocationAddress extends Type
      * The two-letter ISO 3166-1 alpha-2 country code of the country where the location is located
      */
     #[Field('country_code', required: true)]
-    private(set) string $countryCode;
+    private(set) ?string $countryCode = null;
 
     /**
      * Optional. State of the location

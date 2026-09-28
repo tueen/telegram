@@ -18,19 +18,19 @@ class MessageReactionCountUpdated extends Type
      * The chat containing the message
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Unique message identifier inside the chat
      */
     #[Field('message_id', required: true)]
-    private(set) int $messageId;
+    private(set) ?int $messageId = null;
 
     /**
      * Date of the change in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * List of reactions that are present on the message
@@ -38,6 +38,6 @@ class MessageReactionCountUpdated extends Type
      */
     #[Field('reactions', required: true)]
     #[ArrayOf(ReactionCount::class)]
-    private(set) array $reactions;
+    private(set) ?array $reactions = null;
 
 }

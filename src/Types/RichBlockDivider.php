@@ -18,6 +18,6 @@ class RichBlockDivider extends RichBlock
      * Type of the block, always "divider"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
 }

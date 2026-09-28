@@ -18,13 +18,13 @@ class RichBlockVideo extends RichBlock
      * Type of the block, always "video"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The video
      */
     #[Field('video', required: true)]
-    private(set) Video $video;
+    private(set) ?Video $video = null;
 
     /**
      * Optional. True, if the media preview is covered by a spoiler animation

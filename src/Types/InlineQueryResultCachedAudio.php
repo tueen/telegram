@@ -20,19 +20,19 @@ class InlineQueryResultCachedAudio extends InlineQueryResult
      * Type of the result, must be audio
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier for the audio file
      */
     #[Field('audio_file_id', required: true)]
-    private(set) string $audioFileId;
+    private(set) ?string $audioFileId = null;
 
     /**
      * Optional. Caption, 0-1024 characters after entities parsing

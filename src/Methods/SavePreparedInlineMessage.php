@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\MessageTooLongException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\InlineQueryResult;
 use Tueen\Telegram\Types\PreparedInlineMessage;
 
@@ -14,9 +21,16 @@ use Tueen\Telegram\Types\PreparedInlineMessage;
  * Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object.
  *
  * @link https://core.telegram.org/bots/api#savepreparedinlinemessage
+ *
+ * @throws UserNotFoundException
+ * @throws MessageTooLongException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('savePreparedInlineMessage', 'POST')]
 #[ReturnType(PreparedInlineMessage::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::MessageTooLong, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class SavePreparedInlineMessage extends Method
 {
     /**

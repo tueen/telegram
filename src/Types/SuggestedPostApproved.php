@@ -29,6 +29,6 @@ class SuggestedPostApproved extends Type
      * Date when the post will be published
      */
     #[Field('send_date', required: true)]
-    private(set) int $sendDate;
+    private(set) ?int $sendDate = null;
 
 }

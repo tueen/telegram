@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=8.5.0",
+        "php": ">=8.4.0",
         "guzzlehttp/guzzle": "^7.8",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",
@@ -42,14 +42,14 @@
         "generate": [
             "@php bin/generate.php",
             "@composer dump-autoload",
-            "@php scratch/validate_all.php"
+            "@php tools/validate.php"
         ],
         "update-api": [
             "@php bin/update_spec.php",
             "@composer generate"
         ],
         "test": "phpunit",
-        "lint": "@php scratch/validate_all.php"
+        "lint": "@php tools/validate.php"
     },
     "scripts-descriptions": {
         "generate": "Regenerate all Telegram Bot API Types, Methods, and Mixin contracts from schema",

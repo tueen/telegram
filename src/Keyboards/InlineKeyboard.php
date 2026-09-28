@@ -23,12 +23,17 @@ use Tueen\Telegram\Types\WebAppInfo;
  *         ->url('Official Website', 'https://tueen.org')
  *     ->build();
  */
-final class InlineKeyboard
+class InlineKeyboard extends InlineKeyboardMarkup
 {
     /** @var list<list<InlineKeyboardButton>> */
     private array $rows = [];
 
     private int $currentRow = 0;
+
+    public function __construct(array $data = [])
+    {
+        parent::__construct($data);
+    }
 
     #[\NoDiscard]
     public static function make(): self
@@ -222,6 +227,9 @@ final class InlineKeyboard
      */
     public function toArray(): array
     {
-        return $this->build()->toArray();
+        if (!empty($this->rows)) {
+            return $this->build()->toArray();
+        }
+        return parent::toArray();
     }
 }

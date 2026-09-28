@@ -18,12 +18,12 @@ class RichTextAnchor extends RichText
      * Type of the rich text, always "anchor"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The name of the anchor
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
 }

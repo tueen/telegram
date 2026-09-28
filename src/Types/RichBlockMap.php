@@ -18,31 +18,31 @@ class RichBlockMap extends RichBlock
      * Type of the block, always "map"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Location of the center of the map
      */
     #[Field('location', required: true)]
-    private(set) Location $location;
+    private(set) ?Location $location = null;
 
     /**
      * Map zoom level
      */
     #[Field('zoom', required: true)]
-    private(set) int $zoom;
+    private(set) ?int $zoom = null;
 
     /**
      * Expected width of the map
      */
     #[Field('width', required: true)]
-    private(set) int $width;
+    private(set) ?int $width = null;
 
     /**
      * Expected height of the map
      */
     #[Field('height', required: true)]
-    private(set) int $height;
+    private(set) ?int $height = null;
 
     /**
      * Optional. Caption of the block

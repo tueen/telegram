@@ -19,7 +19,7 @@ class InputRichBlockTable extends InputRichBlock
      * Type of the block, always "table"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Cells of the table
@@ -27,7 +27,7 @@ class InputRichBlockTable extends InputRichBlock
      */
     #[Field('cells', required: true)]
     #[ArrayOf(RichBlockTableCell::class)]
-    private(set) array $cells;
+    private(set) ?array $cells = null;
 
     /**
      * Optional. Pass True if the table has borders

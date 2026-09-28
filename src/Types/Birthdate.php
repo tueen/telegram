@@ -17,13 +17,13 @@ class Birthdate extends Type
      * Day of the user's birth; 1-31
      */
     #[Field('day', required: true)]
-    private(set) int $day;
+    private(set) ?int $day = null;
 
     /**
      * Month of the user's birth; 1-12
      */
     #[Field('month', required: true)]
-    private(set) int $month;
+    private(set) ?int $month = null;
 
     /**
      * Optional. Year of the user's birth

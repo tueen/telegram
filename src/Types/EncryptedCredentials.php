@@ -17,18 +17,18 @@ class EncryptedCredentials extends Type
      * Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for EncryptedPassportElement decryption and authentication
      */
     #[Field('data', required: true)]
-    private(set) string $data;
+    private(set) ?string $data = null;
 
     /**
      * Base64-encoded data hash for data authentication
      */
     #[Field('hash', required: true)]
-    private(set) string $hash;
+    private(set) ?string $hash = null;
 
     /**
      * Base64-encoded secret, encrypted with the bot's public RSA key, required for data decryption
      */
     #[Field('secret', required: true)]
-    private(set) string $secret;
+    private(set) ?string $secret = null;
 
 }

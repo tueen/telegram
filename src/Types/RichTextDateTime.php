@@ -18,24 +18,24 @@ class RichTextDateTime extends RichText
      * Type of the rich text, always "date_time"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The text
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * The Unix time associated with the entity
      */
     #[Field('unix_time', required: true)]
-    private(set) int $unixTime;
+    private(set) ?int $unixTime = null;
 
     /**
      * The string that defines the formatting of the date and time. See date-time entity formatting for more details.
      */
     #[Field('date_time_format', required: true)]
-    private(set) string $dateTimeFormat;
+    private(set) ?string $dateTimeFormat = null;
 
 }

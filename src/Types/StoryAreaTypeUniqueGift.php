@@ -18,12 +18,12 @@ class StoryAreaTypeUniqueGift extends StoryAreaType
      * Type of the area, always "unique_gift"
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string|null $type = null;
 
     /**
      * Unique name of the gift
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
 }

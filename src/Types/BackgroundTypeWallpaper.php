@@ -18,19 +18,19 @@ class BackgroundTypeWallpaper extends BackgroundType
      * Type of the background, always "wallpaper"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundTypeType|string $type;
+    private(set) BackgroundTypeType|string|null $type = null;
 
     /**
      * Document with the wallpaper
      */
     #[Field('document', required: true)]
-    private(set) Document $document;
+    private(set) ?Document $document = null;
 
     /**
      * Dimming of the background in dark themes, as a percentage; 0-100
      */
     #[Field('dark_theme_dimming', required: true)]
-    private(set) int $darkThemeDimming;
+    private(set) ?int $darkThemeDimming = null;
 
     /**
      * Optional. True, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12

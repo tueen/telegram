@@ -17,6 +17,6 @@ class CommunityChatAdded extends Type
      * The new community to which the chat or the bot belongs
      */
     #[Field('community', required: true)]
-    private(set) Community $community;
+    private(set) ?Community $community = null;
 
 }

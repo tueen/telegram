@@ -150,4 +150,18 @@ class TypeTest extends TestCase
         $this->assertStringContainsString('"id":555', $json);
         $this->assertStringContainsString('"first_name":"TueenBot"', $json);
     }
+
+    public function testUninitializedPropertySafeAccess(): void
+    {
+        // An incomplete User payload missing 'first_name' and 'is_bot'
+        $user = new User(['id' => 123]);
+
+        $this->assertSame(123, $user->id);
+        // Accessing uninitialized properties via dynamic getter and direct property returns null without crashing
+        $this->assertNull($user->firstName);
+        $this->assertNull($user->isBot);
+        $this->assertNull($user->first_name);
+        $this->assertNull($user['first_name']);
+        $this->assertFalse(isset($user['is_bot']));
+    }
 }

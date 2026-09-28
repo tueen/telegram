@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Exceptions;
 
 use Throwable;
+use Tueen\Telegram\Enums\TelegramErrorCode;
 
 class RateLimitException extends ApiException
 {
@@ -15,6 +16,11 @@ class RateLimitException extends ApiException
         ?array $parameters = null,
         ?Throwable $previous = null
     ) {
-        parent::__construct($message, $errorCode, $parameters, $previous);
+        parent::__construct($message, $errorCode, $parameters, $previous, TelegramErrorCode::FloodWait);
+    }
+
+    public function getRetryAfter(): int
+    {
+        return $this->retryAfter;
     }
 }

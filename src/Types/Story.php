@@ -17,12 +17,12 @@ class Story extends Type
      * Chat that posted the story
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Unique identifier for the story in the chat
      */
     #[Field('id', required: true)]
-    private(set) int $id;
+    private(set) ?int $id = null;
 
 }

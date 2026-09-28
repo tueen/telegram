@@ -4,18 +4,32 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\MessageNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to change the chosen reactions on a message. Service messages of some types can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#setmessagereaction
+ *
+ * @throws ChatNotFoundException
+ * @throws MessageNotFoundException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('setMessageReaction', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::MessageNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class SetMessageReaction extends Method
 {
     /**

@@ -18,31 +18,31 @@ class InlineQueryResultLocation extends InlineQueryResult
      * Type of the result, must be location
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 Bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Location latitude in degrees
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Location longitude in degrees
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Location title
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. The radius of uncertainty for the location, measured in meters; 0-1500

@@ -18,7 +18,7 @@ class UsersShared extends Type
      * Identifier of the request
      */
     #[Field('request_id', required: true)]
-    private(set) int $requestId;
+    private(set) ?int $requestId = null;
 
     /**
      * Information about users shared with the bot
@@ -26,6 +26,6 @@ class UsersShared extends Type
      */
     #[Field('users', required: true)]
     #[ArrayOf(SharedUser::class)]
-    private(set) array $users;
+    private(set) ?array $users = null;
 
 }

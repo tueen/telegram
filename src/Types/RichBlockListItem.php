@@ -19,7 +19,7 @@ class RichBlockListItem extends Type
      * Label of the item
      */
     #[Field('label', required: true)]
-    private(set) string $label;
+    private(set) ?string $label = null;
 
     /**
      * The content of the item
@@ -27,7 +27,7 @@ class RichBlockListItem extends Type
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. True, if the item has a checkbox

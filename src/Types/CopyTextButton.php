@@ -17,6 +17,6 @@ class CopyTextButton extends Type
      * The text to be copied to the clipboard; 1-256 characters
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
 }

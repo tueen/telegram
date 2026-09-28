@@ -17,12 +17,12 @@ class BusinessOpeningHoursInterval extends Type
      * The minute's sequence number in a week, starting on Monday, marking the start of the time interval during which the business is open; 0 - 7 * 24 * 60
      */
     #[Field('opening_minute', required: true)]
-    private(set) int $openingMinute;
+    private(set) ?int $openingMinute = null;
 
     /**
      * The minute's sequence number in a week, starting on Monday, marking the end of the time interval during which the business is open; 0 - 8 * 24 * 60
      */
     #[Field('closing_minute', required: true)]
-    private(set) int $closingMinute;
+    private(set) ?int $closingMinute = null;
 
 }

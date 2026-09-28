@@ -17,13 +17,13 @@ class Location extends Type
      * Latitude as defined by the sender
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Longitude as defined by the sender
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Optional. The radius of uncertainty for the location, measured in meters; 0-1500

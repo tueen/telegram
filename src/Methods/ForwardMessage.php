@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\BotKickedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\MessageNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 
@@ -14,9 +22,17 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent Message is returned.
  *
  * @link https://core.telegram.org/bots/api#forwardmessage
+ *
+ * @throws ChatNotFoundException
+ * @throws MessageNotFoundException
+ * @throws BotBlockedException
+ * @throws BotKickedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('forwardMessage', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::MessageNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::BotKicked, TelegramErrorCode::FloodWait])]
 class ForwardMessage extends Method
 {
     /**

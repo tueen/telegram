@@ -18,18 +18,18 @@ class ChatMemberBanned extends ChatMember
      * The member's status in the chat, always "kicked"
      */
     #[Field('status', required: true)]
-    private(set) ChatMemberStatus|string $status;
+    private(set) ChatMemberStatus|string|null $status = null;
 
     /**
      * Information about the user
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
      */
     #[Field('until_date', required: true)]
-    private(set) int $untilDate;
+    private(set) ?int $untilDate = null;
 
 }

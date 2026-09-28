@@ -18,13 +18,13 @@ class InputRichBlockPhoto extends InputRichBlock
      * Type of the block, always "photo"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The photo. Caption is ignored.
      */
     #[Field('photo', required: true)]
-    private(set) InputMediaPhoto $photo;
+    private(set) ?InputMediaPhoto $photo = null;
 
     /**
      * Optional. Caption of the block

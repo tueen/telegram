@@ -18,31 +18,31 @@ class VideoQuality extends Type
      * Identifier for this file, which can be used to download or reuse the file
      */
     #[Field('file_id', required: true)]
-    private(set) string $fileId;
+    private(set) ?string $fileId = null;
 
     /**
      * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
      */
     #[Field('file_unique_id', required: true)]
-    private(set) string $fileUniqueId;
+    private(set) ?string $fileUniqueId = null;
 
     /**
      * Video width
      */
     #[Field('width', required: true)]
-    private(set) int $width;
+    private(set) ?int $width = null;
 
     /**
      * Video height
      */
     #[Field('height', required: true)]
-    private(set) int $height;
+    private(set) ?int $height = null;
 
     /**
      * Codec that was used to encode the video, for example, "h264", "h265", or "av01"
      */
     #[Field('codec', required: true)]
-    private(set) VideoQualityCodec|string $codec;
+    private(set) VideoQualityCodec|string|null $codec = null;
 
     /**
      * Optional. File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value.

@@ -18,19 +18,19 @@ class InlineQueryResultGame extends InlineQueryResult
      * Type of the result, must be game
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Short name of the game
      */
     #[Field('game_short_name', required: true)]
-    private(set) string $gameShortName;
+    private(set) ?string $gameShortName = null;
 
     /**
      * Optional. Inline keyboard attached to the message

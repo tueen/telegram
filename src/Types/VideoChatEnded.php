@@ -17,6 +17,6 @@ class VideoChatEnded extends Type
      * Video chat duration in seconds
      */
     #[Field('duration', required: true)]
-    private(set) int $duration;
+    private(set) ?int $duration = null;
 
 }

@@ -18,6 +18,6 @@ class TransactionPartnerOther extends TransactionPartner
      * Type of the transaction partner, always "other"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
 }

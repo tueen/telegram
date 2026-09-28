@@ -19,7 +19,7 @@ class InputTextMessageContent extends InputMessageContent
      * Text of the message to be sent, 1-4096 characters
      */
     #[Field('message_text', required: true)]
-    private(set) string $messageText;
+    private(set) ?string $messageText = null;
 
     /**
      * Optional. Mode for parsing entities in the message text. See formatting options for more details.

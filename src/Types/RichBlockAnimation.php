@@ -18,13 +18,13 @@ class RichBlockAnimation extends RichBlock
      * Type of the block, always "animation"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The animation
      */
     #[Field('animation', required: true)]
-    private(set) Animation $animation;
+    private(set) ?Animation $animation = null;
 
     /**
      * Optional. True, if the media preview is covered by a spoiler animation

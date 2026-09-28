@@ -18,19 +18,19 @@ class MessageOriginChat extends MessageOrigin
      * Type of the message origin, always "chat"
      */
     #[Field('type', required: true)]
-    private(set) MessageOriginType|string $type;
+    private(set) MessageOriginType|string|null $type = null;
 
     /**
      * Date the message was sent originally in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * Chat that sent the message originally
      */
     #[Field('sender_chat', required: true)]
-    private(set) Chat $senderChat;
+    private(set) ?Chat $senderChat = null;
 
     /**
      * Optional. For messages originally sent by an anonymous chat administrator, original message author signature

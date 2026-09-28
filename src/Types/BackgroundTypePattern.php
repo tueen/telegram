@@ -18,25 +18,25 @@ class BackgroundTypePattern extends BackgroundType
      * Type of the background, always "pattern"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundTypeType|string $type;
+    private(set) BackgroundTypeType|string|null $type = null;
 
     /**
      * Document with the pattern
      */
     #[Field('document', required: true)]
-    private(set) Document $document;
+    private(set) ?Document $document = null;
 
     /**
      * The background fill that is combined with the pattern
      */
     #[Field('fill', required: true)]
-    private(set) BackgroundFill $fill;
+    private(set) ?BackgroundFill $fill = null;
 
     /**
      * Intensity of the pattern when it is shown above the filled background; 0-100
      */
     #[Field('intensity', required: true)]
-    private(set) int $intensity;
+    private(set) ?int $intensity = null;
 
     /**
      * Optional. True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only.

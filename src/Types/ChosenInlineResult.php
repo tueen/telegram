@@ -18,13 +18,13 @@ class ChosenInlineResult extends Type
      * The unique identifier for the result that was chosen
      */
     #[Field('result_id', required: true)]
-    private(set) string $resultId;
+    private(set) ?string $resultId = null;
 
     /**
      * The user that chose the result
      */
     #[Field('from', required: true)]
-    private(set) User $from;
+    private(set) ?User $from = null;
 
     /**
      * Optional. Sender location, only for bots that require user location
@@ -42,6 +42,6 @@ class ChosenInlineResult extends Type
      * The query that was used to obtain the result
      */
     #[Field('query', required: true)]
-    private(set) string $query;
+    private(set) ?string $query = null;
 
 }

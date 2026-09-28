@@ -19,30 +19,30 @@ class PassportElementErrorDataField extends PassportElementError
      * Error source, must be data
      */
     #[Field('source', required: true)]
-    private(set) PassportSource|string $source;
+    private(set) PassportSource|string|null $source = null;
 
     /**
      * The section of the user's Telegram Passport which has the error, one of "personal_details", "passport", "driver_license", "identity_card", "internal_passport", "address"
      */
     #[Field('type', required: true)]
-    private(set) PassportType|string $type;
+    private(set) PassportType|string|null $type = null;
 
     /**
      * Name of the data field which has the error
      */
     #[Field('field_name', required: true)]
-    private(set) string $fieldName;
+    private(set) ?string $fieldName = null;
 
     /**
      * Base64-encoded data hash
      */
     #[Field('data_hash', required: true)]
-    private(set) string $dataHash;
+    private(set) ?string $dataHash = null;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    private(set) string $message;
+    private(set) ?string $message = null;
 
 }

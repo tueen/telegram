@@ -24,7 +24,7 @@ class SuggestedPostPaid extends Type
      * Currency in which the payment was made. Currently, one of "XTR" for Telegram Stars or "TON" for TON grams.
      */
     #[Field('currency', required: true)]
-    private(set) Currency|string $currency;
+    private(set) Currency|string|null $currency = null;
 
     /**
      * Optional. The amount of the currency that was received by the channel in nanograms; for payments in TON grams only

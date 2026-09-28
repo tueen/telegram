@@ -17,24 +17,24 @@ class ChatBoostRemoved extends Type
      * Chat which was boosted
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Unique identifier of the boost
      */
     #[Field('boost_id', required: true)]
-    private(set) string $boostId;
+    private(set) ?string $boostId = null;
 
     /**
      * Point in time (Unix timestamp) when the boost was removed
      */
     #[Field('remove_date', required: true)]
-    private(set) int $removeDate;
+    private(set) ?int $removeDate = null;
 
     /**
      * Source of the removed boost
      */
     #[Field('source', required: true)]
-    private(set) ChatBoostSource $source;
+    private(set) ?ChatBoostSource $source = null;
 
 }

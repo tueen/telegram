@@ -18,7 +18,7 @@ class SuggestedPostInfo extends Type
      * State of the suggested post. Currently, it can be one of "pending", "approved", "declined".
      */
     #[Field('state', required: true)]
-    private(set) SuggestedPostInfoState|string $state;
+    private(set) SuggestedPostInfoState|string|null $state = null;
 
     /**
      * Optional. Proposed price of the post. If the field is omitted, then the post is unpaid.

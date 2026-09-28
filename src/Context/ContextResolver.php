@@ -399,7 +399,9 @@ class ContextResolver
             switch ($endpoint) {
                 case 'sendMessage':
                 case 'editMessageText':
-                    if ($this->isProbableChatId($arg0)) {
+                    if ($this->resolveChatId() !== null) {
+                        $mapped['text'] = $arg0;
+                    } elseif (is_int($arg0) || (is_string($arg0) && str_starts_with($arg0, '@'))) {
                         $mapped['chat_id'] = $arg0;
                     } else {
                         $mapped['text'] = $arg0;
@@ -407,7 +409,9 @@ class ContextResolver
                     return $mapped;
 
                 case 'sendPhoto':
-                    if ($this->isProbableChatId($arg0)) {
+                    if ($this->resolveChatId() !== null) {
+                        $mapped['photo'] = $arg0;
+                    } elseif (is_int($arg0) || (is_string($arg0) && str_starts_with($arg0, '@'))) {
                         $mapped['chat_id'] = $arg0;
                     } else {
                         $mapped['photo'] = $arg0;

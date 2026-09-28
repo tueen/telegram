@@ -19,24 +19,24 @@ class PassportElementErrorFrontSide extends PassportElementError
      * Error source, must be front_side
      */
     #[Field('source', required: true)]
-    private(set) PassportSource|string $source;
+    private(set) PassportSource|string|null $source = null;
 
     /**
      * The section of the user's Telegram Passport which has the issue, one of "passport", "driver_license", "identity_card", "internal_passport"
      */
     #[Field('type', required: true)]
-    private(set) PassportType|string $type;
+    private(set) PassportType|string|null $type = null;
 
     /**
      * Base64-encoded hash of the file with the front side of the document
      */
     #[Field('file_hash', required: true)]
-    private(set) string $fileHash;
+    private(set) ?string $fileHash = null;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    private(set) string $message;
+    private(set) ?string $message = null;
 
 }

@@ -17,12 +17,12 @@ class ReactionCount extends Type
      * Type of the reaction
      */
     #[Field('type', required: true)]
-    private(set) ReactionType $type;
+    private(set) ?ReactionType $type = null;
 
     /**
      * Number of times the reaction was added
      */
     #[Field('total_count', required: true)]
-    private(set) int $totalCount;
+    private(set) ?int $totalCount = null;
 
 }

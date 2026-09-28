@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#unpinchatmessage
+ *
+ * @throws ChatNotFoundException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('unpinChatMessage', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class UnpinChatMessage extends Method
 {
     /**

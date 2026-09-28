@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
 use Tueen\Telegram\Types\ForceReply;
@@ -24,9 +30,15 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * For sending voice messages, use the sendVoice method instead.
  *
  * @link https://core.telegram.org/bots/api#sendaudio
+ *
+ * @throws ChatNotFoundException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendAudio', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class SendAudio extends Method
 {
     /**

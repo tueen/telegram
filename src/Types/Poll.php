@@ -19,13 +19,13 @@ class Poll extends Type
      * Unique poll identifier
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Poll question, 1-300 characters
      */
     #[Field('question', required: true)]
-    private(set) string $question;
+    private(set) ?string $question = null;
 
     /**
      * Optional. Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions
@@ -41,49 +41,49 @@ class Poll extends Type
      */
     #[Field('options', required: true)]
     #[ArrayOf(PollOption::class)]
-    private(set) array $options;
+    private(set) ?array $options = null;
 
     /**
      * Total number of users that voted in the poll
      */
     #[Field('total_voter_count', required: true)]
-    private(set) int $totalVoterCount;
+    private(set) ?int $totalVoterCount = null;
 
     /**
      * True, if the poll is closed
      */
     #[Field('is_closed', required: true)]
-    private(set) bool $isClosed;
+    private(set) ?bool $isClosed = null;
 
     /**
      * True, if the poll is anonymous
      */
     #[Field('is_anonymous', required: true)]
-    private(set) bool $isAnonymous;
+    private(set) ?bool $isAnonymous = null;
 
     /**
      * Poll type, currently can be "regular" or "quiz"
      */
     #[Field('type', required: true)]
-    private(set) PollType|string $type;
+    private(set) PollType|string|null $type = null;
 
     /**
      * True, if the poll allows multiple answers
      */
     #[Field('allows_multiple_answers', required: true)]
-    private(set) bool $allowsMultipleAnswers;
+    private(set) ?bool $allowsMultipleAnswers = null;
 
     /**
      * True, if the poll allows to change the chosen answer options
      */
     #[Field('allows_revoting', required: true)]
-    private(set) bool $allowsRevoting;
+    private(set) ?bool $allowsRevoting = null;
 
     /**
      * True if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours
      */
     #[Field('members_only', required: true)]
-    private(set) bool $membersOnly;
+    private(set) ?bool $membersOnly = null;
 
     /**
      * Optional. A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code "FT" is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll.

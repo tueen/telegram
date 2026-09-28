@@ -18,12 +18,12 @@ class PaidMediaLivePhoto extends PaidMedia
      * Type of the paid media, always "live_photo"
      */
     #[Field('type', required: true)]
-    private(set) PaidMediaType|string $type;
+    private(set) PaidMediaType|string|null $type = null;
 
     /**
      * The photo
      */
     #[Field('live_photo', required: true)]
-    private(set) LivePhoto $livePhoto;
+    private(set) ?LivePhoto $livePhoto = null;
 
 }

@@ -17,25 +17,25 @@ class InputVenueMessageContent extends InputMessageContent
      * Latitude of the venue in degrees
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Longitude of the venue in degrees
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Name of the venue
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Address of the venue
      */
     #[Field('address', required: true)]
-    private(set) string $address;
+    private(set) ?string $address = null;
 
     /**
      * Optional. Foursquare identifier of the venue, if known

@@ -18,6 +18,6 @@ class BotCommandScopeDefault extends BotCommandScope
      * Scope type, must be default
      */
     #[Field('type', required: true)]
-    private(set) BotCommandScopeType|string $type;
+    private(set) BotCommandScopeType|string|null $type = null;
 
 }

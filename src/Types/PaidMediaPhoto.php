@@ -19,7 +19,7 @@ class PaidMediaPhoto extends PaidMedia
      * Type of the paid media, always "photo"
      */
     #[Field('type', required: true)]
-    private(set) PaidMediaType|string $type;
+    private(set) PaidMediaType|string|null $type = null;
 
     /**
      * The photo
@@ -27,6 +27,6 @@ class PaidMediaPhoto extends PaidMedia
      */
     #[Field('photo', required: true)]
     #[ArrayOf(PhotoSize::class)]
-    private(set) array $photo;
+    private(set) ?array $photo = null;
 
 }

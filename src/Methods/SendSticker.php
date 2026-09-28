@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\FileTooLargeException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\WrongFileTypeException;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
 use Tueen\Telegram\Types\ForceReply;
@@ -22,9 +31,18 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned.
  *
  * @link https://core.telegram.org/bots/api#sendsticker
+ *
+ * @throws ChatNotFoundException
+ * @throws WrongFileTypeException
+ * @throws BotBlockedException
+ * @throws NotEnoughRightsException
+ * @throws FileTooLargeException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendSticker', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::WrongFileType, TelegramErrorCode::BotBlocked, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FileTooLarge, TelegramErrorCode::FloodWait])]
 class SendSticker extends Method
 {
     /**

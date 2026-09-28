@@ -18,19 +18,19 @@ class InlineQueryResultCachedSticker extends InlineQueryResult
      * Type of the result, must be sticker
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier of the sticker
      */
     #[Field('sticker_file_id', required: true)]
-    private(set) string $stickerFileId;
+    private(set) ?string $stickerFileId = null;
 
     /**
      * Optional. Inline keyboard attached to the message

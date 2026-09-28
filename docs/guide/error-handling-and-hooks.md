@@ -1,8 +1,9 @@
 # Error Handling & Lifecycle Hooks
 
-`tueen/telegram` provides two distinct error handling strategies to suit any application style:
-1. **Exception-Based (Default):** Throws strongly-typed exceptions (`ApiException`, `RateLimitException`, etc.).
-2. **Error-Object Mode:** Returns a typed `Tueen\Telegram\Types\Error` object instead of throwing, checked via universal `ok()` methods.
+`tueen/telegram` provides a comprehensive, type-safe error handling architecture designed for PHP 8.4+ and PHP 8.5:
+1. **Strongly-Typed Exceptions (Default):** Throws granular, domain-specific exceptions (`ChatNotFoundException`, `BotBlockedException`, `RateLimitException`, `CantParseEntitiesException`, etc.).
+2. **Error-Object Mode:** Returns a typed `Tueen\Telegram\Types\Error` value object instead of throwing, with `TelegramErrorCode` enum reasons and helper checks.
+3. **Automated Error Catalog:** Built from comprehensive Telegram Bot API error specifications with forward-compatibility fallback for unknown errors.
 
 ---
 
@@ -26,12 +27,99 @@ if ($res->ok()) {
 
 ---
 
-## 2. Error-Object Mode
+## 2. Strongly-Typed Exceptions Hierarchy
+
+In standard exception mode, failed API requests throw specific exceptions matching the exact error returned by Telegram:
+
+```
+TelegramException
+ └── ApiException
+      ├── BadRequestException (400)
+      │    ├── ChatNotFoundException
+      │    ├── UserNotFoundException
+      │    ├── MessageNotModifiedException
+      │    ├── MessageNotFoundException
+      │    ├── MessageCantBeDeletedException
+      │    ├── MessageTooLongException
+      │    ├── CantParseEntitiesException
+      │    ├── CommandsListEmptyException
+      │    └── ...
+      ├── UnauthorizedException (401)
+      ├── ForbiddenException (403)
+      │    ├── BotBlockedException
+      │    ├── BotKickedException
+      │    ├── UserDeactivatedException
+      │    └── NotEnoughRightsException
+      ├── NotFoundException (404)
+      ├── ConflictException (409)
+      │    ├── WebhookActiveConflictException
+      │    └── TerminatedByOtherGetUpdatesException
+      ├── FileTooLargeException (413)
+      ├── RateLimitException (429)
+      └── NetworkException (cURL/connection failures)
+```
+
+### Catching Specific Exceptions
+
+Catch the exact error condition directly without parsing strings:
+
+```php
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\CantParseEntitiesException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\BadRequestException;
+use Tueen\Telegram\Exceptions\ApiException;
+
+try {
+    $telegram->sendMessage(chatId: $userId, text: $markdownText, parseMode: 'MarkdownV2');
+} catch (BotBlockedException $e) {
+    // User blocked the bot - mark user inactive in DB
+    $user->update(['is_active' => false]);
+} catch (ChatNotFoundException $e) {
+    // Chat or channel no longer exists
+    $logger->warning("Chat {$userId} not found.");
+} catch (CantParseEntitiesException $e) {
+    // Markdown syntax error - fallback to plain text
+    $telegram->sendMessage(chatId: $userId, text: strip_tags($markdownText));
+} catch (RateLimitException $e) {
+    // Flood wait: inspect retryAfter duration
+    sleep($e->getRetryAfter());
+} catch (BadRequestException $e) {
+    // Catch-all for any other 400 Bad Request
+} catch (ApiException $e) {
+    // Catch-all for any other Telegram Bot API error
+}
+```
+
+---
+
+## 3. Typed Error Reasons (`TelegramErrorCode` Enum)
+
+All API errors are mapped to the `TelegramErrorCode` Backed Enum:
+
+```php
+use Tueen\Telegram\Enums\TelegramErrorCode;
+
+// Match cleanly using PHP 8.4 match expression
+match ($error->reason) {
+    TelegramErrorCode::BotBlocked => $user->markBlocked(),
+    TelegramErrorCode::ChatNotFound => $user->delete(),
+    TelegramErrorCode::FloodWait => sleep($error->getRetryAfter()),
+    TelegramErrorCode::CantParseEntities => $telegram->sendMessage(chatId: $chatId, text: $plain),
+    default => $logger->error($error->description),
+};
+```
+
+---
+
+## 4. Error-Object Mode with Smart Helpers
 
 To prevent API errors from throwing exceptions:
 
 ```php
 use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Enums\TelegramErrorCode;
 
 $telegram = new Telegram(
     Telegram::create('YOUR_BOT_TOKEN')
@@ -42,23 +130,26 @@ $telegram = new Telegram(
 $res = $telegram->sendMessage(chatId: 99999, text: 'Hi');
 
 if (!$res->ok()) {
-    // Inspect error details
-    echo "Error Code: " . $res->errorCode . "\n";
-    echo "Description: " . $res->description . "\n";
-
-    // Extract flood wait timeout if present (429)
-    if ($retrySeconds = $res->getRetryAfter()) {
-        echo "Flood limit reached. Retry after {$retrySeconds}s\n";
+    // 1. Inspect typed reason
+    if ($res->is(TelegramErrorCode::BotBlocked)) {
+        echo "User has blocked the bot.\n";
     }
 
-    // Access underlying exception if needed
-    $exception = $res->exception;
+    // 2. Convenience helpers
+    if ($res->isChatNotFound()) { ... }
+    if ($res->isBotBlocked()) { ... }
+    if ($res->isRateLimit()) {
+        $seconds = $res->getRetryAfter();
+    }
+
+    // 3. Convert to exception on demand
+    $exception = $res->toException(); // returns ChatNotFoundException, etc.
 }
 ```
 
 ---
 
-## 3. Catch All Errors (Including Network Errors)
+## 5. Catch All Errors (Including Network Errors)
 
 By default, `withErrorObjectMode()` only converts Telegram `ApiException` responses into `Error` objects.
 
@@ -81,29 +172,25 @@ if (!$res->ok()) {
 
 ---
 
-## 4. Exception-Based Mode (Default)
+## 6. Declarative `#[ApiErrors]` & Method Metadata
 
-In standard exception mode, failed API responses throw typed exceptions:
+Every method generated by `tueen/telegram` declares its documented errors using the `#[ApiErrors]` attribute:
 
 ```php
-use Tueen\Telegram\Exceptions\ApiException;
-use Tueen\Telegram\Exceptions\RateLimitException;
-use Tueen\Telegram\Exceptions\NetworkException;
+use Tueen\Telegram\Methods\SendMessage;
 
-try {
-    $telegram->sendMessage(chatId: 12345, text: 'Hello');
-} catch (RateLimitException $e) {
-    echo "Rate limited! Sleep for {$e->retryAfter} seconds.\n";
-} catch (ApiException $e) {
-    echo "Telegram API Error [{$e->errorCode}]: {$e->getMessage()}\n";
-} catch (NetworkException $e) {
-    echo "Network / cURL Failure: {$e->getMessage()}\n";
-}
+$method = new SendMessage(chatId: 12345, text: 'Hello');
+
+// Inspect expected errors programmatically
+$expectedErrors = $method->getExpectedErrors();
+// [TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::MessageTooLong, ...]
 ```
+
+In IDEs (PhpStorm, VSCode), all 185 methods in `TelegramMethods` and individual method classes contain `@throws` annotations for IDE autocompletion and inspection.
 
 ---
 
-## 5. Lifecycle Event Hooks
+## 7. Lifecycle Event Hooks
 
 You can register callbacks on the `Telegram` facade to observe or intercept requests and responses:
 

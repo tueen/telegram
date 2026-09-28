@@ -19,24 +19,24 @@ class PassportElementErrorUnspecified extends PassportElementError
      * Error source, must be unspecified
      */
     #[Field('source', required: true)]
-    private(set) PassportSource|string $source;
+    private(set) PassportSource|string|null $source = null;
 
     /**
      * Type of element of the user's Telegram Passport which has the issue
      */
     #[Field('type', required: true)]
-    private(set) PassportType|string $type;
+    private(set) PassportType|string|null $type = null;
 
     /**
      * Base64-encoded element hash
      */
     #[Field('element_hash', required: true)]
-    private(set) string $elementHash;
+    private(set) ?string $elementHash = null;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    private(set) string $message;
+    private(set) ?string $message = null;
 
 }

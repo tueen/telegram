@@ -21,7 +21,7 @@ class Message extends MaybeInaccessibleMessage
      * Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent.
      */
     #[Field('message_id', required: true)]
-    private(set) int $messageId;
+    private(set) ?int $messageId = null;
 
     /**
      * Optional. Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only
@@ -81,7 +81,7 @@ class Message extends MaybeInaccessibleMessage
      * Date the message was sent in Unix time. It is always a positive number, representing a valid date.
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * Optional. The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier.
@@ -99,7 +99,7 @@ class Message extends MaybeInaccessibleMessage
      * Chat the message belongs to
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Optional. Information about the original message for forwarded messages

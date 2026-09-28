@@ -19,13 +19,13 @@ class UniqueGiftInfo extends Type
      * Information about the gift
      */
     #[Field('gift', required: true)]
-    private(set) UniqueGift $gift;
+    private(set) ?UniqueGift $gift = null;
 
     /**
      * Origin of the gift. Currently, either "upgrade" for gifts upgraded from regular gifts, "transfer" for gifts transferred from other users or channels, "resale" for gifts bought from other users, "gifted_upgrade" for upgrades purchased after the gift was sent, or "offer" for gifts bought or sold through gift purchase offers.
      */
     #[Field('origin', required: true)]
-    private(set) UniqueGiftInfoOrigin|string $origin;
+    private(set) UniqueGiftInfoOrigin|string|null $origin = null;
 
     /**
      * Optional. Text of the message that was added to the gift

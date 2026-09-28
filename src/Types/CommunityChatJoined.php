@@ -17,6 +17,6 @@ class CommunityChatJoined extends Type
      * The community from which the chat was joined
      */
     #[Field('community', required: true)]
-    private(set) Community $community;
+    private(set) ?Community $community = null;
 
 }

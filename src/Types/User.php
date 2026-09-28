@@ -20,19 +20,19 @@ class User extends Type
      * Unique identifier for this user or bot. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier.
      */
     #[Field('id', required: true)]
-    private(set) int $id;
+    private(set) ?int $id = null;
 
     /**
      * True, if this user is a bot
      */
     #[Field('is_bot', required: true)]
-    private(set) bool $isBot;
+    private(set) ?bool $isBot = null;
 
     /**
      * User's or bot's first name
      */
     #[Field('first_name', required: true)]
-    private(set) string $firstName;
+    private(set) ?string $firstName = null;
 
     /**
      * Optional. User's or bot's last name

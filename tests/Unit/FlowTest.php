@@ -241,4 +241,63 @@ class FlowTest extends TestCase
         $store->clear();
         @rmdir($tmpDir);
     }
+
+    public function testRedisStateStore(): void
+    {
+        $mockRedis = new class {
+            public array $data = [];
+            public function get(string $key): ?string { return $this->data[$key] ?? null; }
+            public function set(string $key, string $val): void { $this->data[$key] = $val; }
+            public function setex(string $key, int $ttl, string $val): void { $this->data[$key] = $val; }
+            public function del(string $key): void { unset($this->data[$key]); }
+            public function keys(string $pattern): array {
+                $prefix = rtrim($pattern, '*');
+                return array_values(array_filter(array_keys($this->data), fn($k) => str_starts_with($k, $prefix)));
+            }
+        };
+
+        $store = new \Tueen\Telegram\Flow\Storage\RedisStateStore($mockRedis, 'test:flow:');
+
+        $state = new FlowState(
+            flowClass: TestRegistrationFlow::class,
+            currentStep: 'askEmail',
+            data: ['redis' => true]
+        );
+
+        $store->set('user_123', $state, 3600);
+        $loaded = $store->get('user_123');
+        $this->assertNotNull($loaded);
+        $this->assertSame(TestRegistrationFlow::class, $loaded->flowClass);
+        $this->assertTrue($loaded->data['redis']);
+
+        $store->delete('user_123');
+        $this->assertNull($store->get('user_123'));
+    }
+
+    public function testPsr16StateStore(): void
+    {
+        $mockCache = new class {
+            public array $data = [];
+            public function get(string $key): mixed { return $this->data[$key] ?? null; }
+            public function set(string $key, mixed $val, ?int $ttl = null): bool { $this->data[$key] = $val; return true; }
+            public function delete(string $key): bool { unset($this->data[$key]); return true; }
+            public function clear(): bool { $this->data = []; return true; }
+        };
+
+        $store = new \Tueen\Telegram\Flow\Storage\Psr16StateStore($mockCache, 'flow:');
+
+        $state = new FlowState(
+            flowClass: TestRegistrationFlow::class,
+            currentStep: 'confirm',
+            data: ['score' => 99]
+        );
+
+        $store->set('session_456', $state);
+        $loaded = $store->get('session_456');
+        $this->assertNotNull($loaded);
+        $this->assertSame(99, $loaded->data['score']);
+
+        $store->delete('session_456');
+        $this->assertNull($store->get('session_456'));
+    }
 }

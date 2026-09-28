@@ -18,12 +18,12 @@ class InputRichBlockMathematicalExpression extends InputRichBlock
      * Type of the block, always "mathematical_expression"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The mathematical expression in LaTeX format
      */
     #[Field('expression', required: true)]
-    private(set) string $expression;
+    private(set) ?string $expression = null;
 
 }

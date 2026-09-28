@@ -17,7 +17,7 @@ class RichMessageButton extends Type
      * Text of the button. May contain only plain text, RichTextCustomEmoji and RichTextDateTime entities.
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Optional. Style of the button. Must be one of "danger", "success", "primary", or "link" (the button is shown as a regular link without borders). Apps may use theme-specific colors for the button background and text based on the style. The style "link" is allowed only for callback buttons.

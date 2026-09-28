@@ -168,10 +168,10 @@ class OrderFlow extends Flow
 
 ## 7. Storage Drivers (`StateStoreInterface`)
 
-Tueen provides two storage drivers out of the box:
+Tueen provides four storage drivers out of the box:
 
 ### 1. `MemoryStateStore` (Default)
-Stores active flows in PHP memory. Ideal for testing, CLI long-polling workers, or local development.
+Stores active flows in PHP memory. Ideal for testing, CLI long-polling workers, or local development:
 
 ```php
 use Tueen\Telegram\Flow\Storage\MemoryStateStore;
@@ -179,7 +179,29 @@ use Tueen\Telegram\Flow\Storage\MemoryStateStore;
 $telegram->setFlowStore(new MemoryStateStore());
 ```
 
-### 2. `FileStateStore`
+### 2. `RedisStateStore` (Distributed)
+High-performance distributed state store for multi-server webhook environments. Supports native `\Redis` and `Predis`:
+
+```php
+use Tueen\Telegram\Flow\Storage\RedisStateStore;
+
+$redis = new \Redis();
+$redis->connect('127.0.0.1', 6379);
+
+$telegram->setFlowStore(new RedisStateStore($redis, prefix: 'my_bot_flow:'));
+```
+
+### 3. `Psr16StateStore` (PSR-16 Cache)
+Integrates seamlessly with any PSR-16 compliant cache library (Laravel, Symfony Cache, etc.):
+
+```php
+use Tueen\Telegram\Flow\Storage\Psr16StateStore;
+
+// In Laravel: Cache::store('redis') or standard PSR-16 cache
+$telegram->setFlowStore(new Psr16StateStore($psr16CacheInstance));
+```
+
+### 4. `FileStateStore`
 Stores serialized states as JSON files in a local directory (defaults to `sys_get_temp_dir() . '/tueen_flows'`). Zero external dependencies:
 
 ```php
@@ -189,13 +211,13 @@ $telegram->setFlowStore(new FileStateStore('/var/run/telegram_flows'));
 ```
 
 ### Custom Cache Drivers
-You can implement `StateStoreInterface` to store sessions in Redis, Memcached, or any database:
+You can implement `StateStoreInterface` to store sessions in any database or custom driver:
 
 ```php
 use Tueen\Telegram\Flow\Storage\StateStoreInterface;
 use Tueen\Telegram\Flow\FlowState;
 
-class RedisStateStore implements StateStoreInterface
+class CustomDatabaseStateStore implements StateStoreInterface
 {
     public function get(string $key): ?FlowState { /* ... */ }
     public function set(string $key, FlowState $state, ?int $ttl = null): void { /* ... */ }

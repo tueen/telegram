@@ -18,25 +18,25 @@ class MessageOriginChannel extends MessageOrigin
      * Type of the message origin, always "channel"
      */
     #[Field('type', required: true)]
-    private(set) MessageOriginType|string $type;
+    private(set) MessageOriginType|string|null $type = null;
 
     /**
      * Date the message was sent originally in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * Channel chat to which the message was originally sent
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Unique message identifier inside the chat
      */
     #[Field('message_id', required: true)]
-    private(set) int $messageId;
+    private(set) ?int $messageId = null;
 
     /**
      * Optional. Signature of the original post author

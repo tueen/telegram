@@ -18,12 +18,12 @@ class InputRichBlockThinking extends InputRichBlock
      * Type of the block, always "thinking"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Text of the block. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block.
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
 }

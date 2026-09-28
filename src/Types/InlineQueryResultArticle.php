@@ -18,25 +18,25 @@ class InlineQueryResultArticle extends InlineQueryResult
      * Type of the result, must be article
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 Bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Title of the result
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Content of the message to be sent
      */
     #[Field('input_message_content', required: true)]
-    private(set) InputMessageContent $inputMessageContent;
+    private(set) ?InputMessageContent $inputMessageContent = null;
 
     /**
      * Optional. Inline keyboard attached to the message

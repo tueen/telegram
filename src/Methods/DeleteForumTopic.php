@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#deleteforumtopic
+ *
+ * @throws ChatNotFoundException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('deleteForumTopic', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class DeleteForumTopic extends Method
 {
     /**

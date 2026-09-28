@@ -19,7 +19,7 @@ class InputRichBlockButtons extends InputRichBlock
      * Type of the block, always "buttons"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * List of 1-8 buttons to send
@@ -27,7 +27,7 @@ class InputRichBlockButtons extends InputRichBlock
      */
     #[Field('buttons', required: true)]
     #[ArrayOf(RichMessageButton::class)]
-    private(set) array $buttons;
+    private(set) ?array $buttons = null;
 
     /**
      * Optional. Horizontal alignment of the buttons. Currently, must be one of "left", "center", or "right".

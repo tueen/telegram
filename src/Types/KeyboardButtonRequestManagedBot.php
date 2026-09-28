@@ -17,7 +17,7 @@ class KeyboardButtonRequestManagedBot extends Type
      * Signed 32-bit identifier of the request. Must be unique within the message.
      */
     #[Field('request_id', required: true)]
-    private(set) int $requestId;
+    private(set) ?int $requestId = null;
 
     /**
      * Optional. Suggested name for the bot

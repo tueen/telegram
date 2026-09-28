@@ -18,6 +18,6 @@ class RevenueWithdrawalStateFailed extends RevenueWithdrawalState
      * Type of the state, always "failed"
      */
     #[Field('type', required: true)]
-    private(set) RevenueWithdrawalStateType|string $type;
+    private(set) RevenueWithdrawalStateType|string|null $type = null;
 
 }

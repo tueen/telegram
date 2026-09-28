@@ -18,18 +18,18 @@ class RichTextMention extends RichText
      * Type of the rich text, always "mention"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The text
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * The username
      */
     #[Field('username', required: true)]
-    private(set) string $username;
+    private(set) ?string $username = null;
 
 }

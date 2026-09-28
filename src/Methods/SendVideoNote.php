@@ -4,10 +4,18 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\FileTooLargeException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
 use Tueen\Telegram\Types\ForceReply;
@@ -22,9 +30,17 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to send a rounded square MPEG4 video of up to 1 minute long. On success, the sent Message is returned.
  *
  * @link https://core.telegram.org/bots/api#sendvideonote
+ *
+ * @throws ChatNotFoundException
+ * @throws FileTooLargeException
+ * @throws BotBlockedException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendVideoNote', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::FileTooLarge, TelegramErrorCode::BotBlocked, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class SendVideoNote extends Method
 {
     /**

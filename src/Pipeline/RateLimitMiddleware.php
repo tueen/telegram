@@ -21,16 +21,18 @@ class RateLimitMiddleware implements MiddlewareInterface
     private float $minInterval;
     private float $lastRequestTime = 0.0;
 
-    /** @var array<string|int, float> */
-    private array $lastChatRequestTimes = [];
+    /** @var (callable(string, ?float): ?float)|null */
+    private mixed $timeStore = null;
 
     public function __construct(
         int $maxRequestsPerSecond = 30,
-        private float $minPerChatInterval = 0.05,
+        private float $minPerChatInterval = 1.0,
         private bool $autoRetryOnRateLimit = true,
-        private int $maxRetries = 2
+        private int $maxRetries = 2,
+        ?callable $timeStore = null
     ) {
         $this->minInterval = $maxRequestsPerSecond > 0 ? (1.0 / $maxRequestsPerSecond) : 0.0;
+        $this->timeStore = $timeStore;
     }
 
     public function handle(Request $request, Config $config, callable $next): Response
@@ -68,13 +70,39 @@ class RateLimitMiddleware implements MiddlewareInterface
         }
     }
 
+    /** @var array<string|int, float> */
+    private array $lastChatRequestTimes = [];
+    private int $requestCounter = 0;
+
+    private function pruneChatTimes(float $now): void
+    {
+        // Periodic cleanup every 100 requests, or if array grows above 1,000 items
+        if (++$this->requestCounter < 100 && count($this->lastChatRequestTimes) < 1000) {
+            return;
+        }
+
+        $this->requestCounter = 0;
+        // Purge any chat that hasn't made a request in the last 60 seconds
+        $cutoff = $now - 60.0;
+        foreach ($this->lastChatRequestTimes as $id => $time) {
+            if ($time < $cutoff) {
+                unset($this->lastChatRequestTimes[$id]);
+            }
+        }
+    }
+
     private function throttle(Request $request): void
     {
         $now = microtime(true);
+        $this->pruneChatTimes($now);
 
         // 1. Global throttle
-        if ($this->minInterval > 0 && $this->lastRequestTime > 0) {
-            $elapsed = $now - $this->lastRequestTime;
+        $lastGlobal = $this->timeStore !== null
+            ? ($this->timeStore)('global', null)
+            : $this->lastRequestTime;
+
+        if ($this->minInterval > 0 && $lastGlobal !== null && $lastGlobal > 0) {
+            $elapsed = $now - $lastGlobal;
             if ($elapsed < $this->minInterval) {
                 $sleepMicro = (int)(($this->minInterval - $elapsed) * 1_000_000);
                 if ($sleepMicro > 0) {
@@ -82,13 +110,24 @@ class RateLimitMiddleware implements MiddlewareInterface
                 }
             }
         }
-        $this->lastRequestTime = microtime(true);
+
+        $nowAfterGlobal = microtime(true);
+        if ($this->timeStore !== null) {
+            ($this->timeStore)('global', $nowAfterGlobal);
+        } else {
+            $this->lastRequestTime = $nowAfterGlobal;
+        }
 
         // 2. Per-chat throttle
         $chatId = $request->parameters['chat_id'] ?? null;
         if ($chatId !== null && $this->minPerChatInterval > 0) {
-            if (isset($this->lastChatRequestTimes[$chatId])) {
-                $chatElapsed = microtime(true) - $this->lastChatRequestTimes[$chatId];
+            $chatKey = "chat:{$chatId}";
+            $lastChat = $this->timeStore !== null
+                ? ($this->timeStore)($chatKey, null)
+                : ($this->lastChatRequestTimes[$chatId] ?? null);
+
+            if ($lastChat !== null && $lastChat > 0) {
+                $chatElapsed = microtime(true) - $lastChat;
                 if ($chatElapsed < $this->minPerChatInterval) {
                     $sleepMicro = (int)(($this->minPerChatInterval - $chatElapsed) * 1_000_000);
                     if ($sleepMicro > 0) {
@@ -96,7 +135,13 @@ class RateLimitMiddleware implements MiddlewareInterface
                     }
                 }
             }
-            $this->lastChatRequestTimes[$chatId] = microtime(true);
+
+            $nowAfterChat = microtime(true);
+            if ($this->timeStore !== null) {
+                ($this->timeStore)($chatKey, $nowAfterChat);
+            } else {
+                $this->lastChatRequestTimes[$chatId] = $nowAfterChat;
+            }
         }
     }
 }

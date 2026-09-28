@@ -20,19 +20,19 @@ class InlineQueryResultMpeg4Gif extends InlineQueryResult
      * Type of the result, must be mpeg4_gif
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid URL for the MPEG4 file
      */
     #[Field('mpeg4_url', required: true)]
-    private(set) string $mpeg4Url;
+    private(set) ?string $mpeg4Url = null;
 
     /**
      * Optional. Video width
@@ -56,7 +56,7 @@ class InlineQueryResultMpeg4Gif extends InlineQueryResult
      * URL of the static (JPEG or GIF) or animated (MPEG4) thumbnail for the result
      */
     #[Field('thumbnail_url', required: true)]
-    private(set) string $thumbnailUrl;
+    private(set) ?string $thumbnailUrl = null;
 
     /**
      * Optional. MIME type of the thumbnail, must be one of "image/jpeg", "image/gif", or "video/mp4". Defaults to "image/jpeg".

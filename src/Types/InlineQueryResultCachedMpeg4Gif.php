@@ -20,19 +20,19 @@ class InlineQueryResultCachedMpeg4Gif extends InlineQueryResult
      * Type of the result, must be mpeg4_gif
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier for the MPEG4 file
      */
     #[Field('mpeg4_file_id', required: true)]
-    private(set) string $mpeg4FileId;
+    private(set) ?string $mpeg4FileId = null;
 
     /**
      * Optional. Title for the result

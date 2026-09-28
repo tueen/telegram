@@ -18,13 +18,13 @@ class RichBlockDocument extends RichBlock
      * Type of the block, always "document"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The document
      */
     #[Field('document', required: true)]
-    private(set) Document $document;
+    private(set) ?Document $document = null;
 
     /**
      * Optional. Caption of the block

@@ -23,7 +23,7 @@ class InlineKeyboardMarkup extends Type
      */
     #[Field('inline_keyboard', required: true)]
     #[ArrayOf(InlineKeyboardButton::class)]
-    private(set) array $inlineKeyboard;
+    private(set) ?array $inlineKeyboard = null;
 
     /**
      * Optional. Pass True if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'. The value of the field can't be changed when the inline keyboard is edited.

@@ -18,7 +18,7 @@ class OwnedGifts extends Type
      * The total number of gifts owned by the user or the chat
      */
     #[Field('total_count', required: true)]
-    private(set) int $totalCount;
+    private(set) ?int $totalCount = null;
 
     /**
      * The list of gifts
@@ -26,7 +26,7 @@ class OwnedGifts extends Type
      */
     #[Field('gifts', required: true)]
     #[ArrayOf(OwnedGift::class)]
-    private(set) array $gifts;
+    private(set) ?array $gifts = null;
 
     /**
      * Optional. Offset for the next request. If empty, then there are no more results.

@@ -17,31 +17,31 @@ class ChatMemberUpdated extends Type
      * Chat the user belongs to
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Performer of the action, which resulted in the change
      */
     #[Field('from', required: true)]
-    private(set) User $from;
+    private(set) ?User $from = null;
 
     /**
      * Date the change was done in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * Previous information about the chat member
      */
     #[Field('old_chat_member', required: true)]
-    private(set) ChatMember $oldChatMember;
+    private(set) ?ChatMember $oldChatMember = null;
 
     /**
      * New information about the chat member
      */
     #[Field('new_chat_member', required: true)]
-    private(set) ChatMember $newChatMember;
+    private(set) ?ChatMember $newChatMember = null;
 
     /**
      * Optional. Chat invite link, which was used by the user to join the chat; for joining by invite link events only

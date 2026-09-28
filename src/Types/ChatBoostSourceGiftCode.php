@@ -18,12 +18,12 @@ class ChatBoostSourceGiftCode extends ChatBoostSource
      * Source of the boost, always "gift_code"
      */
     #[Field('source', required: true)]
-    private(set) ChatBoostSourceSource|string $source;
+    private(set) ChatBoostSourceSource|string|null $source = null;
 
     /**
      * User for which the gift code was created
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
 }

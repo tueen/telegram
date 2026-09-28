@@ -18,13 +18,13 @@ class InputRichBlockExpandableBlockQuotation extends InputRichBlock
      * Type of the block, always "expandable_blockquote"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Content of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Optional. Credit of the block

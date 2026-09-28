@@ -18,13 +18,13 @@ class Game extends Type
      * Title of the game
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Description of the game
      */
     #[Field('description', required: true)]
-    private(set) string $description;
+    private(set) ?string $description = null;
 
     /**
      * Photo that will be displayed in the game message in chats
@@ -32,7 +32,7 @@ class Game extends Type
      */
     #[Field('photo', required: true)]
     #[ArrayOf(PhotoSize::class)]
-    private(set) array $photo;
+    private(set) ?array $photo = null;
 
     /**
      * Optional. Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.

@@ -271,6 +271,6 @@ class TelegramClientTest extends TestCase
         $this->assertSame(123456, $sentParams['chat_id']);
         $this->assertSame('Testing forward compatibility', $sentParams['text']);
         $this->assertSame('super_feature', $sentParams['unannounced_future_feature']);
-        $this->assertSame('true', $sentParams['allow_paid_broadcast_future']);
+        $this->assertTrue($sentParams['allow_paid_broadcast_future']);
     }
 }

@@ -19,13 +19,13 @@ class InputChecklistTask extends Type
      * Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist
      */
     #[Field('id', required: true)]
-    private(set) int $id;
+    private(set) ?int $id = null;
 
     /**
      * Text of the task; 1-100 characters after entities parsing
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Mode for parsing entities in the text. See formatting options for more details.

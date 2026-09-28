@@ -18,13 +18,13 @@ class InputRichBlockDocument extends InputRichBlock
      * Type of the block, always "document"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The document. Caption is ignored.
      */
     #[Field('document', required: true)]
-    private(set) InputMediaDocument $document;
+    private(set) ?InputMediaDocument $document = null;
 
     /**
      * Optional. Caption of the block

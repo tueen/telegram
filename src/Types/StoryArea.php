@@ -17,12 +17,12 @@ class StoryArea extends Type
      * Position of the area
      */
     #[Field('position', required: true)]
-    private(set) StoryAreaPosition $position;
+    private(set) ?StoryAreaPosition $position = null;
 
     /**
      * Type of the area
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaType $type;
+    private(set) ?StoryAreaType $type = null;
 
 }

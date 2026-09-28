@@ -43,12 +43,12 @@ class RichBlockTableCell extends Type
      * Horizontal cell content alignment. Currently, must be one of "left", "center", or "right".
      */
     #[Field('align', required: true)]
-    private(set) RichBlockTableCellAlign|string $align;
+    private(set) RichBlockTableCellAlign|string|null $align = null;
 
     /**
      * Vertical cell content alignment. Currently, must be one of "top", "middle", or "bottom".
      */
     #[Field('valign', required: true)]
-    private(set) RichBlockTableCellValign|string $valign;
+    private(set) RichBlockTableCellValign|string|null $valign = null;
 
 }

@@ -18,13 +18,13 @@ class PollOption extends Type
      * Unique identifier of the option, persistent on option addition and deletion
      */
     #[Field('persistent_id', required: true)]
-    private(set) string $persistentId;
+    private(set) ?string $persistentId = null;
 
     /**
      * Option text, 1-100 characters
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts
@@ -44,7 +44,7 @@ class PollOption extends Type
      * Number of users who voted for this option; may be 0 if unknown
      */
     #[Field('voter_count', required: true)]
-    private(set) int $voterCount;
+    private(set) ?int $voterCount = null;
 
     /**
      * Optional. User who added the option; omitted if the option wasn't added by a user after poll creation

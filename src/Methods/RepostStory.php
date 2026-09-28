@@ -4,19 +4,27 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\StoryActivePeriod;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Story;
 
 /**
  * Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success.
  *
  * @link https://core.telegram.org/bots/api#repoststory
+ *
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('repostStory', 'POST')]
 #[ReturnType(Story::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::FloodWait])]
 class RepostStory extends Method
 {
     /**

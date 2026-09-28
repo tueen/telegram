@@ -17,12 +17,12 @@ class WebAppData extends Type
      * The data. Be aware that a bad client can send arbitrary data in this field.
      */
     #[Field('data', required: true)]
-    private(set) string $data;
+    private(set) ?string $data = null;
 
     /**
      * Text of the web_app keyboard button from which the Web App was opened. Be aware that a bad client can send arbitrary data in this field.
      */
     #[Field('button_text', required: true)]
-    private(set) string $buttonText;
+    private(set) ?string $buttonText = null;
 
 }

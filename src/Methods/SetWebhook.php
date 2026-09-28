@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\InputFile;
 
@@ -16,9 +20,13 @@ use Tueen\Telegram\Types\Custom\InputFile;
  * If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header "X-Telegram-Bot-Api-Secret-Token" with the secret token as content.
  *
  * @link https://core.telegram.org/bots/api#setwebhook
+ *
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('setWebhook', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::FloodWait])]
 class SetWebhook extends Method
 {
     /**

@@ -18,13 +18,13 @@ class TransactionPartnerChat extends TransactionPartner
      * Type of the transaction partner, always "chat"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
     /**
      * Information about the chat
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Optional. The gift sent to the chat by the bot

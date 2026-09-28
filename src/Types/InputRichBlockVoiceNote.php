@@ -18,13 +18,13 @@ class InputRichBlockVoiceNote extends InputRichBlock
      * Type of the block, always "voice_note"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The voice note. Caption is ignored.
      */
     #[Field('voice_note', required: true)]
-    private(set) InputMediaVoiceNote $voiceNote;
+    private(set) ?InputMediaVoiceNote $voiceNote = null;
 
     /**
      * Optional. Caption of the block

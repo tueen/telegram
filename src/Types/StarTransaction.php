@@ -17,13 +17,13 @@ class StarTransaction extends Type
      * Unique identifier of the transaction. Coincides with the identifier of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users.
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Integer amount of Telegram Stars transferred by the transaction
      */
     #[Field('amount', required: true)]
-    private(set) int $amount;
+    private(set) ?int $amount = null;
 
     /**
      * Optional. The number of 1/1000000000 shares of Telegram Stars transferred by the transaction; from 0 to 999999999
@@ -35,7 +35,7 @@ class StarTransaction extends Type
      * Date the transaction was created in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * Optional. Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions.

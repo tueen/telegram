@@ -18,6 +18,6 @@ class TransactionPartnerTelegramAds extends TransactionPartner
      * Type of the transaction partner, always "telegram_ads"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
 }

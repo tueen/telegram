@@ -17,6 +17,6 @@ class BotDescription extends Type
      * The bot's description
      */
     #[Field('description', required: true)]
-    private(set) string $description;
+    private(set) ?string $description = null;
 
 }

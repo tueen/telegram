@@ -38,7 +38,7 @@ class GuzzleHttpClient implements HttpClientInterface
             $options['proxy'] = $config->proxy;
         }
 
-        return new GuzzleClient($options);
+        return $this->guzzle = new GuzzleClient($options);
     }
 
     public function send(Config $config, Request $request): Response
@@ -47,6 +47,14 @@ class GuzzleHttpClient implements HttpClientInterface
         $url = $config->getBaseApiUrl() . '/' . $request->endpoint;
 
         $options = [];
+
+        // Per-request timeout override
+        if ($request->timeout !== null) {
+            $options['timeout'] = $request->timeout;
+        }
+        if ($request->connectTimeout !== null) {
+            $options['connect_timeout'] = $request->connectTimeout;
+        }
 
         // Setup progress callback if uploadProgress is set
         $uploadCb = $request->uploadProgress ?? $config->uploadProgress;
@@ -73,9 +81,17 @@ class GuzzleHttpClient implements HttpClientInterface
         if ($request->isMultipart()) {
             $multipart = [];
             foreach ($request->parameters as $name => $contents) {
+                if (is_bool($contents)) {
+                    $stringContents = $contents ? 'true' : 'false';
+                } elseif (is_array($contents)) {
+                    $stringContents = json_encode($contents, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                } else {
+                    $stringContents = (string)$contents;
+                }
+
                 $multipart[] = [
                     'name' => (string)$name,
-                    'contents' => is_scalar($contents) ? (string)$contents : json_encode($contents),
+                    'contents' => $stringContents,
                 ];
             }
             foreach ($request->files as $name => $file) {

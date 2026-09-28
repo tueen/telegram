@@ -74,7 +74,7 @@ class RunningModesTest extends TestCase
 
         $this->expectException(TelegramException::class);
         $this->expectExceptionMessage('Invalid or missing Telegram webhook secret token.');
-        (void) $telegram->run();
+        $telegram->run();
     }
 
     public function testRunPassesUpdateAndBotInstance(): void

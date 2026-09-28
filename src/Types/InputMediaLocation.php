@@ -18,19 +18,19 @@ class InputMediaLocation extends InputPollMedia
      * Type of the media, must be location
      */
     #[Field('type', required: true)]
-    private(set) InputMediaType|string $type;
+    private(set) InputMediaType|string|null $type = null;
 
     /**
      * Latitude of the location
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Longitude of the location
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Optional. The radius of uncertainty for the location, measured in meters; 0-1500

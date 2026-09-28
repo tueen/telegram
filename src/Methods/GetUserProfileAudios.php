@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\UserProfileAudios;
 
 /**
  * Use this method to get a list of profile audios for a user. Returns a UserProfileAudios object.
  *
  * @link https://core.telegram.org/bots/api#getuserprofileaudios
+ *
+ * @throws UserNotFoundException
+ * @throws ChatNotFoundException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('getUserProfileAudios', 'POST')]
 #[ReturnType(UserProfileAudios::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::ChatNotFound, TelegramErrorCode::FloodWait])]
 class GetUserProfileAudios extends Method
 {
     /**

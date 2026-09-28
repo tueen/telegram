@@ -20,25 +20,25 @@ class InlineQueryResultAudio extends InlineQueryResult
      * Type of the result, must be audio
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid URL for the audio file
      */
     #[Field('audio_url', required: true)]
-    private(set) string $audioUrl;
+    private(set) ?string $audioUrl = null;
 
     /**
      * Title
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Caption, 0-1024 characters after entities parsing

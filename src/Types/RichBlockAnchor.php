@@ -18,12 +18,12 @@ class RichBlockAnchor extends RichBlock
      * Type of the block, always "anchor"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The name of the anchor
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
 }

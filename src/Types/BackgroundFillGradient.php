@@ -18,24 +18,24 @@ class BackgroundFillGradient extends BackgroundFill
      * Type of the background fill, always "gradient"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundFillType|string $type;
+    private(set) BackgroundFillType|string|null $type = null;
 
     /**
      * Top color of the gradient in the RGB24 format
      */
     #[Field('top_color', required: true)]
-    private(set) int $topColor;
+    private(set) ?int $topColor = null;
 
     /**
      * Bottom color of the gradient in the RGB24 format
      */
     #[Field('bottom_color', required: true)]
-    private(set) int $bottomColor;
+    private(set) ?int $bottomColor = null;
 
     /**
      * Clockwise rotation angle of the background fill in degrees; 0-359
      */
     #[Field('rotation_angle', required: true)]
-    private(set) int $rotationAngle;
+    private(set) ?int $rotationAngle = null;
 
 }

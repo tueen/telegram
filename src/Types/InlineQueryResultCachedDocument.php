@@ -20,25 +20,25 @@ class InlineQueryResultCachedDocument extends InlineQueryResult
      * Type of the result, must be document
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Title for the result
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * A valid file identifier for the file
      */
     #[Field('document_file_id', required: true)]
-    private(set) string $documentFileId;
+    private(set) ?string $documentFileId = null;
 
     /**
      * Optional. Short description of the result

@@ -25,7 +25,7 @@
 
 ## 📦 Requirements & Installation
 
-- **PHP 8.5+**
+- **PHP 8.4+** (with full PHP 8.5+ support)
 - Composer 2.x
 
 ```bash

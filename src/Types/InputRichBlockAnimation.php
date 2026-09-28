@@ -18,13 +18,13 @@ class InputRichBlockAnimation extends InputRichBlock
      * Type of the block, always "animation"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The animation. Caption is ignored.
      */
     #[Field('animation', required: true)]
-    private(set) InputMediaAnimation $animation;
+    private(set) ?InputMediaAnimation $animation = null;
 
     /**
      * Optional. Caption of the block

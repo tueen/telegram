@@ -17,43 +17,43 @@ class UniqueGift extends Type
      * Identifier of the regular gift from which the gift was upgraded
      */
     #[Field('gift_id', required: true)]
-    private(set) string $giftId;
+    private(set) ?string $giftId = null;
 
     /**
      * Human-readable name of the regular gift from which this unique gift was upgraded
      */
     #[Field('base_name', required: true)]
-    private(set) string $baseName;
+    private(set) ?string $baseName = null;
 
     /**
      * Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas.
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
     /**
      * Unique number of the upgraded gift among gifts upgraded from the same regular gift
      */
     #[Field('number', required: true)]
-    private(set) int $number;
+    private(set) ?int $number = null;
 
     /**
      * Model of the gift
      */
     #[Field('model', required: true)]
-    private(set) UniqueGiftModel $model;
+    private(set) ?UniqueGiftModel $model = null;
 
     /**
      * Symbol of the gift
      */
     #[Field('symbol', required: true)]
-    private(set) UniqueGiftSymbol $symbol;
+    private(set) ?UniqueGiftSymbol $symbol = null;
 
     /**
      * Backdrop of the gift
      */
     #[Field('backdrop', required: true)]
-    private(set) UniqueGiftBackdrop $backdrop;
+    private(set) ?UniqueGiftBackdrop $backdrop = null;
 
     /**
      * Optional. True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers

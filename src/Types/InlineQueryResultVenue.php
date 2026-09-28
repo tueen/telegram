@@ -18,37 +18,37 @@ class InlineQueryResultVenue extends InlineQueryResult
      * Type of the result, must be venue
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 Bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Latitude of the venue location in degrees
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Longitude of the venue location in degrees
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Title of the venue
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Address of the venue
      */
     #[Field('address', required: true)]
-    private(set) string $address;
+    private(set) ?string $address = null;
 
     /**
      * Optional. Foursquare identifier of the venue if known

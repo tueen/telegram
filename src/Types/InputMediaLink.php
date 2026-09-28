@@ -18,12 +18,12 @@ class InputMediaLink extends InputPollOptionMedia
      * Type of the media, must be link
      */
     #[Field('type', required: true)]
-    private(set) InputMediaType|string $type;
+    private(set) InputMediaType|string|null $type = null;
 
     /**
      * HTTP URL of the link
      */
     #[Field('url', required: true)]
-    private(set) string $url;
+    private(set) ?string $url = null;
 
 }

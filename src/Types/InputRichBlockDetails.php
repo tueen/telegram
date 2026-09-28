@@ -19,13 +19,13 @@ class InputRichBlockDetails extends InputRichBlock
      * Type of the block, always "details"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Always shown summary of the block
      */
     #[Field('summary', required: true)]
-    private(set) RichText $summary;
+    private(set) ?RichText $summary = null;
 
     /**
      * Content of the block
@@ -33,7 +33,7 @@ class InputRichBlockDetails extends InputRichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(InputRichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Pass True if the content of the block is visible by default

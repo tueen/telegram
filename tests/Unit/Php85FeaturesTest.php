@@ -125,10 +125,12 @@ class Php85FeaturesTest extends TestCase
             ],
         ]);
 
-        // Modern PHP 8.5 Pipe Operator (|>)
-        $processedUpdate = $rawJson
-            |> $telegram->parseUpdate(...)
-            |> (fn(Update $update): Update => $update);
+        // Modern PHP 8.5 Pipe Operator (|>) with PHP 8.4 fallback
+        if (PHP_VERSION_ID >= 80500) {
+            $processedUpdate = eval('return $rawJson |> $telegram->parseUpdate(...) |> (fn(\Tueen\Telegram\Types\Update $update): \Tueen\Telegram\Types\Update => $update);');
+        } else {
+            $processedUpdate = ($telegram->parseUpdate(...))($rawJson);
+        }
 
         $this->assertInstanceOf(Update::class, $processedUpdate);
         $this->assertSame(999, $processedUpdate->updateId);

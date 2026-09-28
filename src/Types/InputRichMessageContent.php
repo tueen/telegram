@@ -17,6 +17,6 @@ class InputRichMessageContent extends InputMessageContent
      * The message to be sent. Only previously uploaded files may be used in the message.
      */
     #[Field('rich_message', required: true)]
-    private(set) InputRichMessage $richMessage;
+    private(set) ?InputRichMessage $richMessage = null;
 
 }

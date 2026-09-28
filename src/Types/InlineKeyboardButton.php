@@ -18,7 +18,7 @@ class InlineKeyboardButton extends Type
      * Label text on the button
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription.

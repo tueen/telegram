@@ -20,19 +20,19 @@ class Giveaway extends Type
      */
     #[Field('chats', required: true)]
     #[ArrayOf(Chat::class)]
-    private(set) array $chats;
+    private(set) ?array $chats = null;
 
     /**
      * Point in time (Unix timestamp) when winners of the giveaway will be selected
      */
     #[Field('winners_selection_date', required: true)]
-    private(set) int $winnersSelectionDate;
+    private(set) ?int $winnersSelectionDate = null;
 
     /**
      * The number of users which are supposed to be selected as winners of the giveaway
      */
     #[Field('winner_count', required: true)]
-    private(set) int $winnerCount;
+    private(set) ?int $winnerCount = null;
 
     /**
      * Optional. True, if only users who join the chats after the giveaway started should be eligible to win

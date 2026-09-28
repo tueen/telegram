@@ -26,6 +26,12 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
      */
     protected array $extra = [];
 
+    /**
+     * In-memory cache of property metadata per concrete Type class.
+     * @var array<class-string, array<string, array<string, mixed>>>
+     */
+    private static array $classPropertiesCache = [];
+
     public function __construct(array $data = [])
     {
         $this->raw = $data;
@@ -33,14 +39,17 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     }
 
     /**
-     * Populates class properties and extra storage from input array.
+     * Resolves and caches reflection property metadata for a Type class.
+     *
+     * @param class-string $class
+     * @return array<string, array<string, mixed>>
      */
-    protected function populate(array $data): void
+    private static function resolveClassProperties(string $class): array
     {
-        $reflection = new ReflectionClass($this);
+        $reflection = new ReflectionClass($class);
         $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
-        
-        $handledKeys = [];
+
+        $cached = [];
 
         foreach ($properties as $prop) {
             if ($prop->isStatic() || $prop->isVirtual()) {
@@ -52,9 +61,77 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
                 continue;
             }
 
-            // Check for #[Field] attribute
-            $fieldName = $this->resolveFieldName($prop);
-            
+            // 1. Resolve field name
+            $fieldName = self::toSnakeCase($propName);
+            $attrs = $prop->getAttributes(Field::class);
+            if (!empty($attrs)) {
+                $fieldName = $attrs[0]->newInstance()->name;
+            }
+
+            // 2. Check #[ArrayOf] attribute
+            $arrayOfTarget = null;
+            $arrayAttrs = $prop->getAttributes(ArrayOf::class);
+            if (!empty($arrayAttrs)) {
+                $arrayOfTarget = $arrayAttrs[0]->newInstance()->type;
+            }
+
+            // 3. Inspect property types
+            $type = $prop->getType();
+            $targetTypes = [];
+            if ($type instanceof \ReflectionNamedType) {
+                $targetTypes[] = $type;
+            } elseif ($type instanceof \ReflectionUnionType) {
+                $targetTypes = $type->getTypes();
+            }
+
+            $targetClass = null;
+            $targetEnum = null;
+            $isBuiltinArray = false;
+
+            foreach ($targetTypes as $t) {
+                if ($t->isBuiltin()) {
+                    if ($t->getName() === 'array') {
+                        $isBuiltinArray = true;
+                    }
+                    continue;
+                }
+
+                $className = $t->getName();
+                if (enum_exists($className)) {
+                    $targetEnum = $className;
+                } elseif (is_subclass_of($className, Type::class) || $className === Type::class) {
+                    $targetClass = $className;
+                }
+            }
+
+            $cached[$propName] = [
+                'prop' => $prop,
+                'fieldName' => $fieldName,
+                'snakeName' => self::toSnakeCase($propName),
+                'arrayOfTarget' => $arrayOfTarget,
+                'targetEnum' => $targetEnum,
+                'targetClass' => $targetClass,
+                'isBuiltinArray' => $isBuiltinArray,
+            ];
+        }
+
+        return $cached;
+    }
+
+    /**
+     * Populates class properties and extra storage from input array.
+     */
+    protected function populate(array $data): void
+    {
+        $class = static::class;
+        $properties = self::$classPropertiesCache[$class] ??= self::resolveClassProperties($class);
+
+        $handledKeys = [];
+
+        foreach ($properties as $propName => $meta) {
+            $fieldName = $meta['fieldName'];
+            $snake = $meta['snakeName'];
+
             $val = null;
             if (array_key_exists($fieldName, $data)) {
                 $val = $data[$fieldName];
@@ -62,16 +139,15 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
             } elseif (array_key_exists($propName, $data)) {
                 $val = $data[$propName];
                 $handledKeys[$propName] = true;
-            } else {
-                $snake = self::toSnakeCase($propName);
-                if (array_key_exists($snake, $data)) {
-                    $val = $data[$snake];
-                    $handledKeys[$snake] = true;
-                }
+            } elseif (array_key_exists($snake, $data)) {
+                $val = $data[$snake];
+                $handledKeys[$snake] = true;
             }
 
             if ($val !== null) {
-                $castValue = $this->castPropertyValue($prop, $val);
+                $castValue = self::castValueWithMeta($val, $meta);
+                /** @var ReflectionProperty $prop */
+                $prop = $meta['prop'];
                 $prop->setValue($this, $castValue);
             }
         }
@@ -85,64 +161,41 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     }
 
     /**
-     * Resolves the API field name from property attributes or conventions.
+     * Casts a property value using cached metadata.
+     *
+     * @param mixed $value
+     * @param array<string, mixed> $meta
      */
-    private function resolveFieldName(ReflectionProperty $prop): string
-    {
-        $attrs = $prop->getAttributes(Field::class);
-        if (!empty($attrs)) {
-            return $attrs[0]->newInstance()->name;
-        }
-
-        return self::toSnakeCase($prop->getName());
-    }
-
-    /**
-     * Casts a property value based on reflection type or attributes.
-     */
-    private function castPropertyValue(ReflectionProperty $prop, mixed $value): mixed
+    private static function castValueWithMeta(mixed $value, array $meta): mixed
     {
         if ($value === null) {
             return null;
         }
 
-        // Check for #[ArrayOf] attribute
-        $arrayAttrs = $prop->getAttributes(ArrayOf::class);
-        if (!empty($arrayAttrs) && is_array($value)) {
-            $targetType = $arrayAttrs[0]->newInstance()->type;
-            return self::castArrayOf($value, $targetType);
+        if ($meta['arrayOfTarget'] !== null && is_array($value)) {
+            return self::castArrayOf($value, $meta['arrayOfTarget']);
         }
 
-        $type = $prop->getType();
-        $targetTypes = [];
-        if ($type instanceof \ReflectionNamedType) {
-            $targetTypes[] = $type;
-        } elseif ($type instanceof \ReflectionUnionType) {
-            $targetTypes = $type->getTypes();
+        if ($meta['targetEnum'] !== null) {
+            $enumClass = $meta['targetEnum'];
+            $enumVal = $enumClass::tryFrom($value);
+            if ($enumVal !== null) {
+                return $enumVal;
+            }
         }
 
-        foreach ($targetTypes as $t) {
-            if ($t->isBuiltin()) {
-                if ($t->getName() === 'array' && is_array($value)) {
-                    return $value;
-                }
-                continue;
+        if ($meta['targetClass'] !== null) {
+            $targetClass = $meta['targetClass'];
+            if (is_array($value)) {
+                return self::factory($targetClass, $value);
             }
+            if (is_string($value) && ($targetClass === RichText::class || is_subclass_of($targetClass, RichText::class))) {
+                return new RichText(['text' => $value]);
+            }
+        }
 
-            $className = $t->getName();
-            if (enum_exists($className)) {
-                $enumVal = $className::tryFrom($value);
-                if ($enumVal !== null) {
-                    return $enumVal;
-                }
-            } elseif (is_subclass_of($className, Type::class) || $className === Type::class) {
-                if (is_array($value)) {
-                    return self::factory($className, $value);
-                }
-                if (is_string($value) && ($className === RichText::class || is_subclass_of($className, RichText::class))) {
-                    return new RichText(['text' => $value]);
-                }
-            }
+        if ($meta['isBuiltinArray'] && is_array($value)) {
+            return $value;
         }
 
         return self::autoCast($value);
@@ -231,9 +284,25 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
      */
     public function __get(string $name): mixed
     {
+        $class = static::class;
+        $properties = self::$classPropertiesCache[$class] ??= self::resolveClassProperties($class);
+
         // 1. Direct property check (camelCase)
+        if (isset($properties[$name])) {
+            /** @var ReflectionProperty $prop */
+            $prop = $properties[$name]['prop'];
+            if ($prop->isInitialized($this)) {
+                return $prop->getValue($this);
+            }
+            return null;
+        }
+
         if (property_exists($this, $name)) {
-            return $this->$name;
+            try {
+                return $this->$name;
+            } catch (\Error) {
+                return null;
+            }
         }
 
         // 2. Convert to snake_case and check
@@ -244,8 +313,21 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
 
         // 3. Convert to camelCase and check
         $camel = self::toCamelCase($name);
+        if (isset($properties[$camel])) {
+            /** @var ReflectionProperty $prop */
+            $prop = $properties[$camel]['prop'];
+            if ($prop->isInitialized($this)) {
+                return $prop->getValue($this);
+            }
+            return null;
+        }
+
         if (property_exists($this, $camel)) {
-            return $this->$camel;
+            try {
+                return $this->$camel;
+            } catch (\Error) {
+                return null;
+            }
         }
 
         // 4. Raw check
@@ -266,8 +348,12 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     {
         $camel = self::toCamelCase($name);
         if (property_exists($this, $camel)) {
-            $this->$camel = $value;
-            return;
+            try {
+                $this->$camel = $value;
+                return;
+            } catch (\Error) {
+                // Asymmetric visibility restriction or uninitialized, write to extra
+            }
         }
 
         $snake = self::toSnakeCase($name);
@@ -355,21 +441,16 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     public function toArray(): array
     {
         $result = [];
+        $class = static::class;
+        $properties = self::$classPropertiesCache[$class] ??= self::resolveClassProperties($class);
 
-        $reflection = new ReflectionClass($this);
-        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
-
-        foreach ($properties as $prop) {
-            $propName = $prop->getName();
-            if ($propName === 'raw' || $propName === 'extra') {
-                continue;
-            }
-
-            $fieldName = $this->resolveFieldName($prop);
+        foreach ($properties as $propName => $meta) {
+            /** @var ReflectionProperty $prop */
+            $prop = $meta['prop'];
             if ($prop->isInitialized($this)) {
                 $val = $prop->getValue($this);
                 if ($val !== null) {
-                    $result[$fieldName] = self::valueToArray($val);
+                    $result[$meta['fieldName']] = self::valueToArray($val);
                 }
             }
         }

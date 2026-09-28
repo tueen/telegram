@@ -17,13 +17,13 @@ class Document extends Type
      * Identifier for this file, which can be used to download or reuse the file
      */
     #[Field('file_id', required: true)]
-    private(set) string $fileId;
+    private(set) ?string $fileId = null;
 
     /**
      * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
      */
     #[Field('file_unique_id', required: true)]
-    private(set) string $fileUniqueId;
+    private(set) ?string $fileUniqueId = null;
 
     /**
      * Optional. Document thumbnail as defined by the sender

@@ -20,37 +20,37 @@ class InlineQueryResultVideo extends InlineQueryResult
      * Type of the result, must be video
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid URL for the embedded video player or video file
      */
     #[Field('video_url', required: true)]
-    private(set) string $videoUrl;
+    private(set) ?string $videoUrl = null;
 
     /**
      * MIME type of the content of the video URL, "text/html" or "video/mp4"
      */
     #[Field('mime_type', required: true)]
-    private(set) string $mimeType;
+    private(set) ?string $mimeType = null;
 
     /**
      * URL of the thumbnail (JPEG only) for the video
      */
     #[Field('thumbnail_url', required: true)]
-    private(set) string $thumbnailUrl;
+    private(set) ?string $thumbnailUrl = null;
 
     /**
      * Title for the result
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Caption of the video to be sent, 0-1024 characters after entities parsing

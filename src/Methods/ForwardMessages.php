@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotKickedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\MessageId;
 
 /**
  * Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an Array of MessageId of the sent messages is returned.
  *
  * @link https://core.telegram.org/bots/api#forwardmessages
+ *
+ * @throws ChatNotFoundException
+ * @throws BotKickedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('forwardMessages', 'POST')]
 #[ReturnType(MessageId::class, isArray: true)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotKicked, TelegramErrorCode::FloodWait])]
 class ForwardMessages extends Method
 {
     /**

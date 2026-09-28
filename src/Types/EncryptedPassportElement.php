@@ -18,7 +18,7 @@ class EncryptedPassportElement extends Type
      * Element type. One of "personal_details", "passport", "driver_license", "identity_card", "internal_passport", "address", "utility_bill", "bank_statement", "rental_agreement", "passport_registration", "temporary_registration", "phone_number", "email".
      */
     #[Field('type', required: true)]
-    private(set) string $type;
+    private(set) ?string $type = null;
 
     /**
      * Optional. Base64-encoded encrypted Telegram Passport element data provided by the user; available only for "personal_details", "passport", "driver_license", "identity_card", "internal_passport" and "address" types. Can be decrypted and verified using the accompanying EncryptedCredentials.
@@ -76,6 +76,6 @@ class EncryptedPassportElement extends Type
      * Base64-encoded element hash for using in PassportElementErrorUnspecified
      */
     #[Field('hash', required: true)]
-    private(set) string $hash;
+    private(set) ?string $hash = null;
 
 }

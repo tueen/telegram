@@ -18,12 +18,12 @@ class ChatBoostSourcePremium extends ChatBoostSource
      * Source of the boost, always "premium"
      */
     #[Field('source', required: true)]
-    private(set) ChatBoostSourceSource|string $source;
+    private(set) ChatBoostSourceSource|string|null $source = null;
 
     /**
      * User that boosted the chat
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
 }

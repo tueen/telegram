@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Running;
 
+use GuzzleHttp\Psr7\Response as Psr7Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Tueen\Telegram\Exceptions\TelegramException;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
@@ -15,6 +18,18 @@ class WebhookMode implements RunningModeInterface
         private ?string $rawInput = null,
         private ?array $headers = null
     ) {}
+
+    /**
+     * Creates a WebhookMode instance pre-configured from a PSR-7 ServerRequest.
+     */
+    public static function fromPsrRequest(ServerRequestInterface $request, ?string $secretToken = null): self
+    {
+        return new self(
+            secretToken: $secretToken,
+            rawInput: (string)$request->getBody(),
+            headers: $request->getHeaders()
+        );
+    }
 
     public function setSecretToken(?string $secretToken): static
     {
@@ -39,7 +54,8 @@ class WebhookMode implements RunningModeInterface
      */
     public function resolveUpdate(Telegram $telegram): Update
     {
-        (void) $this->validateSecretToken();
+        $isValidToken = $this->validateSecretToken();
+        unset($isValidToken);
 
         $rawInput = $this->rawInput ?? file_get_contents('php://input');
 
@@ -104,11 +120,33 @@ class WebhookMode implements RunningModeInterface
     public function validateWebhookUrl(string $url): bool
     {
         try {
-            $uri = new \Uri\Rfc3986\Uri($url);
-            return $uri->getScheme() === 'https' && !empty($uri->getHost());
+            if (class_exists(\Uri\Rfc3986\Uri::class)) {
+                $uri = new \Uri\Rfc3986\Uri($url);
+                return $uri->getScheme() === 'https' && !empty($uri->getHost());
+            }
+
+            $parts = parse_url($url);
+            return is_array($parts) && ($parts['scheme'] ?? null) === 'https' && !empty($parts['host'] ?? null);
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    /**
+     * Process an incoming PSR-7 ServerRequest, execute bot handlers, and return a PSR-7 Response.
+     */
+    public function processPsrRequest(ServerRequestInterface $request, Telegram $telegram, mixed ...$handlers): ResponseInterface
+    {
+        $this->rawInput = (string)$request->getBody();
+        $this->headers = $request->getHeaders();
+
+        $telegram->run(...$handlers);
+
+        return new Psr7Response(
+            status: 200,
+            headers: ['Content-Type' => 'application/json'],
+            body: json_encode(['ok' => true])
+        );
     }
 
     /**
@@ -116,7 +154,7 @@ class WebhookMode implements RunningModeInterface
      */
     public function safeResponse(): void
     {
-        if (!headers_sent()) {
+        if (PHP_SAPI !== 'cli' && !headers_sent()) {
             http_response_code(200);
             header('Content-Type: application/json');
             header('Connection: close');
@@ -125,7 +163,7 @@ class WebhookMode implements RunningModeInterface
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
-        } elseif (ob_get_level() > 0) {
+        } elseif (PHP_SAPI !== 'cli' && ob_get_level() > 0) {
             ob_end_flush();
             flush();
         }

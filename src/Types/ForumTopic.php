@@ -18,19 +18,19 @@ class ForumTopic extends Type
      * Unique identifier of the forum topic
      */
     #[Field('message_thread_id', required: true)]
-    private(set) int $messageThreadId;
+    private(set) ?int $messageThreadId = null;
 
     /**
      * Name of the topic
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
     /**
      * Color of the topic icon in RGB format
      */
     #[Field('icon_color', required: true)]
-    private(set) ForumIconColor|int $iconColor;
+    private(set) ForumIconColor|int|null $iconColor = null;
 
     /**
      * Optional. Unique identifier of the custom emoji shown as the topic icon

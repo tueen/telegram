@@ -17,12 +17,12 @@ class ChatBoostUpdated extends Type
      * Chat which was boosted
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Information about the chat boost
      */
     #[Field('boost', required: true)]
-    private(set) ChatBoost $boost;
+    private(set) ?ChatBoost $boost = null;
 
 }

@@ -17,6 +17,6 @@ class ChatBoostAdded extends Type
      * Number of boosts added by the user
      */
     #[Field('boost_count', required: true)]
-    private(set) int $boostCount;
+    private(set) ?int $boostCount = null;
 
 }

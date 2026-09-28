@@ -17,7 +17,7 @@ class KeyboardButtonRequestUsers extends Type
      * Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message.
      */
     #[Field('request_id', required: true)]
-    private(set) int $requestId;
+    private(set) ?int $requestId = null;
 
     /**
      * Optional. Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied.

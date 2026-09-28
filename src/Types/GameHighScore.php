@@ -17,18 +17,18 @@ class GameHighScore extends Type
      * Position in high score table for the game
      */
     #[Field('position', required: true)]
-    private(set) int $position;
+    private(set) ?int $position = null;
 
     /**
      * User
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * Score
      */
     #[Field('score', required: true)]
-    private(set) int $score;
+    private(set) ?int $score = null;
 
 }

@@ -19,7 +19,7 @@ class RichBlockTable extends RichBlock
      * Type of the block, always "table"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Cells of the table
@@ -27,7 +27,7 @@ class RichBlockTable extends RichBlock
      */
     #[Field('cells', required: true)]
     #[ArrayOf(RichBlockTableCell::class)]
-    private(set) array $cells;
+    private(set) ?array $cells = null;
 
     /**
      * Optional. True, if the table has borders

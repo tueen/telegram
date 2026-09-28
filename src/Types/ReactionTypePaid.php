@@ -18,6 +18,6 @@ class ReactionTypePaid extends ReactionType
      * Type of the reaction, always "paid"
      */
     #[Field('type', required: true)]
-    private(set) ReactionTypeType|string $type;
+    private(set) ReactionTypeType|string|null $type = null;
 
 }

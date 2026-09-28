@@ -4,19 +4,33 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#sendgift
+ *
+ * @throws UserNotFoundException
+ * @throws ChatNotFoundException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendGift', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class SendGift extends Method
 {
     /**

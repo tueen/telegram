@@ -17,24 +17,24 @@ class PassportFile extends Type
      * Identifier for this file, which can be used to download or reuse the file
      */
     #[Field('file_id', required: true)]
-    private(set) string $fileId;
+    private(set) ?string $fileId = null;
 
     /**
      * Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file.
      */
     #[Field('file_unique_id', required: true)]
-    private(set) string $fileUniqueId;
+    private(set) ?string $fileUniqueId = null;
 
     /**
      * File size in bytes
      */
     #[Field('file_size', required: true)]
-    private(set) int $fileSize;
+    private(set) ?int $fileSize = null;
 
     /**
      * Unix time when the file was uploaded
      */
     #[Field('file_date', required: true)]
-    private(set) int $fileDate;
+    private(set) ?int $fileDate = null;
 
 }

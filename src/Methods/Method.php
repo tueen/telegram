@@ -7,10 +7,12 @@ namespace Tueen\Telegram\Methods;
 use JsonSerializable;
 use ReflectionClass;
 use ReflectionProperty;
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\RequiresUpload;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\Type;
 
@@ -27,48 +29,141 @@ abstract class Method implements JsonSerializable
      */
     protected array $files = [];
 
-    public function getEndpoint(): string
+    /**
+     * Cache of reflection properties and attributes per concrete Method class.
+     * @var array<class-string, array<string, array<string, mixed>>>
+     */
+    private static array $methodPropertiesCache = [];
+
+    /**
+     * Cache of endpoint metadata per concrete Method class.
+     * @var array<class-string, array<string, mixed>>
+     */
+    private static array $methodMetaCache = [];
+
+    private static function resolveMethodMeta(string $class): array
     {
-        $reflection = new ReflectionClass($this);
-        $attrs = $reflection->getAttributes(ApiMethod::class);
-        if (!empty($attrs)) {
-            return $attrs[0]->newInstance()->name;
+        $reflection = new ReflectionClass($class);
+        $apiMethodAttrs = $reflection->getAttributes(ApiMethod::class);
+        $endpoint = !empty($apiMethodAttrs) ? $apiMethodAttrs[0]->newInstance()->name : lcfirst($reflection->getShortName());
+        $httpMethod = !empty($apiMethodAttrs) ? $apiMethodAttrs[0]->newInstance()->httpMethod : 'POST';
+
+        $returnTypeAttrs = $reflection->getAttributes(ReturnType::class);
+        $returnType = !empty($returnTypeAttrs) ? $returnTypeAttrs[0]->newInstance() : null;
+
+        $requiresUploadAttrs = $reflection->getAttributes(RequiresUpload::class);
+        $requiresUpload = !empty($requiresUploadAttrs);
+
+        $apiErrorsAttrs = $reflection->getAttributes(ApiErrors::class);
+        $apiErrors = !empty($apiErrorsAttrs) ? $apiErrorsAttrs[0]->newInstance()->errors : [];
+
+        return [
+            'endpoint' => $endpoint,
+            'httpMethod' => $httpMethod,
+            'returnType' => $returnType,
+            'requiresUpload' => $requiresUpload,
+            'apiErrors' => $apiErrors,
+        ];
+    }
+
+    private static function resolveMethodProperties(string $class): array
+    {
+        $reflection = new ReflectionClass($class);
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+
+        $cached = [];
+        foreach ($properties as $prop) {
+            $name = $prop->getName();
+            if ($name === 'parameters' || $name === 'files') {
+                continue;
+            }
+
+            $fieldName = Type::toSnakeCase($name);
+            $attrs = $prop->getAttributes(Field::class);
+            if (!empty($attrs)) {
+                $fieldName = $attrs[0]->newInstance()->name;
+            }
+
+            $cached[$name] = [
+                'prop' => $prop,
+                'fieldName' => $fieldName,
+            ];
         }
 
-        return lcfirst($reflection->getShortName());
+        return $cached;
+    }
+
+    public function getEndpoint(): string
+    {
+        $class = static::class;
+        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+        return $meta['endpoint'];
     }
 
     public function getHttpMethod(): string
     {
-        $reflection = new ReflectionClass($this);
-        $attrs = $reflection->getAttributes(ApiMethod::class);
-        if (!empty($attrs)) {
-            return $attrs[0]->newInstance()->httpMethod;
-        }
-
-        return 'POST';
+        $class = static::class;
+        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+        return $meta['httpMethod'];
     }
 
     public function getReturnTypeInfo(): ?ReturnType
     {
-        $reflection = new ReflectionClass($this);
-        $attrs = $reflection->getAttributes(ReturnType::class);
-        if (!empty($attrs)) {
-            return $attrs[0]->newInstance();
-        }
+        $class = static::class;
+        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+        return $meta['returnType'];
+    }
 
-        return null;
+    /**
+     * Returns expected TelegramErrorCode items declared via #[ApiErrors].
+     *
+     * @return list<TelegramErrorCode>
+     */
+    public function getExpectedErrors(): array
+    {
+        $class = static::class;
+        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+        return $meta['apiErrors'] ?? [];
     }
 
     public function requiresMultipart(): bool
     {
-        $reflection = new ReflectionClass($this);
-        $attrs = $reflection->getAttributes(RequiresUpload::class);
-        if (!empty($attrs)) {
+        $class = static::class;
+        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+        if ($meta['requiresUpload']) {
             return true;
         }
 
         return !empty($this->getMultipartFiles());
+    }
+
+    /**
+     * Extracts nested InputFile instances (e.g. from inside media arrays).
+     *
+     * @param array<string, InputFile> $files
+     */
+    public static function extractNestedFiles(mixed $data, array &$files, int &$attachCounter): mixed
+    {
+        if ($data instanceof InputFile) {
+            $attachName = 'attach_file_' . ($attachCounter++);
+            $files[$attachName] = $data;
+            return "attach://{$attachName}";
+        }
+
+        if ($data instanceof Type) {
+            $arr = $data->toArray();
+            return self::extractNestedFiles($arr, $files, $attachCounter);
+        }
+
+        if (is_array($data)) {
+            $out = [];
+            foreach ($data as $k => $v) {
+                $out[$k] = self::extractNestedFiles($v, $files, $attachCounter);
+            }
+            return $out;
+        }
+
+        return $data;
     }
 
     /**
@@ -79,15 +174,14 @@ abstract class Method implements JsonSerializable
         $params = [];
         $files = [];
 
-        $reflection = new ReflectionClass($this);
-        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED);
+        $class = static::class;
+        $properties = self::$methodPropertiesCache[$class] ??= self::resolveMethodProperties($class);
 
-        foreach ($properties as $prop) {
-            $name = $prop->getName();
-            if ($name === 'parameters' || $name === 'files') {
-                continue;
-            }
+        $attachCounter = 0;
 
+        foreach ($properties as $name => $info) {
+            /** @var ReflectionProperty $prop */
+            $prop = $info['prop'];
             if (!$prop->isInitialized($this)) {
                 continue;
             }
@@ -97,11 +191,13 @@ abstract class Method implements JsonSerializable
                 continue;
             }
 
-            // Resolve field name
-            $fieldName = $this->resolveFieldName($prop);
+            $fieldName = $info['fieldName'];
 
             if ($val instanceof InputFile) {
                 $files[$fieldName] = $val;
+            } elseif (is_array($val) || $val instanceof Type) {
+                $processed = self::extractNestedFiles($val, $files, $attachCounter);
+                $params[$fieldName] = self::formatParamValue($processed);
             } else {
                 $params[$fieldName] = self::formatParamValue($val);
             }
@@ -112,7 +208,12 @@ abstract class Method implements JsonSerializable
             if ($v instanceof InputFile) {
                 $files[$k] = $v;
             } elseif ($v !== null) {
-                $params[$k] = self::formatParamValue($v);
+                if (is_array($v) || $v instanceof Type) {
+                    $processed = self::extractNestedFiles($v, $files, $attachCounter);
+                    $params[$k] = self::formatParamValue($processed);
+                } else {
+                    $params[$k] = self::formatParamValue($v);
+                }
             }
         }
 
@@ -187,30 +288,33 @@ abstract class Method implements JsonSerializable
     public static function formatParamValue(mixed $val): mixed
     {
         if ($val instanceof Type) {
-            return json_encode($val->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            return $val->toArray();
         }
         if ($val instanceof \BackedEnum) {
             return $val->value;
         }
         if (is_array($val)) {
-            // Check if it contains complex types or objects
-            $arrayVal = array_map(function ($item) {
-                if ($item instanceof Type) {
-                    return $item->toArray();
-                }
-                if ($item instanceof \BackedEnum) {
-                    return $item->value;
-                }
-                return $item;
-            }, $val);
-
-            return json_encode($arrayVal, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-        if (is_bool($val)) {
-            return $val ? 'true' : 'false';
+            return self::normalizeArrayParam($val);
         }
 
         return $val;
+    }
+
+    private static function normalizeArrayParam(array $arr): array
+    {
+        $out = [];
+        foreach ($arr as $k => $item) {
+            if ($item instanceof Type) {
+                $out[$k] = $item->toArray();
+            } elseif ($item instanceof \BackedEnum) {
+                $out[$k] = $item->value;
+            } elseif (is_array($item)) {
+                $out[$k] = self::normalizeArrayParam($item);
+            } else {
+                $out[$k] = $item;
+            }
+        }
+        return $out;
     }
 
     public function jsonSerialize(): array

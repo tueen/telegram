@@ -4,19 +4,35 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\StickerType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\StickerDimensionsInvalidException;
+use Tueen\Telegram\Exceptions\StickerEmojiInvalidException;
+use Tueen\Telegram\Exceptions\StickerSetInvalidException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#createnewstickerset
+ *
+ * @throws StickerSetInvalidException
+ * @throws StickerDimensionsInvalidException
+ * @throws StickerEmojiInvalidException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('createNewStickerSet', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::StickerSetInvalid, TelegramErrorCode::StickerDimensionsInvalid, TelegramErrorCode::StickerEmojiInvalid, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class CreateNewStickerSet extends Method
 {
     /**

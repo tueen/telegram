@@ -18,12 +18,12 @@ class RichTextButton extends RichText
      * Type of the rich text, always "button"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The button
      */
     #[Field('button', required: true)]
-    private(set) RichMessageButton $button;
+    private(set) ?RichMessageButton $button = null;
 
 }

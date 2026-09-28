@@ -18,12 +18,12 @@ class RichBlockFooter extends RichBlock
      * Type of the block, always "footer"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
 }

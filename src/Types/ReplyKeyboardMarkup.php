@@ -23,7 +23,7 @@ class ReplyKeyboardMarkup extends Type
      */
     #[Field('keyboard', required: true)]
     #[ArrayOf(KeyboardButton::class)]
-    private(set) array $keyboard;
+    private(set) ?array $keyboard = null;
 
     /**
      * Optional. Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to False, in which case the custom keyboard can be hidden and opened with a keyboard icon.

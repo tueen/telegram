@@ -18,7 +18,7 @@ class GiftInfo extends Type
      * Information about the gift
      */
     #[Field('gift', required: true)]
-    private(set) Gift $gift;
+    private(set) ?Gift $gift = null;
 
     /**
      * Optional. Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts

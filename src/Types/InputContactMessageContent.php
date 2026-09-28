@@ -17,13 +17,13 @@ class InputContactMessageContent extends InputMessageContent
      * Contact's phone number
      */
     #[Field('phone_number', required: true)]
-    private(set) string $phoneNumber;
+    private(set) ?string $phoneNumber = null;
 
     /**
      * Contact's first name
      */
     #[Field('first_name', required: true)]
-    private(set) string $firstName;
+    private(set) ?string $firstName = null;
 
     /**
      * Optional. Contact's last name

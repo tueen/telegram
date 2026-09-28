@@ -20,19 +20,19 @@ class InlineQueryResultDocument extends InlineQueryResult
      * Type of the result, must be document
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Title for the result
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Caption of the document to be sent, 0-1024 characters after entities parsing
@@ -58,13 +58,13 @@ class InlineQueryResultDocument extends InlineQueryResult
      * A valid URL for the file
      */
     #[Field('document_url', required: true)]
-    private(set) string $documentUrl;
+    private(set) ?string $documentUrl = null;
 
     /**
      * MIME type of the content of the file, either "application/pdf" or "application/zip"
      */
     #[Field('mime_type', required: true)]
-    private(set) string $mimeType;
+    private(set) ?string $mimeType = null;
 
     /**
      * Optional. Short description of the result

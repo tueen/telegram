@@ -18,18 +18,18 @@ class RichBlockSectionHeading extends RichBlock
      * Type of the block, always "heading"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest
      */
     #[Field('size', required: true)]
-    private(set) int $size;
+    private(set) ?int $size = null;
 
 }

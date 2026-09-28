@@ -4,9 +4,17 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\BotKickedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\MediaEmptyException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\ReplyParameters;
 
@@ -14,9 +22,17 @@ use Tueen\Telegram\Types\ReplyParameters;
  * Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of Message objects that were sent is returned.
  *
  * @link https://core.telegram.org/bots/api#sendmediagroup
+ *
+ * @throws ChatNotFoundException
+ * @throws MediaEmptyException
+ * @throws BotBlockedException
+ * @throws BotKickedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendMediaGroup', 'POST')]
 #[ReturnType(Message::class, isArray: true)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::MediaEmpty, TelegramErrorCode::BotBlocked, TelegramErrorCode::BotKicked, TelegramErrorCode::FloodWait])]
 class SendMediaGroup extends Method
 {
     /**

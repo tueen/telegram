@@ -17,7 +17,7 @@ class MessageGenerationStopped extends Type
      * Chat in which the message is generated
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Optional. Unique identifier of the message thread in which the message is generated
@@ -29,6 +29,6 @@ class MessageGenerationStopped extends Type
      * Unique identifier of the message draft which was stopped
      */
     #[Field('draft_id', required: true)]
-    private(set) int $draftId;
+    private(set) ?int $draftId = null;
 
 }

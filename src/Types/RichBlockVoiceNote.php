@@ -18,13 +18,13 @@ class RichBlockVoiceNote extends RichBlock
      * Type of the block, always "voice_note"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The voice note
      */
     #[Field('voice_note', required: true)]
-    private(set) Voice $voiceNote;
+    private(set) ?Voice $voiceNote = null;
 
     /**
      * Optional. Caption of the block

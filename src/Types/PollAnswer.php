@@ -17,7 +17,7 @@ class PollAnswer extends Type
      * Unique poll identifier
      */
     #[Field('poll_id', required: true)]
-    private(set) string $pollId;
+    private(set) ?string $pollId = null;
 
     /**
      * Optional. The chat that changed the answer to the poll, if the voter is anonymous
@@ -36,13 +36,13 @@ class PollAnswer extends Type
      * @var Integer[]|null
      */
     #[Field('option_ids', required: true)]
-    private(set) array $optionIds;
+    private(set) ?array $optionIds = null;
 
     /**
      * Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
      * @var String[]|null
      */
     #[Field('option_persistent_ids', required: true)]
-    private(set) array $optionPersistentIds;
+    private(set) ?array $optionPersistentIds = null;
 
 }

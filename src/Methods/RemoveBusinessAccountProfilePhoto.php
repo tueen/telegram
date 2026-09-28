@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Removes the current profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#removebusinessaccountprofilephoto
+ *
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('removeBusinessAccountProfilePhoto', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class RemoveBusinessAccountProfilePhoto extends Method
 {
     /**

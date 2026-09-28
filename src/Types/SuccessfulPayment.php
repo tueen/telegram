@@ -18,19 +18,19 @@ class SuccessfulPayment extends Type
      * Three-letter ISO 4217 currency code, or "XTR" for payments in Telegram Stars
      */
     #[Field('currency', required: true)]
-    private(set) Currency|string $currency;
+    private(set) Currency|string|null $currency = null;
 
     /**
      * Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
      */
     #[Field('total_amount', required: true)]
-    private(set) int $totalAmount;
+    private(set) ?int $totalAmount = null;
 
     /**
      * Bot-specified invoice payload
      */
     #[Field('invoice_payload', required: true)]
-    private(set) string $invoicePayload;
+    private(set) ?string $invoicePayload = null;
 
     /**
      * Optional. Expiration date of the subscription, in Unix time; for recurring payments only
@@ -66,12 +66,12 @@ class SuccessfulPayment extends Type
      * Telegram payment identifier
      */
     #[Field('telegram_payment_charge_id', required: true)]
-    private(set) string $telegramPaymentChargeId;
+    private(set) ?string $telegramPaymentChargeId = null;
 
     /**
      * Provider payment identifier
      */
     #[Field('provider_payment_charge_id', required: true)]
-    private(set) string $providerPaymentChargeId;
+    private(set) ?string $providerPaymentChargeId = null;
 
 }

@@ -18,13 +18,13 @@ class StoryAreaTypeSuggestedReaction extends StoryAreaType
      * Type of the area, always "suggested_reaction"
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string|null $type = null;
 
     /**
      * Type of the reaction
      */
     #[Field('reaction_type', required: true)]
-    private(set) ReactionType $reactionType;
+    private(set) ?ReactionType $reactionType = null;
 
     /**
      * Optional. Pass True if the reaction area has a dark background

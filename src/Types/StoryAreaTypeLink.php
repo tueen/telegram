@@ -18,12 +18,12 @@ class StoryAreaTypeLink extends StoryAreaType
      * Type of the area, always "link"
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string|null $type = null;
 
     /**
      * HTTP or tg:// URL to be opened when the area is clicked
      */
     #[Field('url', required: true)]
-    private(set) string $url;
+    private(set) ?string $url = null;
 
 }

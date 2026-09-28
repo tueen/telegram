@@ -18,12 +18,12 @@ class PaidMediaVideo extends PaidMedia
      * Type of the paid media, always "video"
      */
     #[Field('type', required: true)]
-    private(set) PaidMediaType|string $type;
+    private(set) PaidMediaType|string|null $type = null;
 
     /**
      * The video
      */
     #[Field('video', required: true)]
-    private(set) Video $video;
+    private(set) ?Video $video = null;
 
 }

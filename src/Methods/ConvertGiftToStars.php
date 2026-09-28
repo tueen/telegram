@@ -4,18 +4,26 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars business bot right. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#convertgifttostars
+ *
+ * @throws NotEnoughRightsException
+ * @throws ApiException
  */
 #[ApiMethod('convertGiftToStars', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::NotEnoughRights])]
 class ConvertGiftToStars extends Method
 {
     /**

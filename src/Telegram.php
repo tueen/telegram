@@ -87,6 +87,9 @@ class Telegram
     /** @var list<callable> */
     private array $responseHooks = [];
 
+    /** @var list<callable> */
+    private array $updateMiddlewares = [];
+
     public function __construct(string|Config $tokenOrConfig)
     {
         if (is_string($tokenOrConfig)) {
@@ -189,13 +192,26 @@ class Telegram
 
         [$params, $files] = $method->buildRequestData();
 
+        $endpoint = $method->getEndpoint();
+        $requestTimeout = null;
+
+        // Long-polling: ensure HTTP client timeout exceeds Telegram server wait timeout
+        if ($endpoint === 'getUpdates' && isset($params['timeout']) && is_numeric($params['timeout'])) {
+            $pollTimeout = (float)$params['timeout'];
+            $requestTimeout = max($pollTimeout + 15.0, $this->config->timeout);
+        } elseif (!empty($files)) {
+            // Generous timeout buffer for file uploads (minimum 120s or config timeout)
+            $requestTimeout = max(120.0, $this->config->timeout);
+        }
+
         $request = new Request(
-            endpoint: $method->getEndpoint(),
+            endpoint: $endpoint,
             parameters: $params,
             files: $files,
             httpMethod: $method->getHttpMethod(),
             uploadProgress: $uploadProgress ?? $this->config->uploadProgress,
-            downloadProgress: $downloadProgress ?? $this->config->downloadProgress
+            downloadProgress: $downloadProgress ?? $this->config->downloadProgress,
+            timeout: $requestTimeout
         );
 
         $this->triggerBeforeRequest($request);
@@ -841,6 +857,41 @@ class Telegram
      * Handlers can be:
      * - Callables: fn(Update $update, Telegram $bot)
      * - Invokable class names: MyHandler::class
+    /**
+     * Appends an update middleware to the incoming update pipeline.
+     *
+     * Example:
+     * $telegram->middleware(function (Update $update, Telegram $bot, callable $next) {
+     *     if ($update->findUserId() === 999) return null; // Block user
+     *     return $next($update, $bot);
+     * });
+     *
+     * @param callable(Update, Telegram, callable): mixed $middleware
+     */
+    public function middleware(callable $middleware): static
+    {
+        $this->updateMiddlewares[] = $middleware;
+        return $this;
+    }
+
+    /**
+     * Alias for middleware().
+     */
+    public function use(callable $middleware): static
+    {
+        return $this->middleware($middleware);
+    }
+
+    /**
+     * Executes the bot with optional update handler(s) according to the configured running mode.
+     *
+     * Handlers receive:
+     * - Parameter 1: Update $update (the incoming update)
+     * - Parameter 2: Telegram $bot (this bot client instance)
+     *
+     * Handlers can be:
+     * - Callables: fn(Update $update, Telegram $bot)
+     * - Invokable class names: MyHandler::class
      * - Invokable class instances: new MyHandler()
      * - Arrays/lists of the above
      *
@@ -861,7 +912,7 @@ class Telegram
             $allHandlers[] = $this->router;
         }
 
-        $dispatcher = function (Update $update) use ($allHandlers): mixed {
+        $coreDispatcher = function (Update $update) use ($allHandlers): mixed {
             $this->setUpdate($update);
 
             // Prioritize active conversation Flow if running
@@ -881,7 +932,25 @@ class Telegram
             return $result;
         };
 
-        return $this->getRunningMode()->processUpdate($this, !empty($allHandlers) ? $dispatcher : null);
+        $dispatcher = function (Update $update) use ($coreDispatcher): mixed {
+            $this->setUpdate($update);
+
+            if (empty($this->updateMiddlewares)) {
+                return $coreDispatcher($update);
+            }
+
+            $pipeline = array_reduce(
+                array_reverse($this->updateMiddlewares),
+                function (callable $next, callable $middleware) {
+                    return fn(Update $up, Telegram $bot) => $middleware($up, $bot, $next);
+                },
+                fn(Update $up, Telegram $bot) => $coreDispatcher($up)
+            );
+
+            return $pipeline($update, $this);
+        };
+
+        return $this->getRunningMode()->processUpdate($this, (!empty($allHandlers) || !empty($this->updateMiddlewares)) ? $dispatcher : null);
     }
 
     /**

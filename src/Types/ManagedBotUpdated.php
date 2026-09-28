@@ -17,12 +17,12 @@ class ManagedBotUpdated extends Type
      * User that created the bot
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * Information about the bot. Token of the bot can be fetched using the method getManagedBotToken.
      */
     #[Field('bot', required: true)]
-    private(set) User $bot;
+    private(set) ?User $bot = null;
 
 }

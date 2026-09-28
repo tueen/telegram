@@ -4,10 +4,17 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotKickedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\MessageNotFoundException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\ForceReply;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\MessageId;
@@ -20,9 +27,16 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
  *
  * @link https://core.telegram.org/bots/api#copymessage
+ *
+ * @throws ChatNotFoundException
+ * @throws MessageNotFoundException
+ * @throws BotKickedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('copyMessage', 'POST')]
 #[ReturnType(MessageId::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::MessageNotFound, TelegramErrorCode::BotKicked, TelegramErrorCode::FloodWait])]
 class CopyMessage extends Method
 {
     /**

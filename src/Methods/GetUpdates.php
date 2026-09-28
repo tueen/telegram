@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\WebhookActiveConflictException;
 use Tueen\Telegram\Types\Update;
 
 /**
  * Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
  *
  * @link https://core.telegram.org/bots/api#getupdates
+ *
+ * @throws WebhookActiveConflictException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('getUpdates', 'POST')]
 #[ReturnType(Update::class, isArray: true)]
+#[ApiErrors([TelegramErrorCode::ConflictWebhookActive, TelegramErrorCode::FloodWait])]
 class GetUpdates extends Method
 {
     /**

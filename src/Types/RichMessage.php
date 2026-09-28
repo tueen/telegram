@@ -20,7 +20,7 @@ class RichMessage extends Type
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. True, if the rich message must be shown right-to-left

@@ -18,18 +18,18 @@ class MessageOriginUser extends MessageOrigin
      * Type of the message origin, always "user"
      */
     #[Field('type', required: true)]
-    private(set) MessageOriginType|string $type;
+    private(set) MessageOriginType|string|null $type = null;
 
     /**
      * Date the message was sent originally in Unix time
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
     /**
      * User that sent the message originally
      */
     #[Field('sender_user', required: true)]
-    private(set) User $senderUser;
+    private(set) ?User $senderUser = null;
 
 }

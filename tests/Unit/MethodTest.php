@@ -29,7 +29,7 @@ class MethodTest extends TestCase
         $this->assertSame(123456789, $params['chat_id']);
         $this->assertSame('Hello Tueen!', $params['text']);
         $this->assertSame('HTML', $params['parse_mode']);
-        $this->assertSame('true', $params['disable_notification']);
+        $this->assertTrue($params['disable_notification']);
     }
 
     public function testSendPhotoMultipartWithInputFile(): void
@@ -88,5 +88,35 @@ class MethodTest extends TestCase
         $method = new SendMessage(112233, 'Hello');
         // Manually simulate positional extra argument
         $method->handleExtraParameters([0 => 'invalid_positional']);
+    }
+
+    public function testSendMediaGroupExtractsNestedInputFiles(): void
+    {
+        $file1 = InputFile::fromString('bytes1', 'photo1.jpg');
+        $file2 = InputFile::fromString('bytes2', 'photo2.jpg');
+
+        $sendMediaGroup = new \Tueen\Telegram\Methods\SendMediaGroup(
+            chatId: 123456,
+            media: [
+                ['type' => 'photo', 'media' => $file1, 'caption' => 'Photo 1'],
+                ['type' => 'photo', 'media' => $file2, 'caption' => 'Photo 2'],
+                ['type' => 'photo', 'media' => 'https://example.com/remote.jpg'],
+            ]
+        );
+
+        $this->assertTrue($sendMediaGroup->requiresMultipart());
+        [$params, $files] = $sendMediaGroup->buildRequestData();
+
+        $this->assertCount(2, $files);
+        $this->assertArrayHasKey('attach_file_0', $files);
+        $this->assertArrayHasKey('attach_file_1', $files);
+        $this->assertSame($file1, $files['attach_file_0']);
+        $this->assertSame($file2, $files['attach_file_1']);
+
+        // Check media parameter contains attach://
+        $mediaDecoded = is_string($params['media']) ? json_decode($params['media'], true) : $params['media'];
+        $this->assertSame('attach://attach_file_0', $mediaDecoded[0]['media']);
+        $this->assertSame('attach://attach_file_1', $mediaDecoded[1]['media']);
+        $this->assertSame('https://example.com/remote.jpg', $mediaDecoded[2]['media']);
     }
 }

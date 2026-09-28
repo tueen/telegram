@@ -4,18 +4,30 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\ChatInviteLink;
 
 /**
  * Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object.
  *
  * @link https://core.telegram.org/bots/api#createchatsubscriptioninvitelink
+ *
+ * @throws ChatNotFoundException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('createChatSubscriptionInviteLink', 'POST')]
 #[ReturnType(ChatInviteLink::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class CreateChatSubscriptionInviteLink extends Method
 {
     /**

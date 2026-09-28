@@ -17,7 +17,7 @@ class ForceReply extends Type
      * Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply'
      */
     #[Field('force_reply', required: true)]
-    private(set) bool $forceReply;
+    private(set) ?bool $forceReply = null;
 
     /**
      * Optional. The placeholder to be shown in the input field when the reply is active; 1-64 characters

@@ -17,13 +17,13 @@ class KeyboardButtonRequestChat extends Type
      * Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message.
      */
     #[Field('request_id', required: true)]
-    private(set) int $requestId;
+    private(set) ?int $requestId = null;
 
     /**
      * Pass True to request a channel chat, pass False to request a group or a supergroup chat
      */
     #[Field('chat_is_channel', required: true)]
-    private(set) bool $chatIsChannel;
+    private(set) ?bool $chatIsChannel = null;
 
     /**
      * Optional. Pass True to request a forum supergroup, pass False to request a non-forum chat. If not specified, no additional restrictions are applied.

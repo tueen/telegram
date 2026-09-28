@@ -18,7 +18,7 @@ class ExternalReplyInfo extends Type
      * Origin of the message replied to by the given message
      */
     #[Field('origin', required: true)]
-    private(set) MessageOrigin $origin;
+    private(set) ?MessageOrigin $origin = null;
 
     /**
      * Optional. Chat the original message belongs to. Available only if the chat is a supergroup or a channel.

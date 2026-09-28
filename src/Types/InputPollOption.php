@@ -19,7 +19,7 @@ class InputPollOption extends Type
      * Option text, 1-100 characters
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed.

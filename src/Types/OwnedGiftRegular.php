@@ -19,13 +19,13 @@ class OwnedGiftRegular extends OwnedGift
      * Type of the gift, always "regular"
      */
     #[Field('type', required: true)]
-    private(set) OwnedGiftType|string $type;
+    private(set) OwnedGiftType|string|null $type = null;
 
     /**
      * Information about the regular gift
      */
     #[Field('gift', required: true)]
-    private(set) Gift $gift;
+    private(set) ?Gift $gift = null;
 
     /**
      * Optional. Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only
@@ -43,7 +43,7 @@ class OwnedGiftRegular extends OwnedGift
      * Date the gift was sent in Unix time
      */
     #[Field('send_date', required: true)]
-    private(set) int $sendDate;
+    private(set) ?int $sendDate = null;
 
     /**
      * Optional. Text of the message that was added to the gift

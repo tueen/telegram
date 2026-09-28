@@ -18,12 +18,12 @@ class InputRichBlockParagraph extends InputRichBlock
      * Type of the block, always "paragraph"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
 }

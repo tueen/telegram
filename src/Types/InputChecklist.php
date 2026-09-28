@@ -19,7 +19,7 @@ class InputChecklist extends Type
      * Title of the checklist; 1-255 characters after entities parsing
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Mode for parsing entities in the title. See formatting options for more details.
@@ -41,7 +41,7 @@ class InputChecklist extends Type
      */
     #[Field('tasks', required: true)]
     #[ArrayOf(InputChecklistTask::class)]
-    private(set) array $tasks;
+    private(set) ?array $tasks = null;
 
     /**
      * Optional. Pass True if other users can add tasks to the checklist

@@ -18,24 +18,24 @@ class StoryAreaTypeWeather extends StoryAreaType
      * Type of the area, always "weather"
      */
     #[Field('type', required: true)]
-    private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string|null $type = null;
 
     /**
      * Temperature, in degree Celsius
      */
     #[Field('temperature', required: true)]
-    private(set) float $temperature;
+    private(set) ?float $temperature = null;
 
     /**
      * Emoji representing the weather
      */
     #[Field('emoji', required: true)]
-    private(set) string $emoji;
+    private(set) ?string $emoji = null;
 
     /**
      * A color of the area background in the ARGB format
      */
     #[Field('background_color', required: true)]
-    private(set) int $backgroundColor;
+    private(set) ?int $backgroundColor = null;
 
 }

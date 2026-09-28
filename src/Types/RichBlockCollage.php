@@ -19,7 +19,7 @@ class RichBlockCollage extends RichBlock
      * Type of the block, always "collage"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Elements of the collage
@@ -27,7 +27,7 @@ class RichBlockCollage extends RichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Caption of the block

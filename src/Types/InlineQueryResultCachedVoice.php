@@ -20,25 +20,25 @@ class InlineQueryResultCachedVoice extends InlineQueryResult
      * Type of the result, must be voice
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier for the voice message
      */
     #[Field('voice_file_id', required: true)]
-    private(set) string $voiceFileId;
+    private(set) ?string $voiceFileId = null;
 
     /**
      * Voice message title
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Caption, 0-1024 characters after entities parsing

@@ -17,22 +17,22 @@ use Uri\Rfc3986\Uri;
 class Config
 {
     public function __construct(
-        final public readonly string $botToken,
-        final public readonly string $apiServer = 'https://api.telegram.org',
-        final public readonly float $timeout = 30.0,
-        final public readonly float $connectTimeout = 10.0,
-        final public readonly ?string $proxy = null,
-        final public readonly ?HttpClientInterface $httpClient = null,
-        final public readonly ?LoggerInterface $logger = null,
-        final public readonly ?Closure $uploadProgress = null,
-        final public readonly ?Closure $downloadProgress = null,
-        final public readonly int $retryCount = 3,
-        final public readonly bool $testEnvironment = false,
-        final public readonly ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION,
+        public readonly string $botToken,
+        public readonly string $apiServer = 'https://api.telegram.org',
+        public readonly float $timeout = 30.0,
+        public readonly float $connectTimeout = 10.0,
+        public readonly ?string $proxy = null,
+        public readonly ?HttpClientInterface $httpClient = null,
+        public readonly ?LoggerInterface $logger = null,
+        public readonly ?Closure $uploadProgress = null,
+        public readonly ?Closure $downloadProgress = null,
+        public readonly int $retryCount = 3,
+        public readonly bool $testEnvironment = false,
+        public readonly ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION,
         /** @var list<class-string<\Throwable>> */
-        final public readonly array $convertExceptionsToError = [ApiException::class],
-        final public readonly ?RunningModeInterface $runningMode = null,
-        final public readonly mixed $container = null
+        public readonly array $convertExceptionsToError = [ApiException::class],
+        public readonly ?RunningModeInterface $runningMode = null,
+        public readonly mixed $container = null
     ) {}
 
     #[\NoDiscard]
@@ -41,76 +41,97 @@ class Config
         return new ConfigBuilder($botToken);
     }
 
+    private function copyWith(array $overrides): self
+    {
+        return new self(
+            botToken: $overrides['botToken'] ?? $this->botToken,
+            apiServer: $overrides['apiServer'] ?? $this->apiServer,
+            timeout: $overrides['timeout'] ?? $this->timeout,
+            connectTimeout: $overrides['connectTimeout'] ?? $this->connectTimeout,
+            proxy: array_key_exists('proxy', $overrides) ? $overrides['proxy'] : $this->proxy,
+            httpClient: array_key_exists('httpClient', $overrides) ? $overrides['httpClient'] : $this->httpClient,
+            logger: array_key_exists('logger', $overrides) ? $overrides['logger'] : $this->logger,
+            uploadProgress: array_key_exists('uploadProgress', $overrides) ? $overrides['uploadProgress'] : $this->uploadProgress,
+            downloadProgress: array_key_exists('downloadProgress', $overrides) ? $overrides['downloadProgress'] : $this->downloadProgress,
+            retryCount: $overrides['retryCount'] ?? $this->retryCount,
+            testEnvironment: $overrides['testEnvironment'] ?? $this->testEnvironment,
+            errorHandlingMode: $overrides['errorHandlingMode'] ?? $this->errorHandlingMode,
+            convertExceptionsToError: $overrides['convertExceptionsToError'] ?? $this->convertExceptionsToError,
+            runningMode: array_key_exists('runningMode', $overrides) ? $overrides['runningMode'] : $this->runningMode,
+            container: array_key_exists('container', $overrides) ? $overrides['container'] : $this->container,
+        );
+    }
+
     #[\NoDiscard]
     public function withToken(string $botToken): self
     {
-        return clone($this, ['botToken' => $botToken]);
+        return $this->copyWith(['botToken' => $botToken]);
     }
 
     #[\NoDiscard]
     public function withApiServer(string $apiServer): self
     {
-        return clone($this, ['apiServer' => $apiServer]);
+        return $this->copyWith(['apiServer' => $apiServer]);
     }
 
     #[\NoDiscard]
     public function withTimeout(float $timeout): self
     {
-        return clone($this, ['timeout' => $timeout]);
+        return $this->copyWith(['timeout' => $timeout]);
     }
 
     #[\NoDiscard]
     public function withConnectTimeout(float $connectTimeout): self
     {
-        return clone($this, ['connectTimeout' => $connectTimeout]);
+        return $this->copyWith(['connectTimeout' => $connectTimeout]);
     }
 
     #[\NoDiscard]
     public function withProxy(?string $proxy): self
     {
-        return clone($this, ['proxy' => $proxy]);
+        return $this->copyWith(['proxy' => $proxy]);
     }
 
     #[\NoDiscard]
     public function withHttpClient(?HttpClientInterface $httpClient): self
     {
-        return clone($this, ['httpClient' => $httpClient]);
+        return $this->copyWith(['httpClient' => $httpClient]);
     }
 
     #[\NoDiscard]
     public function withLogger(?LoggerInterface $logger): self
     {
-        return clone($this, ['logger' => $logger]);
+        return $this->copyWith(['logger' => $logger]);
     }
 
     #[\NoDiscard]
     public function withUploadProgress(?Closure $callback): self
     {
-        return clone($this, ['uploadProgress' => $callback]);
+        return $this->copyWith(['uploadProgress' => $callback]);
     }
 
     #[\NoDiscard]
     public function withDownloadProgress(?Closure $callback): self
     {
-        return clone($this, ['downloadProgress' => $callback]);
+        return $this->copyWith(['downloadProgress' => $callback]);
     }
 
     #[\NoDiscard]
     public function withRetryCount(int $retryCount): self
     {
-        return clone($this, ['retryCount' => $retryCount]);
+        return $this->copyWith(['retryCount' => $retryCount]);
     }
 
     #[\NoDiscard]
     public function withTestEnvironment(bool $testEnvironment): self
     {
-        return clone($this, ['testEnvironment' => $testEnvironment]);
+        return $this->copyWith(['testEnvironment' => $testEnvironment]);
     }
 
     #[\NoDiscard]
     public function withErrorHandlingMode(ErrorHandlingMode $errorHandlingMode): self
     {
-        return clone($this, ['errorHandlingMode' => $errorHandlingMode]);
+        return $this->copyWith(['errorHandlingMode' => $errorHandlingMode]);
     }
 
     /**
@@ -119,19 +140,19 @@ class Config
     #[\NoDiscard]
     public function withConvertExceptionsToError(array $classes): self
     {
-        return clone($this, ['convertExceptionsToError' => $classes]);
+        return $this->copyWith(['convertExceptionsToError' => $classes]);
     }
 
     #[\NoDiscard]
     public function withRunningMode(?RunningModeInterface $runningMode): self
     {
-        return clone($this, ['runningMode' => $runningMode]);
+        return $this->copyWith(['runningMode' => $runningMode]);
     }
 
     #[\NoDiscard]
     public function withContainer(mixed $container): self
     {
-        return clone($this, ['container' => $container]);
+        return $this->copyWith(['container' => $container]);
     }
 
     public function getBaseApiUrl(): string
@@ -153,9 +174,12 @@ class Config
      * @throws InvalidUriException
      */
     #[\NoDiscard]
-    public function getApiUri(): Uri
+    public function getApiUri(): mixed
     {
-        return new Uri($this->getBaseApiUrl());
+        if (class_exists(Uri::class)) {
+            return new Uri($this->getBaseApiUrl());
+        }
+        return $this->getBaseApiUrl();
     }
 
     /**
@@ -163,8 +187,11 @@ class Config
      * @throws InvalidUriException
      */
     #[\NoDiscard]
-    public function getFileUri(): Uri
+    public function getFileUri(): mixed
     {
-        return new Uri($this->getBaseFileUrl());
+        if (class_exists(Uri::class)) {
+            return new Uri($this->getBaseFileUrl());
+        }
+        return $this->getBaseFileUrl();
     }
 }

@@ -18,18 +18,18 @@ class RichTextBankCardNumber extends RichText
      * Type of the rich text, always "bank_card_number"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The text
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * The bank card number
      */
     #[Field('bank_card_number', required: true)]
-    private(set) string $bankCardNumber;
+    private(set) ?string $bankCardNumber = null;
 
 }

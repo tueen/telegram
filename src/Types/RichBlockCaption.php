@@ -17,7 +17,7 @@ class RichBlockCaption extends Type
      * Block caption
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Optional. Block credit which corresponds to the HTML tag <cite>

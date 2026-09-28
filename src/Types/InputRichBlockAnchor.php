@@ -18,12 +18,12 @@ class InputRichBlockAnchor extends InputRichBlock
      * Type of the block, always "anchor"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The name of the anchor
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
 }

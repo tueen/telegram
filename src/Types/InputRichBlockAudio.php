@@ -18,13 +18,13 @@ class InputRichBlockAudio extends InputRichBlock
      * Type of the block, always "audio"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The audio. Caption is ignored.
      */
     #[Field('audio', required: true)]
-    private(set) InputMediaAudio $audio;
+    private(set) ?InputMediaAudio $audio = null;
 
     /**
      * Optional. Caption of the block

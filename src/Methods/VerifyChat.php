@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#verifychat
+ *
+ * @throws ChatNotFoundException
+ * @throws NotEnoughRightsException
+ * @throws ApiException
  */
 #[ApiMethod('verifyChat', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::NotEnoughRights])]
 class VerifyChat extends Method
 {
     /**

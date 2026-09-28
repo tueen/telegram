@@ -18,6 +18,6 @@ class BotCommandScopeAllChatAdministrators extends BotCommandScope
      * Scope type, must be all_chat_administrators
      */
     #[Field('type', required: true)]
-    private(set) BotCommandScopeType|string $type;
+    private(set) BotCommandScopeType|string|null $type = null;
 
 }

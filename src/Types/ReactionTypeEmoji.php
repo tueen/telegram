@@ -18,12 +18,12 @@ class ReactionTypeEmoji extends ReactionType
      * Type of the reaction, always "emoji"
      */
     #[Field('type', required: true)]
-    private(set) ReactionTypeType|string $type;
+    private(set) ReactionTypeType|string|null $type = null;
 
     /**
      * Reaction emoji. Currently, it can be one of "❤", "👍", "👎", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊", "🤡", "🥱", "🥴", "😍", "🐳", "❤‍🔥", "🌚", "🌭", "💯", "🤣", "⚡", "🍌", "🏆", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈", "😴", "😭", "🤓", "👻", "👨‍💻", "👀", "🎃", "🙈", "😇", "😨", "🤝", "✍", "🤗", "🫡", "🎅", "🎄", "☃", "💅", "🤪", "🗿", "🆒", "💘", "🙉", "🦄", "😘", "💊", "🙊", "😎", "👾", "🤷‍♂", "🤷", "🤷‍♀", "😡".
      */
     #[Field('emoji', required: true)]
-    private(set) string $emoji;
+    private(set) ?string $emoji = null;
 
 }

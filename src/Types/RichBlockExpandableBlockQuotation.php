@@ -18,13 +18,13 @@ class RichBlockExpandableBlockQuotation extends RichBlock
      * Type of the block, always "expandable_blockquote"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Content of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Optional. Credit of the block

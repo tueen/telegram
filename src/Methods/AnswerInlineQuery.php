@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\QueryIdInvalidException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\InlineQueryResultsButton;
 
@@ -15,9 +20,14 @@ use Tueen\Telegram\Types\InlineQueryResultsButton;
  * No more than 50 results per query are allowed.
  *
  * @link https://core.telegram.org/bots/api#answerinlinequery
+ *
+ * @throws QueryIdInvalidException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('answerInlineQuery', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::QueryIdInvalid, TelegramErrorCode::FloodWait])]
 class AnswerInlineQuery extends Method
 {
     /**

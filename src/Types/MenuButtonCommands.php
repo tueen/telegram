@@ -18,6 +18,6 @@ class MenuButtonCommands extends MenuButton
      * Type of the button, must be commands
      */
     #[Field('type', required: true)]
-    private(set) MenuButtonType|string $type;
+    private(set) MenuButtonType|string|null $type = null;
 
 }

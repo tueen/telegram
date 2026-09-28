@@ -18,18 +18,18 @@ class InputRichBlockSectionHeading extends InputRichBlock
      * Type of the block, always "heading"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest
      */
     #[Field('size', required: true)]
-    private(set) int $size;
+    private(set) ?int $size = null;
 
 }

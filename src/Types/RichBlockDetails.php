@@ -19,13 +19,13 @@ class RichBlockDetails extends RichBlock
      * Type of the block, always "details"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * Always shown summary of the block
      */
     #[Field('summary', required: true)]
-    private(set) RichText $summary;
+    private(set) ?RichText $summary = null;
 
     /**
      * Content of the block
@@ -33,7 +33,7 @@ class RichBlockDetails extends RichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. True, if the content of the block is visible by default

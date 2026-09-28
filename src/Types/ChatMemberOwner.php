@@ -18,19 +18,19 @@ class ChatMemberOwner extends ChatMember
      * The member's status in the chat, always "creator"
      */
     #[Field('status', required: true)]
-    private(set) ChatMemberStatus|string $status;
+    private(set) ChatMemberStatus|string|null $status = null;
 
     /**
      * Information about the user
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * True, if the user's presence in the chat is hidden
      */
     #[Field('is_anonymous', required: true)]
-    private(set) bool $isAnonymous;
+    private(set) ?bool $isAnonymous = null;
 
     /**
      * Optional. Custom title for this user

@@ -18,12 +18,12 @@ class ReactionTypeCustomEmoji extends ReactionType
      * Type of the reaction, always "custom_emoji"
      */
     #[Field('type', required: true)]
-    private(set) ReactionTypeType|string $type;
+    private(set) ReactionTypeType|string|null $type = null;
 
     /**
      * Custom emoji identifier
      */
     #[Field('custom_emoji_id', required: true)]
-    private(set) string $customEmojiId;
+    private(set) ?string $customEmojiId = null;
 
 }

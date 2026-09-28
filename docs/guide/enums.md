@@ -224,6 +224,7 @@ For reference, here is the complete index of Enums available in `Tueen\Telegram\
 - `SubscriptionState`
 - `SuggestedPostInfoState`
 - `SuggestedPostRefundedReason`
+- `TelegramErrorCode`
 - `TransactionPartnerType`
 - `UniqueGiftInfoOrigin`
 - `UniqueGiftModelRarity`

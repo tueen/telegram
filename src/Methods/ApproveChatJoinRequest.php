@@ -4,18 +4,34 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserAlreadyParticipantException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#approvechatjoinrequest
+ *
+ * @throws UserAlreadyParticipantException
+ * @throws ChatNotFoundException
+ * @throws UserNotFoundException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('approveChatJoinRequest', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserAlreadyParticipant, TelegramErrorCode::ChatNotFound, TelegramErrorCode::UserNotFound, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class ApproveChatJoinRequest extends Method
 {
     /**

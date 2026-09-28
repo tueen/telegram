@@ -21,13 +21,13 @@ class ChatFullInfo extends Type
      * Unique identifier for this chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier.
      */
     #[Field('id', required: true)]
-    private(set) int $id;
+    private(set) ?int $id = null;
 
     /**
      * Type of the chat, can be either "private", "group", "supergroup" or "channel"
      */
     #[Field('type', required: true)]
-    private(set) string $type;
+    private(set) ?string $type = null;
 
     /**
      * Optional. Title, for supergroups, channels and group chats
@@ -69,13 +69,13 @@ class ChatFullInfo extends Type
      * Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details.
      */
     #[Field('accent_color_id', required: true)]
-    private(set) int $accentColorId;
+    private(set) ?int $accentColorId = null;
 
     /**
      * The maximum number of reactions that can be set on a message in the chat
      */
     #[Field('max_reaction_count', required: true)]
-    private(set) int $maxReactionCount;
+    private(set) ?int $maxReactionCount = null;
 
     /**
      * Optional. Chat photo
@@ -222,7 +222,7 @@ class ChatFullInfo extends Type
      * Information about types of gifts that are accepted by the chat or by the corresponding user for private chats
      */
     #[Field('accepted_gift_types', required: true)]
-    private(set) AcceptedGiftTypes $acceptedGiftTypes;
+    private(set) ?AcceptedGiftTypes $acceptedGiftTypes = null;
 
     /**
      * Optional. True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats.

@@ -16,6 +16,8 @@ class PollingMode implements RunningModeInterface
     private int $offset = 0;
     private bool $stopped = false;
     private ?\Closure $processDispatcher = null;
+    /** @var array<int, bool> */
+    private array $childPids = [];
 
     public function __construct(
         private int $timeout = 30,
@@ -23,7 +25,8 @@ class PollingMode implements RunningModeInterface
         private ?array $allowedUpdates = null,
         private int $errorBackoffSeconds = 2,
         private bool $forkProcess = false,
-        ?callable $processDispatcher = null
+        ?callable $processDispatcher = null,
+        private int $maxForkWorkers = 16
     ) {
         if ($processDispatcher !== null) {
             $this->processDispatcher = $processDispatcher(...);
@@ -103,7 +106,9 @@ class PollingMode implements RunningModeInterface
     #[\NoDiscard]
     public function getFirstUpdate(array $updates): ?Update
     {
-        $first = array_first($updates);
+        $first = function_exists('array_first')
+            ? array_first($updates)
+            : (!empty($updates) ? $updates[array_key_first($updates)] : null);
         return $first instanceof Update ? $first : null;
     }
 
@@ -113,7 +118,9 @@ class PollingMode implements RunningModeInterface
     #[\NoDiscard]
     public function getLastUpdate(array $updates): ?Update
     {
-        $last = array_last($updates);
+        $last = function_exists('array_last')
+            ? array_last($updates)
+            : (!empty($updates) ? $updates[array_key_last($updates)] : null);
         return $last instanceof Update ? $last : null;
     }
 
@@ -124,7 +131,20 @@ class PollingMode implements RunningModeInterface
     {
         $this->stopped = false;
 
+        if (function_exists('pcntl_signal')) {
+            pcntl_signal(SIGINT, function () {
+                $this->stop();
+            });
+            pcntl_signal(SIGTERM, function () {
+                $this->stop();
+            });
+        }
+
         while (!$this->stopped) {
+            if (function_exists('pcntl_signal_dispatch')) {
+                pcntl_signal_dispatch();
+            }
+
             try {
                 $response = $telegram->getUpdates(
                     offset: $this->offset,
@@ -180,11 +200,42 @@ class PollingMode implements RunningModeInterface
         }
     }
 
+    public function setMaxForkWorkers(int $maxForkWorkers): static
+    {
+        $this->maxForkWorkers = max(1, $maxForkWorkers);
+        return $this;
+    }
+
+    public function maxForkWorkers(int $maxForkWorkers): static
+    {
+        return $this->setMaxForkWorkers($maxForkWorkers);
+    }
+
+    public function getMaxForkWorkers(): int
+    {
+        return $this->maxForkWorkers;
+    }
+
     private function forkAndDispatch(Telegram $telegram, Update $update, ?callable $handler): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->dispatchUpdate($telegram, $update, $handler);
             return;
+        }
+
+        $this->reapChildProcesses();
+
+        // Enforce maximum concurrent worker limit
+        while (count($this->childPids) >= $this->maxForkWorkers) {
+            if (function_exists('pcntl_wait')) {
+                $status = 0;
+                $exitedPid = pcntl_wait($status);
+                if ($exitedPid > 0) {
+                    unset($this->childPids[$exitedPid]);
+                }
+            } else {
+                break;
+            }
         }
 
         $pid = pcntl_fork();
@@ -204,16 +255,28 @@ class PollingMode implements RunningModeInterface
                     $telegram->getConfig()->logger->error("Error handling update in child process: " . $e->getMessage(), ['exception' => $e]);
                 }
             } finally {
-                exit(0);
+                if (function_exists('posix__exit')) {
+                    posix__exit(0);
+                } else {
+                    exit(0);
+                }
             }
         }
 
-        // Parent process: reap completed child processes non-blockingly
-        if (function_exists('pcntl_waitpid')) {
-            $status = 0;
-            while (pcntl_waitpid(-1, $status, WNOHANG) > 0) {
-                // Reaped
-            }
+        // Parent process: register active child PID
+        $this->childPids[$pid] = true;
+        $this->reapChildProcesses();
+    }
+
+    private function reapChildProcesses(): void
+    {
+        if (!function_exists('pcntl_waitpid') || empty($this->childPids)) {
+            return;
+        }
+
+        $status = 0;
+        while (($reaped = pcntl_waitpid(-1, $status, WNOHANG)) > 0) {
+            unset($this->childPids[$reaped]);
         }
     }
 

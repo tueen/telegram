@@ -18,13 +18,13 @@ class ForumTopicCreated extends Type
      * Name of the topic
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
     /**
      * Color of the topic icon in RGB format
      */
     #[Field('icon_color', required: true)]
-    private(set) ForumIconColor|int $iconColor;
+    private(set) ForumIconColor|int|null $iconColor = null;
 
     /**
      * Optional. Unique identifier of the custom emoji shown as the topic icon

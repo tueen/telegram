@@ -17,31 +17,31 @@ class ChatInviteLink extends Type
      * The invite link. If the link was created by another chat administrator, then the second part of the link will be replaced with "...".
      */
     #[Field('invite_link', required: true)]
-    private(set) string $inviteLink;
+    private(set) ?string $inviteLink = null;
 
     /**
      * Creator of the link
      */
     #[Field('creator', required: true)]
-    private(set) User $creator;
+    private(set) ?User $creator = null;
 
     /**
      * True, if users joining the chat via the link need to be approved by chat administrators
      */
     #[Field('creates_join_request', required: true)]
-    private(set) bool $createsJoinRequest;
+    private(set) ?bool $createsJoinRequest = null;
 
     /**
      * True, if the link is primary
      */
     #[Field('is_primary', required: true)]
-    private(set) bool $isPrimary;
+    private(set) ?bool $isPrimary = null;
 
     /**
      * True, if the link is revoked
      */
     #[Field('is_revoked', required: true)]
-    private(set) bool $isRevoked;
+    private(set) ?bool $isRevoked = null;
 
     /**
      * Optional. Invite link name

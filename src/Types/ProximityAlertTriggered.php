@@ -17,18 +17,18 @@ class ProximityAlertTriggered extends Type
      * User that triggered the alert
      */
     #[Field('traveler', required: true)]
-    private(set) User $traveler;
+    private(set) ?User $traveler = null;
 
     /**
      * User that set the alert
      */
     #[Field('watcher', required: true)]
-    private(set) User $watcher;
+    private(set) ?User $watcher = null;
 
     /**
      * The distance between the users
      */
     #[Field('distance', required: true)]
-    private(set) int $distance;
+    private(set) ?int $distance = null;
 
 }

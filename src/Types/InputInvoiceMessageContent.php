@@ -19,19 +19,19 @@ class InputInvoiceMessageContent extends InputMessageContent
      * Product name, 1-32 characters
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Product description, 1-255 characters
      */
     #[Field('description', required: true)]
-    private(set) string $description;
+    private(set) ?string $description = null;
 
     /**
      * Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
      */
     #[Field('payload', required: true)]
-    private(set) string $payload;
+    private(set) ?string $payload = null;
 
     /**
      * Optional. Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars.
@@ -43,7 +43,7 @@ class InputInvoiceMessageContent extends InputMessageContent
      * Three-letter ISO 4217 currency code, see more on currencies. Pass "XTR" for payments in Telegram Stars.
      */
     #[Field('currency', required: true)]
-    private(set) Currency|string $currency;
+    private(set) Currency|string|null $currency = null;
 
     /**
      * Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
@@ -51,7 +51,7 @@ class InputInvoiceMessageContent extends InputMessageContent
      */
     #[Field('prices', required: true)]
     #[ArrayOf(LabeledPrice::class)]
-    private(set) array $prices;
+    private(set) ?array $prices = null;
 
     /**
      * Optional. The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars.

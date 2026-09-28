@@ -20,19 +20,19 @@ class InlineQueryResultCachedPhoto extends InlineQueryResult
      * Type of the result, must be photo
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier of the photo
      */
     #[Field('photo_file_id', required: true)]
-    private(set) string $photoFileId;
+    private(set) ?string $photoFileId = null;
 
     /**
      * Optional. Title for the result

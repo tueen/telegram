@@ -17,18 +17,18 @@ class UniqueGiftBackdrop extends Type
      * Name of the backdrop
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
     /**
      * Colors of the backdrop
      */
     #[Field('colors', required: true)]
-    private(set) UniqueGiftBackdropColors $colors;
+    private(set) ?UniqueGiftBackdropColors $colors = null;
 
     /**
      * The number of unique gifts that receive this backdrop for every 1000 gifts upgraded
      */
     #[Field('rarity_per_mille', required: true)]
-    private(set) int $rarityPerMille;
+    private(set) ?int $rarityPerMille = null;
 
 }

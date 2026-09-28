@@ -19,7 +19,7 @@ class InputRichBlockBlockQuotation extends InputRichBlock
      * Type of the block, always "blockquote"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Content of the block
@@ -27,7 +27,7 @@ class InputRichBlockBlockQuotation extends InputRichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(InputRichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Credit of the block

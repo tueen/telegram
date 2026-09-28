@@ -19,24 +19,24 @@ class PassportElementErrorTranslationFile extends PassportElementError
      * Error source, must be translation_file
      */
     #[Field('source', required: true)]
-    private(set) PassportSource|string $source;
+    private(set) PassportSource|string|null $source = null;
 
     /**
      * Type of element of the user's Telegram Passport which has the issue, one of "passport", "driver_license", "identity_card", "internal_passport", "utility_bill", "bank_statement", "rental_agreement", "passport_registration", "temporary_registration"
      */
     #[Field('type', required: true)]
-    private(set) PassportType|string $type;
+    private(set) PassportType|string|null $type = null;
 
     /**
      * Base64-encoded file hash
      */
     #[Field('file_hash', required: true)]
-    private(set) string $fileHash;
+    private(set) ?string $fileHash = null;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    private(set) string $message;
+    private(set) ?string $message = null;
 
 }

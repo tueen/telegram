@@ -17,19 +17,19 @@ class WebhookInfo extends Type
      * Webhook URL, may be empty if webhook is not set up
      */
     #[Field('url', required: true)]
-    private(set) string $url;
+    private(set) ?string $url = null;
 
     /**
      * True, if a custom certificate was provided for webhook certificate checks
      */
     #[Field('has_custom_certificate', required: true)]
-    private(set) bool $hasCustomCertificate;
+    private(set) ?bool $hasCustomCertificate = null;
 
     /**
      * Number of updates awaiting delivery
      */
     #[Field('pending_update_count', required: true)]
-    private(set) int $pendingUpdateCount;
+    private(set) ?int $pendingUpdateCount = null;
 
     /**
      * Optional. Currently used webhook IP address

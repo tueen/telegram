@@ -213,6 +213,11 @@ abstract class Flow
         }
     }
 
+    public function getTtl(): ?int
+    {
+        return $this->ttl;
+    }
+
     /**
      * Seamlessly transitions the user to another Flow class.
      *
@@ -228,6 +233,7 @@ abstract class Flow
         array $data = []
     ): void {
         $this->isTerminated = true;
+        $this->onExit($this->update, 'interrupted');
         $passedData = !empty($initialData) ? $initialData : $data;
         $mergedData = array_merge($this->state->data, $passedData);
         $this->manager->startFlow($flowClass, $this->update, $this->bot, $initialStep, $mergedData);

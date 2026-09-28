@@ -18,7 +18,7 @@ class TransactionPartnerFragment extends TransactionPartner
      * Type of the transaction partner, always "fragment"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
     /**
      * Optional. State of the transaction if the transaction is outgoing

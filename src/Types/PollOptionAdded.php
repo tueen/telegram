@@ -24,13 +24,13 @@ class PollOptionAdded extends Type
      * Unique identifier of the added option
      */
     #[Field('option_persistent_id', required: true)]
-    private(set) string $optionPersistentId;
+    private(set) ?string $optionPersistentId = null;
 
     /**
      * Option text
      */
     #[Field('option_text', required: true)]
-    private(set) string $optionText;
+    private(set) ?string $optionText = null;
 
     /**
      * Optional. Special entities that appear in the option_text

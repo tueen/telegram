@@ -17,18 +17,18 @@ class GiftBackground extends Type
      * Center color of the background in RGB format
      */
     #[Field('center_color', required: true)]
-    private(set) int $centerColor;
+    private(set) ?int $centerColor = null;
 
     /**
      * Edge color of the background in RGB format
      */
     #[Field('edge_color', required: true)]
-    private(set) int $edgeColor;
+    private(set) ?int $edgeColor = null;
 
     /**
      * Text color of the background in RGB format
      */
     #[Field('text_color', required: true)]
-    private(set) int $textColor;
+    private(set) ?int $textColor = null;
 
 }

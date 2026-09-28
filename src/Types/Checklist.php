@@ -18,7 +18,7 @@ class Checklist extends Type
      * Title of the checklist
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Optional. Special entities that appear in the checklist title
@@ -34,7 +34,7 @@ class Checklist extends Type
      */
     #[Field('tasks', required: true)]
     #[ArrayOf(ChecklistTask::class)]
-    private(set) array $tasks;
+    private(set) ?array $tasks = null;
 
     /**
      * Optional. True, if users other than the creator of the list can add tasks to the list

@@ -18,6 +18,6 @@ class BotCommandScopeAllGroupChats extends BotCommandScope
      * Scope type, must be all_group_chats
      */
     #[Field('type', required: true)]
-    private(set) BotCommandScopeType|string $type;
+    private(set) BotCommandScopeType|string|null $type = null;
 
 }

@@ -20,19 +20,19 @@ class InlineQueryResultCachedGif extends InlineQueryResult
      * Type of the result, must be gif
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * A valid file identifier for the GIF file
      */
     #[Field('gif_file_id', required: true)]
-    private(set) string $gifFileId;
+    private(set) ?string $gifFileId = null;
 
     /**
      * Optional. Title for the result

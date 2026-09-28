@@ -18,7 +18,7 @@ class BotAccessSettings extends Type
      * True, if only selected users can access the bot. The bot's owner can always access it.
      */
     #[Field('is_access_restricted', required: true)]
-    private(set) bool $isAccessRestricted;
+    private(set) ?bool $isAccessRestricted = null;
 
     /**
      * Optional. The list of other users who have access to the bot if the access is restricted

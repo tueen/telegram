@@ -18,13 +18,13 @@ class InputRichBlockVideo extends InputRichBlock
      * Type of the block, always "video"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * The video. Caption is ignored.
      */
     #[Field('video', required: true)]
-    private(set) InputMediaVideo $video;
+    private(set) ?InputMediaVideo $video = null;
 
     /**
      * Optional. Caption of the block

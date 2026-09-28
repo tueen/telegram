@@ -18,18 +18,18 @@ class RichTextHashtag extends RichText
      * Type of the rich text, always "hashtag"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The text
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * The hashtag
      */
     #[Field('hashtag', required: true)]
-    private(set) string $hashtag;
+    private(set) ?string $hashtag = null;
 
 }

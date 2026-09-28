@@ -49,15 +49,15 @@ $telegram = new Telegram($config);
 
 ---
 
-## PHP 8.5 Modern Architecture
+## Modern Architecture (PHP 8.4+ & PHP 8.5+)
 
-### 1. `clone with` Expressions on Config
-The `Config` object is completely immutable. In PHP 8.5+, you can clone and modify properties fluently using `with...` methods without rebuilding from scratch:
+### 1. Fluent Immutable Config
+The `Config` object is completely immutable. Across PHP 8.4+, you can create modified configuration copies fluently using `with...` methods without rebuilding from scratch:
 
 ```php
 $config = new Config('YOUR_TOKEN', timeout: 30.0);
 
-// Returns a new Config instance via PHP 8.5 `clone with`:
+// Returns a new immutable Config instance:
 $fastConfig = $config->withTimeout(5.0)->withRetryCount(1);
 ```
 

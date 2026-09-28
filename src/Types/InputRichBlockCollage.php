@@ -19,7 +19,7 @@ class InputRichBlockCollage extends InputRichBlock
      * Type of the block, always "collage"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Elements of the collage
@@ -27,7 +27,7 @@ class InputRichBlockCollage extends InputRichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(InputRichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Caption of the block

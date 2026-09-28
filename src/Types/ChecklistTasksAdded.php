@@ -26,6 +26,6 @@ class ChecklistTasksAdded extends Type
      */
     #[Field('tasks', required: true)]
     #[ArrayOf(ChecklistTask::class)]
-    private(set) array $tasks;
+    private(set) ?array $tasks = null;
 
 }

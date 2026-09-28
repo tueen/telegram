@@ -19,7 +19,7 @@ class InputRichBlockList extends InputRichBlock
      * Type of the block, always "list"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
     /**
      * Items of the list
@@ -27,6 +27,6 @@ class InputRichBlockList extends InputRichBlock
      */
     #[Field('items', required: true)]
     #[ArrayOf(InputRichBlockListItem::class)]
-    private(set) array $items;
+    private(set) ?array $items = null;
 
 }

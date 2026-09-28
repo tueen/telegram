@@ -17,6 +17,6 @@ class PaidMessagePriceChanged extends Type
      * The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message
      */
     #[Field('paid_message_star_count', required: true)]
-    private(set) int $paidMessageStarCount;
+    private(set) ?int $paidMessageStarCount = null;
 
 }

@@ -21,7 +21,7 @@ class InputRichBlockListItem extends Type
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(InputRichBlock::class)]
-    private(set) array $blocks;
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Pass True if the item has a checkbox

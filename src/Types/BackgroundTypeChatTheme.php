@@ -18,12 +18,12 @@ class BackgroundTypeChatTheme extends BackgroundType
      * Type of the background, always "chat_theme"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundTypeType|string $type;
+    private(set) BackgroundTypeType|string|null $type = null;
 
     /**
      * Name of the chat theme, which is usually an emoji
      */
     #[Field('theme_name', required: true)]
-    private(set) string $themeName;
+    private(set) ?string $themeName = null;
 
 }

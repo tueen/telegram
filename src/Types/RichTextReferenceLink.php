@@ -18,18 +18,18 @@ class RichTextReferenceLink extends RichText
      * Type of the rich text, always "reference_link"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The link text
      */
     #[Field('text', required: true)]
-    private(set) RichText $text;
+    private(set) ?RichText $text = null;
 
     /**
      * The name of the reference
      */
     #[Field('reference_name', required: true)]
-    private(set) string $referenceName;
+    private(set) ?string $referenceName = null;
 
 }

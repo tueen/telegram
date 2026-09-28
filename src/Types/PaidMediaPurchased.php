@@ -17,12 +17,12 @@ class PaidMediaPurchased extends Type
      * User who purchased the media
      */
     #[Field('from', required: true)]
-    private(set) User $from;
+    private(set) ?User $from = null;
 
     /**
      * Bot-specified paid media payload
      */
     #[Field('paid_media_payload', required: true)]
-    private(set) string $paidMediaPayload;
+    private(set) ?string $paidMediaPayload = null;
 
 }

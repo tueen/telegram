@@ -18,6 +18,6 @@ class InputRichBlockDivider extends InputRichBlock
      * Type of the block, always "divider"
      */
     #[Field('type', required: true)]
-    private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string|null $type = null;
 
 }

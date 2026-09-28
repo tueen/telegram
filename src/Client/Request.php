@@ -15,12 +15,14 @@ class Request
      * @param string $httpMethod HTTP verb (POST or GET)
      */
     public function __construct(
-        final public readonly string $endpoint,
-        final public readonly array $parameters = [],
-        final public readonly array $files = [],
-        final public readonly string $httpMethod = 'POST',
-        final public readonly ?\Closure $uploadProgress = null,
-        final public readonly ?\Closure $downloadProgress = null
+        public readonly string $endpoint,
+        public readonly array $parameters = [],
+        public readonly array $files = [],
+        public readonly string $httpMethod = 'POST',
+        public readonly ?\Closure $uploadProgress = null,
+        public readonly ?\Closure $downloadProgress = null,
+        public readonly ?float $timeout = null,
+        public readonly ?float $connectTimeout = null
     ) {}
 
     public array $params {
@@ -36,33 +38,59 @@ class Request
         return !empty($this->files);
     }
 
+    private function copyWith(array $overrides): self
+    {
+        return new self(
+            endpoint: $overrides['endpoint'] ?? $this->endpoint,
+            parameters: $overrides['parameters'] ?? $this->parameters,
+            files: $overrides['files'] ?? $this->files,
+            httpMethod: $overrides['httpMethod'] ?? $this->httpMethod,
+            uploadProgress: array_key_exists('uploadProgress', $overrides) ? $overrides['uploadProgress'] : $this->uploadProgress,
+            downloadProgress: array_key_exists('downloadProgress', $overrides) ? $overrides['downloadProgress'] : $this->downloadProgress,
+            timeout: array_key_exists('timeout', $overrides) ? $overrides['timeout'] : $this->timeout,
+            connectTimeout: array_key_exists('connectTimeout', $overrides) ? $overrides['connectTimeout'] : $this->connectTimeout,
+        );
+    }
+
     #[\NoDiscard]
     public function withEndpoint(string $endpoint): self
     {
-        return clone($this, ['endpoint' => $endpoint]);
+        return $this->copyWith(['endpoint' => $endpoint]);
     }
 
     #[\NoDiscard]
     public function withParameter(string $name, mixed $value): self
     {
-        return clone($this, ['parameters' => [...$this->parameters, $name => $value]]);
+        return $this->copyWith(['parameters' => [...$this->parameters, $name => $value]]);
     }
 
     #[\NoDiscard]
     public function withParameters(array $parameters): self
     {
-        return clone($this, ['parameters' => $parameters]);
+        return $this->copyWith(['parameters' => $parameters]);
     }
 
     #[\NoDiscard]
     public function withFile(string $name, InputFile $file): self
     {
-        return clone($this, ['files' => [...$this->files, $name => $file]]);
+        return $this->copyWith(['files' => [...$this->files, $name => $file]]);
     }
 
     #[\NoDiscard]
     public function withHttpMethod(string $httpMethod): self
     {
-        return clone($this, ['httpMethod' => $httpMethod]);
+        return $this->copyWith(['httpMethod' => $httpMethod]);
+    }
+
+    #[\NoDiscard]
+    public function withTimeout(?float $timeout): self
+    {
+        return $this->copyWith(['timeout' => $timeout]);
+    }
+
+    #[\NoDiscard]
+    public function withConnectTimeout(?float $connectTimeout): self
+    {
+        return $this->copyWith(['connectTimeout' => $connectTimeout]);
     }
 }

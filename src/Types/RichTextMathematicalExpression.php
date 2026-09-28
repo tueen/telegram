@@ -18,12 +18,12 @@ class RichTextMathematicalExpression extends RichText
      * Type of the rich text, always "mathematical_expression"
      */
     #[Field('type', required: true)]
-    private(set) RichTextType|string $type;
+    private(set) RichTextType|string|null $type = null;
 
     /**
      * The expression in LaTeX format
      */
     #[Field('expression', required: true)]
-    private(set) string $expression;
+    private(set) ?string $expression = null;
 
 }

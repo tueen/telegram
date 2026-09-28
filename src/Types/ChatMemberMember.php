@@ -18,7 +18,7 @@ class ChatMemberMember extends ChatMember
      * The member's status in the chat, always "member"
      */
     #[Field('status', required: true)]
-    private(set) ChatMemberStatus|string $status;
+    private(set) ChatMemberStatus|string|null $status = null;
 
     /**
      * Optional. Tag of the member
@@ -30,7 +30,7 @@ class ChatMemberMember extends ChatMember
      * Information about the user
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * Optional. Date when the user's subscription will expire; Unix time

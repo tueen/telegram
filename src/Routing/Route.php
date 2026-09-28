@@ -113,7 +113,7 @@ class Route
             return false;
         }
 
-        // Placeholder matching (e.g. 'order:{id}' or 'action:{action}:{id}')
+        // Placeholder matching (e.g. 'order:{id}', 'user/{id}', or 'action:{action}:{id}')
         if (str_contains($pattern, '{') && str_contains($pattern, '}')) {
             $tokenized = preg_replace_callback('/\{([a-zA-Z0-9_]+)\}/', function ($m) {
                 return '___PARAM_' . $m[1] . '___';
@@ -121,7 +121,7 @@ class Route
 
             $quoted = preg_quote($tokenized, '#');
 
-            $regex = preg_replace('/___PARAM_([a-zA-Z0-9_]+)___/', '(?P<$1>[^:]+)', $quoted);
+            $regex = preg_replace('/___PARAM_([a-zA-Z0-9_]+)___/', '(?P<$1>[^:/]+)', $quoted);
 
             if (preg_match('#^' . $regex . '$#', $subject, $matches)) {
                 foreach ($matches as $k => $v) {
@@ -131,6 +131,11 @@ class Route
                 }
                 return true;
             }
+        }
+
+        // Substring / case-insensitive match for plain text
+        if (stripos($subject, $pattern) !== false) {
+            return true;
         }
 
         return false;

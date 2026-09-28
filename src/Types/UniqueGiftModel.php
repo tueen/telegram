@@ -18,19 +18,19 @@ class UniqueGiftModel extends Type
      * Name of the model
      */
     #[Field('name', required: true)]
-    private(set) string $name;
+    private(set) ?string $name = null;
 
     /**
      * The sticker that represents the unique gift
      */
     #[Field('sticker', required: true)]
-    private(set) Sticker $sticker;
+    private(set) ?Sticker $sticker = null;
 
     /**
      * The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts.
      */
     #[Field('rarity_per_mille', required: true)]
-    private(set) int $rarityPerMille;
+    private(set) ?int $rarityPerMille = null;
 
     /**
      * Optional. Rarity of the model if it is a crafted model. Currently, can be "uncommon", "rare", "epic", or "legendary".

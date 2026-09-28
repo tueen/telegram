@@ -17,6 +17,6 @@ class Link extends Type
      * URL of the link
      */
     #[Field('url', required: true)]
-    private(set) string $url;
+    private(set) ?string $url = null;
 
 }

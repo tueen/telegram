@@ -18,25 +18,25 @@ class RefundedPayment extends Type
      * Three-letter ISO 4217 currency code, or "XTR" for payments in Telegram Stars. Currently, always "XTR".
      */
     #[Field('currency', required: true)]
-    private(set) Currency|string $currency;
+    private(set) Currency|string|null $currency = null;
 
     /**
      * Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, total_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies).
      */
     #[Field('total_amount', required: true)]
-    private(set) int $totalAmount;
+    private(set) ?int $totalAmount = null;
 
     /**
      * Bot-specified invoice payload
      */
     #[Field('invoice_payload', required: true)]
-    private(set) string $invoicePayload;
+    private(set) ?string $invoicePayload = null;
 
     /**
      * Telegram payment identifier
      */
     #[Field('telegram_payment_charge_id', required: true)]
-    private(set) string $telegramPaymentChargeId;
+    private(set) ?string $telegramPaymentChargeId = null;
 
     /**
      * Optional. Provider payment identifier

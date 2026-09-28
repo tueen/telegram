@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\CantParseEntitiesException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\NotEnoughRightsException;
+use Tueen\Telegram\Exceptions\PhotoInvalidDimensionsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
 use Tueen\Telegram\Types\ForceReply;
@@ -23,9 +32,18 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to send photos. On success, the sent Message is returned.
  *
  * @link https://core.telegram.org/bots/api#sendphoto
+ *
+ * @throws ChatNotFoundException
+ * @throws PhotoInvalidDimensionsException
+ * @throws CantParseEntitiesException
+ * @throws BotBlockedException
+ * @throws NotEnoughRightsException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendPhoto', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::PhotoInvalidDimensions, TelegramErrorCode::CantParseEntities, TelegramErrorCode::BotBlocked, TelegramErrorCode::NotEnoughRights, TelegramErrorCode::FloodWait])]
 class SendPhoto extends Method
 {
     /**

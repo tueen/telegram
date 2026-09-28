@@ -17,6 +17,6 @@ class ChatBackground extends Type
      * Type of the background
      */
     #[Field('type', required: true)]
-    private(set) BackgroundType $type;
+    private(set) ?BackgroundType $type = null;
 
 }

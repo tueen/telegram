@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
@@ -14,9 +19,14 @@ use Tueen\Telegram\Types\Custom\BooleanResult;
  * Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues.
  *
  * @link https://core.telegram.org/bots/api#setpassportdataerrors
+ *
+ * @throws UserNotFoundException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('setPassportDataErrors', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::FloodWait])]
 class SetPassportDataErrors extends Method
 {
     /**

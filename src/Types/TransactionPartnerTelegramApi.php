@@ -18,12 +18,12 @@ class TransactionPartnerTelegramApi extends TransactionPartner
      * Type of the transaction partner, always "telegram_api"
      */
     #[Field('type', required: true)]
-    private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string|null $type = null;
 
     /**
      * The number of successful requests that exceeded regular limits and were therefore billed
      */
     #[Field('request_count', required: true)]
-    private(set) int $requestCount;
+    private(set) ?int $requestCount = null;
 
 }

@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\BotBlockedException;
+use Tueen\Telegram\Exceptions\ChatNotFoundException;
+use Tueen\Telegram\Exceptions\PhotoInvalidDimensionsException;
+use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
 use Tueen\Telegram\Types\ForceReply;
@@ -23,9 +30,16 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
  * Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future.
  *
  * @link https://core.telegram.org/bots/api#sendanimation
+ *
+ * @throws ChatNotFoundException
+ * @throws PhotoInvalidDimensionsException
+ * @throws BotBlockedException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('sendAnimation', 'POST')]
 #[ReturnType(Message::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::ChatNotFound, TelegramErrorCode::PhotoInvalidDimensions, TelegramErrorCode::BotBlocked, TelegramErrorCode::FloodWait])]
 class SendAnimation extends Method
 {
     /**

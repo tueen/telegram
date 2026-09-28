@@ -17,7 +17,7 @@ class BusinessLocation extends Type
      * Address of the business
      */
     #[Field('address', required: true)]
-    private(set) string $address;
+    private(set) ?string $address = null;
 
     /**
      * Optional. Location of the business

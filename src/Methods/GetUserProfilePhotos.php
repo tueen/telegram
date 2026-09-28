@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\UserNotFoundException;
 use Tueen\Telegram\Types\UserProfilePhotos;
 
 /**
  * Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object.
  *
  * @link https://core.telegram.org/bots/api#getuserprofilephotos
+ *
+ * @throws UserNotFoundException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('getUserProfilePhotos', 'POST')]
 #[ReturnType(UserProfilePhotos::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::UserNotFound, TelegramErrorCode::FloodWait])]
 class GetUserProfilePhotos extends Method
 {
     /**

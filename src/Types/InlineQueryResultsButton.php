@@ -17,7 +17,7 @@ class InlineQueryResultsButton extends Type
      * Label text on the button
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to switch back to the inline mode using the method switchInlineQuery inside the Web App.

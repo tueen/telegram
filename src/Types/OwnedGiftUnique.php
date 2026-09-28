@@ -18,13 +18,13 @@ class OwnedGiftUnique extends OwnedGift
      * Type of the gift, always "unique"
      */
     #[Field('type', required: true)]
-    private(set) OwnedGiftType|string $type;
+    private(set) OwnedGiftType|string|null $type = null;
 
     /**
      * Information about the unique gift
      */
     #[Field('gift', required: true)]
-    private(set) UniqueGift $gift;
+    private(set) ?UniqueGift $gift = null;
 
     /**
      * Optional. Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only
@@ -42,7 +42,7 @@ class OwnedGiftUnique extends OwnedGift
      * Date the gift was sent in Unix time
      */
     #[Field('send_date', required: true)]
-    private(set) int $sendDate;
+    private(set) ?int $sendDate = null;
 
     /**
      * Optional. True, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only

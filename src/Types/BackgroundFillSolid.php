@@ -18,12 +18,12 @@ class BackgroundFillSolid extends BackgroundFill
      * Type of the background fill, always "solid"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundFillType|string $type;
+    private(set) BackgroundFillType|string|null $type = null;
 
     /**
      * The color of the background fill in the RGB24 format
      */
     #[Field('color', required: true)]
-    private(set) int $color;
+    private(set) ?int $color = null;
 
 }

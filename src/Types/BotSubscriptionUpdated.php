@@ -17,18 +17,18 @@ class BotSubscriptionUpdated extends Type
      * User who subscribed for payments toward the bot
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
     /**
      * Bot-specified invoice payload
      */
     #[Field('invoice_payload', required: true)]
-    private(set) string $invoicePayload;
+    private(set) ?string $invoicePayload = null;
 
     /**
      * The new state of the subscription. Currently, it can be one of "canceled" if the user canceled the subscription, "active" if the user re-enabled a previously canceled subscription, or "failed" if payment for the subscription failed.
      */
     #[Field('state', required: true)]
-    private(set) string $state;
+    private(set) ?string $state = null;
 
 }

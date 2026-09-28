@@ -17,6 +17,6 @@ class PreparedKeyboardButton extends Type
      * Unique identifier of the keyboard button
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
 }

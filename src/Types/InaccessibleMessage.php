@@ -17,18 +17,18 @@ class InaccessibleMessage extends MaybeInaccessibleMessage
      * Chat the message belonged to
      */
     #[Field('chat', required: true)]
-    private(set) Chat $chat;
+    private(set) ?Chat $chat = null;
 
     /**
      * Unique message identifier inside the chat
      */
     #[Field('message_id', required: true)]
-    private(set) int $messageId;
+    private(set) ?int $messageId = null;
 
     /**
      * Always 0. The field can be used to differentiate regular and inaccessible messages.
      */
     #[Field('date', required: true)]
-    private(set) int $date;
+    private(set) ?int $date = null;
 
 }

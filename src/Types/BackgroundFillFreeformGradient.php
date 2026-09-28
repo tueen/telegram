@@ -18,13 +18,13 @@ class BackgroundFillFreeformGradient extends BackgroundFill
      * Type of the background fill, always "freeform_gradient"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundFillType|string $type;
+    private(set) BackgroundFillType|string|null $type = null;
 
     /**
      * A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format
      * @var Integer[]|null
      */
     #[Field('colors', required: true)]
-    private(set) array $colors;
+    private(set) ?array $colors = null;
 
 }

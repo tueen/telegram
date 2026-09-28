@@ -17,6 +17,6 @@ class ChatOwnerChanged extends Type
      * The new owner of the chat
      */
     #[Field('new_owner', required: true)]
-    private(set) User $newOwner;
+    private(set) ?User $newOwner = null;
 
 }

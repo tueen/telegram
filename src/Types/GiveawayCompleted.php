@@ -17,7 +17,7 @@ class GiveawayCompleted extends Type
      * Number of winners in the giveaway
      */
     #[Field('winner_count', required: true)]
-    private(set) int $winnerCount;
+    private(set) ?int $winnerCount = null;
 
     /**
      * Optional. Number of undistributed prizes

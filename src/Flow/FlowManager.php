@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Flow;
 
 use Tueen\Telegram\Exceptions\TelegramException;
+use Tueen\Telegram\Flow\Storage\FileStateStore;
 use Tueen\Telegram\Flow\Storage\MemoryStateStore;
 use Tueen\Telegram\Flow\Storage\StateStoreInterface;
 use Tueen\Telegram\Telegram;
@@ -19,7 +20,15 @@ class FlowManager
 
     public function __construct(?StateStoreInterface $store = null)
     {
-        $this->store = $store ?? new MemoryStateStore();
+        if ($store !== null) {
+            $this->store = $store;
+        } elseif (PHP_SAPI !== 'cli') {
+            // In web server SAPIs (FPM, Apache, CGI), memory is ephemeral and wiped on script termination.
+            // Automatically use FileStateStore for zero-config persistence across webhook requests.
+            $this->store = new FileStateStore();
+        } else {
+            $this->store = new MemoryStateStore();
+        }
     }
 
     public function getStore(): StateStoreInterface
@@ -154,6 +163,9 @@ class FlowManager
         }
 
         $flow->$step($update);
+        if (!$flow->isTerminated()) {
+            $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+        }
         return true;
     }
 

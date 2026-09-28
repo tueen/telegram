@@ -18,12 +18,12 @@ class ChatMemberLeft extends ChatMember
      * The member's status in the chat, always "left"
      */
     #[Field('status', required: true)]
-    private(set) ChatMemberStatus|string $status;
+    private(set) ChatMemberStatus|string|null $status = null;
 
     /**
      * Information about the user
      */
     #[Field('user', required: true)]
-    private(set) User $user;
+    private(set) ?User $user = null;
 
 }

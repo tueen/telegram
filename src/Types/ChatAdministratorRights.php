@@ -17,67 +17,67 @@ class ChatAdministratorRights extends Type
      * True, if the user's presence in the chat is hidden
      */
     #[Field('is_anonymous', required: true)]
-    private(set) bool $isAnonymous;
+    private(set) ?bool $isAnonymous = null;
 
     /**
      * True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege.
      */
     #[Field('can_manage_chat', required: true)]
-    private(set) bool $canManageChat;
+    private(set) ?bool $canManageChat = null;
 
     /**
      * True, if the administrator can delete messages of other users
      */
     #[Field('can_delete_messages', required: true)]
-    private(set) bool $canDeleteMessages;
+    private(set) ?bool $canDeleteMessages = null;
 
     /**
      * True, if the administrator can manage video chats
      */
     #[Field('can_manage_video_chats', required: true)]
-    private(set) bool $canManageVideoChats;
+    private(set) ?bool $canManageVideoChats = null;
 
     /**
      * True, if the administrator can restrict, ban or unban chat members, or access supergroup statistics
      */
     #[Field('can_restrict_members', required: true)]
-    private(set) bool $canRestrictMembers;
+    private(set) ?bool $canRestrictMembers = null;
 
     /**
      * True, if the administrator can add new administrators with a subset of their own privileges or demote administrators that they have promoted, directly or indirectly (promoted by administrators that were appointed by the user)
      */
     #[Field('can_promote_members', required: true)]
-    private(set) bool $canPromoteMembers;
+    private(set) ?bool $canPromoteMembers = null;
 
     /**
      * True, if the user is allowed to change the chat title, photo and other settings
      */
     #[Field('can_change_info', required: true)]
-    private(set) bool $canChangeInfo;
+    private(set) ?bool $canChangeInfo = null;
 
     /**
      * True, if the user is allowed to invite new users to the chat
      */
     #[Field('can_invite_users', required: true)]
-    private(set) bool $canInviteUsers;
+    private(set) ?bool $canInviteUsers = null;
 
     /**
      * True, if the administrator can post stories to the chat
      */
     #[Field('can_post_stories', required: true)]
-    private(set) bool $canPostStories;
+    private(set) ?bool $canPostStories = null;
 
     /**
      * True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive
      */
     #[Field('can_edit_stories', required: true)]
-    private(set) bool $canEditStories;
+    private(set) ?bool $canEditStories = null;
 
     /**
      * True, if the administrator can delete stories posted by other users
      */
     #[Field('can_delete_stories', required: true)]
-    private(set) bool $canDeleteStories;
+    private(set) ?bool $canDeleteStories = null;
 
     /**
      * Optional. True, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only
@@ -119,6 +119,6 @@ class ChatAdministratorRights extends Type
      * True, if the administrator can manage chat welcome messages or directly send them in the case of bots
      */
     #[Field('can_send_welcome_messages', required: true)]
-    private(set) bool $canSendWelcomeMessages;
+    private(set) ?bool $canSendWelcomeMessages = null;
 
 }

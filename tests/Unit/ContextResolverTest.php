@@ -336,7 +336,7 @@ final class ContextResolverTest extends TestCase
 
         $bot->assertSent('answerInlineQuery', function (Request $req): bool {
             return $req->parameters['inline_query_id'] === 'iq_987654321'
-                && $req->parameters['results'] === '[]';
+                && ($req->parameters['results'] === [] || $req->parameters['results'] === '[]');
         });
     }
 
@@ -451,6 +451,23 @@ final class ContextResolverTest extends TestCase
         $bot->assertSent('sendMessage', function (Request $req): bool {
             return $req->parameters['chat_id'] === 123456
                 && $req->parameters['parse_mode'] === 'HTML';
+        });
+    }
+
+    public function testNumericStringTextMessageResolvesToText(): void
+    {
+        $bot = Telegram::fake([
+            'sendMessage' => ['message_id' => 101, 'date' => 1700000000, 'chat' => ['id' => 123456, 'type' => 'private'], 'text' => '987654'],
+        ]);
+
+        $bot->setUpdate($this->createMessageUpdate(chatId: 123456));
+
+        // Sending numeric code string like OTP
+        $bot->sendMessage("987654");
+
+        $bot->assertSent('sendMessage', function (Request $req): bool {
+            return $req->parameters['chat_id'] === 123456
+                && $req->parameters['text'] === '987654';
         });
     }
 }

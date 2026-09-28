@@ -20,6 +20,6 @@ class StarTransactions extends Type
      */
     #[Field('transactions', required: true)]
     #[ArrayOf(StarTransaction::class)]
-    private(set) array $transactions;
+    private(set) ?array $transactions = null;
 
 }

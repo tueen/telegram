@@ -18,13 +18,13 @@ class RichBlockAudio extends RichBlock
      * Type of the block, always "audio"
      */
     #[Field('type', required: true)]
-    private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string|null $type = null;
 
     /**
      * The audio
      */
     #[Field('audio', required: true)]
-    private(set) Audio $audio;
+    private(set) ?Audio $audio = null;
 
     /**
      * Optional. Caption of the block

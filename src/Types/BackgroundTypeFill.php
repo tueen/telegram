@@ -18,18 +18,18 @@ class BackgroundTypeFill extends BackgroundType
      * Type of the background, always "fill"
      */
     #[Field('type', required: true)]
-    private(set) BackgroundTypeType|string $type;
+    private(set) BackgroundTypeType|string|null $type = null;
 
     /**
      * The background fill
      */
     #[Field('fill', required: true)]
-    private(set) BackgroundFill $fill;
+    private(set) ?BackgroundFill $fill = null;
 
     /**
      * Dimming of the background in dark themes, as a percentage; 0-100
      */
     #[Field('dark_theme_dimming', required: true)]
-    private(set) int $darkThemeDimming;
+    private(set) ?int $darkThemeDimming = null;
 
 }

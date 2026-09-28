@@ -18,25 +18,25 @@ class InlineQueryResultContact extends InlineQueryResult
      * Type of the result, must be contact
      */
     #[Field('type', required: true)]
-    private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string|null $type = null;
 
     /**
      * Unique identifier for this result, 1-64 Bytes
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Contact's phone number
      */
     #[Field('phone_number', required: true)]
-    private(set) string $phoneNumber;
+    private(set) ?string $phoneNumber = null;
 
     /**
      * Contact's first name
      */
     #[Field('first_name', required: true)]
-    private(set) string $firstName;
+    private(set) ?string $firstName = null;
 
     /**
      * Optional. Contact's last name

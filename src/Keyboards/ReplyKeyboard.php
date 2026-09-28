@@ -25,17 +25,22 @@ use Tueen\Telegram\Types\WebAppInfo;
  *         ->text('Cancel')
  *     ->build();
  */
-final class ReplyKeyboard
+class ReplyKeyboard extends ReplyKeyboardMarkup
 {
     /** @var list<list<KeyboardButton>> */
     private array $rows = [];
 
     private int $currentRow = 0;
-    private bool $resizeKeyboard = true;
-    private bool $oneTimeKeyboard = false;
-    private bool $isPersistent = false;
-    private ?bool $selective = null;
-    private ?string $inputFieldPlaceholder = null;
+    private bool $builderResizeKeyboard = true;
+    private bool $builderOneTimeKeyboard = false;
+    private bool $builderIsPersistent = false;
+    private ?bool $builderSelective = null;
+    private ?string $builderInputFieldPlaceholder = null;
+
+    public function __construct(array $data = [])
+    {
+        parent::__construct($data);
+    }
 
     #[\NoDiscard]
     public static function make(): self
@@ -178,7 +183,7 @@ final class ReplyKeyboard
      */
     public function resize(bool $resize = true): self
     {
-        $this->resizeKeyboard = $resize;
+        $this->builderResizeKeyboard = $resize;
         return $this;
     }
 
@@ -187,7 +192,7 @@ final class ReplyKeyboard
      */
     public function oneTime(bool $oneTime = true): self
     {
-        $this->oneTimeKeyboard = $oneTime;
+        $this->builderOneTimeKeyboard = $oneTime;
         return $this;
     }
 
@@ -196,7 +201,7 @@ final class ReplyKeyboard
      */
     public function persistent(bool $persistent = true): self
     {
-        $this->isPersistent = $persistent;
+        $this->builderIsPersistent = $persistent;
         return $this;
     }
 
@@ -205,7 +210,7 @@ final class ReplyKeyboard
      */
     public function selective(bool $selective = true): self
     {
-        $this->selective = $selective;
+        $this->builderSelective = $selective;
         return $this;
     }
 
@@ -214,7 +219,7 @@ final class ReplyKeyboard
      */
     public function placeholder(string $placeholder): self
     {
-        $this->inputFieldPlaceholder = $placeholder;
+        $this->builderInputFieldPlaceholder = $placeholder;
         return $this;
     }
 
@@ -254,11 +259,11 @@ final class ReplyKeyboard
 
         return new ReplyKeyboardMarkup([
             'keyboard' => $rawRows,
-            'resize_keyboard' => $this->resizeKeyboard,
-            'one_time_keyboard' => $this->oneTimeKeyboard,
-            'is_persistent' => $this->isPersistent,
-            'selective' => $this->selective,
-            'input_field_placeholder' => $this->inputFieldPlaceholder,
+            'resize_keyboard' => $this->builderResizeKeyboard,
+            'one_time_keyboard' => $this->builderOneTimeKeyboard,
+            'is_persistent' => $this->builderIsPersistent,
+            'selective' => $this->builderSelective,
+            'input_field_placeholder' => $this->builderInputFieldPlaceholder,
         ]);
     }
 
@@ -267,6 +272,9 @@ final class ReplyKeyboard
      */
     public function toArray(): array
     {
-        return $this->build()->toArray();
+        if (!empty($this->rows)) {
+            return $this->build()->toArray();
+        }
+        return parent::toArray();
     }
 }

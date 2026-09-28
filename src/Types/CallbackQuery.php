@@ -17,13 +17,13 @@ class CallbackQuery extends Type
      * Unique identifier for this query
      */
     #[Field('id', required: true)]
-    private(set) string $id;
+    private(set) ?string $id = null;
 
     /**
      * Sender
      */
     #[Field('from', required: true)]
-    private(set) User $from;
+    private(set) ?User $from = null;
 
     /**
      * Optional. Message sent by the bot with the callback button that originated the query
@@ -41,7 +41,7 @@ class CallbackQuery extends Type
      * Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games.
      */
     #[Field('chat_instance', required: true)]
-    private(set) string $chatInstance;
+    private(set) ?string $chatInstance = null;
 
     /**
      * Optional. Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.

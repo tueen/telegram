@@ -17,6 +17,6 @@ class SentGuestMessage extends Type
      * Identifier of the sent inline message
      */
     #[Field('inline_message_id', required: true)]
-    private(set) string $inlineMessageId;
+    private(set) ?string $inlineMessageId = null;
 
 }

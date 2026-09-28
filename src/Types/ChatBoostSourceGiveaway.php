@@ -18,13 +18,13 @@ class ChatBoostSourceGiveaway extends ChatBoostSource
      * Source of the boost, always "giveaway"
      */
     #[Field('source', required: true)]
-    private(set) ChatBoostSourceSource|string $source;
+    private(set) ChatBoostSourceSource|string|null $source = null;
 
     /**
      * Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet.
      */
     #[Field('giveaway_message_id', required: true)]
-    private(set) int $giveawayMessageId;
+    private(set) ?int $giveawayMessageId = null;
 
     /**
      * Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only

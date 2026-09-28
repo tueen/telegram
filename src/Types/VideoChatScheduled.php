@@ -17,6 +17,6 @@ class VideoChatScheduled extends Type
      * Point in time (Unix timestamp) when the video chat is supposed to be started by a chat administrator
      */
     #[Field('start_date', required: true)]
-    private(set) int $startDate;
+    private(set) ?int $startDate = null;
 
 }

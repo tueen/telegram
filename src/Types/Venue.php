@@ -17,19 +17,19 @@ class Venue extends Type
      * Venue location. Can't be a live location.
      */
     #[Field('location', required: true)]
-    private(set) Location $location;
+    private(set) ?Location $location = null;
 
     /**
      * Name of the venue
      */
     #[Field('title', required: true)]
-    private(set) string $title;
+    private(set) ?string $title = null;
 
     /**
      * Address of the venue
      */
     #[Field('address', required: true)]
-    private(set) string $address;
+    private(set) ?string $address = null;
 
     /**
      * Optional. Foursquare identifier of the venue

@@ -20,19 +20,19 @@ class InputMediaLivePhoto extends InputPollMedia
      * Type of the media, must be live_photo
      */
     #[Field('type', required: true)]
-    private(set) InputMediaType|string $type;
+    private(set) InputMediaType|string|null $type = null;
 
     /**
      * Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Sending live photos by a URL is currently unsupported.
      */
     #[Field('media', required: true)]
-    private(set) string $media;
+    private(set) ?string $media = null;
 
     /**
      * The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended) or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Sending live photos by a URL is currently unsupported.
      */
     #[Field('photo', required: true)]
-    private(set) string $photo;
+    private(set) ?string $photo = null;
 
     /**
      * Optional. Caption of the live photo to be sent, 0-1024 characters after entities parsing

@@ -18,13 +18,13 @@ class ChecklistTask extends Type
      * Unique identifier of the task
      */
     #[Field('id', required: true)]
-    private(set) int $id;
+    private(set) ?int $id = null;
 
     /**
      * Text of the task
      */
     #[Field('text', required: true)]
-    private(set) string $text;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Special entities that appear in the task text

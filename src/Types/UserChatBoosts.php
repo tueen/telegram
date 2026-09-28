@@ -20,6 +20,6 @@ class UserChatBoosts extends Type
      */
     #[Field('boosts', required: true)]
     #[ArrayOf(ChatBoost::class)]
-    private(set) array $boosts;
+    private(set) ?array $boosts = null;
 
 }

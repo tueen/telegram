@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Methods;
 
+use Tueen\Telegram\Attributes\ApiErrors;
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Attributes\RequiresUpload;
 use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\StickerFormat;
+use Tueen\Telegram\Enums\TelegramErrorCode;
+use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Exceptions\RateLimitException;
+use Tueen\Telegram\Exceptions\StickerDimensionsInvalidException;
+use Tueen\Telegram\Exceptions\StickerSetInvalidException;
+use Tueen\Telegram\Exceptions\WrongFileTypeException;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\InputFile;
 
@@ -16,9 +23,16 @@ use Tueen\Telegram\Types\Custom\InputFile;
  * Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success.
  *
  * @link https://core.telegram.org/bots/api#setstickersetthumbnail
+ *
+ * @throws StickerSetInvalidException
+ * @throws WrongFileTypeException
+ * @throws StickerDimensionsInvalidException
+ * @throws RateLimitException
+ * @throws ApiException
  */
 #[ApiMethod('setStickerSetThumbnail', 'POST')]
 #[ReturnType(BooleanResult::class, isArray: false)]
+#[ApiErrors([TelegramErrorCode::StickerSetInvalid, TelegramErrorCode::WrongFileType, TelegramErrorCode::StickerDimensionsInvalid, TelegramErrorCode::FloodWait])]
 class SetStickerSetThumbnail extends Method
 {
     /**

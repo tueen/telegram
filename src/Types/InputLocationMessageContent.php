@@ -17,13 +17,13 @@ class InputLocationMessageContent extends InputMessageContent
      * Latitude of the location in degrees
      */
     #[Field('latitude', required: true)]
-    private(set) float $latitude;
+    private(set) ?float $latitude = null;
 
     /**
      * Longitude of the location in degrees
      */
     #[Field('longitude', required: true)]
-    private(set) float $longitude;
+    private(set) ?float $longitude = null;
 
     /**
      * Optional. The radius of uncertainty for the location, measured in meters; 0-1500

@@ -24,12 +24,17 @@ class CodeGenerator
     ];
 
     private array $spec;
+    private array $errorsSpec = [];
     private string $typesDir;
     private string $methodsDir;
 
-    public function __construct(string $specPath, string $baseSrcDir)
+    public function __construct(string $specPath, string $baseSrcDir, ?string $errorsPath = null)
     {
         $this->spec = json_decode(file_get_contents($specPath), true);
+        $errorsPath ??= dirname($specPath) . '/errors.json';
+        if (file_exists($errorsPath)) {
+            $this->errorsSpec = json_decode(file_get_contents($errorsPath), true) ?? [];
+        }
         $this->typesDir = $baseSrcDir . '/Types';
         $this->methodsDir = $baseSrcDir . '/Methods';
 
@@ -117,7 +122,7 @@ class CodeGenerator
             }
 
             $attrStr = implode("\n", $attributes);
-            $default = $required ? '' : ' = null';
+            $default = ' = null';
             // Asymmetric visibility in PHP 8.4: read visibility defaults to public, so public is redundant
             $propLine = "{$propDoc}\n{$attrStr}\n    private(set) {$phpType} \${$camelName}{$default};";
             $propLines[] = $propLine;
@@ -334,14 +339,43 @@ PHP;
 
         $arrayFlag = $returnIsArray ? 'true' : 'false';
 
+        $methodErrors = $this->errorsSpec['methods'][$methodName] ?? [];
+        $apiErrorAttributes = '';
+        $throwsDoc = '';
+        if (!empty($methodErrors)) {
+            $imports[] = 'Tueen\Telegram\Attributes\ApiErrors';
+            $imports[] = 'Tueen\Telegram\Enums\TelegramErrorCode';
+            $errorCases = [];
+            $throwsClasses = [];
+            foreach ($methodErrors as $errId) {
+                if (isset($this->errorsSpec['errors'][$errId])) {
+                    $errInfo = $this->errorsSpec['errors'][$errId];
+                    $errorCases[] = "TelegramErrorCode::{$errInfo['enum']}";
+                    $throwsClasses[] = $errInfo['exception'];
+                    $imports[] = "Tueen\\Telegram\\Exceptions\\{$errInfo['exception']}";
+                }
+            }
+            if (!empty($errorCases)) {
+                $casesStr = implode(', ', $errorCases);
+                $apiErrorAttributes = "\n#[ApiErrors([{$casesStr}])]";
+            }
+            if (!empty($throwsClasses)) {
+                $uniqueThrows = array_unique($throwsClasses);
+                $uniqueThrows[] = 'ApiException';
+                $imports[] = 'Tueen\Telegram\Exceptions\ApiException';
+                $throwsLines = array_map(fn($c) => " * @throws {$c}", $uniqueThrows);
+                $throwsDoc = "\n *\n" . implode("\n", $throwsLines);
+            }
+        }
+
         $methodBody = <<<PHP
 /**
  * {$description}
  *
- * @link {$link}
+ * @link {$link}{$throwsDoc}
  */
 #[ApiMethod('{$methodName}', 'POST')]
-#[ReturnType({$returnClass}::class, isArray: {$arrayFlag})]
+#[ReturnType({$returnClass}::class, isArray: {$arrayFlag})]{$apiErrorAttributes}
 class {$className} extends Method
 {
 {$propsCode}
@@ -570,14 +604,10 @@ PHP;
         }
 
         $typeStr = implode('|', $phpTypes);
-        if ($hasNull) {
-            if (count($phpTypes) === 1) {
-                return "?{$typeStr}";
-            }
-            return "{$typeStr}|null";
+        if (count($phpTypes) === 1) {
+            return "?{$typeStr}";
         }
-
-        return $typeStr ?: 'mixed';
+        return "{$typeStr}|null";
     }
 
     private function mapMethodParamType(string $methodName, string $fieldName, array $types, bool $required, array &$imports): string
@@ -714,6 +744,17 @@ PHP;
             $paramList[] = 'mixed ...$extra';
             $paramsStr = implode(', ', $paramList);
             $lines[] = " * @method {$retType} {$rawName}({$paramsStr})";
+
+            $methodErrors = $this->errorsSpec['methods'][$rawName] ?? [];
+            if (!empty($methodErrors)) {
+                $allImports[] = 'Tueen\Telegram\Exceptions\ApiException';
+                foreach ($methodErrors as $errId) {
+                    if (isset($this->errorsSpec['errors'][$errId])) {
+                        $exClass = $this->errorsSpec['errors'][$errId]['exception'];
+                        $allImports[] = "Tueen\\Telegram\\Exceptions\\{$exClass}";
+                    }
+                }
+            }
         }
 
         $allImports = array_unique($allImports);
