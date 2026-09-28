@@ -34,6 +34,11 @@ tueen/telegram/
 │   │   ├── Router.php                 # Route dispatcher & controller reflection
 │   │   ├── Route.php                  # Individual route matcher (commands, callbacks, regex, inline)
 │   │   └── Attributes/                # Routing attributes (#[OnCommand], #[OnCallbackQuery], etc.)
+│   ├── Flow/                          # Multi-step conversation flows & state machine
+│   │   ├── Flow.php                   # Base Flow class with to, stay, back, jumpTo, finish
+│   │   ├── FlowManager.php            # Active flow dispatcher & lifecycle orchestrator
+│   │   ├── FlowState.php              # Serialized flow state value object
+│   │   └── Storage/                   # State store drivers (MemoryStateStore, FileStateStore)
 │   ├── Keyboards/                     # Fluent keyboard builders
 │   │   ├── InlineKeyboard.php         # Fluent builder for InlineKeyboardMarkup
 │   │   └── ReplyKeyboard.php          # Fluent builder for ReplyKeyboardMarkup & ReplyKeyboardRemove

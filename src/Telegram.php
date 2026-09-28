@@ -510,6 +510,67 @@ class Telegram
     }
 
     /**
+     * Gets the configured container or resolver.
+     */
+    public function getContainer(): mixed
+    {
+        return $this->container ?? $this->config->container;
+    }
+
+    protected ?\Tueen\Telegram\Flow\FlowManager $flowManager = null;
+
+    /**
+     * Retrieves or lazily creates the FlowManager instance.
+     */
+    public function flowManager(): \Tueen\Telegram\Flow\FlowManager
+    {
+        return $this->flowManager ??= new \Tueen\Telegram\Flow\FlowManager();
+    }
+
+    /**
+     * Sets a custom FlowManager instance.
+     */
+    public function setFlowManager(\Tueen\Telegram\Flow\FlowManager $manager): static
+    {
+        $this->flowManager = $manager;
+        return $this;
+    }
+
+    /**
+     * Sets the active state storage driver for flows (e.g. MemoryStateStore, FileStateStore).
+     */
+    public function setFlowStore(\Tueen\Telegram\Flow\Storage\StateStoreInterface $store): static
+    {
+        $this->flowManager()->setStore($store);
+        return $this;
+    }
+
+    /**
+     * Starts a multi-step Flow for the user associated with the update.
+     *
+     * @param class-string<\Tueen\Telegram\Flow\Flow> $flowClass
+     */
+    public function startFlow(
+        string $flowClass,
+        ?Update $update = null,
+        string $initialStep = 'start',
+        array $initialData = []
+    ): \Tueen\Telegram\Flow\Flow {
+        $resolvedUpdate = $update ?? $this->update;
+        if ($resolvedUpdate === null) {
+            throw new TelegramException("Cannot start Flow: no active Update found. Pass Update explicitly or run inside an update handler.");
+        }
+
+        return $this->flowManager()->startFlow(
+            flowClass: $flowClass,
+            update: $resolvedUpdate,
+            bot: $this,
+            initialStep: $initialStep,
+            initialData: $initialData
+        );
+    }
+
+    /**
      * Registers one or more update handlers to be invoked when the bot is run.
      *
      * Handlers can be:
@@ -650,6 +711,12 @@ class Telegram
 
         $dispatcher = function (Update $update) use ($allHandlers): mixed {
             $this->update = $update;
+
+            // Prioritize active conversation Flow if running
+            if ($this->flowManager()->handle($update, $this)) {
+                return true;
+            }
+
             $result = null;
 
             foreach ($allHandlers as $handler) {

@@ -168,6 +168,11 @@ class Router
      */
     public function dispatch(Update $update, Telegram $bot): mixed
     {
+        // 1. If user is in an active Flow, dispatch to Flow first!
+        if ($bot->flowManager()->handle($update, $bot)) {
+            return true;
+        }
+
         foreach ($this->routes as $route) {
             $parameters = [];
             if ($route->matches($update, $bot, $parameters)) {

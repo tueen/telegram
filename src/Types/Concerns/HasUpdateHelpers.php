@@ -208,6 +208,17 @@ trait HasUpdateHelpers
     }
 
     /**
+     * Extracts any text, caption, callback data, or inline query text from this update.
+     */
+    public function findAnyText(): ?string
+    {
+        return $this->findMessage()?->findAnyText()
+            ?? $this->callbackQuery?->data
+            ?? $this->inlineQuery?->query
+            ?? null;
+    }
+
+    /**
      * Alias for findFileId().
      */
     public function getFileId(): ?string

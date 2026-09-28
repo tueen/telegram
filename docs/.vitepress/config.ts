@@ -21,6 +21,7 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
         { text: 'Running Modes (Webhook & Polling)', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
         { text: 'Update Routing & Attributes', link: `${basePath}routing` },
+        { text: 'Conversation Flows (Flow)', link: `${basePath}flows` },
       ]
     },
     {
