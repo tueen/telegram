@@ -70,7 +70,7 @@ public protected(set) int $offset = 0;
      #[Field('file_id', required: true)]
      private(set) string $fileId;
      ```
-2. **Generator Rules (`src/Generator/CodeGenerator.php`):**
+2. **Generator Rules (`tools/generator/CodeGenerator.php`):**
    - The code generator must always emit `private(set)` directly without `public`.
 3. **Internal State (`protected(set)`):**
    - Use `protected(set)` when child or extending classes need write access, but external callers should only read the property.

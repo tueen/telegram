@@ -65,8 +65,10 @@ tueen/telegram/
 │   │   ├── LoggingMiddleware.php
 │   │   └── RateLimitMiddleware.php    # Token bucket pacing & 429 backoff
 │   ├── Attributes/                    # Declarative attributes (ApiMethod, ReturnType, Field, ArrayOf)
-│   ├── Exceptions/                    # Typed exception hierarchy
-│   └── Generator/                     # Code generator compiled from api.json schema
+│   └── Exceptions/                    # Typed exception hierarchy
+├── tools/                             # Build-time and development tooling (excluded from dist)
+│   ├── generator/                     # Code generator compiled from api.json schema
+│   └── scraper/                       # Python scraper for Telegram Bot API documentation
 ├── bin/
 │   ├── generate.php                   # Generates PHP classes from resources/api.json
 │   └── update_spec.php                # Scrapes Telegram Bot API docs and regenerates classes

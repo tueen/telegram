@@ -16,13 +16,13 @@ This skill guides the AI assistant in updating, maintaining, and regenerating th
 
 The generator transforms the machine-readable Telegram Bot API JSON schema into strictly typed PHP 8.4 & 8.5 classes.
 
-- **Source Schema:** `scratch/api.json` (or latest Telegram Bot API JSON schema).
+- **Source Schema:** `resources/api.json` (or latest Telegram Bot API JSON schema).
 - **Target Folders:**
   - `src/Types/` (all Telegram Bot API types, response models, and polymorphic unions)
   - `src/Methods/` (all Telegram Bot API method classes)
   - `src/Contracts/TelegramMethods.php` (complete 185-method mixin contract for IDE autocompletion)
 - **Runner Script:** `bin/generate.php`
-- **Compiler Class:** `Tueen\Telegram\Generator\CodeGenerator`
+- **Compiler Class:** `Tueen\Telegram\Generator\CodeGenerator` (`tools/generator/CodeGenerator.php`)
 
 ---
 
