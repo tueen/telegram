@@ -35,42 +35,59 @@ class ConfigBuilder
         $this->botToken = $botToken;
     }
 
+    #[\NoDiscard]
     public function withToken(string $botToken): static
     {
         $this->botToken = $botToken;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withApiServer(string $apiServer): static
     {
         $this->apiServer = $apiServer;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withTimeout(float $timeout): static
     {
         $this->timeout = $timeout;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withConnectTimeout(float $connectTimeout): static
     {
         $this->connectTimeout = $connectTimeout;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withProxy(?string $proxy): static
     {
         $this->proxy = $proxy;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withHttpClient(?HttpClientInterface $httpClient): static
     {
         $this->httpClient = $httpClient;
         return $this;
     }
 
+    /**
+     * Configures the high-performance native PHP 8.5 CurlHttpClient.
+     */
+    #[\NoDiscard]
+    public function withCurlClient(bool $persistent = true): static
+    {
+        $this->httpClient = new Client\CurlHttpClient(usePersistentShare: $persistent);
+        return $this;
+    }
+
+    #[\NoDiscard]
     public function withLogger(?LoggerInterface $logger): static
     {
         $this->logger = $logger;
@@ -80,6 +97,7 @@ class ConfigBuilder
     /**
      * @param Closure(int $bytesUploaded, int $totalBytes, float $percentage): void $callback
      */
+    #[\NoDiscard]
     public function withUploadProgress(?Closure $callback): static
     {
         $this->uploadProgress = $callback;
@@ -89,24 +107,28 @@ class ConfigBuilder
     /**
      * @param Closure(int $bytesDownloaded, int $totalBytes, float $percentage): void $callback
      */
+    #[\NoDiscard]
     public function withDownloadProgress(?Closure $callback): static
     {
         $this->downloadProgress = $callback;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withRetryCount(int $count): static
     {
         $this->retryCount = $count;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withTestEnvironment(bool $enabled = true): static
     {
         $this->testEnvironment = $enabled;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withErrorHandlingMode(ErrorHandlingMode $mode): static
     {
         $this->errorHandlingMode = $mode;
@@ -118,6 +140,7 @@ class ConfigBuilder
      *
      * @param list<class-string<Throwable>> $catchExceptions
      */
+    #[\NoDiscard]
     public function withErrorObjectMode(array $catchExceptions = [ApiException::class]): static
     {
         $this->errorHandlingMode = ErrorHandlingMode::ERROR_OBJECT;
@@ -128,6 +151,7 @@ class ConfigBuilder
     /**
      * Set error handling mode to Exception (default).
      */
+    #[\NoDiscard]
     public function withExceptionMode(): static
     {
         $this->errorHandlingMode = ErrorHandlingMode::EXCEPTION;
@@ -137,6 +161,7 @@ class ConfigBuilder
     /**
      * Catch all throwables (including network, cURL, runtime) and convert them to Error objects.
      */
+    #[\NoDiscard]
     public function withCatchAllErrors(): static
     {
         $this->errorHandlingMode = ErrorHandlingMode::ERROR_OBJECT;
@@ -149,18 +174,21 @@ class ConfigBuilder
      *
      * @param list<class-string<Throwable>> $classes
      */
+    #[\NoDiscard]
     public function withConvertExceptions(array $classes): static
     {
         $this->convertExceptionsToError = $classes;
         return $this;
     }
 
+    #[\NoDiscard]
     public function withRunningMode(?RunningModeInterface $mode): static
     {
         $this->runningMode = $mode;
         return $this;
     }
 
+    #[\NoDiscard]
     public function build(): Config
     {
         return new Config(

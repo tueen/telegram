@@ -37,6 +37,7 @@ $telegram = new Telegram($config);
 | `withConnectTimeout(float $seconds)` | `float` | `10.0` | Connection timeout for requests. |
 | `withProxy(?string $proxy)` | `?string` | `null` | HTTP or SOCKS5 proxy (e.g. `socks5h://127.0.0.1:9050`). |
 | `withHttpClient(?HttpClientInterface $client)` | `?HttpClientInterface` | `GuzzleHttpClient` | Custom PSR-18 or HTTP transport client. |
+| `withCurlClient(bool $persistent = true)` | `bool` | `true` | Native PHP 8.5 ultra-fast client with persistent cURL share handles. |
 | `withLogger(?LoggerInterface $logger)` | `?LoggerInterface` | `null` | PSR-3 compliant logger for request tracing. |
 | `withRetryCount(int $count)` | `int` | `3` | Number of automatic retries on rate limits (429) or transient network errors. |
 | `withTestEnvironment(bool $enabled)` | `bool` | `false` | Connects to Telegram's Test Environment (`/test`). |
@@ -45,6 +46,38 @@ $telegram = new Telegram($config);
 | `withErrorObjectMode(array $catch = [...])` | `array` | `[ApiException::class]` | Shorthand to enable error object mode. |
 | `withCatchAllErrors()` | - | - | Catches all `\Throwable` (including network errors) as `Error` objects. |
 | `withExceptionMode()` | - | - | Restores default exception-throwing behavior. |
+
+---
+
+## PHP 8.5 Modern Architecture
+
+### 1. `clone with` Expressions on Config
+The `Config` object is completely immutable. In PHP 8.5+, you can clone and modify properties fluently using `with...` methods without rebuilding from scratch:
+
+```php
+$config = new Config('YOUR_TOKEN', timeout: 30.0);
+
+// Returns a new Config instance via PHP 8.5 `clone with`:
+$fastConfig = $config->withTimeout(5.0)->withRetryCount(1);
+```
+
+### 2. High-Performance Native cURL Client
+PHP 8.5 introduces `curl_share_init_persistent()`. `tueen/telegram` includes `CurlHttpClient` which eliminates repetitive TLS handshakes and DNS lookups across requests:
+
+```php
+$config = Telegram::create('YOUR_TOKEN')
+    ->withCurlClient(persistent: true)
+    ->build();
+```
+
+### 3. Standards-Compliant `Uri\Rfc3986\Uri`
+Config exposes standard URI representations powered by PHP 8.5's native URI extension:
+
+```php
+$apiUri = $config->getApiUri();
+echo $apiUri->getHost(); // api.telegram.org
+echo $apiUri->getPath(); // /bot<token>
+```
 
 ---
 

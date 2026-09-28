@@ -308,6 +308,7 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
      * Determines whether the response is successful.
      * Always returns true for valid Type objects, and false for Error objects.
      */
+    #[\NoDiscard]
     public function ok(): bool
     {
         return true;
@@ -316,6 +317,7 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     /**
      * Alias for ok().
      */
+    #[\NoDiscard]
     public function isOk(): bool
     {
         return true;

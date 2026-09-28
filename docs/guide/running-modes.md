@@ -143,3 +143,20 @@ $config = Telegram::create('YOUR_BOT_TOKEN')
 
 $telegram = new Telegram($config);
 ```
+
+---
+
+## PHP 8.5 Pipe Operator (`|>`) Pipelines
+
+In modern PHP 8.5 applications, you can pipe raw update payloads directly into `$telegram->parseUpdate(...)` and your custom router/handler chain without intermediate variables:
+
+```php
+$response = file_get_contents('php://input')
+    |> $telegram->parseUpdate(...)
+    |> (function (Update $update) use ($telegram) {
+        if ($update->message?->text === '/start') {
+            return $telegram->sendMessage($update->message->chat->id, 'Welcome to Tueen!');
+        }
+        return null;
+    });
+```

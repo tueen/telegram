@@ -20,7 +20,7 @@ class ArrayResult extends Type implements Countable
     /**
      * @var array<int|string, mixed>
      */
-    public private(set) array $items = [];
+    private(set) array $items = [];
 
     /**
      * @param array<int|string, mixed> $items
@@ -39,6 +39,7 @@ class ArrayResult extends Type implements Countable
     /**
      * @return array<int|string, mixed>
      */
+    #[\NoDiscard]
     public function all(): array
     {
         return $this->items;
@@ -47,22 +48,19 @@ class ArrayResult extends Type implements Countable
     /**
      * @return mixed
      */
+    #[\NoDiscard]
     public function first(): mixed
     {
-        return $this->items[0] ?? null;
+        return array_first($this->items);
     }
 
     /**
      * @return mixed
      */
+    #[\NoDiscard]
     public function last(): mixed
     {
-        if (empty($this->items)) {
-            return null;
-        }
-
-        $lastKey = array_key_last($this->items);
-        return $this->items[$lastKey];
+        return array_last($this->items);
     }
 
     public function get(int|string $key, mixed $default = null): mixed

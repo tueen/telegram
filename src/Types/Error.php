@@ -45,6 +45,7 @@ class Error extends Type
     /**
      * Always returns false for Error objects.
      */
+    #[\NoDiscard]
     public function ok(): bool
     {
         return false;
@@ -53,6 +54,7 @@ class Error extends Type
     /**
      * Alias for ok().
      */
+    #[\NoDiscard]
     public function isOk(): bool
     {
         return false;

@@ -88,6 +88,7 @@ class Telegram
     /**
      * Fluent factory builder.
      */
+    #[\NoDiscard]
     public static function create(string $botToken): ConfigBuilder
     {
         return new ConfigBuilder($botToken);
@@ -450,6 +451,7 @@ class Telegram
     /**
      * Resolves an incoming update using the active running mode or provided raw payload.
      */
+    #[\NoDiscard]
     public function getUpdate(?string $rawInput = null): Update
     {
         $mode = $this->getRunningMode();
@@ -470,6 +472,25 @@ class Telegram
     }
 
     /**
+     * Parses a raw JSON string or array update payload into a strongly-typed Update object.
+     * Callable-friendly for use in PHP 8.5 pipe operator (|>) pipelines:
+     * $update = $jsonString |> $telegram->parseUpdate(...);
+     */
+    #[\NoDiscard]
+    public function parseUpdate(string|array $payload): Update
+    {
+        if (is_string($payload)) {
+            $decoded = json_decode($payload, true);
+            if (!is_array($decoded)) {
+                throw new TelegramException("Invalid JSON update payload: " . json_last_error_msg());
+            }
+            return new Update($decoded);
+        }
+
+        return new Update($payload);
+    }
+
+    /**
      * Executes the bot with an optional update handler according to the configured running mode.
      *
      * @param callable(Update): mixed|null $handler
@@ -482,6 +503,7 @@ class Telegram
     /**
      * Alias for getUpdate() for backward compatibility.
      */
+    #[\NoDiscard]
     public function handleWebhook(?string $rawInput = null): Update
     {
         return $this->getUpdate($rawInput);
@@ -498,6 +520,7 @@ class Telegram
         return $mode->getUpdatesGenerator($this);
     }
 
+    #[\NoDiscard]
     public function getConfig(): Config
     {
         return $this->config;

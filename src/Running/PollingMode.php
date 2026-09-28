@@ -63,6 +63,26 @@ class PollingMode implements RunningModeInterface
     }
 
     /**
+     * Returns the first update of a batch, or null if empty.
+     */
+    #[\NoDiscard]
+    public function getFirstUpdate(array $updates): ?Update
+    {
+        $first = array_first($updates);
+        return $first instanceof Update ? $first : null;
+    }
+
+    /**
+     * Returns the last update of a batch, or null if empty.
+     */
+    #[\NoDiscard]
+    public function getLastUpdate(array $updates): ?Update
+    {
+        $last = array_last($updates);
+        return $last instanceof Update ? $last : null;
+    }
+
+    /**
      * Runs continuous long-polling loop, dispatching updates to the handler.
      */
     public function processUpdate(Telegram $telegram, ?callable $handler = null): mixed

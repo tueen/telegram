@@ -39,7 +39,7 @@ class WebhookMode implements RunningModeInterface
      */
     public function getUpdate(Telegram $telegram): Update
     {
-        $this->validateSecretToken();
+        (void) $this->validateSecretToken();
 
         $rawInput = $this->rawInput ?? file_get_contents('php://input');
 
@@ -72,6 +72,7 @@ class WebhookMode implements RunningModeInterface
     /**
      * Validates the X-Telegram-Bot-Api-Secret-Token header if a secret token is configured.
      */
+    #[\NoDiscard]
     public function validateSecretToken(): bool
     {
         if ($this->secretToken === null) {
@@ -85,6 +86,20 @@ class WebhookMode implements RunningModeInterface
         }
 
         return true;
+    }
+
+    /**
+     * Validates whether a given webhook URL complies with Telegram HTTPS requirements.
+     */
+    #[\NoDiscard]
+    public function validateWebhookUrl(string $url): bool
+    {
+        try {
+            $uri = new \Uri\Rfc3986\Uri($url);
+            return $uri->getScheme() === 'https' && !empty($uri->getHost());
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**

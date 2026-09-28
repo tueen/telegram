@@ -15,16 +15,46 @@ class Request
      * @param string $httpMethod HTTP verb (POST or GET)
      */
     public function __construct(
-        public readonly string $endpoint,
-        public readonly array $parameters = [],
-        public readonly array $files = [],
-        public readonly string $httpMethod = 'POST',
-        public readonly ?\Closure $uploadProgress = null,
-        public readonly ?\Closure $downloadProgress = null
+        final public readonly string $endpoint,
+        final public readonly array $parameters = [],
+        final public readonly array $files = [],
+        final public readonly string $httpMethod = 'POST',
+        final public readonly ?\Closure $uploadProgress = null,
+        final public readonly ?\Closure $downloadProgress = null
     ) {}
 
     public function isMultipart(): bool
     {
         return !empty($this->files);
+    }
+
+    #[\NoDiscard]
+    public function withEndpoint(string $endpoint): self
+    {
+        return clone($this, ['endpoint' => $endpoint]);
+    }
+
+    #[\NoDiscard]
+    public function withParameter(string $name, mixed $value): self
+    {
+        return clone($this, ['parameters' => [...$this->parameters, $name => $value]]);
+    }
+
+    #[\NoDiscard]
+    public function withParameters(array $parameters): self
+    {
+        return clone($this, ['parameters' => $parameters]);
+    }
+
+    #[\NoDiscard]
+    public function withFile(string $name, InputFile $file): self
+    {
+        return clone($this, ['files' => [...$this->files, $name => $file]]);
+    }
+
+    #[\NoDiscard]
+    public function withHttpMethod(string $httpMethod): self
+    {
+        return clone($this, ['httpMethod' => $httpMethod]);
     }
 }
