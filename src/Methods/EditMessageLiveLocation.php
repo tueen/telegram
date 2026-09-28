@@ -100,8 +100,8 @@ class EditMessageLiveLocation extends Method
         mixed ...$extra
     )
     {
-        if ($latitude !== null) $this->latitude = $latitude;
-        if ($longitude !== null) $this->longitude = $longitude;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
@@ -111,6 +111,6 @@ class EditMessageLiveLocation extends Method
         if ($heading !== null) $this->heading = $heading;
         if ($proximityAlertRadius !== null) $this->proximityAlertRadius = $proximityAlertRadius;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

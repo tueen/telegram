@@ -43,9 +43,9 @@ class AnswerPreCheckoutQuery extends Method
         mixed ...$extra
     )
     {
-        if ($preCheckoutQueryId !== null) $this->preCheckoutQueryId = $preCheckoutQueryId;
-        if ($ok !== null) $this->ok = $ok;
+        $this->preCheckoutQueryId = $preCheckoutQueryId;
+        $this->ok = $ok;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

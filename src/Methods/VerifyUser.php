@@ -36,8 +36,8 @@ class VerifyUser extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
+        $this->userId = $userId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

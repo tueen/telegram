@@ -169,11 +169,11 @@ class SendVenue extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($latitude !== null) $this->latitude = $latitude;
-        if ($longitude !== null) $this->longitude = $longitude;
-        if ($title !== null) $this->title = $title;
-        if ($address !== null) $this->address = $address;
+        $this->chatId = $chatId;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->title = $title;
+        $this->address = $address;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
@@ -189,6 +189,6 @@ class SendVenue extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

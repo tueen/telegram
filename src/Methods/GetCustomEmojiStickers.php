@@ -29,7 +29,7 @@ class GetCustomEmojiStickers extends Method
         mixed ...$extra
     )
     {
-        if ($customEmojiIds !== null) $this->customEmojiIds = $customEmojiIds;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->customEmojiIds = $customEmojiIds;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

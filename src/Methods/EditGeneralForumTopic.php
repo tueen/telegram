@@ -36,8 +36,8 @@ class EditGeneralForumTopic extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($name !== null) $this->name = $name;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->name = $name;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

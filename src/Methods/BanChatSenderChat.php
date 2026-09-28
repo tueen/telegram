@@ -36,8 +36,8 @@ class BanChatSenderChat extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($senderChatId !== null) $this->senderChatId = $senderChatId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->senderChatId = $senderChatId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

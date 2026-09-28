@@ -268,9 +268,9 @@ class SendPoll extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($question !== null) $this->question = $question;
-        if ($options !== null) $this->options = $options;
+        $this->chatId = $chatId;
+        $this->question = $question;
+        $this->options = $options;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($questionParseMode !== null) $this->questionParseMode = $questionParseMode;
@@ -302,6 +302,6 @@ class SendPoll extends Method
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

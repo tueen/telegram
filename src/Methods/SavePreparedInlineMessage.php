@@ -65,12 +65,12 @@ class SavePreparedInlineMessage extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($result !== null) $this->result = $result;
+        $this->userId = $userId;
+        $this->result = $result;
         if ($allowUserChats !== null) $this->allowUserChats = $allowUserChats;
         if ($allowBotChats !== null) $this->allowBotChats = $allowBotChats;
         if ($allowGroupChats !== null) $this->allowGroupChats = $allowGroupChats;
         if ($allowChannelChats !== null) $this->allowChannelChats = $allowChannelChats;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

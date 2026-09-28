@@ -50,10 +50,10 @@ class CreateChatSubscriptionInviteLink extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($subscriptionPeriod !== null) $this->subscriptionPeriod = $subscriptionPeriod;
-        if ($subscriptionPrice !== null) $this->subscriptionPrice = $subscriptionPrice;
+        $this->chatId = $chatId;
+        $this->subscriptionPeriod = $subscriptionPeriod;
+        $this->subscriptionPrice = $subscriptionPrice;
         if ($name !== null) $this->name = $name;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

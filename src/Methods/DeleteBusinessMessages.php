@@ -36,8 +36,8 @@ class DeleteBusinessMessages extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($messageIds !== null) $this->messageIds = $messageIds;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->messageIds = $messageIds;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

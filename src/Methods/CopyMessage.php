@@ -148,9 +148,9 @@ class CopyMessage extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->fromChatId = $fromChatId;
+        $this->messageId = $messageId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($videoStartTimestamp !== null) $this->videoStartTimestamp = $videoStartTimestamp;
@@ -165,6 +165,6 @@ class CopyMessage extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

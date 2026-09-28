@@ -106,6 +106,6 @@ class EditMessageText extends Method
         if ($linkPreviewOptions !== null) $this->linkPreviewOptions = $linkPreviewOptions;
         if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

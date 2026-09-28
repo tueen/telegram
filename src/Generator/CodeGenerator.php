@@ -288,11 +288,15 @@ PHP;
             $paramDoc = "{$phpType} \${$camelName}{$defaultVal}";
             $params[] = $paramDoc;
 
-            $constructBody[] = "        if (\${$camelName} !== null) \$this->{$camelName} = \${$camelName};";
+            if ($required) {
+                $constructBody[] = "        \$this->{$camelName} = \${$camelName};";
+            } else {
+                $constructBody[] = "        if (\${$camelName} !== null) \$this->{$camelName} = \${$camelName};";
+            }
         }
 
         $params[] = 'mixed ...$extra';
-        $constructBody[] = "        if (!empty(\$extra)) \$this->handleExtraParameters(\$extra);";
+        $constructBody[] = "        if (\$extra) \$this->handleExtraParameters(\$extra);";
 
         $propsCode = implode("\n\n", $props);
         $paramsCode = implode(",\n        ", $params);

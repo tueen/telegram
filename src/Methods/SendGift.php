@@ -72,13 +72,13 @@ class SendGift extends Method
         mixed ...$extra
     )
     {
-        if ($giftId !== null) $this->giftId = $giftId;
+        $this->giftId = $giftId;
         if ($userId !== null) $this->userId = $userId;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($payForUpgrade !== null) $this->payForUpgrade = $payForUpgrade;
         if ($text !== null) $this->text = $text;
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

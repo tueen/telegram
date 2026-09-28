@@ -50,10 +50,10 @@ class TransferGift extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
-        if ($newOwnerChatId !== null) $this->newOwnerChatId = $newOwnerChatId;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->ownedGiftId = $ownedGiftId;
+        $this->newOwnerChatId = $newOwnerChatId;
         if ($starCount !== null) $this->starCount = $starCount;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

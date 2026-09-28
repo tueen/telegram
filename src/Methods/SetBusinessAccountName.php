@@ -43,9 +43,9 @@ class SetBusinessAccountName extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($firstName !== null) $this->firstName = $firstName;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->firstName = $firstName;
         if ($lastName !== null) $this->lastName = $lastName;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

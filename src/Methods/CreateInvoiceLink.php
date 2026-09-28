@@ -177,11 +177,11 @@ class CreateInvoiceLink extends Method
         mixed ...$extra
     )
     {
-        if ($title !== null) $this->title = $title;
-        if ($description !== null) $this->description = $description;
-        if ($payload !== null) $this->payload = $payload;
-        if ($currency !== null) $this->currency = $currency;
-        if ($prices !== null) $this->prices = $prices;
+        $this->title = $title;
+        $this->description = $description;
+        $this->payload = $payload;
+        $this->currency = $currency;
+        $this->prices = $prices;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($providerToken !== null) $this->providerToken = $providerToken;
         if ($subscriptionPeriod !== null) $this->subscriptionPeriod = $subscriptionPeriod;
@@ -199,6 +199,6 @@ class CreateInvoiceLink extends Method
         if ($sendPhoneNumberToProvider !== null) $this->sendPhoneNumberToProvider = $sendPhoneNumberToProvider;
         if ($sendEmailToProvider !== null) $this->sendEmailToProvider = $sendEmailToProvider;
         if ($isFlexible !== null) $this->isFlexible = $isFlexible;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -36,8 +36,8 @@ class VerifyChat extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
+        $this->chatId = $chatId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

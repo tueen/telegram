@@ -65,12 +65,12 @@ class CreateNewStickerSet extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($name !== null) $this->name = $name;
-        if ($title !== null) $this->title = $title;
-        if ($stickers !== null) $this->stickers = $stickers;
+        $this->userId = $userId;
+        $this->name = $name;
+        $this->title = $title;
+        $this->stickers = $stickers;
         if ($stickerType !== null) $this->stickerType = $stickerType;
         if ($needsRepainting !== null) $this->needsRepainting = $needsRepainting;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

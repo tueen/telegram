@@ -130,8 +130,8 @@ class SendSticker extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($sticker !== null) $this->sticker = $sticker;
+        $this->chatId = $chatId;
+        $this->sticker = $sticker;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
@@ -144,6 +144,6 @@ class SendSticker extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

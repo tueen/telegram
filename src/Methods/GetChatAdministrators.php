@@ -36,8 +36,8 @@ class GetChatAdministrators extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
+        $this->chatId = $chatId;
         if ($returnBots !== null) $this->returnBots = $returnBots;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

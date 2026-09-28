@@ -29,7 +29,7 @@ class DeleteStickerFromSet extends Method
         mixed ...$extra
     )
     {
-        if ($sticker !== null) $this->sticker = $sticker;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->sticker = $sticker;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

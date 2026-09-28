@@ -36,8 +36,8 @@ class CloseForumTopic extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->messageThreadId = $messageThreadId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

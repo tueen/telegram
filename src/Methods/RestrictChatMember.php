@@ -58,11 +58,11 @@ class RestrictChatMember extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($userId !== null) $this->userId = $userId;
-        if ($permissions !== null) $this->permissions = $permissions;
+        $this->chatId = $chatId;
+        $this->userId = $userId;
+        $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
         if ($untilDate !== null) $this->untilDate = $untilDate;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

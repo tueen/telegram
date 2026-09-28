@@ -59,11 +59,11 @@ class EditMessageChecklist extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
-        if ($checklist !== null) $this->checklist = $checklist;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
+        $this->checklist = $checklist;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

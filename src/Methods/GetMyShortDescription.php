@@ -30,6 +30,6 @@ class GetMyShortDescription extends Method
     )
     {
         if ($languageCode !== null) $this->languageCode = $languageCode;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

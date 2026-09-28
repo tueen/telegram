@@ -89,15 +89,15 @@ class EditEphemeralMessageText extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
-        if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
+        $this->chatId = $chatId;
+        $this->receiverUserId = $receiverUserId;
+        $this->ephemeralMessageId = $ephemeralMessageId;
         if ($text !== null) $this->text = $text;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($entities !== null) $this->entities = $entities;
         if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($linkPreviewOptions !== null) $this->linkPreviewOptions = $linkPreviewOptions;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

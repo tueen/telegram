@@ -188,8 +188,8 @@ class SendAnimation extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($animation !== null) $this->animation = $animation;
+        $this->chatId = $chatId;
+        $this->animation = $animation;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
@@ -210,6 +210,6 @@ class SendAnimation extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

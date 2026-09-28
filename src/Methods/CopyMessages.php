@@ -78,14 +78,14 @@ class CopyMessages extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
-        if ($messageIds !== null) $this->messageIds = $messageIds;
+        $this->chatId = $chatId;
+        $this->fromChatId = $fromChatId;
+        $this->messageIds = $messageIds;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($removeCaption !== null) $this->removeCaption = $removeCaption;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -29,7 +29,7 @@ class GetBusinessConnection extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

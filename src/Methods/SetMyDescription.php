@@ -38,6 +38,6 @@ class SetMyDescription extends Method
     {
         if ($description !== null) $this->description = $description;
         if ($languageCode !== null) $this->languageCode = $languageCode;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

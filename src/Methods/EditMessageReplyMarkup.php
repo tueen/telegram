@@ -63,6 +63,6 @@ class EditMessageReplyMarkup extends Method
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

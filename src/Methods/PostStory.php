@@ -88,15 +88,15 @@ class PostStory extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($content !== null) $this->content = $content;
-        if ($activePeriod !== null) $this->activePeriod = $activePeriod;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->content = $content;
+        $this->activePeriod = $activePeriod;
         if ($caption !== null) $this->caption = $caption;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($areas !== null) $this->areas = $areas;
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

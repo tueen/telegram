@@ -36,8 +36,8 @@ class TransferBusinessAccountStars extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($starCount !== null) $this->starCount = $starCount;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->starCount = $starCount;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

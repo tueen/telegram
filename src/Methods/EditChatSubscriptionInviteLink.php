@@ -43,9 +43,9 @@ class EditChatSubscriptionInviteLink extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
+        $this->chatId = $chatId;
+        $this->inviteLink = $inviteLink;
         if ($name !== null) $this->name = $name;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

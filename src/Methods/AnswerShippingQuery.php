@@ -50,10 +50,10 @@ class AnswerShippingQuery extends Method
         mixed ...$extra
     )
     {
-        if ($shippingQueryId !== null) $this->shippingQueryId = $shippingQueryId;
-        if ($ok !== null) $this->ok = $ok;
+        $this->shippingQueryId = $shippingQueryId;
+        $this->ok = $ok;
         if ($shippingOptions !== null) $this->shippingOptions = $shippingOptions;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

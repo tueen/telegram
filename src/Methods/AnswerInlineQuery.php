@@ -66,12 +66,12 @@ class AnswerInlineQuery extends Method
         mixed ...$extra
     )
     {
-        if ($inlineQueryId !== null) $this->inlineQueryId = $inlineQueryId;
-        if ($results !== null) $this->results = $results;
+        $this->inlineQueryId = $inlineQueryId;
+        $this->results = $results;
         if ($cacheTime !== null) $this->cacheTime = $cacheTime;
         if ($isPersonal !== null) $this->isPersonal = $isPersonal;
         if ($nextOffset !== null) $this->nextOffset = $nextOffset;
         if ($button !== null) $this->button = $button;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

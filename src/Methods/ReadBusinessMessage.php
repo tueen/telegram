@@ -43,9 +43,9 @@ class ReadBusinessMessage extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

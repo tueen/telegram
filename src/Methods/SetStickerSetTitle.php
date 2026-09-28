@@ -36,8 +36,8 @@ class SetStickerSetTitle extends Method
         mixed ...$extra
     )
     {
-        if ($name !== null) $this->name = $name;
-        if ($title !== null) $this->title = $title;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->name = $name;
+        $this->title = $title;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

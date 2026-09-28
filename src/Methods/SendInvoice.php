@@ -243,12 +243,12 @@ class SendInvoice extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($title !== null) $this->title = $title;
-        if ($description !== null) $this->description = $description;
-        if ($payload !== null) $this->payload = $payload;
-        if ($currency !== null) $this->currency = $currency;
-        if ($prices !== null) $this->prices = $prices;
+        $this->chatId = $chatId;
+        $this->title = $title;
+        $this->description = $description;
+        $this->payload = $payload;
+        $this->currency = $currency;
+        $this->prices = $prices;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($providerToken !== null) $this->providerToken = $providerToken;
@@ -274,6 +274,6 @@ class SendInvoice extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

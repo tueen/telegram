@@ -51,10 +51,10 @@ class CreateForumTopic extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($name !== null) $this->name = $name;
+        $this->chatId = $chatId;
+        $this->name = $name;
         if ($iconColor !== null) $this->iconColor = $iconColor;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

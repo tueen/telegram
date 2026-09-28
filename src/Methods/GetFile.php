@@ -30,7 +30,7 @@ class GetFile extends Method
         mixed ...$extra
     )
     {
-        if ($fileId !== null) $this->fileId = $fileId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->fileId = $fileId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

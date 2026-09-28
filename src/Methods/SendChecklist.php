@@ -81,14 +81,14 @@ class SendChecklist extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($checklist !== null) $this->checklist = $checklist;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->chatId = $chatId;
+        $this->checklist = $checklist;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -99,7 +99,7 @@ class GetChatGifts extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
+        $this->chatId = $chatId;
         if ($excludeUnsaved !== null) $this->excludeUnsaved = $excludeUnsaved;
         if ($excludeSaved !== null) $this->excludeSaved = $excludeSaved;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;
@@ -110,6 +110,6 @@ class GetChatGifts extends Method
         if ($sortByPrice !== null) $this->sortByPrice = $sortByPrice;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

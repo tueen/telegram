@@ -39,6 +39,6 @@ class SetMyDefaultAdministratorRights extends Method
     {
         if ($rights !== null) $this->rights = $rights;
         if ($forChannels !== null) $this->forChannels = $forChannels;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

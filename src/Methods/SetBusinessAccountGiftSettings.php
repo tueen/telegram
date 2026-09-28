@@ -44,9 +44,9 @@ class SetBusinessAccountGiftSettings extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($showGiftButton !== null) $this->showGiftButton = $showGiftButton;
-        if ($acceptedGiftTypes !== null) $this->acceptedGiftTypes = $acceptedGiftTypes;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->showGiftButton = $showGiftButton;
+        $this->acceptedGiftTypes = $acceptedGiftTypes;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

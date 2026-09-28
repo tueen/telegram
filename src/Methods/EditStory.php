@@ -73,13 +73,13 @@ class EditStory extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($storyId !== null) $this->storyId = $storyId;
-        if ($content !== null) $this->content = $content;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->storyId = $storyId;
+        $this->content = $content;
         if ($caption !== null) $this->caption = $caption;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($areas !== null) $this->areas = $areas;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

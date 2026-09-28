@@ -43,9 +43,9 @@ class GetUserProfileAudios extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
+        $this->userId = $userId;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

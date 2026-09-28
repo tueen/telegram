@@ -50,10 +50,10 @@ class UpgradeGift extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->ownedGiftId = $ownedGiftId;
         if ($keepOriginalDetails !== null) $this->keepOriginalDetails = $keepOriginalDetails;
         if ($starCount !== null) $this->starCount = $starCount;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -29,7 +29,7 @@ class RemoveUserVerification extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

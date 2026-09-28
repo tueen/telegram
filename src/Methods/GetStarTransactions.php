@@ -38,6 +38,6 @@ class GetStarTransactions extends Method
     {
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

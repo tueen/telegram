@@ -162,8 +162,8 @@ class PromoteChatMember extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($userId !== null) $this->userId = $userId;
+        $this->chatId = $chatId;
+        $this->userId = $userId;
         if ($isAnonymous !== null) $this->isAnonymous = $isAnonymous;
         if ($canManageChat !== null) $this->canManageChat = $canManageChat;
         if ($canDeleteMessages !== null) $this->canDeleteMessages = $canDeleteMessages;
@@ -182,6 +182,6 @@ class PromoteChatMember extends Method
         if ($canManageDirectMessages !== null) $this->canManageDirectMessages = $canManageDirectMessages;
         if ($canManageTags !== null) $this->canManageTags = $canManageTags;
         if ($canSendWelcomeMessages !== null) $this->canSendWelcomeMessages = $canSendWelcomeMessages;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

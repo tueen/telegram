@@ -75,13 +75,13 @@ class SetWebhook extends Method
         mixed ...$extra
     )
     {
-        if ($url !== null) $this->url = $url;
+        $this->url = $url;
         if ($certificate !== null) $this->certificate = $certificate;
         if ($ipAddress !== null) $this->ipAddress = $ipAddress;
         if ($maxConnections !== null) $this->maxConnections = $maxConnections;
         if ($allowedUpdates !== null) $this->allowedUpdates = $allowedUpdates;
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
         if ($secretToken !== null) $this->secretToken = $secretToken;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -38,6 +38,6 @@ class SetMyName extends Method
     {
         if ($name !== null) $this->name = $name;
         if ($languageCode !== null) $this->languageCode = $languageCode;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -29,7 +29,7 @@ class DeleteStickerSet extends Method
         mixed ...$extra
     )
     {
-        if ($name !== null) $this->name = $name;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->name = $name;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -65,12 +65,12 @@ class RepostStory extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
-        if ($fromStoryId !== null) $this->fromStoryId = $fromStoryId;
-        if ($activePeriod !== null) $this->activePeriod = $activePeriod;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->fromChatId = $fromChatId;
+        $this->fromStoryId = $fromStoryId;
+        $this->activePeriod = $activePeriod;
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

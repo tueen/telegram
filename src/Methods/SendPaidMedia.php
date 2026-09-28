@@ -148,9 +148,9 @@ class SendPaidMedia extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($starCount !== null) $this->starCount = $starCount;
-        if ($media !== null) $this->media = $media;
+        $this->chatId = $chatId;
+        $this->starCount = $starCount;
+        $this->media = $media;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
@@ -165,6 +165,6 @@ class SendPaidMedia extends Method
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

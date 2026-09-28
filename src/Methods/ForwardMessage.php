@@ -93,9 +93,9 @@ class ForwardMessage extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->fromChatId = $fromChatId;
+        $this->messageId = $messageId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($videoStartTimestamp !== null) $this->videoStartTimestamp = $videoStartTimestamp;
@@ -103,6 +103,6 @@ class ForwardMessage extends Method
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($suggestedPostParameters !== null) $this->suggestedPostParameters = $suggestedPostParameters;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

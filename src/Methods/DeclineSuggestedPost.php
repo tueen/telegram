@@ -43,9 +43,9 @@ class DeclineSuggestedPost extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
         if ($comment !== null) $this->comment = $comment;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

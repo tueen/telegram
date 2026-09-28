@@ -30,6 +30,6 @@ class GetChatMenuButton extends Method
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

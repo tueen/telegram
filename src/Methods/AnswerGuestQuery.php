@@ -37,8 +37,8 @@ class AnswerGuestQuery extends Method
         mixed ...$extra
     )
     {
-        if ($guestQueryId !== null) $this->guestQueryId = $guestQueryId;
-        if ($result !== null) $this->result = $result;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->guestQueryId = $guestQueryId;
+        $this->result = $result;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -43,9 +43,9 @@ class SetManagedBotAccessSettings extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($isAccessRestricted !== null) $this->isAccessRestricted = $isAccessRestricted;
+        $this->userId = $userId;
+        $this->isAccessRestricted = $isAccessRestricted;
         if ($addedUserIds !== null) $this->addedUserIds = $addedUserIds;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

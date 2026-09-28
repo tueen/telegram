@@ -54,6 +54,6 @@ class GetUpdates extends Method
         if ($limit !== null) $this->limit = $limit;
         if ($timeout !== null) $this->timeout = $timeout;
         if ($allowedUpdates !== null) $this->allowedUpdates = $allowedUpdates;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -36,8 +36,8 @@ class SetBusinessAccountBio extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        $this->businessConnectionId = $businessConnectionId;
         if ($bio !== null) $this->bio = $bio;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

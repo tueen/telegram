@@ -30,6 +30,6 @@ class DeleteWebhook extends Method
     )
     {
         if ($dropPendingUpdates !== null) $this->dropPendingUpdates = $dropPendingUpdates;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

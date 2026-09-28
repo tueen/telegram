@@ -39,6 +39,6 @@ class DeleteMyCommands extends Method
     {
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -37,8 +37,8 @@ class SetStickerMaskPosition extends Method
         mixed ...$extra
     )
     {
-        if ($sticker !== null) $this->sticker = $sticker;
+        $this->sticker = $sticker;
         if ($maskPosition !== null) $this->maskPosition = $maskPosition;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

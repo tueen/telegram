@@ -50,10 +50,10 @@ class GetGameHighScores extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
+        $this->userId = $userId;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -36,8 +36,8 @@ class RefundStarPayment extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->telegramPaymentChargeId = $telegramPaymentChargeId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

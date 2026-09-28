@@ -36,8 +36,8 @@ class SetChatTitle extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($title !== null) $this->title = $title;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->title = $title;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

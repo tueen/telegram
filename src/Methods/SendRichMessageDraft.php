@@ -65,12 +65,12 @@ class SendRichMessageDraft extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($draftId !== null) $this->draftId = $draftId;
-        if ($richMessage !== null) $this->richMessage = $richMessage;
+        $this->chatId = $chatId;
+        $this->draftId = $draftId;
+        $this->richMessage = $richMessage;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($canStop !== null) $this->canStop = $canStop;
         if ($keepOnStop !== null) $this->keepOnStop = $keepOnStop;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -71,13 +71,13 @@ class SetGameScore extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($score !== null) $this->score = $score;
+        $this->userId = $userId;
+        $this->score = $score;
         if ($force !== null) $this->force = $force;
         if ($disableEditMessage !== null) $this->disableEditMessage = $disableEditMessage;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

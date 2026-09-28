@@ -36,8 +36,8 @@ class SetCustomEmojiStickerSetThumbnail extends Method
         mixed ...$extra
     )
     {
-        if ($name !== null) $this->name = $name;
+        $this->name = $name;
         if ($customEmojiId !== null) $this->customEmojiId = $customEmojiId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

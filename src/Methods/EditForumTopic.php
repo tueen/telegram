@@ -50,10 +50,10 @@ class EditForumTopic extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
+        $this->chatId = $chatId;
+        $this->messageThreadId = $messageThreadId;
         if ($name !== null) $this->name = $name;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

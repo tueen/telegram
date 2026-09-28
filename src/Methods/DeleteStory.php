@@ -36,8 +36,8 @@ class DeleteStory extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($storyId !== null) $this->storyId = $storyId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->storyId = $storyId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

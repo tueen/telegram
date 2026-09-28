@@ -50,10 +50,10 @@ class DeleteMessageReaction extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
         if ($userId !== null) $this->userId = $userId;
         if ($actorChatId !== null) $this->actorChatId = $actorChatId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

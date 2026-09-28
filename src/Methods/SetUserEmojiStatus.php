@@ -43,9 +43,9 @@ class SetUserEmojiStatus extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
+        $this->userId = $userId;
         if ($emojiStatusCustomEmojiId !== null) $this->emojiStatusCustomEmojiId = $emojiStatusCustomEmojiId;
         if ($emojiStatusExpirationDate !== null) $this->emojiStatusExpirationDate = $emojiStatusExpirationDate;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

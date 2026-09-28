@@ -36,8 +36,8 @@ class DeleteMessages extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageIds !== null) $this->messageIds = $messageIds;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->messageIds = $messageIds;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

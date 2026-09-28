@@ -80,14 +80,14 @@ class EditEphemeralMessageCaption extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
-        if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
+        $this->chatId = $chatId;
+        $this->receiverUserId = $receiverUserId;
+        $this->ephemeralMessageId = $ephemeralMessageId;
         if ($caption !== null) $this->caption = $caption;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($showCaptionAboveMedia !== null) $this->showCaptionAboveMedia = $showCaptionAboveMedia;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

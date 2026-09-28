@@ -36,8 +36,8 @@ class RevokeChatInviteLink extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->inviteLink = $inviteLink;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

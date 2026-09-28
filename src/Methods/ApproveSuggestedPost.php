@@ -43,9 +43,9 @@ class ApproveSuggestedPost extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
         if ($sendDate !== null) $this->sendDate = $sendDate;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

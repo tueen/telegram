@@ -57,11 +57,11 @@ class AnswerCallbackQuery extends Method
         mixed ...$extra
     )
     {
-        if ($callbackQueryId !== null) $this->callbackQueryId = $callbackQueryId;
+        $this->callbackQueryId = $callbackQueryId;
         if ($text !== null) $this->text = $text;
         if ($showAlert !== null) $this->showAlert = $showAlert;
         if ($url !== null) $this->url = $url;
         if ($cacheTime !== null) $this->cacheTime = $cacheTime;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

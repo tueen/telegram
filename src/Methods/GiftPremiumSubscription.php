@@ -65,12 +65,12 @@ class GiftPremiumSubscription extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($monthCount !== null) $this->monthCount = $monthCount;
-        if ($starCount !== null) $this->starCount = $starCount;
+        $this->userId = $userId;
+        $this->monthCount = $monthCount;
+        $this->starCount = $starCount;
         if ($text !== null) $this->text = $text;
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

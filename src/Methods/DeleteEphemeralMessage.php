@@ -43,9 +43,9 @@ class DeleteEphemeralMessage extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
-        if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->receiverUserId = $receiverUserId;
+        $this->ephemeralMessageId = $ephemeralMessageId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

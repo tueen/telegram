@@ -36,8 +36,8 @@ class GetUserPersonalChatMessages extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->limit = $limit;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

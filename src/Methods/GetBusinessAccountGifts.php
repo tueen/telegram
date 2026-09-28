@@ -99,7 +99,7 @@ class GetBusinessAccountGifts extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        $this->businessConnectionId = $businessConnectionId;
         if ($excludeUnsaved !== null) $this->excludeUnsaved = $excludeUnsaved;
         if ($excludeSaved !== null) $this->excludeSaved = $excludeSaved;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;
@@ -110,6 +110,6 @@ class GetBusinessAccountGifts extends Method
         if ($sortByPrice !== null) $this->sortByPrice = $sortByPrice;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

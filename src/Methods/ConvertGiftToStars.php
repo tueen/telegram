@@ -36,8 +36,8 @@ class ConvertGiftToStars extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->businessConnectionId = $businessConnectionId;
+        $this->ownedGiftId = $ownedGiftId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

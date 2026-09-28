@@ -36,8 +36,8 @@ class SetStickerPositionInSet extends Method
         mixed ...$extra
     )
     {
-        if ($sticker !== null) $this->sticker = $sticker;
-        if ($position !== null) $this->position = $position;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->sticker = $sticker;
+        $this->position = $position;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -96,6 +96,6 @@ class EditMessageCaption extends Method
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;
         if ($showCaptionAboveMedia !== null) $this->showCaptionAboveMedia = $showCaptionAboveMedia;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -44,9 +44,9 @@ class SetBusinessAccountProfilePhoto extends Method
         mixed ...$extra
     )
     {
-        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
-        if ($photo !== null) $this->photo = $photo;
+        $this->businessConnectionId = $businessConnectionId;
+        $this->photo = $photo;
         if ($isPublic !== null) $this->isPublic = $isPublic;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -44,9 +44,9 @@ class SetChatPermissions extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($permissions !== null) $this->permissions = $permissions;
+        $this->chatId = $chatId;
+        $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

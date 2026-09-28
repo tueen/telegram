@@ -54,10 +54,10 @@ class SetStickerSetThumbnail extends Method
         mixed ...$extra
     )
     {
-        if ($name !== null) $this->name = $name;
-        if ($userId !== null) $this->userId = $userId;
-        if ($format !== null) $this->format = $format;
+        $this->name = $name;
+        $this->userId = $userId;
+        $this->format = $format;
         if ($thumbnail !== null) $this->thumbnail = $thumbnail;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

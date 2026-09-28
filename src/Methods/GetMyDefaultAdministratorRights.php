@@ -30,6 +30,6 @@ class GetMyDefaultAdministratorRights extends Method
     )
     {
         if ($forChannels !== null) $this->forChannels = $forChannels;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -85,7 +85,7 @@ class GetUserGifts extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
+        $this->userId = $userId;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;
         if ($excludeLimitedUpgradable !== null) $this->excludeLimitedUpgradable = $excludeLimitedUpgradable;
         if ($excludeLimitedNonUpgradable !== null) $this->excludeLimitedNonUpgradable = $excludeLimitedNonUpgradable;
@@ -94,6 +94,6 @@ class GetUserGifts extends Method
         if ($sortByPrice !== null) $this->sortByPrice = $sortByPrice;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

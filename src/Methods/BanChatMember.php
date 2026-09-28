@@ -50,10 +50,10 @@ class BanChatMember extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($userId !== null) $this->userId = $userId;
+        $this->chatId = $chatId;
+        $this->userId = $userId;
         if ($untilDate !== null) $this->untilDate = $untilDate;
         if ($revokeMessages !== null) $this->revokeMessages = $revokeMessages;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

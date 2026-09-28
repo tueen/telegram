@@ -44,9 +44,9 @@ class SetMyCommands extends Method
         mixed ...$extra
     )
     {
-        if ($commands !== null) $this->commands = $commands;
+        $this->commands = $commands;
         if ($scope !== null) $this->scope = $scope;
         if ($languageCode !== null) $this->languageCode = $languageCode;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -50,10 +50,10 @@ class PinChatMessage extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

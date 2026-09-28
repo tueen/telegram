@@ -43,9 +43,9 @@ class UnbanChatMember extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($userId !== null) $this->userId = $userId;
+        $this->chatId = $chatId;
+        $this->userId = $userId;
         if ($onlyIfBanned !== null) $this->onlyIfBanned = $onlyIfBanned;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

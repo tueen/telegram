@@ -36,8 +36,8 @@ class SetChatStickerSet extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($stickerSetName !== null) $this->stickerSetName = $stickerSetName;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->stickerSetName = $stickerSetName;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

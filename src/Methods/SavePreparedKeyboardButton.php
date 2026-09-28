@@ -37,8 +37,8 @@ class SavePreparedKeyboardButton extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($button !== null) $this->button = $button;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->button = $button;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

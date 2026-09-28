@@ -50,10 +50,10 @@ class SetMessageReaction extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($messageId !== null) $this->messageId = $messageId;
+        $this->chatId = $chatId;
+        $this->messageId = $messageId;
         if ($reaction !== null) $this->reaction = $reaction;
         if ($isBig !== null) $this->isBig = $isBig;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

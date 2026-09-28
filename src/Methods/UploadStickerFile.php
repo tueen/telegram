@@ -47,9 +47,9 @@ class UploadStickerFile extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($sticker !== null) $this->sticker = $sticker;
-        if ($stickerFormat !== null) $this->stickerFormat = $stickerFormat;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->sticker = $sticker;
+        $this->stickerFormat = $stickerFormat;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

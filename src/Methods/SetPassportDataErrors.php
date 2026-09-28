@@ -37,8 +37,8 @@ class SetPassportDataErrors extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($errors !== null) $this->errors = $errors;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->errors = $errors;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

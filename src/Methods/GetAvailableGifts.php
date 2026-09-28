@@ -23,6 +23,6 @@ class GetAvailableGifts extends Method
         mixed ...$extra
     )
     {
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

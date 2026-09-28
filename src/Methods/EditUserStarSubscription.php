@@ -43,9 +43,9 @@ class EditUserStarSubscription extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
-        if ($isCanceled !== null) $this->isCanceled = $isCanceled;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->telegramPaymentChargeId = $telegramPaymentChargeId;
+        $this->isCanceled = $isCanceled;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -36,8 +36,8 @@ class SetStickerKeywords extends Method
         mixed ...$extra
     )
     {
-        if ($sticker !== null) $this->sticker = $sticker;
+        $this->sticker = $sticker;
         if ($keywords !== null) $this->keywords = $keywords;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

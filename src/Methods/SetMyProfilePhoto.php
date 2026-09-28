@@ -30,7 +30,7 @@ class SetMyProfilePhoto extends Method
         mixed ...$extra
     )
     {
-        if ($photo !== null) $this->photo = $photo;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->photo = $photo;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

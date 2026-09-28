@@ -94,8 +94,8 @@ class SendGame extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($gameShortName !== null) $this->gameShortName = $gameShortName;
+        $this->chatId = $chatId;
+        $this->gameShortName = $gameShortName;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
@@ -104,6 +104,6 @@ class SendGame extends Method
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

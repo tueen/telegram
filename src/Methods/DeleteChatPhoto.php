@@ -29,7 +29,7 @@ class DeleteChatPhoto extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

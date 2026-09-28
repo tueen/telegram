@@ -39,8 +39,8 @@ class SetChatPhoto extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($photo !== null) $this->photo = $photo;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatId = $chatId;
+        $this->photo = $photo;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

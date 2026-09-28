@@ -37,8 +37,8 @@ class AnswerChatJoinRequestQuery extends Method
         mixed ...$extra
     )
     {
-        if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
-        if ($result !== null) $this->result = $result;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
+        $this->result = $result;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

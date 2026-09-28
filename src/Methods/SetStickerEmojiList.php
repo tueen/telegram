@@ -36,8 +36,8 @@ class SetStickerEmojiList extends Method
         mixed ...$extra
     )
     {
-        if ($sticker !== null) $this->sticker = $sticker;
-        if ($emojiList !== null) $this->emojiList = $emojiList;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->sticker = $sticker;
+        $this->emojiList = $emojiList;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -36,8 +36,8 @@ class SendChatJoinRequestWebApp extends Method
         mixed ...$extra
     )
     {
-        if ($chatJoinRequestQueryId !== null) $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
-        if ($webAppUrl !== null) $this->webAppUrl = $webAppUrl;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->chatJoinRequestQueryId = $chatJoinRequestQueryId;
+        $this->webAppUrl = $webAppUrl;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

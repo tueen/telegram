@@ -37,8 +37,8 @@ class AnswerWebAppQuery extends Method
         mixed ...$extra
     )
     {
-        if ($webAppQueryId !== null) $this->webAppQueryId = $webAppQueryId;
-        if ($result !== null) $this->result = $result;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->webAppQueryId = $webAppQueryId;
+        $this->result = $result;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

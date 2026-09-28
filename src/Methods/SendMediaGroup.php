@@ -93,8 +93,8 @@ class SendMediaGroup extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($media !== null) $this->media = $media;
+        $this->chatId = $chatId;
+        $this->media = $media;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
@@ -103,6 +103,6 @@ class SendMediaGroup extends Method
         if ($allowPaidBroadcast !== null) $this->allowPaidBroadcast = $allowPaidBroadcast;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;
         if ($replyParameters !== null) $this->replyParameters = $replyParameters;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -51,10 +51,10 @@ class ReplaceStickerInSet extends Method
         mixed ...$extra
     )
     {
-        if ($userId !== null) $this->userId = $userId;
-        if ($name !== null) $this->name = $name;
-        if ($oldSticker !== null) $this->oldSticker = $oldSticker;
-        if ($sticker !== null) $this->sticker = $sticker;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        $this->userId = $userId;
+        $this->name = $name;
+        $this->oldSticker = $oldSticker;
+        $this->sticker = $sticker;
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }

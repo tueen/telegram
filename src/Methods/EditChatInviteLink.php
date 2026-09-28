@@ -64,12 +64,12 @@ class EditChatInviteLink extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
+        $this->chatId = $chatId;
+        $this->inviteLink = $inviteLink;
         if ($name !== null) $this->name = $name;
         if ($expireDate !== null) $this->expireDate = $expireDate;
         if ($memberLimit !== null) $this->memberLimit = $memberLimit;
         if ($createsJoinRequest !== null) $this->createsJoinRequest = $createsJoinRequest;
-        if (!empty($extra)) $this->handleExtraParameters($extra);
+        if ($extra) $this->handleExtraParameters($extra);
     }
 }
