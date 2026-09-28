@@ -1,12 +1,14 @@
 {
     "name": "tueen/telegram",
-    "description": "The Royal Telegram Bot API Client for Tueen - fast, elegant, and ultra-modern",
+    "description": "The Royal Telegram Bot API Client — Strictly typed, forward-compatible, and crafted for modern PHP.",
     "type": "library",
     "license": "MIT",
+    "keywords": ["telegram", "telegram-bot", "telegram-bot-api", "bot-api", "bot", "tueen", "sdk", "api-client"],
     "authors": [
         {
-            "name": "Tueen Team",
-            "email": "dev@tueen.org"
+            "name": "Hadi Akbarzadeh",
+            "homepage": "https://elatel.ir",
+            "role": "Developer"
         }
     ],
     "require": {
