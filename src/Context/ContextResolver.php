@@ -263,7 +263,7 @@ class ContextResolver
     {
         $shortName = lcfirst(basename(str_replace('\\', '/', $className)));
 
-        // If single associative array passed, e.g. $telegram->sendMessage([...])
+        // If single associative array passed, e.g. $bot->sendMessage([...])
         if (count($arguments) === 1 && isset($arguments[0]) && is_array($arguments[0])) {
             $arguments = $arguments[0];
         }

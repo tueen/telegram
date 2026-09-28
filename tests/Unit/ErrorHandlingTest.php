@@ -99,7 +99,7 @@ class ErrorHandlingTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('TEST_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->build()
@@ -108,7 +108,7 @@ class ErrorHandlingTest extends TestCase
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Bad Request: chat not found');
 
-        $telegram->sendMessage(chatId: 99999, text: 'Hello');
+        $bot->sendMessage(chatId: 99999, text: 'Hello');
     }
 
     public function testErrorObjectModeReturnsErrorInstance(): void
@@ -132,9 +132,9 @@ class ErrorHandlingTest extends TestCase
 
         $this->assertSame(ErrorHandlingMode::ERROR_OBJECT, $config->errorHandlingMode);
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
-        $result = $telegram->sendMessage(chatId: 99999, text: 'Hello');
+        $result = $bot->sendMessage(chatId: 99999, text: 'Hello');
 
         $this->assertInstanceOf(Error::class, $result);
         $this->assertFalse($result->ok());
@@ -167,10 +167,10 @@ class ErrorHandlingTest extends TestCase
             ->withErrorObjectMode()
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         /** @var Error $result */
-        $result = $telegram->sendMessage(chatId: 12345, text: 'Hello');
+        $result = $bot->sendMessage(chatId: 12345, text: 'Hello');
 
         $this->assertInstanceOf(Error::class, $result);
         $this->assertFalse($result->ok());
@@ -192,10 +192,10 @@ class ErrorHandlingTest extends TestCase
             ->withCatchAllErrors()
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         /** @var Error $result */
-        $result = $telegram->getMe();
+        $result = $bot->getMe();
 
         $this->assertInstanceOf(Error::class, $result);
         $this->assertFalse($result->ok());
@@ -217,11 +217,11 @@ class ErrorHandlingTest extends TestCase
             ->withExceptionMode()
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         $this->expectException(NetworkException::class);
         $this->expectExceptionMessage('Connection reset by peer');
 
-        $telegram->getMe();
+        $bot->getMe();
     }
 }

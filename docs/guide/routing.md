@@ -14,11 +14,11 @@ You can register routes directly on your `Telegram` client instance.
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
 // 1. Handle bot commands (/start, /help, etc.)
 // Bot username (@my_bot) is stripped automatically:
-$telegram->onCommand('start', function (Update $update, Telegram $bot) {
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
     $bot->sendMessage(
         chatId: $update->findChat()->id,
         text: 'Welcome! How can I assist you today?'
@@ -26,7 +26,7 @@ $telegram->onCommand('start', function (Update $update, Telegram $bot) {
 });
 
 // 2. Handle callback queries with parameterized patterns
-$telegram->onCallbackQuery('item:{id}:details', function (Update $update, Telegram $bot, string $id) {
+$bot->onCallbackQuery('item:{id}:details', function (Update $update, Telegram $bot, string $id) {
     $bot->answerCallbackQuery(callbackQueryId: $update->callbackQuery->id);
     $bot->sendMessage(
         chatId: $update->findChat()->id,
@@ -35,7 +35,7 @@ $telegram->onCallbackQuery('item:{id}:details', function (Update $update, Telegr
 });
 
 // 3. Handle messages matching a regex pattern
-$telegram->onMessage('/^contact support$/i', function (Update $update, Telegram $bot) {
+$bot->onMessage('/^contact support$/i', function (Update $update, Telegram $bot) {
     $bot->sendMessage(
         chatId: $update->findChat()->id,
         text: 'A support agent will reach out shortly.'
@@ -43,13 +43,13 @@ $telegram->onMessage('/^contact support$/i', function (Update $update, Telegram 
 });
 
 // 4. Handle inline queries
-$telegram->onInlineQuery(function (Update $update, Telegram $bot) {
+$bot->onInlineQuery(function (Update $update, Telegram $bot) {
     $query = $update->inlineQuery->query;
     // Answer inline query...
 });
 
 // 5. Catch-all fallback route
-$telegram->onFallback(function (Update $update, Telegram $bot) {
+$bot->onFallback(function (Update $update, Telegram $bot) {
     $bot->sendMessage(
         chatId: $update->findChat()?->id,
         text: 'Sorry, I did not understand that command.'
@@ -57,7 +57,7 @@ $telegram->onFallback(function (Update $update, Telegram $bot) {
 });
 
 // Execute the bot (automatically triggers router dispatch)
-$telegram->run();
+$bot->run();
 ```
 
 ---
@@ -67,7 +67,7 @@ $telegram->run();
 The router provides first-class support for parameterized patterns using `{paramName}`:
 
 ```php
-$telegram->onCallbackQuery('cart:add:{productId}:{quantity}', function (
+$bot->onCallbackQuery('cart:add:{productId}:{quantity}', function (
     Update $update,
     Telegram $bot,
     string $productId,
@@ -80,7 +80,7 @@ $telegram->onCallbackQuery('cart:add:{productId}:{quantity}', function (
 You can also use full regular expressions:
 
 ```php
-$telegram->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', function (
+$bot->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', function (
     Update $update,
     Telegram $bot,
     string $action,
@@ -148,16 +148,16 @@ class ShopController
 
 ### Registering Controllers
 
-Register controllers with `$telegram->registerController(...)`:
+Register controllers with `$bot->registerController(...)`:
 
 ```php
-$telegram->registerController(ShopController::class);
-$telegram->registerController(UserController::class);
+$bot->registerController(ShopController::class);
+$bot->registerController(UserController::class);
 
-$telegram->run();
+$bot->run();
 ```
 
-If a PSR-11 container is configured (`$telegram->setContainer($container)`), controller instances and their constructor dependencies will be resolved automatically.
+If a PSR-11 container is configured (`$bot->setContainer($container)`), controller instances and their constructor dependencies will be resolved automatically.
 
 ---
 

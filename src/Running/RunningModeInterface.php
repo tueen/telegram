@@ -14,5 +14,5 @@ interface RunningModeInterface
      *
      * @param callable(Update): mixed|null $handler
      */
-    public function processUpdate(Telegram $telegram, ?callable $handler = null): mixed;
+    public function processUpdate(Telegram $bot, ?callable $handler = null): mixed;
 }

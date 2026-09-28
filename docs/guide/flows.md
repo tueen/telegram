@@ -95,12 +95,12 @@ Trigger a Flow from any command handler, callback query, or controller:
 use App\Flows\RegistrationFlow;
 
 // In a command handler:
-$telegram->onCommand('register', function (Update $update, Telegram $bot) {
+$bot->onCommand('register', function (Update $update, Telegram $bot) {
     $bot->startFlow(RegistrationFlow::class);
 });
 
 // Or pass custom initial data:
-$telegram->onCallbackQuery('onboard', function (Update $update, Telegram $bot) {
+$bot->onCallbackQuery('onboard', function (Update $update, Telegram $bot) {
     $bot->startFlow(RegistrationFlow::class, initialData: ['source' => 'inline_button']);
 });
 ```
@@ -176,7 +176,7 @@ Stores active flows in PHP memory. Ideal for testing, CLI long-polling workers, 
 ```php
 use Tueen\Telegram\Flow\Storage\MemoryStateStore;
 
-$telegram->setFlowStore(new MemoryStateStore());
+$bot->setFlowStore(new MemoryStateStore());
 ```
 
 ### 2. `RedisStateStore` (Distributed)
@@ -188,7 +188,7 @@ use Tueen\Telegram\Flow\Storage\RedisStateStore;
 $redis = new \Redis();
 $redis->connect('127.0.0.1', 6379);
 
-$telegram->setFlowStore(new RedisStateStore($redis, prefix: 'my_bot_flow:'));
+$bot->setFlowStore(new RedisStateStore($redis, prefix: 'my_bot_flow:'));
 ```
 
 ### 3. `Psr16StateStore` (PSR-16 Cache)
@@ -198,7 +198,7 @@ Integrates seamlessly with any PSR-16 compliant cache library (Laravel, Symfony 
 use Tueen\Telegram\Flow\Storage\Psr16StateStore;
 
 // In Laravel: Cache::store('redis') or standard PSR-16 cache
-$telegram->setFlowStore(new Psr16StateStore($psr16CacheInstance));
+$bot->setFlowStore(new Psr16StateStore($psr16CacheInstance));
 ```
 
 ### 4. `FileStateStore`
@@ -207,7 +207,7 @@ Stores serialized states as JSON files in a local directory (defaults to `sys_ge
 ```php
 use Tueen\Telegram\Flow\Storage\FileStateStore;
 
-$telegram->setFlowStore(new FileStateStore('/var/run/telegram_flows'));
+$bot->setFlowStore(new FileStateStore('/var/run/telegram_flows'));
 ```
 
 ### Custom Cache Drivers

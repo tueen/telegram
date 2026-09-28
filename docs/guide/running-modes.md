@@ -2,13 +2,13 @@
 
 `tueen/telegram` features an elegant execution strategy separating how updates are received from how they are processed.
 
-You can switch between **Webhook Mode** and **Long-Polling Mode** seamlessly. In all modes, incoming updates are resolved, stored in the `$telegram->update` property, and dispatched to your handler(s) with full type-safety.
+You can switch between **Webhook Mode** and **Long-Polling Mode** seamlessly. In all modes, incoming updates are resolved, stored in the `$bot->update` property, and dispatched to your handler(s) with full type-safety.
 
 ---
 
-## 🚀 Unified Execution with `$telegram->run()`
+## 🚀 Unified Execution with `$bot->run()`
 
-The `$telegram->run()` method is the central entry point for executing your bot. It inspects the configured `RunningMode` and dispatches incoming updates to your handlers.
+The `$bot->run()` method is the central entry point for executing your bot. It inspects the configured `RunningMode` and dispatches incoming updates to your handlers.
 
 ### 1. Handler Signature
 Handlers receive two parameters:
@@ -19,9 +19,9 @@ Handlers receive two parameters:
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
-$telegram->run(function (Update $update, Telegram $bot) {
+$bot->run(function (Update $update, Telegram $bot) {
     if ($update->message !== null) {
         $bot->sendMessage(
             chatId: $update->findChat()->id,
@@ -58,16 +58,16 @@ class CommandHandler
 Pass the class name string directly to `run()`:
 
 ```php
-$telegram->run(CommandHandler::class);
+$bot->run(CommandHandler::class);
 ```
 
-If a PSR-11 container (or callable resolver) is configured via `$telegram->setContainer($container)` or `ConfigBuilder::withContainer($container)`, Tueen will resolve handler dependencies through your container automatically.
+If a PSR-11 container (or callable resolver) is configured via `$bot->setContainer($container)` or `ConfigBuilder::withContainer($container)`, Tueen will resolve handler dependencies through your container automatically.
 
 ### 3. Multiple Handlers & Middleware Chains
 You can pass multiple handlers as variadic arguments or as an array. Handlers run in sequential order:
 
 ```php
-$telegram->run(
+$bot->run(
     AuthMiddleware::class,
     CommandHandler::class,
     function (Update $update, Telegram $bot) {
@@ -76,13 +76,13 @@ $telegram->run(
 );
 
 // Or using an array:
-$telegram->run([AuthMiddleware::class, CommandHandler::class]);
+$bot->run([AuthMiddleware::class, CommandHandler::class]);
 ```
 
-You can also pre-register handlers using the fluent `$telegram->handle(...)` method:
+You can also pre-register handlers using the fluent `$bot->handle(...)` method:
 
 ```php
-$telegram
+$bot
     ->handle(AuthMiddleware::class)
     ->handle(CommandHandler::class)
     ->run();
@@ -93,7 +93,7 @@ $telegram
 
 ---
 
-## 📦 The `$telegram->update` Property
+## 📦 The `$bot->update` Property
 
 The `Telegram` client maintains an internal `$update` property that defaults to `null`:
 
@@ -101,15 +101,15 @@ The `Telegram` client maintains an internal `$update` property that defaults to 
 private(set) ?Update $update = null;
 ```
 
-- When `run()` executes under **Webhook Mode**, the incoming update is resolved from the HTTP request and assigned to `$telegram->update`.
-- When `run()` executes under **Long-Polling Mode**, each received update is assigned to `$telegram->update` before being passed to handlers.
+- When `run()` executes under **Webhook Mode**, the incoming update is resolved from the HTTP request and assigned to `$bot->update`.
+- When `run()` executes under **Long-Polling Mode**, each received update is assigned to `$bot->update` before being passed to handlers.
 
 ```php
 // In a webhook controller:
-$telegram->run();
+$bot->run();
 
 // Access the resolved update directly:
-$chatId = $telegram->update?->findChat()?->id;
+$chatId = $bot->update?->findChat()?->id;
 ```
 
 ---
@@ -124,13 +124,13 @@ use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Running\WebhookMode;
 use Tueen\Telegram\Types\Update;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
 // Configure Webhook mode with optional secret token
-$telegram->setRunningMode(new WebhookMode(secretToken: 'your-secret-token'));
+$bot->setRunningMode(new WebhookMode(secretToken: 'your-secret-token'));
 
 // Run and dispatch
-$telegram->run(function (Update $update, Telegram $bot) {
+$bot->run(function (Update $update, Telegram $bot) {
     if ($update->message) {
         $bot->sendMessage(
             chatId: $update->message->chat->id,
@@ -146,11 +146,11 @@ Telegram allows specifying a `secret_token` when setting your webhook (`setWebho
 `WebhookMode` automatically verifies this header:
 ```php
 $mode = new WebhookMode(secretToken: 'my_super_secure_token');
-$telegram->setRunningMode($mode);
+$bot->setRunningMode($mode);
 
 // If the header is missing or doesn't match, a TelegramException is thrown immediately,
 // protecting your server from forged requests.
-$telegram->run(MyHandler::class);
+$bot->run(MyHandler::class);
 ```
 
 ### Fast Response (`safeResponse`)
@@ -162,13 +162,13 @@ $mode->safeResponse(); // Sends HTTP 200, Content-Type: application/json, closes
 
 // Continue heavy processing in the background:
 // e.g. generate AI images, process database transactions, etc.
-$telegram->run(HeavyProcessingHandler::class);
+$bot->run(HeavyProcessingHandler::class);
 ```
 
 ### Integration with Frameworks (Laravel, Symfony, PSR-7)
 ```php
 // In a Laravel Controller:
-public function webhook(Request $request, Telegram $telegram)
+public function webhook(Request $request, Telegram $bot)
 {
     $mode = new WebhookMode(
         secretToken: config('services.telegram.secret'),
@@ -176,9 +176,9 @@ public function webhook(Request $request, Telegram $telegram)
         headers: $request->headers->all()
     );
 
-    $telegram->setRunningMode($mode);
+    $bot->setRunningMode($mode);
 
-    $telegram->run(function (Update $update, Telegram $bot) {
+    $bot->run(function (Update $update, Telegram $bot) {
         // Handle update
     });
 
@@ -198,7 +198,7 @@ use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Types\Update;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
 // Set Polling mode
 $polling = new PollingMode(
@@ -207,11 +207,11 @@ $polling = new PollingMode(
     allowedUpdates: ['message', 'callback_query']
 );
 
-$telegram->setRunningMode($polling);
+$bot->setRunningMode($polling);
 
 // Starts infinite worker loop in CLI:
 echo "Bot started polling...\n";
-$telegram->run(function (Update $update, Telegram $bot) {
+$bot->run(function (Update $update, Telegram $bot) {
     echo "Received update #{$update->updateId}\n";
 
     if ($update->message?->text === '/ping') {
@@ -232,8 +232,8 @@ $polling = new PollingMode(timeout: 30);
 // Enable process forking (requires pcntl extension on CLI):
 $polling->forkProcess(true);
 
-$telegram->setRunningMode($polling);
-$telegram->run(MyUpdateHandler::class);
+$bot->setRunningMode($polling);
+$bot->run(MyUpdateHandler::class);
 ```
 
 When enabled, `PollingMode` forks a dedicated child process for each update (and automatically reaps completed children to avoid zombie processes). On environments where `pcntl_fork` is unavailable (e.g. Windows), it gracefully executes synchronously without crashing.
@@ -257,7 +257,7 @@ $polling->setProcessDispatcher(function (Update $update, Telegram $bot, callable
 If you prefer standard PHP `foreach` iteration:
 
 ```php
-foreach ($telegram->poll(timeout: 30) as $update) {
+foreach ($bot->poll(timeout: 30) as $update) {
     // Process $update
 }
 ```
@@ -270,7 +270,7 @@ The official Telegram Bot API method to fetch updates is `getUpdates` (plural). 
 
 ```php
 // Direct Telegram Bot API call:
-$updatesResult = $telegram->getUpdates(offset: 0, limit: 10);
+$updatesResult = $bot->getUpdates(offset: 0, limit: 10);
 
 if ($updatesResult->ok()) {
     foreach ($updatesResult->all() as $update) {
@@ -290,22 +290,22 @@ $config = Telegram::create('YOUR_BOT_TOKEN')
     ->withRunningMode(new WebhookMode(secretToken: 'my_secret'))
     ->build();
 
-$telegram = new Telegram($config);
-$telegram->run(MyHandler::class);
+$bot = new Telegram($config);
+$bot->run(MyHandler::class);
 ```
 
 ---
 
 ## PHP 8.5 Pipe Operator (`|>`) Pipelines
 
-In modern PHP 8.5 applications, you can pipe raw update payloads directly into `$telegram->parseUpdate(...)` without intermediate variables:
+In modern PHP 8.5 applications, you can pipe raw update payloads directly into `$bot->parseUpdate(...)` without intermediate variables:
 
 ```php
 $response = file_get_contents('php://input')
-    |> $telegram->parseUpdate(...)
-    |> (function (Update $update) use ($telegram) {
+    |> $bot->parseUpdate(...)
+    |> (function (Update $update) use ($bot) {
         if ($update->message?->text === '/start') {
-            return $telegram->sendMessage($update->message->chat->id, 'Welcome to Tueen!');
+            return $bot->sendMessage($update->message->chat->id, 'Welcome to Tueen!');
         }
         return null;
     });

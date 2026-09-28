@@ -128,25 +128,25 @@ class CustomResultTypesTest extends TestCase
             };
         });
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         // 1. Boolean return
-        $delResult = $telegram->deleteWebhook();
+        $delResult = $bot->deleteWebhook();
         $this->assertInstanceOf(BooleanResult::class, $delResult);
         $this->assertTrue($delResult->isTrue());
 
         // 2. Integer return
-        $countResult = $telegram->getChatMemberCount(chatId: 12345);
+        $countResult = $bot->getChatMemberCount(chatId: 12345);
         $this->assertInstanceOf(IntegerResult::class, $countResult);
         $this->assertSame(350, $countResult->toInt());
 
         // 3. String return
-        $linkResult = $telegram->exportChatInviteLink(chatId: 12345);
+        $linkResult = $bot->exportChatInviteLink(chatId: 12345);
         $this->assertInstanceOf(StringResult::class, $linkResult);
         $this->assertSame('https://t.me/+joinChat', $linkResult->toString());
 
         // 4. Array return
-        $updates = $telegram->getUpdates();
+        $updates = $bot->getUpdates();
         $this->assertInstanceOf(ArrayResult::class, $updates);
         $this->assertCount(2, $updates);
         $this->assertInstanceOf(Update::class, $updates[0]);

@@ -70,10 +70,10 @@ class TelegramClientTest extends TestCase
             ->withHttpClient($mockHttp)
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         /** @var User $botUser */
-        $botUser = $telegram->getMe();
+        $botUser = $bot->getMe();
 
         $this->assertInstanceOf(User::class, $botUser);
         $this->assertSame(12345678, $botUser->id);
@@ -109,10 +109,10 @@ class TelegramClientTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         /** @var Message $message */
-        $message = $telegram->sendMessage(chatId: 999888, text: 'Hello from Tueen!');
+        $message = $bot->sendMessage(chatId: 999888, text: 'Hello from Tueen!');
 
         $this->assertInstanceOf(Message::class, $message);
         $this->assertSame(101, $message->messageId);
@@ -126,10 +126,10 @@ class TelegramClientTest extends TestCase
         $mockHttp->method('send')
             ->willReturn(new Response(statusCode: 200, data: ['ok' => true, 'result' => true]));
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         $middlewareCalled = false;
-        $telegram->pipe(new class($middlewareCalled) implements MiddlewareInterface {
+        $bot->pipe(new class($middlewareCalled) implements MiddlewareInterface {
             public function __construct(private bool &$called) {}
             public function handle(Request $request, Config $config, callable $next): Response
             {
@@ -138,7 +138,7 @@ class TelegramClientTest extends TestCase
             }
         });
 
-        $telegram->deleteWebhook();
+        $bot->deleteWebhook();
         $this->assertTrue($middlewareCalled);
     }
 
@@ -155,12 +155,12 @@ class TelegramClientTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         $this->expectException(ApiException::class);
         $this->expectExceptionMessage('Bad Request: chat not found');
 
-        $telegram->sendMessage(chatId: -1, text: 'test');
+        $bot->sendMessage(chatId: -1, text: 'test');
     }
 
     public function testRateLimitExceptionThrown(): void
@@ -185,10 +185,10 @@ class TelegramClientTest extends TestCase
             ->withRetryCount(1)
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         try {
-            $telegram->sendMessage(chatId: 123, text: 'test');
+            $bot->sendMessage(chatId: 123, text: 'test');
             $this->fail("Expected RateLimitException was not thrown");
         } catch (RateLimitException $e) {
             $this->assertSame(429, $e->errorCode);
@@ -208,16 +208,16 @@ class TelegramClientTest extends TestCase
             ],
         ]);
 
-        $telegram = new Telegram('TOKEN');
-        $telegram->setRunningMode(new \Tueen\Telegram\Running\WebhookMode(rawInput: $payload));
+        $bot = new Telegram('TOKEN');
+        $bot->setRunningMode(new \Tueen\Telegram\Running\WebhookMode(rawInput: $payload));
 
-        $update = $telegram->run();
+        $update = $bot->run();
 
         $this->assertInstanceOf(Update::class, $update);
         $this->assertSame(777111, $update->updateId);
         $this->assertInstanceOf(Message::class, $update->message);
         $this->assertSame('/start', $update->message->text);
-        $this->assertSame($update, $telegram->update);
+        $this->assertSame($update, $bot->update);
     }
 
     public function testSendWithEnums(): void
@@ -230,20 +230,20 @@ class TelegramClientTest extends TestCase
             return new Response(200, ['ok' => true, 'result' => true]);
         });
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         // 1. sendChatAction with ChatAction enum
-        $telegram->sendChatAction(chatId: 12345, action: \Tueen\Telegram\Enums\ChatAction::TYPING);
+        $bot->sendChatAction(chatId: 12345, action: \Tueen\Telegram\Enums\ChatAction::TYPING);
         $this->assertArrayHasKey('sendChatAction', $sentRequests);
         $this->assertSame('typing', $sentRequests['sendChatAction']['action']);
 
         // 2. sendMessage with ParseMode enum
-        $telegram->sendMessage(chatId: 12345, text: '<b>Hi</b>', parseMode: \Tueen\Telegram\Enums\ParseMode::HTML);
+        $bot->sendMessage(chatId: 12345, text: '<b>Hi</b>', parseMode: \Tueen\Telegram\Enums\ParseMode::HTML);
         $this->assertArrayHasKey('sendMessage', $sentRequests);
         $this->assertSame('HTML', $sentRequests['sendMessage']['parse_mode']);
 
         // 3. sendDice with DiceEmoji enum
-        $telegram->sendDice(chatId: 12345, emoji: \Tueen\Telegram\Enums\DiceEmoji::SLOT);
+        $bot->sendDice(chatId: 12345, emoji: \Tueen\Telegram\Enums\DiceEmoji::SLOT);
         $this->assertArrayHasKey('sendDice', $sentRequests);
         $this->assertSame('🎰', $sentRequests['sendDice']['emoji']);
     }
@@ -258,10 +258,10 @@ class TelegramClientTest extends TestCase
             return new Response(200, ['ok' => true, 'result' => true]);
         });
 
-        $telegram = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
+        $bot = new Telegram(Telegram::create('TOKEN')->withHttpClient($mockHttp)->build());
 
         // Calling sendMessage with an unannounced new future Telegram parameter:
-        $telegram->sendMessage(
+        $bot->sendMessage(
             chatId: 123456,
             text: 'Testing forward compatibility',
             unannouncedFutureFeature: 'super_feature',

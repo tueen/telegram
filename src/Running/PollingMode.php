@@ -127,7 +127,7 @@ class PollingMode implements RunningModeInterface
     /**
      * Runs continuous long-polling loop, dispatching updates to the handler.
      */
-    public function processUpdate(Telegram $telegram, ?callable $handler = null): mixed
+    public function processUpdate(Telegram $bot, ?callable $handler = null): mixed
     {
         $this->stopped = false;
 
@@ -146,7 +146,7 @@ class PollingMode implements RunningModeInterface
             }
 
             try {
-                $response = $telegram->getUpdates(
+                $response = $bot->getUpdates(
                     offset: $this->offset,
                     limit: $this->limit,
                     timeout: $this->timeout,
@@ -170,11 +170,11 @@ class PollingMode implements RunningModeInterface
                     $this->offset = max($this->offset, $update->updateId + 1);
 
                     if ($this->processDispatcher !== null) {
-                        ($this->processDispatcher)($update, $telegram, fn() => $this->dispatchUpdate($telegram, $update, $handler));
+                        ($this->processDispatcher)($update, $bot, fn() => $this->dispatchUpdate($bot, $update, $handler));
                     } elseif ($this->forkProcess) {
-                        $this->forkAndDispatch($telegram, $update, $handler);
+                        $this->forkAndDispatch($bot, $update, $handler);
                     } else {
-                        $this->dispatchUpdate($telegram, $update, $handler);
+                        $this->dispatchUpdate($bot, $update, $handler);
                     }
 
                     if ($this->stopped) {
@@ -191,9 +191,9 @@ class PollingMode implements RunningModeInterface
         return null;
     }
 
-    private function dispatchUpdate(Telegram $telegram, Update $update, ?callable $handler): void
+    private function dispatchUpdate(Telegram $bot, Update $update, ?callable $handler): void
     {
-        $telegram->setUpdate($update);
+        $bot->setUpdate($update);
 
         if ($handler !== null) {
             $handler($update);
@@ -216,10 +216,10 @@ class PollingMode implements RunningModeInterface
         return $this->maxForkWorkers;
     }
 
-    private function forkAndDispatch(Telegram $telegram, Update $update, ?callable $handler): void
+    private function forkAndDispatch(Telegram $bot, Update $update, ?callable $handler): void
     {
         if (!function_exists('pcntl_fork')) {
-            $this->dispatchUpdate($telegram, $update, $handler);
+            $this->dispatchUpdate($bot, $update, $handler);
             return;
         }
 
@@ -242,17 +242,17 @@ class PollingMode implements RunningModeInterface
 
         if ($pid === -1) {
             // Failed to fork, execute synchronously
-            $this->dispatchUpdate($telegram, $update, $handler);
+            $this->dispatchUpdate($bot, $update, $handler);
             return;
         }
 
         if ($pid === 0) {
             // Child process
             try {
-                $this->dispatchUpdate($telegram, $update, $handler);
+                $this->dispatchUpdate($bot, $update, $handler);
             } catch (\Throwable $e) {
-                if ($telegram->getConfig()->logger !== null) {
-                    $telegram->getConfig()->logger->error("Error handling update in child process: " . $e->getMessage(), ['exception' => $e]);
+                if ($bot->getConfig()->logger !== null) {
+                    $bot->getConfig()->logger->error("Error handling update in child process: " . $e->getMessage(), ['exception' => $e]);
                 }
             } finally {
                 if (function_exists('posix__exit')) {
@@ -285,11 +285,11 @@ class PollingMode implements RunningModeInterface
      *
      * @return Generator<Update>
      */
-    public function getUpdatesGenerator(Telegram $telegram): Generator
+    public function getUpdatesGenerator(Telegram $bot): Generator
     {
         while (!$this->stopped) {
             try {
-                $response = $telegram->getUpdates(
+                $response = $bot->getUpdates(
                     offset: $this->offset,
                     limit: $this->limit,
                     timeout: $this->timeout,
@@ -308,7 +308,7 @@ class PollingMode implements RunningModeInterface
                 foreach ($updates as $update) {
                     if ($update instanceof Update) {
                         $this->offset = max($this->offset, $update->updateId + 1);
-                        $telegram->setUpdate($update);
+                        $bot->setUpdate($update);
                         yield $update;
                     }
                 }

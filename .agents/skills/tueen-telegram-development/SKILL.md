@@ -20,7 +20,7 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 - Refer to `php-85-standards` for Pipe Operator (`|>`), `clone with`, `#[\NoDiscard]`, and persistent share handles.
 - Use **Asymmetric Visibility** (`private(set)`) on all response Types. Never write redundant `public private(set)` as read-visibility is public by default.
 - Use **Property Hooks** for dynamic transformation, normalization, or validation.
-- Support the Pipe Operator (`|>`) and fluent middleware pipeline (`$telegram->pipe(...)`).
+- Support the Pipe Operator (`|>`) and fluent middleware pipeline (`$bot->pipe(...)`).
 
 ### 2. Forward-Compatibility & Resilience
 - Every response model must extend `Tueen\Telegram\Types\Type`.
@@ -35,13 +35,13 @@ This skill provides step-by-step procedures and rules for developing, testing, a
   ```
 - Use streaming sinks for downloads to avoid memory limits:
   ```php
-  $telegram->downloadFile($fileId, $destination, progress: $progressCallback);
+  $bot->downloadFile($fileId, $destination, progress: $progressCallback);
   ```
 
 ### 4. Running Modes & Handlers
 - Support interchangeable execution strategies via `RunningModeInterface` (`WebhookMode`, `PollingMode`).
-- Provide `$telegram->run(mixed ...$handlers)`, `$telegram->handle(...)`, and `$telegram->poll()`.
-- Populate `$telegram->update` with the active `Update` instance (defaults to `null`).
+- Provide `$bot->run(mixed ...$handlers)`, `$bot->handle(...)`, and `$bot->poll()`.
+- Populate `$bot->update` with the active `Update` instance (defaults to `null`).
 - Ensure `WebhookMode` handles `secret_token` validation and `safeResponse()` without blocking the server.
 - Ensure `PollingMode` maintains correct update offsets (`update_id + 1`), backoff logic, and configurable concurrency (`forkProcess`, `processDispatcher`).
 
@@ -67,7 +67,7 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 ### 9. Update Routing & Attribute Controllers
 - `Router` & `Route`: Flexible update routing matching commands (auto-stripping `@bot`), parameterized callback queries (`order:{id}`), text patterns/regex, inline queries, and fallbacks.
 - Declarative PHP 8 Attributes: `#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`.
-- Controller registration via `$telegram->registerController(...)` with PSR-11 container dependency injection.
+- Controller registration via `$bot->registerController(...)` with PSR-11 container dependency injection.
 
 ### 10. Multi-Step Conversation Flows (Flow)
 - `Flow`: Class-based conversational state machine where steps are methods.

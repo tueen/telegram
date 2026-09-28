@@ -39,10 +39,10 @@ class ProgressTest extends TestCase
             ->withUploadProgress($callback)
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         $doc = InputFile::fromString('content', 'test.txt');
-        $telegram->send(new SendDocument(chatId: 12345, document: $doc));
+        $bot->send(new SendDocument(chatId: 12345, document: $doc));
 
         $this->assertCount(2, $progressEvents);
         $this->assertSame([512, 1024, 50.0], $progressEvents[0]);
@@ -72,9 +72,9 @@ class ProgressTest extends TestCase
             ->withHttpClient($mockHttp)
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
-        $result = $telegram->downloadFile('photos/test.jpg', 'temp.jpg', progress: $callback);
+        $result = $bot->downloadFile('photos/test.jpg', 'temp.jpg', progress: $callback);
 
         $this->assertInstanceOf(\Tueen\Telegram\Types\Custom\BooleanResult::class, $result);
         $this->assertTrue($result->isTrue());

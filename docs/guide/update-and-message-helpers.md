@@ -78,15 +78,15 @@ The `Telegram` client facade exposes direct helper methods that proxy the active
 
 ```php
 // Active ID getters
-$chatId = $telegram->chatId();
-$userId = $telegram->userId();
-$msgId  = $telegram->messageId();
-$bizId  = $telegram->businessConnectionId();
+$chatId = $bot->chatId();
+$userId = $bot->userId();
+$msgId  = $bot->messageId();
+$bizId  = $bot->businessConnectionId();
 
 // Model objects
-$user    = $telegram->user();    // ?User
-$chat    = $telegram->chat();    // ?Chat
-$message = $telegram->message(); // ?Message
+$user    = $bot->user();    // ?User
+$chat    = $bot->chat();    // ?Chat
+$message = $bot->message(); // ?Message
 ```
 
 ---
@@ -183,7 +183,7 @@ if ($message->isCommand()) {
 
     switch ($command) {
         case 'start':
-            $telegram->sendMessage(chatId: $message->chat->id, text: 'Welcome!');
+            $bot->sendMessage(chatId: $message->chat->id, text: 'Welcome!');
             break;
 
         case 'ban':

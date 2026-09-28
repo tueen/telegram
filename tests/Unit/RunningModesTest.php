@@ -28,13 +28,13 @@ class RunningModesTest extends TestCase
         ]);
 
         $mode = new WebhookMode(rawInput: $payload);
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode($mode);
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode($mode);
 
         $handled = false;
         $receivedUpdate = null;
 
-        $update = $telegram->run(function (Update $up) use (&$handled, &$receivedUpdate) {
+        $update = $bot->run(function (Update $up) use (&$handled, &$receivedUpdate) {
             $handled = true;
             $receivedUpdate = $up;
         });
@@ -56,13 +56,13 @@ class RunningModesTest extends TestCase
             rawInput: $payload,
             headers: ['X-Telegram-Bot-Api-Secret-Token' => 'secret_123']
         );
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode($validMode);
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode($validMode);
 
-        $this->assertNull($telegram->update);
-        $update = $telegram->run();
+        $this->assertNull($bot->update);
+        $update = $bot->run();
         $this->assertSame(200, $update->updateId);
-        $this->assertSame($update, $telegram->update);
+        $this->assertSame($update, $bot->update);
 
         // 2. Fails when secret token does not match
         $invalidMode = new WebhookMode(
@@ -70,56 +70,56 @@ class RunningModesTest extends TestCase
             rawInput: $payload,
             headers: ['X-Telegram-Bot-Api-Secret-Token' => 'wrong_token']
         );
-        $telegram->setRunningMode($invalidMode);
+        $bot->setRunningMode($invalidMode);
 
         $this->expectException(TelegramException::class);
         $this->expectExceptionMessage('Invalid or missing Telegram webhook secret token.');
-        $telegram->run();
+        $bot->run();
     }
 
     public function testRunPassesUpdateAndBotInstance(): void
     {
         $payload = json_encode(['update_id' => 300]);
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode(new WebhookMode(rawInput: $payload));
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode(new WebhookMode(rawInput: $payload));
 
         $capturedUpdate = null;
         $capturedBot = null;
 
-        $telegram->run(function (Update $update, Telegram $bot) use (&$capturedUpdate, &$capturedBot) {
+        $bot->run(function (Update $update, Telegram $passedBot) use (&$capturedUpdate, &$capturedBot) {
             $capturedUpdate = $update;
-            $capturedBot = $bot;
+            $capturedBot = $passedBot;
         });
 
         $this->assertInstanceOf(Update::class, $capturedUpdate);
         $this->assertSame(300, $capturedUpdate->updateId);
-        $this->assertSame($telegram, $capturedBot);
-        $this->assertSame($capturedUpdate, $telegram->update);
+        $this->assertSame($bot, $capturedBot);
+        $this->assertSame($capturedUpdate, $bot->update);
     }
 
     public function testRunInvokableClassString(): void
     {
         $payload = json_encode(['update_id' => 400]);
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode(new WebhookMode(rawInput: $payload));
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode(new WebhookMode(rawInput: $payload));
 
         TestInvokableUpdateHandler::$invoked = false;
         TestInvokableUpdateHandler::$receivedUpdate = null;
         TestInvokableUpdateHandler::$receivedBot = null;
 
-        $telegram->run(TestInvokableUpdateHandler::class);
+        $bot->run(TestInvokableUpdateHandler::class);
 
         $this->assertTrue(TestInvokableUpdateHandler::$invoked);
         $this->assertSame(400, TestInvokableUpdateHandler::$receivedUpdate?->updateId);
-        $this->assertSame($telegram, TestInvokableUpdateHandler::$receivedBot);
-        $this->assertSame($telegram->update, TestInvokableUpdateHandler::$receivedUpdate);
+        $this->assertSame($bot, TestInvokableUpdateHandler::$receivedBot);
+        $this->assertSame($bot->update, TestInvokableUpdateHandler::$receivedUpdate);
     }
 
     public function testRunMultipleHandlersInArrayAndVariadic(): void
     {
         $payload = json_encode(['update_id' => 500]);
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode(new WebhookMode(rawInput: $payload));
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode(new WebhookMode(rawInput: $payload));
 
         $order = [];
 
@@ -131,24 +131,24 @@ class RunningModesTest extends TestCase
         };
 
         // Test variadic
-        $telegram->run($h1, $h2);
+        $bot->run($h1, $h2);
         $this->assertSame(['h1', 'h2'], $order);
 
         // Test array
         $order = [];
-        $telegram->run([$h1, $h2]);
+        $bot->run([$h1, $h2]);
         $this->assertSame(['h1', 'h2'], $order);
     }
 
     public function testHandleRegistrationAndPropagationStop(): void
     {
         $payload = json_encode(['update_id' => 600]);
-        $telegram = new Telegram('TEST_TOKEN');
-        $telegram->setRunningMode(new WebhookMode(rawInput: $payload));
+        $bot = new Telegram('TEST_TOKEN');
+        $bot->setRunningMode(new WebhookMode(rawInput: $payload));
 
         $called = [];
 
-        $telegram
+        $bot
             ->handle(function (Update $u, Telegram $b) use (&$called) {
                 $called[] = 1;
                 return false; // Stop propagation
@@ -213,18 +213,18 @@ class RunningModesTest extends TestCase
             ->withHttpClient($mockHttp)
             ->build();
 
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         $polling = new PollingMode(timeout: 10, limit: 10);
-        $telegram->setRunningMode($polling);
+        $bot->setRunningMode($polling);
 
         $receivedUpdates = [];
 
         // Run polling until we get update 102, then stop
-        $telegram->run(function (Update $update, Telegram $bot) use (&$receivedUpdates, $polling, $telegram) {
+        $bot->run(function (Update $update, Telegram $passedBot) use (&$receivedUpdates, $polling, $bot) {
             $receivedUpdates[] = $update->updateId;
-            $this->assertSame($update, $bot->update);
-            $this->assertSame($telegram, $bot);
+            $this->assertSame($update, $passedBot->update);
+            $this->assertSame($bot, $passedBot);
             if ($update->updateId === 102) {
                 $polling->stop();
             }
@@ -246,24 +246,24 @@ class RunningModesTest extends TestCase
         ]));
 
         $config = Telegram::create('TEST_TOKEN')->withHttpClient($mockHttp)->build();
-        $telegram = new Telegram($config);
+        $bot = new Telegram($config);
 
         $polling = new PollingMode(timeout: 1, limit: 1);
         $dispatched = false;
 
-        $polling->setProcessDispatcher(function (Update $update, Telegram $bot, callable $next) use (&$dispatched, $polling) {
+        $polling->setProcessDispatcher(function (Update $update, Telegram $b, callable $next) use (&$dispatched, $polling) {
             $dispatched = true;
             $next();
             $polling->stop();
         });
 
-        $telegram->setRunningMode($polling);
+        $bot->setRunningMode($polling);
 
         $handlerExecuted = false;
-        $telegram->run(function (Update $update, Telegram $bot) use (&$handlerExecuted) {
+        $bot->run(function (Update $update, Telegram $passedBot) use (&$handlerExecuted) {
             $handlerExecuted = true;
             $this->assertSame(1000, $update->updateId);
-            $this->assertSame($update, $bot->update);
+            $this->assertSame($update, $passedBot->update);
         });
 
         $this->assertTrue($dispatched);
@@ -279,8 +279,8 @@ class RunningModesTest extends TestCase
 
         $this->assertSame($mode, $config->runningMode);
 
-        $telegram = new Telegram($config);
-        $this->assertSame($mode, $telegram->getRunningMode());
+        $bot = new Telegram($config);
+        $this->assertSame($mode, $bot->getRunningMode());
     }
 }
 

@@ -52,7 +52,7 @@ class WebhookMode implements RunningModeInterface
     /**
      * Resolves and validates the incoming update from webhook payload.
      */
-    public function resolveUpdate(Telegram $telegram): Update
+    public function resolveUpdate(Telegram $bot): Update
     {
         $isValidToken = $this->validateSecretToken();
         unset($isValidToken);
@@ -74,18 +74,18 @@ class WebhookMode implements RunningModeInterface
     /**
      * Alias for resolveUpdate().
      */
-    public function getUpdate(Telegram $telegram): Update
+    public function getUpdate(Telegram $bot): Update
     {
-        return $this->resolveUpdate($telegram);
+        return $this->resolveUpdate($bot);
     }
 
     /**
      * Process the update, executing handler if provided, and returning the Update.
      */
-    public function processUpdate(Telegram $telegram, ?callable $handler = null): Update
+    public function processUpdate(Telegram $bot, ?callable $handler = null): Update
     {
-        $update = $this->resolveUpdate($telegram);
-        $telegram->setUpdate($update);
+        $update = $this->resolveUpdate($bot);
+        $bot->setUpdate($update);
 
         if ($handler !== null) {
             $handler($update);
@@ -135,12 +135,12 @@ class WebhookMode implements RunningModeInterface
     /**
      * Process an incoming PSR-7 ServerRequest, execute bot handlers, and return a PSR-7 Response.
      */
-    public function processPsrRequest(ServerRequestInterface $request, Telegram $telegram, mixed ...$handlers): ResponseInterface
+    public function processPsrRequest(ServerRequestInterface $request, Telegram $bot, mixed ...$handlers): ResponseInterface
     {
         $this->rawInput = (string)$request->getBody();
         $this->headers = $request->getHeaders();
 
-        $telegram->run(...$handlers);
+        $bot->run(...$handlers);
 
         return new Psr7Response(
             status: 200,

@@ -14,7 +14,7 @@ use Tueen\Telegram\Types\Custom\InputFile;
 
 $photo = InputFile::fromPath('/path/to/cat.jpg');
 
-$telegram->sendPhoto(
+$bot->sendPhoto(
     chatId: 123456,
     photo: $photo,
     caption: 'My cute cat!'
@@ -26,7 +26,7 @@ $telegram->sendPhoto(
 $fp = fopen('https://example.com/audio.mp3', 'rb');
 $audio = InputFile::fromResource($fp, 'audio.mp3');
 
-$telegram->sendAudio(
+$bot->sendAudio(
     chatId: 123456,
     audio: $audio
 );
@@ -36,7 +36,7 @@ $telegram->sendAudio(
 ```php
 $csv = InputFile::fromString("id,name\n1,Alice\n2,Bob", 'report.csv', 'text/csv');
 
-$telegram->sendDocument(
+$bot->sendDocument(
     chatId: 123456,
     document: $csv
 );
@@ -49,7 +49,7 @@ $telegram->sendDocument(
 To send multiple photos or videos as an album in a single message:
 
 ```php
-$telegram->sendMediaGroup(
+$bot->sendMediaGroup(
     chatId: 123456,
     media: [
         [
@@ -75,7 +75,7 @@ You can track upload progress per-request:
 use Tueen\Telegram\Methods\SendDocument;
 use Tueen\Telegram\Types\Custom\InputFile;
 
-$telegram->send(
+$bot->send(
     new SendDocument(
         chatId: 123456,
         document: InputFile::fromPath('/path/to/large_video.mp4')
@@ -92,10 +92,10 @@ $telegram->send(
 
 Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
 
-`$telegram->downloadFile` downloads directly to a local file or stream without loading the entire payload into RAM:
+`$bot->downloadFile` downloads directly to a local file or stream without loading the entire payload into RAM:
 
 ```php
-$telegram->downloadFile(
+$bot->downloadFile(
     file: 'photos/file_0.jpg', // or File object / file_id
     destination: '/local/path/saved.jpg',
     progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {

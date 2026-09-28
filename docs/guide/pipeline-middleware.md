@@ -21,13 +21,13 @@ Every request in `tueen/telegram` passes through an extensible onion pipeline be
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Pipeline\RateLimitMiddleware;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
 // Attach rate limiter with default Telegram limits (30 req/sec, 1 sec/chat):
-$telegram->pipe(new RateLimitMiddleware());
+$bot->pipe(new RateLimitMiddleware());
 
 // Or customize limits:
-$telegram->pipe(new RateLimitMiddleware(
+$bot->pipe(new RateLimitMiddleware(
     maxRequestsPerSecond: 25.0,
     chatIntervalSeconds: 1.2,
     autoRetryOn429: true
@@ -65,6 +65,6 @@ class CustomHeaderMiddleware implements MiddlewareInterface
 Attach it to your client:
 
 ```php
-$telegram = new Telegram('TOKEN');
-$telegram->pipe(new CustomHeaderMiddleware());
+$bot = new Telegram('TOKEN');
+$bot->pipe(new CustomHeaderMiddleware());
 ```

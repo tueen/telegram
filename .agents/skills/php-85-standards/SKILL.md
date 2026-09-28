@@ -27,7 +27,7 @@ $slug = $title
 
 // Telegram pipeline application:
 $response = $updatePayload
-    |> $telegram->parseUpdate(...)
+    |> $bot->parseUpdate(...)
     |> $middlewarePipeline->handle(...)
     |> $router->dispatch(...);
 ```

@@ -36,7 +36,7 @@ class LifecycleHooksTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('MOCK_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->build()
@@ -47,31 +47,31 @@ class LifecycleHooksTest extends TestCase
         $capturedAfter = null;
         $capturedResponse = null;
 
-        $telegram->onBeforeRequest(function (Request $req, Config $cfg) use (&$executionOrder, &$capturedBefore) {
+        $bot->onBeforeRequest(function (Request $req, Config $cfg) use (&$executionOrder, &$capturedBefore) {
             $executionOrder[] = 'before';
             $capturedBefore = [$req, $cfg];
         });
 
-        $telegram->onAfterRequest(function (Response $res, Request $req) use (&$executionOrder, &$capturedAfter) {
+        $bot->onAfterRequest(function (Response $res, Request $req) use (&$executionOrder, &$capturedAfter) {
             $executionOrder[] = 'after';
             $capturedAfter = [$res, $req];
         });
 
-        $telegram->onError(function (Throwable $e, Request $req) use (&$executionOrder) {
+        $bot->onError(function (Throwable $e, Request $req) use (&$executionOrder) {
             $executionOrder[] = 'error';
         });
 
-        $telegram->onResponse(function (Type $result, Request $req) use (&$executionOrder, &$capturedResponse) {
+        $bot->onResponse(function (Type $result, Request $req) use (&$executionOrder, &$capturedResponse) {
             $executionOrder[] = 'response';
             $capturedResponse = [$result, $req];
         });
 
-        /** @var User $bot */
-        $bot = $telegram->getMe();
+        /** @var User $botUser */
+        $botUser = $bot->getMe();
 
         $this->assertSame(['before', 'after', 'response'], $executionOrder);
-        $this->assertInstanceOf(User::class, $bot);
-        $this->assertSame(987654, $bot->id);
+        $this->assertInstanceOf(User::class, $botUser);
+        $this->assertSame(987654, $botUser->id);
 
         $this->assertInstanceOf(Request::class, $capturedBefore[0]);
         $this->assertSame('getMe', $capturedBefore[0]->endpoint);
@@ -81,7 +81,7 @@ class LifecycleHooksTest extends TestCase
         $this->assertTrue($capturedAfter[0]->isOk());
 
         $this->assertInstanceOf(User::class, $capturedResponse[0]);
-        $this->assertSame($bot, $capturedResponse[0]);
+        $this->assertSame($botUser, $capturedResponse[0]);
     }
 
     public function testLifecycleHooksOnException(): void
@@ -98,7 +98,7 @@ class LifecycleHooksTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('MOCK_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->build()
@@ -107,25 +107,25 @@ class LifecycleHooksTest extends TestCase
         $executionOrder = [];
         $capturedError = null;
 
-        $telegram->onBeforeRequest(function () use (&$executionOrder) {
+        $bot->onBeforeRequest(function () use (&$executionOrder) {
             $executionOrder[] = 'before';
         });
 
-        $telegram->onAfterRequest(function () use (&$executionOrder) {
+        $bot->onAfterRequest(function () use (&$executionOrder) {
             $executionOrder[] = 'after';
         });
 
-        $telegram->onError(function (Throwable $e, Request $req) use (&$executionOrder, &$capturedError) {
+        $bot->onError(function (Throwable $e, Request $req) use (&$executionOrder, &$capturedError) {
             $executionOrder[] = 'error';
             $capturedError = [$e, $req];
         });
 
-        $telegram->onResponse(function () use (&$executionOrder) {
+        $bot->onResponse(function () use (&$executionOrder) {
             $executionOrder[] = 'response';
         });
 
         try {
-            $telegram->sendMessage(chatId: 12345, text: 'Hi');
+            $bot->sendMessage(chatId: 12345, text: 'Hi');
             $this->fail('Expected ApiException to be thrown');
         } catch (ApiException $e) {
             $this->assertSame('Forbidden: bot was blocked by the user', $e->getMessage());
@@ -150,7 +150,7 @@ class LifecycleHooksTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('MOCK_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->withErrorObjectMode()
@@ -160,24 +160,24 @@ class LifecycleHooksTest extends TestCase
         $executionOrder = [];
         $capturedResponse = null;
 
-        $telegram->onBeforeRequest(function () use (&$executionOrder) {
+        $bot->onBeforeRequest(function () use (&$executionOrder) {
             $executionOrder[] = 'before';
         });
 
-        $telegram->onAfterRequest(function () use (&$executionOrder) {
+        $bot->onAfterRequest(function () use (&$executionOrder) {
             $executionOrder[] = 'after';
         });
 
-        $telegram->onError(function () use (&$executionOrder) {
+        $bot->onError(function () use (&$executionOrder) {
             $executionOrder[] = 'error';
         });
 
-        $telegram->onResponse(function (Type $result) use (&$executionOrder, &$capturedResponse) {
+        $bot->onResponse(function (Type $result) use (&$executionOrder, &$capturedResponse) {
             $executionOrder[] = 'response';
             $capturedResponse = $result;
         });
 
-        $result = $telegram->sendMessage(chatId: 12345, text: 'Very long text');
+        $result = $bot->sendMessage(chatId: 12345, text: 'Very long text');
 
         // In ErrorObject mode: before -> after -> error -> response (with Error object)
         $this->assertSame(['before', 'after', 'error', 'response'], $executionOrder);

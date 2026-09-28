@@ -15,7 +15,7 @@ Every response object produced by the library inherits from [`Type`](./methods-a
 - **`Error` Objects:** Always return `false`.
 
 ```php
-$res = $telegram->sendMessage(chatId: 12345, text: 'Hello!');
+$res = $bot->sendMessage(chatId: 12345, text: 'Hello!');
 
 if ($res->ok()) {
     echo "Success! Message ID: {$res->messageId}\n";
@@ -72,7 +72,7 @@ use Tueen\Telegram\Exceptions\BadRequestException;
 use Tueen\Telegram\Exceptions\ApiException;
 
 try {
-    $telegram->sendMessage(chatId: $userId, text: $markdownText, parseMode: 'MarkdownV2');
+    $bot->sendMessage(chatId: $userId, text: $markdownText, parseMode: 'MarkdownV2');
 } catch (BotBlockedException $e) {
     // User blocked the bot - mark user inactive in DB
     $user->update(['is_active' => false]);
@@ -81,7 +81,7 @@ try {
     $logger->warning("Chat {$userId} not found.");
 } catch (CantParseEntitiesException $e) {
     // Markdown syntax error - fallback to plain text
-    $telegram->sendMessage(chatId: $userId, text: strip_tags($markdownText));
+    $bot->sendMessage(chatId: $userId, text: strip_tags($markdownText));
 } catch (RateLimitException $e) {
     // Flood wait: inspect retryAfter duration
     sleep($e->getRetryAfter());
@@ -106,7 +106,7 @@ match ($error->reason) {
     TelegramErrorCode::BotBlocked => $user->markBlocked(),
     TelegramErrorCode::ChatNotFound => $user->delete(),
     TelegramErrorCode::FloodWait => sleep($error->getRetryAfter()),
-    TelegramErrorCode::CantParseEntities => $telegram->sendMessage(chatId: $chatId, text: $plain),
+    TelegramErrorCode::CantParseEntities => $bot->sendMessage(chatId: $chatId, text: $plain),
     default => $logger->error($error->description),
 };
 ```
@@ -121,13 +121,13 @@ To prevent API errors from throwing exceptions:
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Enums\TelegramErrorCode;
 
-$telegram = new Telegram(
+$bot = new Telegram(
     Telegram::create('YOUR_BOT_TOKEN')
         ->withErrorObjectMode()
         ->build()
 );
 
-$res = $telegram->sendMessage(chatId: 99999, text: 'Hi');
+$res = $bot->sendMessage(chatId: 99999, text: 'Hi');
 
 if (!$res->ok()) {
     // 1. Inspect typed reason
@@ -156,13 +156,13 @@ By default, `withErrorObjectMode()` only converts Telegram `ApiException` respon
 If you also want connection drops, cURL errors, and network timeouts converted into `Error` objects:
 
 ```php
-$telegram = new Telegram(
+$bot = new Telegram(
     Telegram::create('YOUR_BOT_TOKEN')
         ->withCatchAllErrors()
         ->build()
 );
 
-$res = $telegram->getMe();
+$res = $bot->getMe();
 
 if (!$res->ok()) {
     // Network/cURL errors receive negative error codes (e.g. -28)
@@ -195,25 +195,25 @@ In IDEs (PhpStorm, VSCode), all 185 methods in `TelegramMethods` and individual 
 You can register callbacks on the `Telegram` facade to observe or intercept requests and responses:
 
 ```php
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
 // 1. Before sending HTTP request
-$telegram->onBeforeRequest(function (Request $request, Config $config) {
+$bot->onBeforeRequest(function (Request $request, Config $config) {
     // Log outbound request or attach telemetry spans
 });
 
 // 2. Immediately after raw HTTP response is received
-$telegram->onAfterRequest(function (Response $response, Request $request) {
+$bot->onAfterRequest(function (Response $response, Request $request) {
     // Track HTTP status code and latency
 });
 
 // 3. When an error or exception occurs
-$telegram->onError(function (Throwable $error, Request $request) {
+$bot->onError(function (Throwable $error, Request $request) {
     // Send alert to Sentry, Bugsnag, or log
 });
 
 // 4. When the final result (Type or Error) is created
-$telegram->onResponse(function (Type $result, Request $request) {
+$bot->onResponse(function (Type $result, Request $request) {
     // Inspect the resulting Type or Error instance
 });
 ```

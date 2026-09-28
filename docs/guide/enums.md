@@ -16,7 +16,7 @@ ParseMode::MARKDOWN_V2; // 'MarkdownV2'
 ParseMode::MARKDOWN;    // 'Markdown' (Legacy)
 ```
 ```php
-$telegram->sendMessage(
+$bot->sendMessage(
     chatId: 12345,
     text: "<b>Hello</b> <i>World</i>!",
     parseMode: ParseMode::HTML
@@ -41,7 +41,7 @@ ChatAction::RECORD_VIDEO_NOTE;   // 'record_video_note'
 ChatAction::UPLOAD_VIDEO_NOTE;   // 'upload_video_note'
 ```
 ```php
-$telegram->sendChatAction(chatId: 12345, action: ChatAction::TYPING);
+$bot->sendChatAction(chatId: 12345, action: ChatAction::TYPING);
 ```
 
 ### `ChatType`
@@ -87,7 +87,7 @@ DiceEmoji::SLOT_MACHINE; // '🎰' (Values 1-64)
 DiceEmoji::BOWLING;      // '🎳' (Values 1-6)
 ```
 ```php
-$res = $telegram->sendDice(chatId: 12345, emoji: DiceEmoji::SLOT_MACHINE);
+$res = $bot->sendDice(chatId: 12345, emoji: DiceEmoji::SLOT_MACHINE);
 echo "Result value: {$res->dice->value}\n";
 ```
 

@@ -260,7 +260,7 @@ class Telegram
      * Dynamic method invocation for any Telegram Bot API method.
      *
      * Example:
-     * $telegram->sendMessage(chatId: 123456, text: 'Hello, Queen!');
+     * $bot->sendMessage(chatId: 123456, text: 'Hello, Queen!');
      */
     public function __call(string $name, array $arguments): mixed
     {
@@ -310,7 +310,7 @@ class Telegram
             return $reflection->newInstance();
         }
 
-        // If a single associative array is provided, e.g. $telegram->sendMessage([...])
+        // If a single associative array is provided, e.g. $bot->sendMessage([...])
         if (count($arguments) === 1 && isset($arguments[0]) && is_array($arguments[0])) {
             $arguments = $arguments[0];
         }
@@ -758,7 +758,7 @@ class Telegram
     /**
      * Parses a raw JSON string or array update payload into a strongly-typed Update object.
      * Callable-friendly for use in PHP 8.5 pipe operator (|>) pipelines:
-     * $update = $jsonString |> $telegram->parseUpdate(...);
+     * $update = $jsonString |> $bot->parseUpdate(...);
      */
     #[\NoDiscard]
     public function parseUpdate(string|array $payload): Update
@@ -861,7 +861,7 @@ class Telegram
      * Appends an update middleware to the incoming update pipeline.
      *
      * Example:
-     * $telegram->middleware(function (Update $update, Telegram $bot, callable $next) {
+     * $bot->middleware(function (Update $update, Telegram $bot, callable $next) {
      *     if ($update->findUserId() === 999) return null; // Block user
      *     return $next($update, $bot);
      * });

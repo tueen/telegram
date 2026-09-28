@@ -32,7 +32,7 @@ If you just need standard defaults:
 ```php
 use Tueen\Telegram\Telegram;
 
-$telegram = new Telegram('YOUR_BOT_TOKEN');
+$bot = new Telegram('YOUR_BOT_TOKEN');
 ```
 
 ### Fluent ConfigBuilder
@@ -48,7 +48,7 @@ $config = Telegram::create('YOUR_BOT_TOKEN')
     ->withErrorObjectMode()
     ->build();
 
-$telegram = new Telegram($config);
+$bot = new Telegram($config);
 ```
 
 ---
@@ -68,11 +68,11 @@ echo Telegram::BOT_API_VERSION; // "10.3"
 ## First API Call: `getMe`
 
 ```php
-$bot = $telegram->getMe();
+$me = $bot->getMe();
 
-if ($bot->ok()) {
-    echo "Bot ID: {$bot->id}\n";
-    echo "Bot Username: @{$bot->username}\n";
+if ($me->ok()) {
+    echo "Bot ID: {$me->id}\n";
+    echo "Bot Username: @{$me->username}\n";
 }
 ```
 
@@ -85,7 +85,7 @@ You can call any Telegram Bot API method directly using named arguments:
 ```php
 use Tueen\Telegram\Enums\ParseMode;
 
-$message = $telegram->sendMessage(
+$message = $bot->sendMessage(
     chatId: 123456789,
     text: 'Hello from <b>tueen/telegram</b>!',
     parseMode: ParseMode::HTML
@@ -109,7 +109,7 @@ use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
 // Run the bot using the configured running mode (Webhook or Polling)
-$telegram->run(function (Update $update, Telegram $bot) {
+$bot->run(function (Update $update, Telegram $bot) {
     $message = $update->findMessage();
     if ($message !== null) {
         $bot->sendMessage(

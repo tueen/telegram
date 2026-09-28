@@ -15,7 +15,7 @@ Call any Telegram method directly using camelCase and named arguments:
 ```php
 use Tueen\Telegram\Enums\ParseMode;
 
-$message = $telegram->sendMessage(
+$message = $bot->sendMessage(
     chatId: 12345678,
     text: "Hello from <b>Tueen</b>!",
     parseMode: ParseMode::HTML // Direct Enum instance
@@ -27,13 +27,13 @@ In `tueen/telegram`, **always invoke API methods using PHP named arguments** (`p
 
 ```php
 // ✅ RECOMMENDED: Clean, explicit, order-independent
-$telegram->sendMessage(
+$bot->sendMessage(
     text: "Welcome to the Royal Bot!",
     parseMode: ParseMode::HTML
 );
 
 // ❌ AVOID: Fragile positional arguments
-$telegram->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
+$bot->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
 ```
 
 #### Why Named Parameters Are Essential:
@@ -57,7 +57,7 @@ $method = new SendMessage(
     text: "Hello from Tueen!"
 );
 
-$message = $telegram->send($method);
+$message = $bot->send($method);
 ```
 
 ### 3. Forward-Compatible Unknown / New Parameters
@@ -66,7 +66,7 @@ If Telegram introduces a new parameter before the library updates, you can pass 
 
 ```php
 // If Telegram adds 'new_feature_flag' tomorrow:
-$message = $telegram->sendMessage(
+$message = $bot->sendMessage(
     chatId: 12345678,
     text: "Testing new feature",
     newFeatureFlag: true // Seamlessly passed to the API
@@ -83,7 +83,7 @@ use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\InlineKeyboardButton;
 use Tueen\Telegram\Types\LinkPreviewOptions;
 
-$telegram->sendMessage(
+$bot->sendMessage(
     chatId: 123456,
     text: "Check out Tueen:",
     replyMarkup: new InlineKeyboardMarkup(
@@ -101,7 +101,7 @@ $telegram->sendMessage(
 #### B. Using Structured Arrays
 You can also pass arrays; the library automatically normalizes, converts nested objects/enums, and serializes them:
 ```php
-$telegram->sendMessage(
+$bot->sendMessage(
     chatId: 123456,
     text: "Choose an option:",
     replyMarkup: [
@@ -125,7 +125,7 @@ In bot applications, repetitive parameters like `chat_id`, `business_connection_
 Inside any update handler or flow step, you never have to specify `chat_id` manually:
 
 ```php
-$telegram->onCommand('start', function (Update $update, Telegram $bot) {
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
     // chatId is automatically resolved from $update!
     // Always use named parameters:
     $bot->sendMessage(text: "Welcome to the Royal Bot!");
@@ -156,7 +156,7 @@ The following parameters are automatically inferred from the active update:
 Methods that can edit either a chat message or an inline query message (`editMessageText`, `editMessageCaption`, `editMessageReplyMarkup`, etc.) automatically detect whether the update came from an inline callback or a regular message:
 
 ```php
-$telegram->onCallbackQuery('confirm', function (Update $update, Telegram $bot) {
+$bot->onCallbackQuery('confirm', function (Update $update, Telegram $bot) {
     // Automatically injects either inline_message_id OR (chat_id + message_id)
     $bot->editMessageText(text: "Confirmed!");
 });
@@ -167,10 +167,10 @@ You can bind custom default values or dynamic resolvers using `bindDefault`:
 
 ```php
 // Always default parse_mode to HTML across all methods
-$telegram->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
+$bot->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
 
 // Send message without parse_mode parameter; HTML is injected automatically
-$telegram->sendMessage(text: "<b>Royal</b> Bot");
+$bot->sendMessage(text: "<b>Royal</b> Bot");
 ```
 
 ---
@@ -202,24 +202,24 @@ Methods that return primitive types (such as `boolean`, `integer`, or arrays) ar
 
 - **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`)
   ```php
-  $result = $telegram->deleteMessage(chatId: 123, messageId: 456);
+  $result = $bot->deleteMessage(chatId: 123, messageId: 456);
   if ($result->ok() && $result->value) {
       echo "Deleted successfully";
   }
   ```
 - **`IntegerResult`** (e.g. from `getChatMemberCount`)
   ```php
-  $count = $telegram->getChatMemberCount(chatId: -100123);
+  $count = $bot->getChatMemberCount(chatId: -100123);
   echo "Members: " . $count->value;
   ```
 - **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`)
   ```php
-  $link = $telegram->exportChatInviteLink(chatId: -100123);
+  $link = $bot->exportChatInviteLink(chatId: -100123);
   echo "Invite link: " . $link->value;
   ```
 - **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
   ```php
-  $updates = $telegram->getUpdates();
+  $updates = $bot->getUpdates();
   foreach ($updates as $update) {
     echo $update->updateId;
   }

@@ -110,7 +110,7 @@ class TypedErrorsTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('TEST_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->build()
@@ -118,7 +118,7 @@ class TypedErrorsTest extends TestCase
 
         $caught = false;
         try {
-            $telegram->sendMessage(chatId: 12345, text: 'Hello');
+            $bot->sendMessage(chatId: 12345, text: 'Hello');
         } catch (ChatNotFoundException $e) {
             $caught = true;
             $this->assertTrue($e->isChatNotFound());
@@ -143,7 +143,7 @@ class TypedErrorsTest extends TestCase
                 ]
             ));
 
-        $telegram = new Telegram(
+        $bot = new Telegram(
             Telegram::create('TEST_TOKEN')
                 ->withHttpClient($mockHttp)
                 ->withErrorObjectMode()
@@ -151,7 +151,7 @@ class TypedErrorsTest extends TestCase
         );
 
         /** @var Error $result */
-        $result = $telegram->sendMessage(chatId: 99999, text: 'Hello');
+        $result = $bot->sendMessage(chatId: 99999, text: 'Hello');
 
         $this->assertInstanceOf(Error::class, $result);
         $this->assertFalse($result->ok());
