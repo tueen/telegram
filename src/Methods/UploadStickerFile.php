@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\File;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\StickerFormat;
+use Tueen\Telegram\Types\Custom\InputFile;
+use Tueen\Telegram\Types\File;
 
 /**
  * Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success.

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\ForumTopic;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ForumIconColor;
+use Tueen\Telegram\Types\ForumTopic;
 
 /**
  * Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator right. Returns information about the created topic as a ForumTopic object.

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\TransactionPartnerType;
 
@@ -19,12 +18,12 @@ class TransactionPartnerTelegramApi extends TransactionPartner
      * Type of the transaction partner, always "telegram_api"
      */
     #[Field('type', required: true)]
-    public private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string $type;
 
     /**
      * The number of successful requests that exceeded regular limits and were therefore billed
      */
     #[Field('request_count', required: true)]
-    public private(set) int $requestCount;
+    private(set) int $requestCount;
 
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class ForumTopicEdited extends Type
      * Optional. New name of the topic, if it was edited
      */
     #[Field('name', required: false)]
-    public private(set) ?string $name = null;
+    private(set) ?string $name = null;
 
     /**
      * Optional. New identifier of the custom emoji shown as the topic icon, if it was edited; an empty string if the icon was removed
      */
     #[Field('icon_custom_emoji_id', required: false)]
-    public private(set) ?string $iconCustomEmojiId = null;
+    private(set) ?string $iconCustomEmojiId = null;
 
 }

@@ -18,7 +18,7 @@ class BotAccessSettings extends Type
      * True, if only selected users can access the bot. The bot's owner can always access it.
      */
     #[Field('is_access_restricted', required: true)]
-    public private(set) bool $isAccessRestricted;
+    private(set) bool $isAccessRestricted;
 
     /**
      * Optional. The list of other users who have access to the bot if the access is restricted
@@ -26,6 +26,6 @@ class BotAccessSettings extends Type
      */
     #[Field('added_users', required: false)]
     #[ArrayOf(User::class)]
-    public private(set) ?array $addedUsers = null;
+    private(set) ?array $addedUsers = null;
 
 }

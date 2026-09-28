@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\InputRichMessage;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\EphemeralMessageParameters;
-use Tueen\Telegram\Types\SuggestedPostParameters;
-use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\ForceReply;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\InputRichMessage;
+use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\ReplyKeyboardMarkup;
 use Tueen\Telegram\Types\ReplyKeyboardRemove;
-use Tueen\Telegram\Types\ForceReply;
+use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\SuggestedPostParameters;
 
 /**
  * Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent Message is returned.

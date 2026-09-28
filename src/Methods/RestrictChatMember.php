@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\ChatPermissions;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success.

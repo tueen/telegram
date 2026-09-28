@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\PaidMediaType;
 
@@ -19,24 +18,24 @@ class PaidMediaPreview extends PaidMedia
      * Type of the paid media, always "preview"
      */
     #[Field('type', required: true)]
-    public private(set) PaidMediaType|string $type;
+    private(set) PaidMediaType|string $type;
 
     /**
      * Optional. Media width as defined by the sender
      */
     #[Field('width', required: false)]
-    public private(set) ?int $width = null;
+    private(set) ?int $width = null;
 
     /**
      * Optional. Media height as defined by the sender
      */
     #[Field('height', required: false)]
-    public private(set) ?int $height = null;
+    private(set) ?int $height = null;
 
     /**
      * Optional. Duration of the media in seconds as defined by the sender
      */
     #[Field('duration', required: false)]
-    public private(set) ?int $duration = null;
+    private(set) ?int $duration = null;
 
 }

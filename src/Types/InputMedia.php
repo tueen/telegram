@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Attributes\Field;
-
 /**
  * This object represents the content of a media message to be sent. It should be one of
  * - InputMediaAnimation

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,32 +17,32 @@ class PollAnswer extends Type
      * Unique poll identifier
      */
     #[Field('poll_id', required: true)]
-    public private(set) string $pollId;
+    private(set) string $pollId;
 
     /**
      * Optional. The chat that changed the answer to the poll, if the voter is anonymous
      */
     #[Field('voter_chat', required: false)]
-    public private(set) ?Chat $voterChat = null;
+    private(set) ?Chat $voterChat = null;
 
     /**
      * Optional. The user that changed the answer to the poll, if the voter isn't anonymous
      */
     #[Field('user', required: false)]
-    public private(set) ?User $user = null;
+    private(set) ?User $user = null;
 
     /**
      * 0-based identifiers of chosen answer options. May be empty if the vote was retracted.
      * @var Integer[]|null
      */
     #[Field('option_ids', required: true)]
-    public private(set) array $optionIds;
+    private(set) array $optionIds;
 
     /**
      * Persistent identifiers of the chosen answer options. May be empty if the vote was retracted.
      * @var String[]|null
      */
     #[Field('option_persistent_ids', required: true)]
-    public private(set) array $optionPersistentIds;
+    private(set) array $optionPersistentIds;
 
 }

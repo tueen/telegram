@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\BackgroundFillType;
 
@@ -19,12 +18,12 @@ class BackgroundFillSolid extends BackgroundFill
      * Type of the background fill, always "solid"
      */
     #[Field('type', required: true)]
-    public private(set) BackgroundFillType|string $type;
+    private(set) BackgroundFillType|string $type;
 
     /**
      * The color of the background fill in the RGB24 format
      */
     #[Field('color', required: true)]
-    public private(set) int $color;
+    private(set) int $color;
 
 }

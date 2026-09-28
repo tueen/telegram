@@ -19,7 +19,7 @@ class RichBlockBlockQuotation extends RichBlock
      * Type of the block, always "blockquote"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Content of the block
@@ -27,12 +27,12 @@ class RichBlockBlockQuotation extends RichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    public private(set) array $blocks;
+    private(set) array $blocks;
 
     /**
      * Optional. Credit of the block
      */
     #[Field('credit', required: false)]
-    public private(set) ?RichText $credit = null;
+    private(set) ?RichText $credit = null;
 
 }

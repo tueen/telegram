@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\PassportSource;
 use Tueen\Telegram\Enums\PassportType;
@@ -20,24 +19,24 @@ class PassportElementErrorUnspecified extends PassportElementError
      * Error source, must be unspecified
      */
     #[Field('source', required: true)]
-    public private(set) PassportSource|string $source;
+    private(set) PassportSource|string $source;
 
     /**
      * Type of element of the user's Telegram Passport which has the issue
      */
     #[Field('type', required: true)]
-    public private(set) PassportType|string $type;
+    private(set) PassportType|string $type;
 
     /**
      * Base64-encoded element hash
      */
     #[Field('element_hash', required: true)]
-    public private(set) string $elementHash;
+    private(set) string $elementHash;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    public private(set) string $message;
+    private(set) string $message;
 
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichTextType;
 
@@ -19,18 +18,18 @@ class RichTextEmailAddress extends RichText
      * Type of the rich text, always "email_address"
      */
     #[Field('type', required: true)]
-    public private(set) RichTextType|string $type;
+    private(set) RichTextType|string $type;
 
     /**
      * The text
      */
     #[Field('text', required: true)]
-    public private(set) RichText $text;
+    private(set) RichText $text;
 
     /**
      * The email address
      */
     #[Field('email_address', required: true)]
-    public private(set) string $emailAddress;
+    private(set) string $emailAddress;
 
 }

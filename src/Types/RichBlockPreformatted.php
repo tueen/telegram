@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichBlockType;
 
@@ -19,18 +18,18 @@ class RichBlockPreformatted extends RichBlock
      * Type of the block, always "pre"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    public private(set) RichText $text;
+    private(set) RichText $text;
 
     /**
      * Optional. The programming language of the text
      */
     #[Field('language', required: false)]
-    public private(set) ?string $language = null;
+    private(set) ?string $language = null;
 
 }

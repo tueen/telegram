@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\BackgroundFillType;
 
@@ -19,24 +18,24 @@ class BackgroundFillGradient extends BackgroundFill
      * Type of the background fill, always "gradient"
      */
     #[Field('type', required: true)]
-    public private(set) BackgroundFillType|string $type;
+    private(set) BackgroundFillType|string $type;
 
     /**
      * Top color of the gradient in the RGB24 format
      */
     #[Field('top_color', required: true)]
-    public private(set) int $topColor;
+    private(set) int $topColor;
 
     /**
      * Bottom color of the gradient in the RGB24 format
      */
     #[Field('bottom_color', required: true)]
-    public private(set) int $bottomColor;
+    private(set) int $bottomColor;
 
     /**
      * Clockwise rotation angle of the background fill in degrees; 0-359
      */
     #[Field('rotation_angle', required: true)]
-    public private(set) int $rotationAngle;
+    private(set) int $rotationAngle;
 
 }

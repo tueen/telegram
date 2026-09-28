@@ -18,13 +18,13 @@ class Game extends Type
      * Title of the game
      */
     #[Field('title', required: true)]
-    public private(set) string $title;
+    private(set) string $title;
 
     /**
      * Description of the game
      */
     #[Field('description', required: true)]
-    public private(set) string $description;
+    private(set) string $description;
 
     /**
      * Photo that will be displayed in the game message in chats
@@ -32,13 +32,13 @@ class Game extends Type
      */
     #[Field('photo', required: true)]
     #[ArrayOf(PhotoSize::class)]
-    public private(set) array $photo;
+    private(set) array $photo;
 
     /**
      * Optional. Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters.
      */
     #[Field('text', required: false)]
-    public private(set) ?string $text = null;
+    private(set) ?string $text = null;
 
     /**
      * Optional. Special entities that appear in text, such as usernames, URLs, bot commands, etc.
@@ -46,12 +46,12 @@ class Game extends Type
      */
     #[Field('text_entities', required: false)]
     #[ArrayOf(MessageEntity::class)]
-    public private(set) ?array $textEntities = null;
+    private(set) ?array $textEntities = null;
 
     /**
      * Optional. Animation that will be displayed in the game message in chats. Upload via BotFather.
      */
     #[Field('animation', required: false)]
-    public private(set) ?Animation $animation = null;
+    private(set) ?Animation $animation = null;
 
 }

@@ -19,19 +19,19 @@ class StickerSet extends Type
      * Sticker set name
      */
     #[Field('name', required: true)]
-    public private(set) string $name;
+    private(set) string $name;
 
     /**
      * Sticker set title
      */
     #[Field('title', required: true)]
-    public private(set) string $title;
+    private(set) string $title;
 
     /**
      * Type of stickers in the set, currently one of "regular", "mask", "custom_emoji"
      */
     #[Field('sticker_type', required: true)]
-    public private(set) StickerType|string $stickerType;
+    private(set) StickerType|string $stickerType;
 
     /**
      * List of all set stickers
@@ -39,12 +39,12 @@ class StickerSet extends Type
      */
     #[Field('stickers', required: true)]
     #[ArrayOf(Sticker::class)]
-    public private(set) array $stickers;
+    private(set) array $stickers;
 
     /**
      * Optional. Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format
      */
     #[Field('thumbnail', required: false)]
-    public private(set) ?PhotoSize $thumbnail = null;
+    private(set) ?PhotoSize $thumbnail = null;
 
 }

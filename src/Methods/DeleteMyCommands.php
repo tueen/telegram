@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\BotCommandScope;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success.

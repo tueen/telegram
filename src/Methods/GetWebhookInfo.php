@@ -6,7 +6,6 @@ namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
 use Tueen\Telegram\Attributes\ReturnType;
-use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Types\WebhookInfo;
 
 /**

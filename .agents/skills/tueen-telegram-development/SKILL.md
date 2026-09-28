@@ -16,7 +16,7 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 
 ### 1. Modern PHP 8.4 & 8.5 Standards
 - Always enforce `declare(strict_types=1);`.
-- Use **Asymmetric Visibility** (`public private(set)`) on all response Types.
+- Use **Asymmetric Visibility** (`private(set)`) on all response Types. Never write redundant `public private(set)` as read-visibility is public by default.
 - Use **Property Hooks** for dynamic transformation, normalization, or validation.
 - Respect the PHP 8.5 Pipe Operator (`|>`) and fluent middleware pipeline (`$telegram->pipe(...)`).
 
@@ -62,6 +62,10 @@ This skill provides step-by-step procedures and rules for developing, testing, a
   - `docs/versions.json` specifies `current` version (e.g. `1.0.0-alpha.1`) and `archived` releases.
   - To archive a released version: `npm run docs:archive <version> [next-version]`.
   - To bump current version: `npm run docs:version <version>`.
+
+### 8. Telegram Bot API Version Constant & Synchronization Rule
+- The supported Telegram Bot API version is exposed via `Telegram::BOT_API_VERSION` (and `Telegram::API_VERSION`).
+- When a new Telegram Bot API version is released and `resources/api.json` is updated, `Telegram::BOT_API_VERSION` must be updated (automatically handled by `bin/generate.php` and verified via `TelegramClientTest`).
 
 ---
 

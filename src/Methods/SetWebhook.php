@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\RequiresUpload;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\InputFile;
-use Tueen\Telegram\Attributes\RequiresUpload;
 
 /**
  * Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.

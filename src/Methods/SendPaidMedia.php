@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
-use Tueen\Telegram\Types\SuggestedPostParameters;
-use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\ForceReply;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\ReplyKeyboardMarkup;
 use Tueen\Telegram\Types\ReplyKeyboardRemove;
-use Tueen\Telegram\Types\ForceReply;
+use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\SuggestedPostParameters;
 
 /**
  * Use this method to send paid media. On success, the sent Message is returned.

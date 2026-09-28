@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ChatJoinRequestResult;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to process a received chat join request query. Returns True on success.

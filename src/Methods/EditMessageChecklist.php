@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\InputChecklist;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\InputChecklist;
+use Tueen\Telegram\Types\Message;
 
 /**
  * Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned.

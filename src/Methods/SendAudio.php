@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Message;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
-use Tueen\Telegram\Types\EphemeralMessageParameters;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
-use Tueen\Telegram\Types\SuggestedPostParameters;
-use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\Custom\InputFile;
+use Tueen\Telegram\Types\EphemeralMessageParameters;
+use Tueen\Telegram\Types\ForceReply;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\ReplyKeyboardMarkup;
 use Tueen\Telegram\Types\ReplyKeyboardRemove;
-use Tueen\Telegram\Types\ForceReply;
+use Tueen\Telegram\Types\ReplyParameters;
+use Tueen\Telegram\Types\SuggestedPostParameters;
 
 /**
  * Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.

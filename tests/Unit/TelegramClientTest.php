@@ -19,6 +19,12 @@ use Tueen\Telegram\Types\User;
 
 class TelegramClientTest extends TestCase
 {
+    public function testBotApiVersionConstant(): void
+    {
+        $this->assertSame('10.3', Telegram::BOT_API_VERSION);
+        $this->assertSame(Telegram::BOT_API_VERSION, Telegram::API_VERSION);
+    }
+
     public function testFluentBuilder(): void
     {
         $config = Telegram::create('TEST_TOKEN_123')

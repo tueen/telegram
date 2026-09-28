@@ -18,7 +18,7 @@ class PaidMediaInfo extends Type
      * The number of Telegram Stars that must be paid to buy access to the media
      */
     #[Field('star_count', required: true)]
-    public private(set) int $starCount;
+    private(set) int $starCount;
 
     /**
      * Information about the paid media
@@ -26,6 +26,6 @@ class PaidMediaInfo extends Type
      */
     #[Field('paid_media', required: true)]
     #[ArrayOf(PaidMedia::class)]
-    public private(set) array $paidMedia;
+    private(set) array $paidMedia;
 
 }

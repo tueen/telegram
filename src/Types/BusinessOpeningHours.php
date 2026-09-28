@@ -18,7 +18,7 @@ class BusinessOpeningHours extends Type
      * Unique name of the time zone for which the opening hours are defined
      */
     #[Field('time_zone_name', required: true)]
-    public private(set) string $timeZoneName;
+    private(set) string $timeZoneName;
 
     /**
      * List of time intervals describing business opening hours
@@ -26,6 +26,6 @@ class BusinessOpeningHours extends Type
      */
     #[Field('opening_hours', required: true)]
     #[ArrayOf(BusinessOpeningHoursInterval::class)]
-    public private(set) array $openingHours;
+    private(set) array $openingHours;
 
 }

@@ -20,12 +20,12 @@ class RichMessage extends Type
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    public private(set) array $blocks;
+    private(set) array $blocks;
 
     /**
      * Optional. True, if the rich message must be shown right-to-left
      */
     #[Field('is_rtl', required: false)]
-    public private(set) ?bool $isRtl = null;
+    private(set) ?bool $isRtl = null;
 
 }

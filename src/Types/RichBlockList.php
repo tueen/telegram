@@ -19,7 +19,7 @@ class RichBlockList extends RichBlock
      * Type of the block, always "list"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Items of the list
@@ -27,6 +27,6 @@ class RichBlockList extends RichBlock
      */
     #[Field('items', required: true)]
     #[ArrayOf(RichBlockListItem::class)]
-    public private(set) array $items;
+    private(set) array $items;
 
 }

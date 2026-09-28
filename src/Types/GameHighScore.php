@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,18 +17,18 @@ class GameHighScore extends Type
      * Position in high score table for the game
      */
     #[Field('position', required: true)]
-    public private(set) int $position;
+    private(set) int $position;
 
     /**
      * User
      */
     #[Field('user', required: true)]
-    public private(set) User $user;
+    private(set) User $user;
 
     /**
      * Score
      */
     #[Field('score', required: true)]
-    public private(set) int $score;
+    private(set) int $score;
 
 }

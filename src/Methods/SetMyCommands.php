@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\BotCommandScope;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 
 /**
  * Use this method to change the list of the bot's commands. See this manual for more details about bot commands. Returns True on success.

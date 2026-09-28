@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,18 +17,18 @@ class ProximityAlertTriggered extends Type
      * User that triggered the alert
      */
     #[Field('traveler', required: true)]
-    public private(set) User $traveler;
+    private(set) User $traveler;
 
     /**
      * User that set the alert
      */
     #[Field('watcher', required: true)]
-    public private(set) User $watcher;
+    private(set) User $watcher;
 
     /**
      * The distance between the users
      */
     #[Field('distance', required: true)]
-    public private(set) int $distance;
+    private(set) int $distance;
 
 }

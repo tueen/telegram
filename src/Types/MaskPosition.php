@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\MaskPositionPoint;
 
@@ -19,24 +18,24 @@ class MaskPosition extends Type
      * The part of the face relative to which the mask should be placed. One of "forehead", "eyes", "mouth", or "chin".
      */
     #[Field('point', required: true)]
-    public private(set) MaskPositionPoint|string $point;
+    private(set) MaskPositionPoint|string $point;
 
     /**
      * Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position.
      */
     #[Field('x_shift', required: true)]
-    public private(set) float $xShift;
+    private(set) float $xShift;
 
     /**
      * Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position.
      */
     #[Field('y_shift', required: true)]
-    public private(set) float $yShift;
+    private(set) float $yShift;
 
     /**
      * Mask scaling coefficient. For example, 2.0 means double size.
      */
     #[Field('scale', required: true)]
-    public private(set) float $scale;
+    private(set) float $scale;
 
 }

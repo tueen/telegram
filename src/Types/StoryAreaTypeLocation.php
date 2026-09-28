@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\StoryAreaTypeType;
 
@@ -19,24 +18,24 @@ class StoryAreaTypeLocation extends StoryAreaType
      * Type of the area, always "location"
      */
     #[Field('type', required: true)]
-    public private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string $type;
 
     /**
      * Location latitude in degrees
      */
     #[Field('latitude', required: true)]
-    public private(set) float $latitude;
+    private(set) float $latitude;
 
     /**
      * Location longitude in degrees
      */
     #[Field('longitude', required: true)]
-    public private(set) float $longitude;
+    private(set) float $longitude;
 
     /**
      * Optional. Address of the location
      */
     #[Field('address', required: false)]
-    public private(set) ?LocationAddress $address = null;
+    private(set) ?LocationAddress $address = null;
 
 }

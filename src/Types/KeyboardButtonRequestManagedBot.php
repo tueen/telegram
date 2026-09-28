@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,18 +17,18 @@ class KeyboardButtonRequestManagedBot extends Type
      * Signed 32-bit identifier of the request. Must be unique within the message.
      */
     #[Field('request_id', required: true)]
-    public private(set) int $requestId;
+    private(set) int $requestId;
 
     /**
      * Optional. Suggested name for the bot
      */
     #[Field('suggested_name', required: false)]
-    public private(set) ?string $suggestedName = null;
+    private(set) ?string $suggestedName = null;
 
     /**
      * Optional. Suggested username for the bot
      */
     #[Field('suggested_username', required: false)]
-    public private(set) ?string $suggestedUsername = null;
+    private(set) ?string $suggestedUsername = null;
 
 }

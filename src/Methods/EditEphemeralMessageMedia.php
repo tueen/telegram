@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\Custom\BooleanResult;
-use Tueen\Telegram\Types\InputMedia;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\InputMedia;
 
 /**
  * Use this method to edit the media of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned.

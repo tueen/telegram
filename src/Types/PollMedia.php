@@ -18,37 +18,37 @@ class PollMedia extends Type
      * Optional. Media is an animation, information about the animation
      */
     #[Field('animation', required: false)]
-    public private(set) ?Animation $animation = null;
+    private(set) ?Animation $animation = null;
 
     /**
      * Optional. Media is an audio file, information about the file; currently, can't be received in a poll option
      */
     #[Field('audio', required: false)]
-    public private(set) ?Audio $audio = null;
+    private(set) ?Audio $audio = null;
 
     /**
      * Optional. Media is a general file, information about the file; currently, can't be received in a poll option
      */
     #[Field('document', required: false)]
-    public private(set) ?Document $document = null;
+    private(set) ?Document $document = null;
 
     /**
      * Optional. The HTTP link attached to the poll option
      */
     #[Field('link', required: false)]
-    public private(set) ?Link $link = null;
+    private(set) ?Link $link = null;
 
     /**
      * Optional. Media is a live photo, information about the live photo
      */
     #[Field('live_photo', required: false)]
-    public private(set) ?LivePhoto $livePhoto = null;
+    private(set) ?LivePhoto $livePhoto = null;
 
     /**
      * Optional. Media is a shared location, information about the location
      */
     #[Field('location', required: false)]
-    public private(set) ?Location $location = null;
+    private(set) ?Location $location = null;
 
     /**
      * Optional. Media is a photo, available sizes of the photo
@@ -56,24 +56,24 @@ class PollMedia extends Type
      */
     #[Field('photo', required: false)]
     #[ArrayOf(PhotoSize::class)]
-    public private(set) ?array $photo = null;
+    private(set) ?array $photo = null;
 
     /**
      * Optional. Media is a sticker, information about the sticker; currently, for poll options only
      */
     #[Field('sticker', required: false)]
-    public private(set) ?Sticker $sticker = null;
+    private(set) ?Sticker $sticker = null;
 
     /**
      * Optional. Media is a venue, information about the venue
      */
     #[Field('venue', required: false)]
-    public private(set) ?Venue $venue = null;
+    private(set) ?Venue $venue = null;
 
     /**
      * Optional. Media is a video, information about the video
      */
     #[Field('video', required: false)]
-    public private(set) ?Video $video = null;
+    private(set) ?Video $video = null;
 
 }

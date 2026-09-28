@@ -19,7 +19,7 @@ class RichBlockTable extends RichBlock
      * Type of the block, always "table"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Cells of the table
@@ -27,30 +27,30 @@ class RichBlockTable extends RichBlock
      */
     #[Field('cells', required: true)]
     #[ArrayOf(RichBlockTableCell::class)]
-    public private(set) array $cells;
+    private(set) array $cells;
 
     /**
      * Optional. True, if the table has borders
      */
     #[Field('is_bordered', required: false)]
-    public private(set) ?bool $isBordered = null;
+    private(set) ?bool $isBordered = null;
 
     /**
      * Optional. True, if the table is striped
      */
     #[Field('is_striped', required: false)]
-    public private(set) ?bool $isStriped = null;
+    private(set) ?bool $isStriped = null;
 
     /**
      * Optional. True, if table cells have smaller indents
      */
     #[Field('is_compact', required: false)]
-    public private(set) ?bool $isCompact = null;
+    private(set) ?bool $isCompact = null;
 
     /**
      * Optional. Caption of the table
      */
     #[Field('caption', required: false)]
-    public private(set) ?RichText $caption = null;
+    private(set) ?RichText $caption = null;
 
 }

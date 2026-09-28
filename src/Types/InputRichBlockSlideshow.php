@@ -19,7 +19,7 @@ class InputRichBlockSlideshow extends InputRichBlock
      * Type of the block, always "slideshow"
      */
     #[Field('type', required: true)]
-    public private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string $type;
 
     /**
      * Elements of the slideshow
@@ -27,12 +27,12 @@ class InputRichBlockSlideshow extends InputRichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(InputRichBlock::class)]
-    public private(set) array $blocks;
+    private(set) array $blocks;
 
     /**
      * Optional. Caption of the block
      */
     #[Field('caption', required: false)]
-    public private(set) ?RichBlockCaption $caption = null;
+    private(set) ?RichBlockCaption $caption = null;
 
 }

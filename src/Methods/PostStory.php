@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Story;
-use Tueen\Telegram\Types\InputStoryContent;
-use Tueen\Telegram\Enums\StoryActivePeriod;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Enums\StoryActivePeriod;
+use Tueen\Telegram\Types\InputStoryContent;
+use Tueen\Telegram\Types\Story;
 
 /**
  * Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success.

@@ -20,6 +20,6 @@ class Gifts extends Type
      */
     #[Field('gifts', required: true)]
     #[ArrayOf(Gift::class)]
-    public private(set) array $gifts;
+    private(set) array $gifts;
 
 }

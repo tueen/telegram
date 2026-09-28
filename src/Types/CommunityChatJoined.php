@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class CommunityChatJoined extends Type
      * The community from which the chat was joined
      */
     #[Field('community', required: true)]
-    public private(set) Community $community;
+    private(set) Community $community;
 
 }

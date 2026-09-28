@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
-use Tueen\Telegram\Enums\StickerFormat;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Attributes\RequiresUpload;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Enums\StickerFormat;
+use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Types\Custom\InputFile;
 
 /**
  * Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success.

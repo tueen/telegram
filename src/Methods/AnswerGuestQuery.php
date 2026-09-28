@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\SentGuestMessage;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\InlineQueryResult;
+use Tueen\Telegram\Types\SentGuestMessage;
 
 /**
  * Use this method to reply to a received guest message. On success, a SentGuestMessage object is returned.

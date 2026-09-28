@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\ParseMode;
+use Tueen\Telegram\Types\Custom\BooleanResult;
+use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\InputRichMessage;
 use Tueen\Telegram\Types\LinkPreviewOptions;
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
 
 /**
  * Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned.

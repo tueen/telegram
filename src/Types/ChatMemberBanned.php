@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ChatMemberStatus;
 
@@ -19,18 +18,18 @@ class ChatMemberBanned extends ChatMember
      * The member's status in the chat, always "kicked"
      */
     #[Field('status', required: true)]
-    public private(set) ChatMemberStatus|string $status;
+    private(set) ChatMemberStatus|string $status;
 
     /**
      * Information about the user
      */
     #[Field('user', required: true)]
-    public private(set) User $user;
+    private(set) User $user;
 
     /**
      * Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever.
      */
     #[Field('until_date', required: true)]
-    public private(set) int $untilDate;
+    private(set) int $untilDate;
 
 }

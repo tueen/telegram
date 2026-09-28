@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\InputRichBlockType;
 
@@ -19,18 +18,18 @@ class InputRichBlockSectionHeading extends InputRichBlock
      * Type of the block, always "heading"
      */
     #[Field('type', required: true)]
-    public private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string $type;
 
     /**
      * Text of the block
      */
     #[Field('text', required: true)]
-    public private(set) RichText $text;
+    private(set) RichText $text;
 
     /**
      * Relative size of the text font; 1-6, 1 is the largest, 6 is the smallest
      */
     #[Field('size', required: true)]
-    public private(set) int $size;
+    private(set) int $size;
 
 }

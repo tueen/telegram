@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\SentWebAppMessage;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\InlineQueryResult;
+use Tueen\Telegram\Types\SentWebAppMessage;
 
 /**
  * Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned.

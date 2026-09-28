@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\InputRichBlockType;
 
@@ -19,18 +18,18 @@ class InputRichBlockAnimation extends InputRichBlock
      * Type of the block, always "animation"
      */
     #[Field('type', required: true)]
-    public private(set) InputRichBlockType|string $type;
+    private(set) InputRichBlockType|string $type;
 
     /**
      * The animation. Caption is ignored.
      */
     #[Field('animation', required: true)]
-    public private(set) InputMediaAnimation $animation;
+    private(set) InputMediaAnimation $animation;
 
     /**
      * Optional. Caption of the block
      */
     #[Field('caption', required: false)]
-    public private(set) ?RichBlockCaption $caption = null;
+    private(set) ?RichBlockCaption $caption = null;
 
 }

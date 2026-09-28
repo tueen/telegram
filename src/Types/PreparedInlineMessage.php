@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class PreparedInlineMessage extends Type
      * Unique identifier of the prepared message
      */
     #[Field('id', required: true)]
-    public private(set) string $id;
+    private(set) string $id;
 
     /**
      * Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used.
      */
     #[Field('expiration_date', required: true)]
-    public private(set) int $expirationDate;
+    private(set) int $expirationDate;
 
 }

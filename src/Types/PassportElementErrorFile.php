@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\PassportSource;
 use Tueen\Telegram\Enums\PassportType;
@@ -20,24 +19,24 @@ class PassportElementErrorFile extends PassportElementError
      * Error source, must be file
      */
     #[Field('source', required: true)]
-    public private(set) PassportSource|string $source;
+    private(set) PassportSource|string $source;
 
     /**
      * The section of the user's Telegram Passport which has the issue, one of "utility_bill", "bank_statement", "rental_agreement", "passport_registration", "temporary_registration"
      */
     #[Field('type', required: true)]
-    public private(set) PassportType|string $type;
+    private(set) PassportType|string $type;
 
     /**
      * Base64-encoded file hash
      */
     #[Field('file_hash', required: true)]
-    public private(set) string $fileHash;
+    private(set) string $fileHash;
 
     /**
      * Error message
      */
     #[Field('message', required: true)]
-    public private(set) string $message;
+    private(set) string $message;
 
 }

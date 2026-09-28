@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\File;
 
 /**

@@ -67,10 +67,7 @@ class CodeGenerator
         $fields = $typeDef['fields'] ?? [];
 
         $propLines = [];
-        $imports = [
-            'Tueen\Telegram\Attributes\Field',
-            'Tueen\Telegram\Attributes\ArrayOf',
-        ];
+        $imports = [];
 
         // Polymorphic parent resolution logic
         $polymorphicMethod = '';
@@ -97,14 +94,17 @@ class CodeGenerator
 
             $attributes = [];
             $attributes[] = "    #[Field('{$fieldName}', required: " . ($required ? 'true' : 'false') . ")]";
-            if ($isArray && $itemType && class_exists("Tueen\\Telegram\\Types\\{$itemType}")) {
+            $imports[] = 'Tueen\Telegram\Attributes\Field';
+
+            if ($isArray && $itemType && (isset($this->spec['types'][$itemType]) || class_exists("Tueen\\Telegram\\Types\\{$itemType}"))) {
                 $attributes[] = "    #[ArrayOf({$itemType}::class)]";
+                $imports[] = 'Tueen\Telegram\Attributes\ArrayOf';
             }
 
             $attrStr = implode("\n", $attributes);
             $default = $required ? '' : ' = null';
-            // Asymmetric visibility in PHP 8.4: public private(set)
-            $propLine = "{$propDoc}\n{$attrStr}\n    public private(set) {$phpType} \${$camelName}{$default};";
+            // Asymmetric visibility in PHP 8.4: read visibility defaults to public, so public is redundant
+            $propLine = "{$propDoc}\n{$attrStr}\n    private(set) {$phpType} \${$camelName}{$default};";
             $propLines[] = $propLine;
         }
 
@@ -123,25 +123,9 @@ class CodeGenerator
             $traitStatement = "    use HasUserHelpers;\n\n";
         }
 
-        // Filter out same-namespace imports (anything directly in Tueen\Telegram\Types\)
-        $imports = array_filter($imports, function (string $i): bool {
-            return !preg_match('/^Tueen\\\\Telegram\\\\Types\\\\[A-Za-z0-9_]+$/', $i);
-        });
-
-        $allImports = array_unique($imports);
-        sort($allImports);
-        $importsCode = !empty($allImports) ? implode("\n", array_map(fn($i) => "use {$i};", $allImports)) . "\n" : '';
-
         $propsCode = implode("\n\n", $propLines);
 
-        return <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Tueen\Telegram\Types;
-
-{$importsCode}
+        $classBody = <<<PHP
 /**
  * {$description}
  *
@@ -152,6 +136,31 @@ class {$name} extends {$parentClass}
 {$traitStatement}{$propsCode}
 {$polymorphicMethod}
 }
+PHP;
+
+        // Filter out same-namespace imports (anything directly in Tueen\Telegram\Types\)
+        $imports = array_filter($imports, function (string $i): bool {
+            return !preg_match('/^Tueen\\\\Telegram\\\\Types\\\\[A-Za-z0-9_]+$/', $i);
+        });
+
+        // Filter out unused imports whose short class name does not appear in the class body / docblocks
+        $imports = array_filter($imports, function (string $i) use ($classBody): bool {
+            $shortName = substr(strrchr($i, '\\') ?: ('\\' . $i), 1);
+            return (bool) preg_match('/\b' . preg_quote($shortName, '/') . '\b/', $classBody);
+        });
+
+        $allImports = array_unique($imports);
+        sort($allImports);
+        $useBlock = !empty($allImports) ? implode("\n", array_map(fn($i) => "use {$i};", $allImports)) . "\n\n" : '';
+
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Types;
+
+{$useBlock}{$classBody}
 
 PHP;
     }
@@ -238,7 +247,6 @@ PHP;
         $imports = [
             'Tueen\Telegram\Attributes\ApiMethod',
             'Tueen\Telegram\Attributes\ReturnType',
-            'Tueen\Telegram\Attributes\Field',
         ];
 
         [$returnClass, $returnIsArray] = $this->mapReturnType($returns, $imports);
@@ -266,6 +274,8 @@ PHP;
             $propDoc = "    /**\n     * {$fieldDesc}\n     */";
             $attrs = [];
             $attrs[] = "    #[Field('{$fieldName}', required: " . ($required ? 'true' : 'false') . ")]";
+            $imports[] = 'Tueen\Telegram\Attributes\Field';
+
             if ($isFile) {
                 $attrs[] = "    #[RequiresUpload]";
             }
@@ -290,20 +300,10 @@ PHP;
             $paramsCode = "\n        " . $paramsCode . "\n    ";
         }
         $constructCode = implode("\n", $constructBody);
-        $imports = array_filter($imports, fn($i) => !str_starts_with($i, 'Tueen\\Telegram\\Methods\\') && $i !== 'Method');
-        $importsCode = implode("\n", array_unique(array_map(fn($i) => "use {$i};", $imports)));
 
         $arrayFlag = $returnIsArray ? 'true' : 'false';
 
-        return <<<PHP
-<?php
-
-declare(strict_types=1);
-
-namespace Tueen\Telegram\Methods;
-
-{$importsCode}
-
+        $methodBody = <<<PHP
 /**
  * {$description}
  *
@@ -320,6 +320,26 @@ class {$className} extends Method
 {$constructCode}
     }
 }
+PHP;
+
+        $imports = array_filter($imports, fn($i) => !str_starts_with($i, 'Tueen\\Telegram\\Methods\\') && $i !== 'Method');
+        $imports = array_filter($imports, function (string $i) use ($methodBody): bool {
+            $shortName = substr(strrchr($i, '\\') ?: ('\\' . $i), 1);
+            return (bool) preg_match('/\b' . preg_quote($shortName, '/') . '\b/', $methodBody);
+        });
+
+        $allImports = array_unique($imports);
+        sort($allImports);
+        $useBlock = !empty($allImports) ? implode("\n", array_map(fn($i) => "use {$i};", $allImports)) . "\n\n" : '';
+
+        return <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace Tueen\Telegram\Methods;
+
+{$useBlock}{$methodBody}
 
 PHP;
     }
@@ -671,6 +691,14 @@ PHP;
             mkdir($contractsDir, 0777, true);
         }
 
+        // Extract clean version string from schema (e.g. "Bot API 10.3" -> "10.3")
+        $rawVersion = (string) ($this->spec['version'] ?? '10.3');
+        if (preg_match('/(\d+(?:\.\d+)+)/', $rawVersion, $matches)) {
+            $apiVersion = $matches[1];
+        } else {
+            $apiVersion = trim(str_ireplace('Bot API', '', $rawVersion)) ?: '10.3';
+        }
+
         $mixinCode = <<<PHP
 <?php
 
@@ -681,7 +709,7 @@ namespace Tueen\Telegram\Contracts;
 {$useStatements}
 
 /**
- * Dynamic Telegram Bot API 10.3 Methods Mixin.
+ * Dynamic Telegram Bot API {$apiVersion} Methods Mixin.
  *
  * This contract defines all 185 Telegram Bot API method signatures for IDE autocompletion,
  * parameter hints, and type safety, keeping the core Telegram client facade lightweight.
@@ -696,7 +724,7 @@ PHP;
 
         $mixinPath = $contractsDir . '/TelegramMethods.php';
         file_put_contents($mixinPath, $mixinCode);
-        echo "Updated Contracts/TelegramMethods.php mixin with " . count($methods) . " method signatures.\n";
+        echo "Updated Contracts/TelegramMethods.php mixin with " . count($methods) . " method signatures (Bot API {$apiVersion}).\n";
 
         // 2. Ensure src/Telegram.php has a clean, concise docblock referencing the mixin
         $telegramFile = dirname($this->typesDir) . '/Telegram.php';
@@ -713,8 +741,14 @@ PHP;
         $pattern = '/\/\*\*\s*\n\s*\* Tueen Telegram Client - The Royal Client for Telegram Bot API\..*?\*\//s';
         $newContent = preg_replace($pattern, $cleanDocblock, $content);
         if ($newContent !== null) {
+            // 3. Ensure Telegram::BOT_API_VERSION is synchronized with schema version
+            $versionPattern = '/(public const string BOT_API_VERSION\s*=\s*\')[^\']+(\';)/';
+            if (preg_match($versionPattern, $newContent)) {
+                $newContent = preg_replace($versionPattern, '${1}' . $apiVersion . '${2}', $newContent);
+            }
+
             file_put_contents($telegramFile, $newContent);
-            echo "Updated Telegram.php with clean @mixin contract.\n";
+            echo "Updated Telegram.php with clean @mixin contract and BOT_API_VERSION '{$apiVersion}'.\n";
         }
     }
 }

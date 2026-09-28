@@ -61,7 +61,7 @@ tueen/telegram/
 ## 💎 Key Development Conventions
 
 ### 1. PHP 8.4 & 8.5 Features
-- **Asymmetric Visibility:** Used across response Type objects: `public private(set) int $id;`.
+- **Asymmetric Visibility:** Used across response Type objects: `private(set) int $id;` (never use redundant `public private(set)` as read-visibility defaults to `public` in PHP 8.4+).
 - **Property Hooks:** Used for computed, validated, and normalized properties (e.g. `$update->type`, `$message->type`).
 - **Dynamic Forward-Compatibility:** 
   - Unknown fields returned by future Telegram updates are automatically saved in `$extra` and accessible via `$type->fieldName`, `$type->field_name`, and `$type['field_name']`.
@@ -99,6 +99,13 @@ tueen/telegram/
   - To change current version tag: `cd docs && npm run docs:version <version>`.
   - Archived versions snapshot their sidebar in `docs/versions/<version>/sidebar.json` and are served with zero configuration under `/versions/<version>/`.
 
-### 7. Testing & Verification
+### 7. Telegram Bot API Version Constant & Synchronization Rule
+- The supported Telegram Bot API version is exposed on the client as a typed string constant: `Telegram::BOT_API_VERSION` (with alias `Telegram::API_VERSION`).
+- **Mandatory Update Rule:** Whenever the Telegram Bot API schema (`resources/api.json` or `scratch/api.json`) is updated to a newer Telegram Bot API release:
+  - `Telegram::BOT_API_VERSION` MUST be updated to reflect the new version (e.g. `'10.4'`).
+  - Running `php bin/generate.php` (`CodeGenerator`) automatically reads `version` from the schema and synchronizes `Telegram::BOT_API_VERSION` in `src/Telegram.php` as well as the mixin docblocks in `src/Contracts/TelegramMethods.php`.
+  - Always verify that unit tests (`TelegramClientTest::testBotApiVersionConstant`) pass and that documentation / `AGENTS.md` coverage tags reflect the new version.
+
+### 8. Testing & Verification
 - Run test suite: `vendor/bin/phpunit`
 - Lint code: `composer lint` (or `php scratch/validate_all.php`)

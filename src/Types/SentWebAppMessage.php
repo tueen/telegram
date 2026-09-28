@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class SentWebAppMessage extends Type
      * Optional. Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message.
      */
     #[Field('inline_message_id', required: false)]
-    public private(set) ?string $inlineMessageId = null;
+    private(set) ?string $inlineMessageId = null;
 
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class DirectMessagePriceChanged extends Type
      * True, if direct messages are enabled for the channel chat; False otherwise
      */
     #[Field('are_direct_messages_enabled', required: true)]
-    public private(set) bool $areDirectMessagesEnabled;
+    private(set) bool $areDirectMessagesEnabled;
 
     /**
      * Optional. The new number of Telegram Stars that must be paid by users for each direct message sent to the channel. Does not apply to users who have been exempted by administrators. Defaults to 0.
      */
     #[Field('direct_message_star_count', required: false)]
-    public private(set) ?int $directMessageStarCount = null;
+    private(set) ?int $directMessageStarCount = null;
 
 }

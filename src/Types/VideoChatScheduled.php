@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class VideoChatScheduled extends Type
      * Point in time (Unix timestamp) when the video chat is supposed to be started by a chat administrator
      */
     #[Field('start_date', required: true)]
-    public private(set) int $startDate;
+    private(set) int $startDate;
 
 }

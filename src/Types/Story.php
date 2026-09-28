@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class Story extends Type
      * Chat that posted the story
      */
     #[Field('chat', required: true)]
-    public private(set) Chat $chat;
+    private(set) Chat $chat;
 
     /**
      * Unique identifier for the story in the chat
      */
     #[Field('id', required: true)]
-    public private(set) int $id;
+    private(set) int $id;
 
 }

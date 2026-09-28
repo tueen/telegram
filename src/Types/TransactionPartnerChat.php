@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\TransactionPartnerType;
 
@@ -19,18 +18,18 @@ class TransactionPartnerChat extends TransactionPartner
      * Type of the transaction partner, always "chat"
      */
     #[Field('type', required: true)]
-    public private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string $type;
 
     /**
      * Information about the chat
      */
     #[Field('chat', required: true)]
-    public private(set) Chat $chat;
+    private(set) Chat $chat;
 
     /**
      * Optional. The gift sent to the chat by the bot
      */
     #[Field('gift', required: false)]
-    public private(set) ?Gift $gift = null;
+    private(set) ?Gift $gift = null;
 
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class InputRichMessageContent extends InputMessageContent
      * The message to be sent. Only previously uploaded files may be used in the message.
      */
     #[Field('rich_message', required: true)]
-    public private(set) InputRichMessage $richMessage;
+    private(set) InputRichMessage $richMessage;
 
 }

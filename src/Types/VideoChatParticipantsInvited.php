@@ -20,6 +20,6 @@ class VideoChatParticipantsInvited extends Type
      */
     #[Field('users', required: true)]
     #[ArrayOf(User::class)]
-    public private(set) array $users;
+    private(set) array $users;
 
 }

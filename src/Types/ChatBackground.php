@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class ChatBackground extends Type
      * Type of the background
      */
     #[Field('type', required: true)]
-    public private(set) BackgroundType $type;
+    private(set) BackgroundType $type;
 
 }

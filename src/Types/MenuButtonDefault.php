@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\MenuButtonType;
 
@@ -19,6 +18,6 @@ class MenuButtonDefault extends MenuButton
      * Type of the button, must be default
      */
     #[Field('type', required: true)]
-    public private(set) MenuButtonType|string $type;
+    private(set) MenuButtonType|string $type;
 
 }

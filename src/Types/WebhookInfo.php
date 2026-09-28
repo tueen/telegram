@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,55 +17,55 @@ class WebhookInfo extends Type
      * Webhook URL, may be empty if webhook is not set up
      */
     #[Field('url', required: true)]
-    public private(set) string $url;
+    private(set) string $url;
 
     /**
      * True, if a custom certificate was provided for webhook certificate checks
      */
     #[Field('has_custom_certificate', required: true)]
-    public private(set) bool $hasCustomCertificate;
+    private(set) bool $hasCustomCertificate;
 
     /**
      * Number of updates awaiting delivery
      */
     #[Field('pending_update_count', required: true)]
-    public private(set) int $pendingUpdateCount;
+    private(set) int $pendingUpdateCount;
 
     /**
      * Optional. Currently used webhook IP address
      */
     #[Field('ip_address', required: false)]
-    public private(set) ?string $ipAddress = null;
+    private(set) ?string $ipAddress = null;
 
     /**
      * Optional. Unix time for the most recent error that happened when trying to deliver an update via webhook
      */
     #[Field('last_error_date', required: false)]
-    public private(set) ?int $lastErrorDate = null;
+    private(set) ?int $lastErrorDate = null;
 
     /**
      * Optional. Error message in human-readable format for the most recent error that happened when trying to deliver an update via webhook
      */
     #[Field('last_error_message', required: false)]
-    public private(set) ?string $lastErrorMessage = null;
+    private(set) ?string $lastErrorMessage = null;
 
     /**
      * Optional. Unix time of the most recent error that happened when trying to synchronize available updates with Telegram datacenters
      */
     #[Field('last_synchronization_error_date', required: false)]
-    public private(set) ?int $lastSynchronizationErrorDate = null;
+    private(set) ?int $lastSynchronizationErrorDate = null;
 
     /**
      * Optional. The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
      */
     #[Field('max_connections', required: false)]
-    public private(set) ?int $maxConnections = null;
+    private(set) ?int $maxConnections = null;
 
     /**
      * Optional. A list of update types the bot is subscribed to. Defaults to all update types except chat_member, message_reaction, and message_reaction_count.
      * @var String[]|null
      */
     #[Field('allowed_updates', required: false)]
-    public private(set) ?array $allowedUpdates = null;
+    private(set) ?array $allowedUpdates = null;
 
 }

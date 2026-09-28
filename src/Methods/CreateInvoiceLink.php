@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\Custom\StringResult;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Enums\Currency;
+use Tueen\Telegram\Types\Custom\StringResult;
 
 /**
  * Use this method to create a link for an invoice. Returns the created invoice link as String on success.

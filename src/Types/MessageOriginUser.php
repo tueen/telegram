@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\MessageOriginType;
 
@@ -19,18 +18,18 @@ class MessageOriginUser extends MessageOrigin
      * Type of the message origin, always "user"
      */
     #[Field('type', required: true)]
-    public private(set) MessageOriginType|string $type;
+    private(set) MessageOriginType|string $type;
 
     /**
      * Date the message was sent originally in Unix time
      */
     #[Field('date', required: true)]
-    public private(set) int $date;
+    private(set) int $date;
 
     /**
      * User that sent the message originally
      */
     #[Field('sender_user', required: true)]
-    public private(set) User $senderUser;
+    private(set) User $senderUser;
 
 }

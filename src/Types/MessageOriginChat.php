@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\MessageOriginType;
 
@@ -19,24 +18,24 @@ class MessageOriginChat extends MessageOrigin
      * Type of the message origin, always "chat"
      */
     #[Field('type', required: true)]
-    public private(set) MessageOriginType|string $type;
+    private(set) MessageOriginType|string $type;
 
     /**
      * Date the message was sent originally in Unix time
      */
     #[Field('date', required: true)]
-    public private(set) int $date;
+    private(set) int $date;
 
     /**
      * Chat that sent the message originally
      */
     #[Field('sender_chat', required: true)]
-    public private(set) Chat $senderChat;
+    private(set) Chat $senderChat;
 
     /**
      * Optional. For messages originally sent by an anonymous chat administrator, original message author signature
      */
     #[Field('author_signature', required: false)]
-    public private(set) ?string $authorSignature = null;
+    private(set) ?string $authorSignature = null;
 
 }

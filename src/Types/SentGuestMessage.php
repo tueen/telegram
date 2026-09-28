@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class SentGuestMessage extends Type
      * Identifier of the sent inline message
      */
     #[Field('inline_message_id', required: true)]
-    public private(set) string $inlineMessageId;
+    private(set) string $inlineMessageId;
 
 }

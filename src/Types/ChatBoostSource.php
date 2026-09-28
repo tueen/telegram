@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Attributes\Field;
-
 /**
  * This object describes the source of a chat boost. It can be one of
  * - ChatBoostSourcePremium

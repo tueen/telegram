@@ -13,15 +13,15 @@ use Tueen\Telegram\Attributes\Field;
 class Error extends Type
 {
     #[Field('description', required: true)]
-    public private(set) string $description;
+    private(set) string $description;
 
     #[Field('error_code', required: true)]
-    public private(set) int|string $errorCode;
+    private(set) int|string $errorCode;
 
     #[Field('parameters', required: false)]
-    public private(set) ?array $parameters = null;
+    private(set) ?array $parameters = null;
 
-    public private(set) ?Throwable $exception = null;
+    private(set) ?Throwable $exception = null;
 
     public function __construct(
         string $description,

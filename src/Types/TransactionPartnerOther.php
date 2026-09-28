@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\TransactionPartnerType;
 
@@ -19,6 +18,6 @@ class TransactionPartnerOther extends TransactionPartner
      * Type of the transaction partner, always "other"
      */
     #[Field('type', required: true)]
-    public private(set) TransactionPartnerType|string $type;
+    private(set) TransactionPartnerType|string $type;
 
 }

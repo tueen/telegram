@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichTextType;
 
@@ -19,12 +18,12 @@ class RichTextAnchor extends RichText
      * Type of the rich text, always "anchor"
      */
     #[Field('type', required: true)]
-    public private(set) RichTextType|string $type;
+    private(set) RichTextType|string $type;
 
     /**
      * The name of the anchor
      */
     #[Field('name', required: true)]
-    public private(set) string $name;
+    private(set) string $name;
 
 }

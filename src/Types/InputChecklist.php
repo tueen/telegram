@@ -19,13 +19,13 @@ class InputChecklist extends Type
      * Title of the checklist; 1-255 characters after entities parsing
      */
     #[Field('title', required: true)]
-    public private(set) string $title;
+    private(set) string $title;
 
     /**
      * Optional. Mode for parsing entities in the title. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ParseMode|string|null $parseMode = null;
+    private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed.
@@ -33,7 +33,7 @@ class InputChecklist extends Type
      */
     #[Field('title_entities', required: false)]
     #[ArrayOf(MessageEntity::class)]
-    public private(set) ?array $titleEntities = null;
+    private(set) ?array $titleEntities = null;
 
     /**
      * List of 1-30 tasks in the checklist
@@ -41,18 +41,18 @@ class InputChecklist extends Type
      */
     #[Field('tasks', required: true)]
     #[ArrayOf(InputChecklistTask::class)]
-    public private(set) array $tasks;
+    private(set) array $tasks;
 
     /**
      * Optional. Pass True if other users can add tasks to the checklist
      */
     #[Field('others_can_add_tasks', required: false)]
-    public private(set) ?bool $othersCanAddTasks = null;
+    private(set) ?bool $othersCanAddTasks = null;
 
     /**
      * Optional. Pass True if other users can mark tasks as done or not done in the checklist
      */
     #[Field('others_can_mark_tasks_as_done', required: false)]
-    public private(set) ?bool $othersCanMarkTasksAsDone = null;
+    private(set) ?bool $othersCanMarkTasksAsDone = null;
 
 }

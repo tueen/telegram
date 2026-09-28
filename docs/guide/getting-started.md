@@ -53,6 +53,18 @@ $telegram = new Telegram($config);
 
 ---
 
+## Supported Bot API Version
+
+You can inspect the supported Telegram Bot API version programmatically at runtime:
+
+```php
+use Tueen\Telegram\Telegram;
+
+echo Telegram::BOT_API_VERSION; // "10.3"
+```
+
+---
+
 ## First API Call: `getMe`
 
 ```php

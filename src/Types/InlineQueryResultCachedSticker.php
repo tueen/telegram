@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\InlineQueryResultType;
 
@@ -19,30 +18,30 @@ class InlineQueryResultCachedSticker extends InlineQueryResult
      * Type of the result, must be sticker
      */
     #[Field('type', required: true)]
-    public private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string $type;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    public private(set) string $id;
+    private(set) string $id;
 
     /**
      * A valid file identifier of the sticker
      */
     #[Field('sticker_file_id', required: true)]
-    public private(set) string $stickerFileId;
+    private(set) string $stickerFileId;
 
     /**
      * Optional. Inline keyboard attached to the message
      */
     #[Field('reply_markup', required: false)]
-    public private(set) ?InlineKeyboardMarkup $replyMarkup = null;
+    private(set) ?InlineKeyboardMarkup $replyMarkup = null;
 
     /**
      * Optional. Content of the message to be sent instead of the sticker
      */
     #[Field('input_message_content', required: false)]
-    public private(set) ?InputMessageContent $inputMessageContent = null;
+    private(set) ?InputMessageContent $inputMessageContent = null;
 
 }

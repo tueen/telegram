@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichBlockType;
 
@@ -19,36 +18,36 @@ class RichBlockMap extends RichBlock
      * Type of the block, always "map"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Location of the center of the map
      */
     #[Field('location', required: true)]
-    public private(set) Location $location;
+    private(set) Location $location;
 
     /**
      * Map zoom level
      */
     #[Field('zoom', required: true)]
-    public private(set) int $zoom;
+    private(set) int $zoom;
 
     /**
      * Expected width of the map
      */
     #[Field('width', required: true)]
-    public private(set) int $width;
+    private(set) int $width;
 
     /**
      * Expected height of the map
      */
     #[Field('height', required: true)]
-    public private(set) int $height;
+    private(set) int $height;
 
     /**
      * Optional. Caption of the block
      */
     #[Field('caption', required: false)]
-    public private(set) ?RichBlockCaption $caption = null;
+    private(set) ?RichBlockCaption $caption = null;
 
 }

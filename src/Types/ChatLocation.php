@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class ChatLocation extends Type
      * The location to which the supergroup is connected. Can't be a live location.
      */
     #[Field('location', required: true)]
-    public private(set) Location $location;
+    private(set) Location $location;
 
     /**
      * Location address; 1-64 characters, as defined by the chat owner
      */
     #[Field('address', required: true)]
-    public private(set) string $address;
+    private(set) string $address;
 
 }

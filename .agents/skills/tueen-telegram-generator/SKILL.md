@@ -72,3 +72,9 @@ composer dump-autoload
    ```powershell
    vendor/bin/phpunit
    ```
+
+### 5. API Version Constant Synchronization
+- The supported Bot API version is declared via `Tueen\Telegram\Telegram::BOT_API_VERSION` (and `Telegram::API_VERSION`).
+- Running `php bin/generate.php` automatically extracts the schema `version` and updates `Telegram::BOT_API_VERSION` in `src/Telegram.php` as well as the mixin docblocks in `src/Contracts/TelegramMethods.php`.
+- Always verify that `tests/Unit/TelegramClientTest.php` (`testBotApiVersionConstant`) reflects the new version and passes.
+

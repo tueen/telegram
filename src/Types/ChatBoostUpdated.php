@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class ChatBoostUpdated extends Type
      * Chat which was boosted
      */
     #[Field('chat', required: true)]
-    public private(set) Chat $chat;
+    private(set) Chat $chat;
 
     /**
      * Information about the chat boost
      */
     #[Field('boost', required: true)]
-    public private(set) ChatBoost $boost;
+    private(set) ChatBoost $boost;
 
 }

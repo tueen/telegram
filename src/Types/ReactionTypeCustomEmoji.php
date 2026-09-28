@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\ReactionTypeType;
 
@@ -19,12 +18,12 @@ class ReactionTypeCustomEmoji extends ReactionType
      * Type of the reaction, always "custom_emoji"
      */
     #[Field('type', required: true)]
-    public private(set) ReactionTypeType|string $type;
+    private(set) ReactionTypeType|string $type;
 
     /**
      * Custom emoji identifier
      */
     #[Field('custom_emoji_id', required: true)]
-    public private(set) string $customEmojiId;
+    private(set) string $customEmojiId;
 
 }

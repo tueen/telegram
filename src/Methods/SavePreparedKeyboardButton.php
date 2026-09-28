@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\PreparedKeyboardButton;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\KeyboardButton;
+use Tueen\Telegram\Types\PreparedKeyboardButton;
 
 /**
  * Stores a keyboard button that can be used by a user within a Mini App. Returns a PreparedKeyboardButton object.

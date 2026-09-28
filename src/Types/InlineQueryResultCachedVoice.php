@@ -20,37 +20,37 @@ class InlineQueryResultCachedVoice extends InlineQueryResult
      * Type of the result, must be voice
      */
     #[Field('type', required: true)]
-    public private(set) InlineQueryResultType|string $type;
+    private(set) InlineQueryResultType|string $type;
 
     /**
      * Unique identifier for this result, 1-64 bytes
      */
     #[Field('id', required: true)]
-    public private(set) string $id;
+    private(set) string $id;
 
     /**
      * A valid file identifier for the voice message
      */
     #[Field('voice_file_id', required: true)]
-    public private(set) string $voiceFileId;
+    private(set) string $voiceFileId;
 
     /**
      * Voice message title
      */
     #[Field('title', required: true)]
-    public private(set) string $title;
+    private(set) string $title;
 
     /**
      * Optional. Caption, 0-1024 characters after entities parsing
      */
     #[Field('caption', required: false)]
-    public private(set) ?string $caption = null;
+    private(set) ?string $caption = null;
 
     /**
      * Optional. Mode for parsing entities in the voice message caption. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ParseMode|string|null $parseMode = null;
+    private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in the caption, which can be specified instead of parse_mode
@@ -58,18 +58,18 @@ class InlineQueryResultCachedVoice extends InlineQueryResult
      */
     #[Field('caption_entities', required: false)]
     #[ArrayOf(MessageEntity::class)]
-    public private(set) ?array $captionEntities = null;
+    private(set) ?array $captionEntities = null;
 
     /**
      * Optional. Inline keyboard attached to the message
      */
     #[Field('reply_markup', required: false)]
-    public private(set) ?InlineKeyboardMarkup $replyMarkup = null;
+    private(set) ?InlineKeyboardMarkup $replyMarkup = null;
 
     /**
      * Optional. Content of the message to be sent instead of the voice message
      */
     #[Field('input_message_content', required: false)]
-    public private(set) ?InputMessageContent $inputMessageContent = null;
+    private(set) ?InputMessageContent $inputMessageContent = null;
 
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
-use Tueen\Telegram\Types\PreparedInlineMessage;
+use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Types\InlineQueryResult;
+use Tueen\Telegram\Types\PreparedInlineMessage;
 
 /**
  * Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object.

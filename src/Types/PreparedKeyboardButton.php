@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class PreparedKeyboardButton extends Type
      * Unique identifier of the keyboard button
      */
     #[Field('id', required: true)]
-    public private(set) string $id;
+    private(set) string $id;
 
 }

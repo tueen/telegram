@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichTextType;
 
@@ -19,18 +18,18 @@ class RichTextReferenceLink extends RichText
      * Type of the rich text, always "reference_link"
      */
     #[Field('type', required: true)]
-    public private(set) RichTextType|string $type;
+    private(set) RichTextType|string $type;
 
     /**
      * The link text
      */
     #[Field('text', required: true)]
-    public private(set) RichText $text;
+    private(set) RichText $text;
 
     /**
      * The name of the reference
      */
     #[Field('reference_name', required: true)]
-    public private(set) string $referenceName;
+    private(set) string $referenceName;
 
 }

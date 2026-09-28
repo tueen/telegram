@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,6 +17,6 @@ class VideoChatEnded extends Type
      * Video chat duration in seconds
      */
     #[Field('duration', required: true)]
-    public private(set) int $duration;
+    private(set) int $duration;
 
 }

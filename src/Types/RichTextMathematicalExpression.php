@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichTextType;
 
@@ -19,12 +18,12 @@ class RichTextMathematicalExpression extends RichText
      * Type of the rich text, always "mathematical_expression"
      */
     #[Field('type', required: true)]
-    public private(set) RichTextType|string $type;
+    private(set) RichTextType|string $type;
 
     /**
      * The expression in LaTeX format
      */
     #[Field('expression', required: true)]
-    public private(set) string $expression;
+    private(set) string $expression;
 
 }

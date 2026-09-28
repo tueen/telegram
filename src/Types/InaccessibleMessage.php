@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,18 +17,18 @@ class InaccessibleMessage extends MaybeInaccessibleMessage
      * Chat the message belonged to
      */
     #[Field('chat', required: true)]
-    public private(set) Chat $chat;
+    private(set) Chat $chat;
 
     /**
      * Unique message identifier inside the chat
      */
     #[Field('message_id', required: true)]
-    public private(set) int $messageId;
+    private(set) int $messageId;
 
     /**
      * Always 0. The field can be used to differentiate regular and inaccessible messages.
      */
     #[Field('date', required: true)]
-    public private(set) int $date;
+    private(set) int $date;
 
 }

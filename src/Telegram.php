@@ -38,6 +38,16 @@ use Tueen\Telegram\Types\Update;
  */
 class Telegram
 {
+    /**
+     * Supported Telegram Bot API version.
+     */
+    public const string BOT_API_VERSION = '10.3';
+
+    /**
+     * Alias for BOT_API_VERSION.
+     */
+    public const string API_VERSION = self::BOT_API_VERSION;
+
     private Config $config;
     private HttpClientInterface $httpClient;
     private Pipeline $pipeline;

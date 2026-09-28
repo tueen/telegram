@@ -19,13 +19,13 @@ class InputTextMessageContent extends InputMessageContent
      * Text of the message to be sent, 1-4096 characters
      */
     #[Field('message_text', required: true)]
-    public private(set) string $messageText;
+    private(set) string $messageText;
 
     /**
      * Optional. Mode for parsing entities in the message text. See formatting options for more details.
      */
     #[Field('parse_mode', required: false)]
-    public private(set) ParseMode|string|null $parseMode = null;
+    private(set) ParseMode|string|null $parseMode = null;
 
     /**
      * Optional. List of special entities that appear in message text, which can be specified instead of parse_mode
@@ -33,12 +33,12 @@ class InputTextMessageContent extends InputMessageContent
      */
     #[Field('entities', required: false)]
     #[ArrayOf(MessageEntity::class)]
-    public private(set) ?array $entities = null;
+    private(set) ?array $entities = null;
 
     /**
      * Optional. Link preview generation options for the message
      */
     #[Field('link_preview_options', required: false)]
-    public private(set) ?LinkPreviewOptions $linkPreviewOptions = null;
+    private(set) ?LinkPreviewOptions $linkPreviewOptions = null;
 
 }

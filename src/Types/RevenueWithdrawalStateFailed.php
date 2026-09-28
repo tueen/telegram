@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RevenueWithdrawalStateType;
 
@@ -19,6 +18,6 @@ class RevenueWithdrawalStateFailed extends RevenueWithdrawalState
      * Type of the state, always "failed"
      */
     #[Field('type', required: true)]
-    public private(set) RevenueWithdrawalStateType|string $type;
+    private(set) RevenueWithdrawalStateType|string $type;
 
 }

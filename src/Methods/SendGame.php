@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Methods;
 
 use Tueen\Telegram\Attributes\ApiMethod;
-use Tueen\Telegram\Attributes\ReturnType;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Attributes\ReturnType;
+use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\ReplyParameters;
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
 
 /**
  * Use this method to send a game. On success, the sent Message is returned.

@@ -18,7 +18,7 @@ class UserProfilePhotos extends Type
      * Total number of profile pictures the target user has
      */
     #[Field('total_count', required: true)]
-    public private(set) int $totalCount;
+    private(set) int $totalCount;
 
     /**
      * Requested profile pictures (in up to 4 sizes each)
@@ -26,6 +26,6 @@ class UserProfilePhotos extends Type
      */
     #[Field('photos', required: true)]
     #[ArrayOf(PhotoSize::class)]
-    public private(set) array $photos;
+    private(set) array $photos;
 
 }

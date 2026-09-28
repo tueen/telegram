@@ -18,31 +18,31 @@ class MessageReactionUpdated extends Type
      * The chat containing the message the user reacted to
      */
     #[Field('chat', required: true)]
-    public private(set) Chat $chat;
+    private(set) Chat $chat;
 
     /**
      * Unique identifier of the message inside the chat
      */
     #[Field('message_id', required: true)]
-    public private(set) int $messageId;
+    private(set) int $messageId;
 
     /**
      * Optional. The user that changed the reaction, if the user isn't anonymous
      */
     #[Field('user', required: false)]
-    public private(set) ?User $user = null;
+    private(set) ?User $user = null;
 
     /**
      * Optional. The chat on behalf of which the reaction was changed, if the user is anonymous
      */
     #[Field('actor_chat', required: false)]
-    public private(set) ?Chat $actorChat = null;
+    private(set) ?Chat $actorChat = null;
 
     /**
      * Date of the change in Unix time
      */
     #[Field('date', required: true)]
-    public private(set) int $date;
+    private(set) int $date;
 
     /**
      * Previous list of reaction types that were set by the user
@@ -50,7 +50,7 @@ class MessageReactionUpdated extends Type
      */
     #[Field('old_reaction', required: true)]
     #[ArrayOf(ReactionType::class)]
-    public private(set) array $oldReaction;
+    private(set) array $oldReaction;
 
     /**
      * New list of reaction types that have been set by the user
@@ -58,6 +58,6 @@ class MessageReactionUpdated extends Type
      */
     #[Field('new_reaction', required: true)]
     #[ArrayOf(ReactionType::class)]
-    public private(set) array $newReaction;
+    private(set) array $newReaction;
 
 }

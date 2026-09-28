@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\StoryAreaTypeType;
 
@@ -19,12 +18,12 @@ class StoryAreaTypeUniqueGift extends StoryAreaType
      * Type of the area, always "unique_gift"
      */
     #[Field('type', required: true)]
-    public private(set) StoryAreaTypeType|string $type;
+    private(set) StoryAreaTypeType|string $type;
 
     /**
      * Unique name of the gift
      */
     #[Field('name', required: true)]
-    public private(set) string $name;
+    private(set) string $name;
 
 }

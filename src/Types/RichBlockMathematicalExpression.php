@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichBlockType;
 
@@ -19,12 +18,12 @@ class RichBlockMathematicalExpression extends RichBlock
      * Type of the block, always "mathematical_expression"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * The mathematical expression in LaTeX format
      */
     #[Field('expression', required: true)]
-    public private(set) string $expression;
+    private(set) string $expression;
 
 }

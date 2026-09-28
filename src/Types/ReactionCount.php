@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,12 +17,12 @@ class ReactionCount extends Type
      * Type of the reaction
      */
     #[Field('type', required: true)]
-    public private(set) ReactionType $type;
+    private(set) ReactionType $type;
 
     /**
      * Number of times the reaction was added
      */
     #[Field('total_count', required: true)]
-    public private(set) int $totalCount;
+    private(set) int $totalCount;
 
 }

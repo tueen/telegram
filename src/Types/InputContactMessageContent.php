@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 
 /**
@@ -18,24 +17,24 @@ class InputContactMessageContent extends InputMessageContent
      * Contact's phone number
      */
     #[Field('phone_number', required: true)]
-    public private(set) string $phoneNumber;
+    private(set) string $phoneNumber;
 
     /**
      * Contact's first name
      */
     #[Field('first_name', required: true)]
-    public private(set) string $firstName;
+    private(set) string $firstName;
 
     /**
      * Optional. Contact's last name
      */
     #[Field('last_name', required: false)]
-    public private(set) ?string $lastName = null;
+    private(set) ?string $lastName = null;
 
     /**
      * Optional. Additional data about the contact in the form of a vCard, 0-2048 bytes
      */
     #[Field('vcard', required: false)]
-    public private(set) ?string $vcard = null;
+    private(set) ?string $vcard = null;
 
 }

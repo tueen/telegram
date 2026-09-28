@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\BotCommandScopeType;
 
@@ -19,6 +18,6 @@ class BotCommandScopeAllPrivateChats extends BotCommandScope
      * Scope type, must be all_private_chats
      */
     #[Field('type', required: true)]
-    public private(set) BotCommandScopeType|string $type;
+    private(set) BotCommandScopeType|string $type;
 
 }

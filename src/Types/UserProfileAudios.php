@@ -18,7 +18,7 @@ class UserProfileAudios extends Type
      * Total number of profile audios for the target user
      */
     #[Field('total_count', required: true)]
-    public private(set) int $totalCount;
+    private(set) int $totalCount;
 
     /**
      * Requested profile audios
@@ -26,6 +26,6 @@ class UserProfileAudios extends Type
      */
     #[Field('audios', required: true)]
     #[ArrayOf(Audio::class)]
-    public private(set) array $audios;
+    private(set) array $audios;
 
 }

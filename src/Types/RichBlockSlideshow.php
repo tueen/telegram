@@ -19,7 +19,7 @@ class RichBlockSlideshow extends RichBlock
      * Type of the block, always "slideshow"
      */
     #[Field('type', required: true)]
-    public private(set) RichBlockType|string $type;
+    private(set) RichBlockType|string $type;
 
     /**
      * Elements of the slideshow
@@ -27,12 +27,12 @@ class RichBlockSlideshow extends RichBlock
      */
     #[Field('blocks', required: true)]
     #[ArrayOf(RichBlock::class)]
-    public private(set) array $blocks;
+    private(set) array $blocks;
 
     /**
      * Optional. Caption of the block
      */
     #[Field('caption', required: false)]
-    public private(set) ?RichBlockCaption $caption = null;
+    private(set) ?RichBlockCaption $caption = null;
 
 }

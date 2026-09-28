@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Attributes\Field;
-
 /**
  * This object describes a gift received and owned by a user or a chat. Currently, it can be one of
  * - OwnedGiftRegular

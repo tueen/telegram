@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
-use Tueen\Telegram\Attributes\ArrayOf;
-use Tueen\Telegram\Attributes\Field;
-
 /**
  * This object describes a profile photo to set. Currently, it can be one of
  * - InputProfilePhotoStatic
