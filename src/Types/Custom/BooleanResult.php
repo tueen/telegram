@@ -11,7 +11,7 @@ use Tueen\Telegram\Types\Type;
  */
 class BooleanResult extends Type
 {
-    public private(set) bool $value;
+    private(set) bool $value;
 
     public function __construct(bool|array $data = true)
     {

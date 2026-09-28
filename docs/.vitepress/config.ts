@@ -20,15 +20,19 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       items: [
         { text: 'Running Modes (Webhook & Polling)', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
+        { text: 'Update Routing & Attributes', link: `${basePath}routing` },
       ]
     },
     {
       text: 'Client Features',
       items: [
         { text: 'Calling Methods & Types', link: `${basePath}methods-and-types` },
+        { text: 'Fluent Keyboards', link: `${basePath}keyboards` },
+        { text: 'Text Formatting & Escaping', link: `${basePath}formatting` },
         { text: 'File Upload & Download', link: `${basePath}file-upload-download` },
         { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
         { text: 'Pipeline & Middlewares', link: `${basePath}pipeline-middleware` },
+        { text: 'Testing & Fakes', link: `${basePath}testing` },
         { text: 'Enums Reference', link: `${basePath}enums` },
       ]
     }

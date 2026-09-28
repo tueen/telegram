@@ -11,7 +11,7 @@ use Tueen\Telegram\Types\Type;
  */
 class IntegerResult extends Type
 {
-    public private(set) int $value;
+    private(set) int $value;
 
     public function __construct(int|array $data = 0)
     {

@@ -37,7 +37,7 @@ class WebhookMode implements RunningModeInterface
     /**
      * Resolves and validates the incoming update from webhook payload.
      */
-    public function getUpdate(Telegram $telegram): Update
+    public function resolveUpdate(Telegram $telegram): Update
     {
         (void) $this->validateSecretToken();
 
@@ -56,11 +56,20 @@ class WebhookMode implements RunningModeInterface
     }
 
     /**
+     * Alias for resolveUpdate().
+     */
+    public function getUpdate(Telegram $telegram): Update
+    {
+        return $this->resolveUpdate($telegram);
+    }
+
+    /**
      * Process the update, executing handler if provided, and returning the Update.
      */
     public function processUpdate(Telegram $telegram, ?callable $handler = null): Update
     {
-        $update = $this->getUpdate($telegram);
+        $update = $this->resolveUpdate($telegram);
+        $telegram->setUpdate($update);
 
         if ($handler !== null) {
             $handler($update);

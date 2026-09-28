@@ -101,13 +101,14 @@ echo "Message sent with ID: {$message->messageId}\n";
 Choose between **Webhook Mode** (recommended for production) and **Polling Mode** (ideal for CLI/local testing):
 
 ```php
+use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
-// Run the bot using the configured running mode
-$telegram->run(function (Update $update) use ($telegram) {
+// Run the bot using the configured running mode (Webhook or Polling)
+$telegram->run(function (Update $update, Telegram $bot) {
     $message = $update->findMessage();
     if ($message !== null) {
-        $telegram->sendMessage(
+        $bot->sendMessage(
             chatId: $message->chat->id,
             text: "Received: {$message->findAnyText()}"
         );
@@ -115,4 +116,4 @@ $telegram->run(function (Update $update) use ($telegram) {
 });
 ```
 
-Learn more about execution strategies in the [Running Modes Guide](./running-modes).
+Learn more about execution strategies, invokable handler classes, and multi-process polling in the [Running Modes Guide](./running-modes).

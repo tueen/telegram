@@ -198,8 +198,6 @@ class TelegramClientTest extends TestCase
 
     public function testHandleWebhook(): void
     {
-        $telegram = new Telegram('TOKEN');
-
         $payload = json_encode([
             'update_id' => 777111,
             'message' => [
@@ -210,12 +208,16 @@ class TelegramClientTest extends TestCase
             ],
         ]);
 
-        $update = $telegram->handleWebhook($payload);
+        $telegram = new Telegram('TOKEN');
+        $telegram->setRunningMode(new \Tueen\Telegram\Running\WebhookMode(rawInput: $payload));
+
+        $update = $telegram->run();
 
         $this->assertInstanceOf(Update::class, $update);
         $this->assertSame(777111, $update->updateId);
         $this->assertInstanceOf(Message::class, $update->message);
         $this->assertSame('/start', $update->message->text);
+        $this->assertSame($update, $telegram->update);
     }
 
     public function testSendWithEnums(): void

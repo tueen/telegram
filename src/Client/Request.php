@@ -23,6 +23,14 @@ class Request
         final public readonly ?\Closure $downloadProgress = null
     ) {}
 
+    public array $params {
+        get => $this->parameters;
+    }
+
+    public string $method {
+        get => $this->endpoint;
+    }
+
     public function isMultipart(): bool
     {
         return !empty($this->files);

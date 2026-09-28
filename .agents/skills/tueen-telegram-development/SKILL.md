@@ -40,9 +40,10 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 
 ### 4. Running Modes & Handlers
 - Support interchangeable execution strategies via `RunningModeInterface` (`WebhookMode`, `PollingMode`).
-- Provide `$telegram->getUpdate()`, `$telegram->run(?callable $handler)`, and `$telegram->poll()`.
+- Provide `$telegram->run(mixed ...$handlers)`, `$telegram->handle(...)`, and `$telegram->poll()`.
+- Populate `$telegram->update` with the active `Update` instance (defaults to `null`).
 - Ensure `WebhookMode` handles `secret_token` validation and `safeResponse()` without blocking the server.
-- Ensure `PollingMode` maintains correct update offsets (`update_id + 1`) and backoff logic.
+- Ensure `PollingMode` maintains correct update offsets (`update_id + 1`), backoff logic, and configurable concurrency (`forkProcess`, `processDispatcher`).
 
 ### 5. Dual Error Handling & Universal `ok()` Guarantee
 - Every API response extends `Type` and returns `true` from `ok()` and `isOk()`.
@@ -53,9 +54,30 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 ### 6. Update & Message Helpers
 - Leverage PHP 8.4 property hooks for `$update->type` (`UpdateType`) and `$message->type` (`MessageType`).
 - Provide smart in-memory finders: `$update->findMessage()`, `$update->findUser()`, `$update->findChat()`.
-- Provide content & command extractors: `$message->findAnyText()`, `$message->isCommand()`, `$message->getCommand()`, `$message->getArgs()`.
+- Provide content & command extractors: `$message->findAnyText()`, `$message->isCommand`, `$message->getCommand()`, `$message->getArgs()`.
 
-### 7. Documentation & Knowledge Synchronization (Mandatory Rule)
+### 7. Fluent Keyboard Builders
+- `InlineKeyboard::make()` provides a fluent interface for `InlineKeyboardMarkup` (callback, url, webApp, loginUrl, copyText, pay, switchInlineQuery, chunk).
+- `ReplyKeyboard::make()` provides a fluent interface for `ReplyKeyboardMarkup` (text, requestContact, requestLocation, requestPoll, requestUsers, requestChat, webApp, resize, oneTime, persistent, placeholder, chunk) and `ReplyKeyboard::remove()`.
+
+### 8. Formatting & Escaping Strictly Conforming to Telegram Spec
+- `Escape`: Low-level escaping strictly conforming to [Telegram Bot API formatting options](https://core.telegram.org/bots/api#formatting-options) (`html`, `markdownV2`, `markdownV2Code`, `markdownV2Link`, `markdown`).
+- `Text`: Fluent builder for constructing safely formatted HTML and MarkdownV2 messages (`bold`, `italic`, `underline`, `strikethrough`, `spoiler`, `blockquote`, `expandableBlockquote`, `code`, `pre`, `link`, `userMention`, `customEmoji`, `line`, `lines`, `plain`, `raw`).
+
+### 9. Update Routing & Attribute Controllers
+- `Router` & `Route`: Flexible update routing matching commands (auto-stripping `@bot`), parameterized callback queries (`order:{id}`), text patterns/regex, inline queries, and fallbacks.
+- Declarative PHP 8 Attributes: `#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`.
+- Controller registration via `$telegram->registerController(...)` with PSR-11 container dependency injection.
+
+### 10. Testing Fakes & Assertions
+- `Telegram::fake()` enables comprehensive unit testing without hitting real Telegram servers.
+- Built-in assertions: `assertSent()`, `assertNotSent()`, `assertSentCount()`, `assertNothingSent()`.
+- Response and error stubbing: `fakeResponse()`, `fakeError()`.
+
+### 11. Rate Limiting Middleware
+- `RateLimitMiddleware`: Token bucket pacing (30 req/sec globally), per-chat interval (1.0 sec), and automatic 429 `retry_after` backoff and re-execution.
+
+### 12. Documentation & Knowledge Synchronization (Mandatory Rule)
 - Whenever any feature, class, enum, or configuration option is added or modified:
   - Immediately update `docs/` (sidebar, guides, code snippets) with comprehensive explanations and examples.
   - Update `AGENTS.md` and this skill file to record any new architectural conventions or rules.

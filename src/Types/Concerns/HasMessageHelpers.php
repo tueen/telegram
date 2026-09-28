@@ -28,6 +28,13 @@ trait HasMessageHelpers
     }
 
     /**
+     * Whether this message represents a bot command.
+     */
+    public bool $isCommand {
+        get => $this->isCommand();
+    }
+
+    /**
      * Resolves the MessageType enum for this message.
      */
     public function resolveMessageType(): MessageType

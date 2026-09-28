@@ -29,6 +29,7 @@ class ConfigBuilder
     /** @var list<class-string<Throwable>> */
     private array $convertExceptionsToError = [ApiException::class];
     private ?RunningModeInterface $runningMode = null;
+    private mixed $container = null;
 
     public function __construct(string $botToken = '')
     {
@@ -189,6 +190,13 @@ class ConfigBuilder
     }
 
     #[\NoDiscard]
+    public function withContainer(mixed $container): static
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    #[\NoDiscard]
     public function build(): Config
     {
         return new Config(
@@ -205,7 +213,8 @@ class ConfigBuilder
             testEnvironment: $this->testEnvironment,
             errorHandlingMode: $this->errorHandlingMode,
             convertExceptionsToError: $this->convertExceptionsToError,
-            runningMode: $this->runningMode
+            runningMode: $this->runningMode,
+            container: $this->container
         );
     }
 }

@@ -43,6 +43,10 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
         $handledKeys = [];
 
         foreach ($properties as $prop) {
+            if ($prop->isStatic() || $prop->isVirtual()) {
+                continue;
+            }
+
             $propName = $prop->getName();
             if ($propName === 'raw' || $propName === 'extra') {
                 continue;

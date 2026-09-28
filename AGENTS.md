@@ -29,7 +29,20 @@ tueen/telegram/
 │   ├── Running/                       # Running modes (WebhookMode, PollingMode)
 │   │   ├── RunningModeInterface.php
 │   │   ├── WebhookMode.php            # Webhook runner (secret_token validation, safeResponse)
-│   │   └── PollingMode.php            # Long-polling runner (offset tracking, auto-backoff)
+│   │   └── PollingMode.php            # Long-polling runner (offset tracking, auto-backoff, forkProcess)
+│   ├── Routing/                       # Update routing system & attribute controllers
+│   │   ├── Router.php                 # Route dispatcher & controller reflection
+│   │   ├── Route.php                  # Individual route matcher (commands, callbacks, regex, inline)
+│   │   └── Attributes/                # Routing attributes (#[OnCommand], #[OnCallbackQuery], etc.)
+│   ├── Keyboards/                     # Fluent keyboard builders
+│   │   ├── InlineKeyboard.php         # Fluent builder for InlineKeyboardMarkup
+│   │   └── ReplyKeyboard.php          # Fluent builder for ReplyKeyboardMarkup & ReplyKeyboardRemove
+│   ├── Formatting/                    # Telegram Bot API formatting & escaping
+│   │   ├── Escape.php                 # Low-level escaping strictly adhering to Telegram spec
+│   │   └── Text.php                   # Fluent HTML / MarkdownV2 builder
+│   ├── Testing/                       # Testing fakes & PHPUnit assertions
+│   │   ├── TelegramFake.php           # In-memory fake client with assertions (assertSent, etc.)
+│   │   └── FakeHttpClient.php         # Recording HTTP client with response stubbing
 │   ├── Types/                         # All Telegram Bot API types (400 types)
 │   │   ├── Type.php                   # Base Type with universal ok() check, dynamic fallback & ArrayAccess
 │   │   ├── Error.php                  # Typed error object for non-throwing error handling
@@ -39,7 +52,11 @@ tueen/telegram/
 │   │   └── Method.php                 # Base Method class with multipart & serialization
 │   ├── Enums/                         # Standard Backed Enums (ParseMode, ChatType, UpdateType, etc.)
 │   ├── Client/                        # HTTP client abstraction (PSR-18 / Guzzle 7)
-│   ├── Pipeline/                      # Extensible middleware pipeline (RetryMiddleware, LoggingMiddleware)
+│   ├── Pipeline/                      # Extensible middleware pipeline (Retry, Logging, RateLimit)
+│   │   ├── MiddlewareInterface.php
+│   │   ├── RetryMiddleware.php
+│   │   ├── LoggingMiddleware.php
+│   │   └── RateLimitMiddleware.php    # Token bucket pacing & 429 backoff
 │   ├── Attributes/                    # Declarative attributes (ApiMethod, ReturnType, Field, ArrayOf)
 │   ├── Exceptions/                    # Typed exception hierarchy
 │   └── Generator/                     # Code generator compiled from api.json schema

@@ -31,7 +31,8 @@ class Config
         final public readonly ErrorHandlingMode $errorHandlingMode = ErrorHandlingMode::EXCEPTION,
         /** @var list<class-string<\Throwable>> */
         final public readonly array $convertExceptionsToError = [ApiException::class],
-        final public readonly ?RunningModeInterface $runningMode = null
+        final public readonly ?RunningModeInterface $runningMode = null,
+        final public readonly mixed $container = null
     ) {}
 
     #[\NoDiscard]
@@ -125,6 +126,12 @@ class Config
     public function withRunningMode(?RunningModeInterface $runningMode): self
     {
         return clone($this, ['runningMode' => $runningMode]);
+    }
+
+    #[\NoDiscard]
+    public function withContainer(mixed $container): self
+    {
+        return clone($this, ['container' => $container]);
     }
 
     public function getBaseApiUrl(): string

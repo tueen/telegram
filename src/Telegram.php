@@ -12,6 +12,7 @@ use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\Response;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
+use Tueen\Telegram\Enums\UpdateType;
 use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\TelegramException;
 use Tueen\Telegram\Methods\Method;
@@ -19,9 +20,11 @@ use Tueen\Telegram\Pipeline\LoggingMiddleware;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Pipeline\Pipeline;
 use Tueen\Telegram\Pipeline\RetryMiddleware;
+use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\RunningModeInterface;
 use Tueen\Telegram\Running\WebhookMode;
+use Tueen\Telegram\Testing\TelegramFake;
 use Tueen\Telegram\Types\Custom\ArrayResult;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\IntegerResult;
@@ -48,10 +51,20 @@ class Telegram
      */
     public const string API_VERSION = self::BOT_API_VERSION;
 
+    /**
+     * Current resolved Update instance.
+     * Defaults to null until resolved by Webhook or Polling runner.
+     */
+    private(set) ?Update $update = null;
+
     private Config $config;
     private HttpClientInterface $httpClient;
     private Pipeline $pipeline;
     private ?RunningModeInterface $runningMode = null;
+    private mixed $container = null;
+
+    /** @var list<mixed> */
+    private array $updateHandlers = [];
 
     /** @var list<callable> */
     private array $beforeRequestHooks = [];
@@ -83,6 +96,7 @@ class Telegram
         }
 
         $this->runningMode = $this->config->runningMode;
+        $this->container = $this->config->container;
     }
 
     /**
@@ -92,6 +106,15 @@ class Telegram
     public static function create(string $botToken): ConfigBuilder
     {
         return new ConfigBuilder($botToken);
+    }
+
+    /**
+     * Creates an in-memory testing fake instance of the Telegram client.
+     */
+    #[\NoDiscard]
+    public static function fake(array $responses = [], string $botToken = 'FAKE_BOT_TOKEN'): TelegramFake
+    {
+        return new TelegramFake($botToken, $responses);
     }
 
     /**
@@ -274,14 +297,34 @@ class Telegram
             $pName = $param->getName();
             $snake = Type::toSnakeCase($pName);
 
+            $val = null;
+            $found = false;
+
             if (array_key_exists($pName, $arguments)) {
-                $passedArgs[$pName] = $arguments[$pName];
+                $val = $arguments[$pName];
                 $consumedKeys[$pName] = true;
+                $found = true;
             } elseif (array_key_exists($snake, $arguments)) {
-                $passedArgs[$pName] = $arguments[$snake];
+                $val = $arguments[$snake];
                 $consumedKeys[$snake] = true;
+                $found = true;
             } elseif ($param->isDefaultValueAvailable()) {
-                $passedArgs[$pName] = $param->getDefaultValue();
+                if (!array_key_exists($pName, $passedArgs)) {
+                    $passedArgs[$pName] = $param->getDefaultValue();
+                }
+            }
+
+            if ($found) {
+                if ($val instanceof \Tueen\Telegram\Formatting\Text) {
+                    $passedArgs[$pName] = (string) $val;
+                    if (!isset($arguments['parse_mode']) && !isset($arguments['parseMode']) && !isset($passedArgs['parseMode'])) {
+                        $passedArgs['parseMode'] = $val->parseMode();
+                    }
+                } elseif ($val instanceof \Tueen\Telegram\Keyboards\InlineKeyboard || $val instanceof \Tueen\Telegram\Keyboards\ReplyKeyboard) {
+                    $passedArgs[$pName] = $val->build();
+                } else {
+                    $passedArgs[$pName] = $val;
+                }
             }
         }
 
@@ -449,26 +492,38 @@ class Telegram
     }
 
     /**
-     * Resolves an incoming update using the active running mode or provided raw payload.
+     * Manually updates the active Update instance.
      */
-    #[\NoDiscard]
-    public function getUpdate(?string $rawInput = null): Update
+    public function setUpdate(?Update $update): static
     {
-        $mode = $this->getRunningMode();
-        if ($rawInput !== null && $mode instanceof WebhookMode) {
-            $mode->setRawInput($rawInput);
-        }
+        $this->update = $update;
+        return $this;
+    }
 
-        if ($mode instanceof WebhookMode) {
-            return $mode->getUpdate($this);
-        }
+    /**
+     * Sets a dependency injection container or callable resolver for handler instantiation.
+     */
+    public function setContainer(mixed $container): static
+    {
+        $this->container = $container;
+        return $this;
+    }
 
-        $update = $mode->processUpdate($this);
-        if ($update instanceof Update) {
-            return $update;
+    /**
+     * Registers one or more update handlers to be invoked when the bot is run.
+     *
+     * Handlers can be:
+     * - A callable: fn(Update $update, Telegram $bot) => ...
+     * - An invokable class string: MyHandler::class
+     * - An invokable class instance: new MyHandler()
+     * - An array/list of any of the above
+     */
+    public function handle(mixed ...$handlers): static
+    {
+        foreach ($this->normalizeHandlers($handlers) as $handler) {
+            $this->updateHandlers[] = $handler;
         }
-
-        throw new TelegramException("Running mode did not return an Update object.");
+        return $this;
     }
 
     /**
@@ -490,23 +545,192 @@ class Telegram
         return new Update($payload);
     }
 
+    private ?Router $router = null;
+
     /**
-     * Executes the bot with an optional update handler according to the configured running mode.
-     *
-     * @param callable(Update): mixed|null $handler
+     * Gets or creates the internal Update Router.
      */
-    public function run(?callable $handler = null): mixed
+    public function router(): Router
     {
-        return $this->getRunningMode()->processUpdate($this, $handler);
+        return $this->router ??= new Router();
     }
 
     /**
-     * Alias for getUpdate() for backward compatibility.
+     * Registers a command route (e.g. 'start', 'help').
      */
-    #[\NoDiscard]
-    public function handleWebhook(?string $rawInput = null): Update
+    public function onCommand(string $command, mixed $handler): static
     {
-        return $this->getUpdate($rawInput);
+        $this->router()->onCommand($command, $handler);
+        return $this;
+    }
+
+    /**
+     * Registers a callback query route with pattern matching (exact, placeholder 'item:{id}', or regex).
+     */
+    public function onCallbackQuery(?string $pattern, mixed $handler): static
+    {
+        $this->router()->onCallbackQuery($pattern, $handler);
+        return $this;
+    }
+
+    /**
+     * Registers a message text route by pattern or regex.
+     */
+    public function onMessage(?string $pattern, mixed $handler): static
+    {
+        $this->router()->onMessage($pattern, $handler);
+        return $this;
+    }
+
+    /**
+     * Registers an inline query route.
+     */
+    public function onInlineQuery(?string $pattern, mixed $handler): static
+    {
+        $this->router()->onInlineQuery($pattern, $handler);
+        return $this;
+    }
+
+    /**
+     * Registers a route for any specific UpdateType.
+     */
+    public function on(UpdateType|string $type, mixed $handler): static
+    {
+        $this->router()->on($type, $handler);
+        return $this;
+    }
+
+    /**
+     * Registers a fallback route when no other route matches.
+     */
+    public function onFallback(mixed $handler): static
+    {
+        $this->router()->onFallback($handler);
+        return $this;
+    }
+
+    /**
+     * Registers an attribute-decorated controller class with #[OnCommand], #[OnCallbackQuery], etc.
+     */
+    public function registerController(string|object $controller): static
+    {
+        $this->router()->registerController($controller);
+        return $this;
+    }
+
+    /**
+     * Executes the bot with optional update handler(s) according to the configured running mode.
+     *
+     * Handlers receive:
+     * - Parameter 1: Update $update (the incoming update)
+     * - Parameter 2: Telegram $bot (this bot client instance)
+     *
+     * Handlers can be:
+     * - Callables: fn(Update $update, Telegram $bot)
+     * - Invokable class names: MyHandler::class
+     * - Invokable class instances: new MyHandler()
+     * - Arrays/lists of the above
+     *
+     * In WebhookMode: resolves the incoming update from webhook request, sets $this->update,
+     * executes handler(s), and returns the resolved Update.
+     * In PollingMode: enters an infinite long-polling loop, resolves incoming updates, sets $this->update,
+     * and dispatches them to handler(s) (synchronously, in spawned child processes, or via custom dispatcher).
+     *
+     * @param mixed ...$handlers Handlers passed to run()
+     * @return mixed
+     */
+    public function run(mixed ...$handlers): mixed
+    {
+        $allHandlers = [...$this->updateHandlers, ...$this->normalizeHandlers($handlers)];
+
+        // Automatically dispatch to router if any routes have been registered
+        if ($this->router !== null && $this->router->hasRoutes()) {
+            $allHandlers[] = $this->router;
+        }
+
+        $dispatcher = function (Update $update) use ($allHandlers): mixed {
+            $this->update = $update;
+            $result = null;
+
+            foreach ($allHandlers as $handler) {
+                $result = $this->invokeHandler($handler, $update);
+                if ($result === false) {
+                    break;
+                }
+            }
+
+            return $result;
+        };
+
+        return $this->getRunningMode()->processUpdate($this, !empty($allHandlers) ? $dispatcher : null);
+    }
+
+    /**
+     * Invokes an individual update handler.
+     *
+     * @throws TelegramException
+     */
+    public function invokeHandler(mixed $handler, Update $update): mixed
+    {
+        if (is_string($handler) && class_exists($handler)) {
+            $instance = $this->resolveHandlerInstance($handler);
+
+            if (is_callable($instance)) {
+                return $instance($update, $this);
+            }
+
+            throw new TelegramException("Handler class [{$handler}] must be invokable (missing __invoke method).");
+        }
+
+        if (is_callable($handler)) {
+            return $handler($update, $this);
+        }
+
+        throw new TelegramException("Invalid update handler provided: expected callable or invokable class name, got " . get_debug_type($handler));
+    }
+
+    /**
+     * Resolves an instance of a handler class, using the container if configured, or direct instantiation.
+     */
+    private function resolveHandlerInstance(string $className): object
+    {
+        $container = $this->container ?? $this->config->container;
+
+        if ($container !== null) {
+            if (is_object($container) && method_exists($container, 'get') && method_exists($container, 'has')) {
+                if ($container->has($className)) {
+                    return $container->get($className);
+                }
+            } elseif (is_callable($container)) {
+                $resolved = $container($className);
+                if (is_object($resolved)) {
+                    return $resolved;
+                }
+            }
+        }
+
+        return new $className();
+    }
+
+    /**
+     * Normalizes handlers passed as variadic arguments or arrays into a flat list.
+     *
+     * @param array<mixed> $handlers
+     * @return list<mixed>
+     */
+    private function normalizeHandlers(array $handlers): array
+    {
+        $flat = [];
+        foreach ($handlers as $handler) {
+            if (is_array($handler)) {
+                foreach ($this->normalizeHandlers($handler) as $h) {
+                    $flat[] = $h;
+                }
+            } elseif ($handler !== null) {
+                $flat[] = $handler;
+            }
+        }
+        return $flat;
     }
 
     /**
