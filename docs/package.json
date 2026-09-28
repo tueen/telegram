@@ -11,6 +11,7 @@
     "docs:version": "node scripts/archive-version.mjs --set-current"
   },
   "devDependencies": {
+    "mermaid": "^12.0.0",
     "vitepress": "^1.6.4"
   }
 }

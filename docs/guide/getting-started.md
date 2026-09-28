@@ -1,3 +1,7 @@
+<p align="center" style="margin-top: 2rem; margin-bottom: 2.5rem;">
+  <img src="/logo.png" alt="Tueen Telegram Logo" width="300" style="max-width: 100%; height: auto; filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.15));" />
+</p>
+
 # Getting Started
 
 ## Introduction

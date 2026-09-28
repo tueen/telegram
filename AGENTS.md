@@ -92,6 +92,7 @@ Detailed operational guidelines, code examples, and conventions are encapsulated
 | **`tueen-telegram-generator`** | [`.agents/skills/tueen-telegram-generator/`](./.agents/skills/tueen-telegram-generator/) | Automation of scraping, regenerating, and updating Bot API methods, types, and enums from schema. |
 | **`php-85-standards`** | [`.agents/skills/php-85-standards/`](./.agents/skills/php-85-standards/) | PHP 8.5 language conventions (Pipe operator `\|>`, `clone with`, `#[\NoDiscard]`, URI extension, persistent cURL handles). |
 | **`php-84-standards`** | [`.agents/skills/php-84-standards/`](./.agents/skills/php-84-standards/) | PHP 8.4 language conventions (Property Hooks, Asymmetric Visibility without redundant `public`, `array_*()` utilities). |
+| **`vitepress-interactive-mermaid`** | [`.agents/skills/vitepress-interactive-mermaid/`](./.agents/skills/vitepress-interactive-mermaid/) | Production-grade interactive Mermaid diagrams in VitePress with zoom, pan, fullscreen modal, and SSR safety. |
 
 ---
 

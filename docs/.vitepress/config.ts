@@ -18,10 +18,10 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
     {
       text: 'Updates & Running Modes',
       items: [
-        { text: 'Running Modes (Webhook & Polling)', link: `${basePath}running-modes` },
+        { text: 'Running Modes', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
         { text: 'Update Routing & Attributes', link: `${basePath}routing` },
-        { text: 'Conversation Flows (Flow)', link: `${basePath}flows` },
+        { text: 'Flows', link: `${basePath}flows` },
       ]
     },
     {
@@ -66,6 +66,18 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/icon.png' }]
   ],
+  markdown: {
+    config(md) {
+      const defaultFence = md.renderer.rules.fence!.bind(md.renderer.rules)
+      md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+        const token = tokens[idx]
+        if (token.info.trim() === 'mermaid') {
+          return `<Mermaid code="${encodeURIComponent(token.content)}" />`
+        }
+        return defaultFence(tokens, idx, options, env, self)
+      }
+    }
+  },
   themeConfig: {
     logo: '/icon.png',
     nav: [

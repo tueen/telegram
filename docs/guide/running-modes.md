@@ -1,4 +1,4 @@
-# Running Modes (Webhook & Polling)
+# Running Modes
 
 `tueen/telegram` features an elegant execution strategy separating how updates are received from how they are processed.
 
@@ -296,18 +296,165 @@ $bot->run(MyHandler::class);
 
 ---
 
-## PHP 8.5 Pipe Operator (`|>`) Pipelines
+## 🔀 PHP 8.5 Pipe Operator (`|>`) Pipelines
 
-In modern PHP 8.5 applications, you can pipe raw update payloads directly into `$bot->parseUpdate(...)` without intermediate variables:
+PHP 8.5 introduces the native **Pipe Operator (`|>`)**, enabling functional, left-to-right expression composition. In traditional PHP, processing an incoming Telegram update often results in either deeply nested function calls:
 
 ```php
-$response = file_get_contents('php://input')
+// Traditional nested approach (hard to read from inside out):
+respond(dispatch(authenticate(filter(parseUpdate(file_get_contents('php://input'))))));
+```
+
+or excessive intermediate temporary variables:
+
+```php
+// Traditional intermediate variables approach:
+$rawPayload = file_get_contents('php://input');
+$update = $bot->parseUpdate($rawPayload);
+$filtered = $guard->check($update);
+$response = $router->dispatch($filtered);
+```
+
+With PHP 8.5 and `tueen/telegram`'s callable-friendly design, data flows naturally as a readable, linear pipeline.
+
+---
+
+### 1. Fundamental Syntax & First-Class Callables
+
+The pipe operator passes the result of the left-hand expression as the first argument to the right-hand callable. You can combine it with first-class callables (`$bot->parseUpdate(...)`) and parenthesized closures `(fn($x) => ...)`:
+
+```php
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+
+$bot = new Telegram('YOUR_BOT_TOKEN');
+
+// Linear left-to-right transformation:
+$message = file_get_contents('php://input')
     |> $bot->parseUpdate(...)
-    |> (function (Update $update) use ($bot) {
-        if ($update->message?->text === '/start') {
-            return $bot->sendMessage($update->message->chat->id, 'Welcome to Tueen!');
-        }
+    |> (fn(Update $update) => $update->findMessage())
+    |> (fn($msg) => $msg?->findAnyText());
+```
+
+---
+
+### 2. Production Webhook Ingestion Pipeline
+
+In a webhook controller, you can pipe raw input directly from the HTTP stream into security validation, update parsing, flow handling, and routing without intermediate state:
+
+```php
+namespace App\Controllers;
+
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Exceptions\TelegramException;
+
+class TelegramWebhookController
+{
+    public function __invoke(Telegram $bot): void
+    {
+        file_get_contents('php://input')
+            // Step 1: Parse JSON into a typed Update instance (#[\NoDiscard] safe)
+            |> $bot->parseUpdate(...)
+            // Step 2: Set current update on client for contextual auto-fill
+            |> (function (Update $update) use ($bot): Update {
+                $bot->setUpdate($update);
+                return $update;
+            })
+            // Step 3: Prioritize active conversation flows
+            |> (function (Update $update) use ($bot): ?Update {
+                if ($bot->flowManager()->handle($update, $bot)) {
+                    return null; // Flow consumed the update, halt pipeline
+                }
+                return $update;
+            })
+            // Step 4: Dispatch to attribute router if not consumed by a flow
+            |> (function (?Update $update) use ($bot): void {
+                if ($update !== null) {
+                    $bot->router()->dispatch($update);
+                }
+            });
+    }
+}
+```
+
+---
+
+### 3. Multi-Stage Filter & Guard Pipeline
+
+Pipelines are particularly powerful for composing modular security guards, spam filters, and bot filters:
+
+```php
+use Tueen\Telegram\Types\Update;
+
+// Dedicated pure or callable guard functions:
+$rejectBannedUsers = function (Update $update): ?Update {
+    $userId = $update->findUser()?->id;
+    if ($userId !== null && in_array($userId, [/* banned user IDs */], true)) {
+        return null; // Halt processing for banned users
+    }
+    return $update;
+};
+
+$rejectOldUpdates = function (?Update $update): ?Update {
+    if ($update === null) return null;
+    $date = $update->findMessage()?->date;
+    // Drop updates older than 2 minutes:
+    if ($date !== null && (time() - $date) > 120) {
         return null;
+    }
+    return $update;
+};
+
+$logAudit = function (?Update $update): ?Update {
+    if ($update !== null) {
+        error_log("Processing Update #{$update->updateId} for Chat {$update->findChat()?->id}");
+    }
+    return $update;
+};
+
+// Execute complete guard pipeline:
+$payload
+    |> $bot->parseUpdate(...)
+    |> $rejectBannedUsers
+    |> $rejectOldUpdates
+    |> $logAudit
+    |> (fn(?Update $update) => $update ? $bot->handleUpdate($update) : null);
+```
+
+---
+
+### 4. Direct Action & Response Pipelines
+
+You can transform an incoming update straight into an outbound API action using PHP 8.5 pipes:
+
+```php
+use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Enums\ParseMode;
+
+file_get_contents('php://input')
+    |> $bot->parseUpdate(...)
+    |> (fn(Update $update) => match (true) {
+        $update->message?->text === '/ping' => $bot->sendMessage(
+            chatId: $update->findChat()->id,
+            text: '🏓 <b>Pong!</b>',
+            parseMode: ParseMode::HTML
+        ),
+        $update->message?->text === '/help' => $bot->sendMessage(
+            chatId: $update->findChat()->id,
+            text: '💡 Send me any text to echo.'
+        ),
+        default => null,
     });
 ```
+
+---
+
+### 5. Architectural Benefits in Tueen
+
+1. **Zero Intermediate State:** Eliminates redundant local variables (`$raw`, `$json`, `$obj`) that pollute scope and waste memory.
+2. **Left-to-Right Readability:** Reading code mirrors the natural direction of data flow: from network stream, through domain filters, to Telegram API response.
+3. **Callable & Hook Synergy:** Seamlessly integrates with Tueen's first-class callable methods (`$bot->parseUpdate(...)`, `$bot->sendMessage(...)`) and property hooks.
+4. **Graceful Early Exits:** Steps can return `null` or specialized result types to short-circuit subsequent stages without deeply nested `if/else` checks.
+
 
