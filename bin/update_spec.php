@@ -2,67 +2,108 @@
 
 declare(strict_types=1);
 
-echo "Fetching latest Telegram Bot API specification...\n";
+/**
+ * Tueen Telegram Client - Specification Updater
+ *
+ * Scrapes official Telegram Bot API documentation directly from
+ * https://core.telegram.org/bots/api using the internal Python scraper
+ * located in tools/scraper/scrape.py.
+ */
 
-$targetFile = __DIR__ . '/../resources/api.json';
-$url = 'https://raw.githubusercontent.com/PaulSonOfLars/telegram-bot-api-spec/master/api.json';
+echo "=== Telegram Bot API Specification Updater ===\n";
+echo "Scraping latest Bot API specification from core.telegram.org...\n\n";
 
-$proxies = [
-    null, // Try direct first
-    getenv('HTTP_PROXY') ?: null,
-    getenv('HTTPS_PROXY') ?: null,
-    'tcp://127.0.0.1:10809', // Common local proxy
-];
+$projectRoot = dirname(__DIR__);
+$targetFile = $projectRoot . '/resources/api.json';
+$scratchFile = $projectRoot . '/scratch/api.json';
+$scraperScript = $projectRoot . '/tools/scraper/scrape.py';
+$requirementsFile = $projectRoot . '/tools/scraper/requirements.txt';
 
-$proxies = array_unique(array_filter($proxies));
-array_unshift($proxies, null); // ensure direct is attempted first
+if (!file_exists($scraperScript)) {
+    fwrite(STDERR, "Error: Scraper script not found at {$scraperScript}\n");
+    exit(1);
+}
 
-$content = false;
+// 1. Detect available Python command
+$pythonCandidates = ['python3', 'python', 'py -3', 'py'];
+$pythonBin = null;
 
-foreach ($proxies as $proxy) {
-    $proxyLabel = $proxy ? "proxy {$proxy}" : "direct connection";
-    echo "Attempting download via {$proxyLabel}...\n";
+foreach ($pythonCandidates as $cmd) {
+    $checkCmd = (stripos(PHP_OS, 'WIN') === 0)
+        ? "where {$cmd} 2>nul"
+        : "command -v {$cmd} 2>/dev/null";
 
-    $opts = [
-        'http' => [
-            'timeout' => 15,
-            'follow_location' => 1,
-            'user_agent' => 'Tueen-Telegram-Client-Updater/1.0',
-        ],
-        'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false,
-        ],
-    ];
+    // Test running version command
+    $output = [];
+    $ret = 1;
+    @exec("{$cmd} --version 2>&1", $output, $ret);
 
-    if ($proxy !== null) {
-        $opts['http']['proxy'] = $proxy;
-        $opts['http']['request_fulluri'] = true;
-    }
-
-    $ctx = stream_context_create($opts);
-    $data = @file_get_contents($url, false, $ctx);
-
-    if ($data !== false && strlen($data) > 100000) {
-        $json = json_decode($data, true);
-        if (isset($json['methods'], $json['types'])) {
-            $content = $data;
-            echo "Successfully downloaded specification (" . strlen($data) . " bytes)!\n";
-            echo "API Version: " . ($json['version'] ?? 'N/A') . " (" . ($json['release_date'] ?? 'N/A') . ")\n";
-            echo "Methods: " . count($json['methods']) . ", Types: " . count($json['types']) . "\n";
-            break;
-        }
+    if ($ret === 0 && !empty($output)) {
+        $pythonBin = $cmd;
+        echo "Found Python runtime: " . trim($output[0]) . " ({$cmd})\n";
+        break;
     }
 }
 
-if ($content === false) {
-    echo "Warning: Could not fetch updated spec online. Keeping existing resources/api.json.\n";
-    exit(0);
+if ($pythonBin === null) {
+    fwrite(STDERR, "Error: Python 3 was not detected on your system.\n");
+    fwrite(STDERR, "Please install Python 3.10+ to scrape the Telegram Bot API specification.\n");
+    exit(1);
 }
 
-if (!is_dir(dirname($targetFile))) {
-    mkdir(dirname($targetFile), 0777, true);
+// 2. Check if Python scraper dependencies are installed
+$depCheckOutput = [];
+$depCheckRet = 1;
+exec("{$pythonBin} -c \"import requests, bs4, html5lib\" 2>&1", $depCheckOutput, $depCheckRet);
+
+if ($depCheckRet !== 0) {
+    echo "Notice: Required Python packages (requests, beautifulsoup4, html5lib) missing.\n";
+    echo "Attempting automatic installation via pip...\n";
+
+    $pipCmd = "{$pythonBin} -m pip install -r " . escapeshellarg($requirementsFile);
+    passthru($pipCmd, $pipRet);
+
+    if ($pipRet !== 0) {
+        fwrite(STDERR, "\nError: Failed to install Python scraper dependencies.\n");
+        fwrite(STDERR, "Please run manually: pip install -r tools/scraper/requirements.txt\n");
+        exit(1);
+    }
 }
 
-file_put_contents($targetFile, $content);
-echo "Updated resources/api.json successfully.\n";
+// 3. Execute local Python scraper
+$scrapeCmd = sprintf(
+    '%s %s --output %s',
+    $pythonBin,
+    escapeshellarg($scraperScript),
+    escapeshellarg($targetFile)
+);
+
+echo "\nExecuting local scraper: {$scrapeCmd}\n";
+$exitCode = 0;
+passthru($scrapeCmd, $exitCode);
+
+if ($exitCode !== 0 || !file_exists($targetFile)) {
+    fwrite(STDERR, "\nError: Python scraper failed with exit code {$exitCode}.\n");
+    exit(1);
+}
+
+// 4. Verify and sync generated specification
+$rawJson = file_get_contents($targetFile);
+$data = json_decode($rawJson, true);
+
+if (!is_array($data) || !isset($data['methods'], $data['types'])) {
+    fwrite(STDERR, "\nError: Generated api.json is corrupted or invalid.\n");
+    exit(1);
+}
+
+// Sync to scratch/api.json if scratch directory exists
+if (is_dir(dirname($scratchFile))) {
+    copy($targetFile, $scratchFile);
+}
+
+echo "\nSpecification updated successfully!\n";
+echo "Path        : {$targetFile}\n";
+echo "API Version : " . ($data['version'] ?? 'N/A') . " (" . ($data['release_date'] ?? 'N/A') . ")\n";
+echo "Methods     : " . count($data['methods']) . "\n";
+echo "Types       : " . count($data['types']) . "\n";
+echo "==============================================\n";

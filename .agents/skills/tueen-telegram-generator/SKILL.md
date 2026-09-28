@@ -31,10 +31,19 @@ The generator transforms the machine-readable Telegram Bot API JSON schema into 
 ### 1. Update the API Schema
 
 When Telegram releases a new Bot API version:
-1. Ensure the latest schema JSON is stored in `scratch/api.json`.
-2. Inspect the version and new methods/types:
+1. Run the specification updater (which invokes the local Python scraper `tools/scraper/scrape.py` against `https://core.telegram.org/bots/api`):
    ```powershell
-   php -r '$d = json_decode(file_get_contents("scratch/api.json"), true); echo $d["version"] . PHP_EOL;'
+   composer update-api
+   # or directly:
+   php bin/update_spec.php
+   ```
+2. Alternatively, run the Python scraper standalone:
+   ```powershell
+   python tools/scraper/scrape.py --output resources/api.json
+   ```
+3. Inspect the version and new methods/types:
+   ```powershell
+   php -r '$d = json_decode(file_get_contents("resources/api.json"), true); echo $d["version"] . " - " . count($d["methods"]) . " methods, " . count($d["types"]) . " types\n";'
    ```
 
 ### 2. Run the Generator

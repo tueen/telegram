@@ -50,6 +50,16 @@ tueen/telegram/
 │   ├── Attributes/                    # PHP 8 attributes (ApiMethod, ReturnType, Field, ArrayOf)
 │   ├── Exceptions/                    # Typed exception tree
 │   └── Generator/                     # Code generator from Telegram Bot API schema
+├── bin/
+│   ├── generate.php                   # Runs CodeGenerator to compile PHP classes from api.json
+│   └── update_spec.php                # Runs tools/scraper/scrape.py to update resources/api.json
+├── tools/
+│   └── scraper/                       # Python scraper for core.telegram.org/bots/api
+│       ├── scrape.py                  # CLI scraper with validation & proxy fallback
+│       ├── requirements.txt           # Scraper dependencies (requests, bs4, html5lib)
+│       └── README.md
+├── resources/
+│   └── api.json                       # Machine-readable Telegram Bot API specification
 ├── docs/                              # VitePress documentation
 ├── tests/                             # PHPUnit test suite
 ├── composer.json
