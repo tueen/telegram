@@ -6,6 +6,7 @@ namespace Tueen\Telegram\Types;
 
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Concerns\HasReplyKeyboardHelpers;
 
 /**
  * This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account.
@@ -14,6 +15,8 @@ use Tueen\Telegram\Attributes\Field;
  */
 class ReplyKeyboardMarkup extends Type
 {
+    use HasReplyKeyboardHelpers;
+
     /**
      * Array of button rows, each represented by an Array of KeyboardButton objects
      * @var KeyboardButton[]|null

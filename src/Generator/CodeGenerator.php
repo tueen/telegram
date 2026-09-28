@@ -136,6 +136,12 @@ class CodeGenerator
         } elseif ($name === 'User') {
             $imports[] = 'Tueen\Telegram\Types\Concerns\HasUserHelpers';
             $traitStatement = "    use HasUserHelpers;\n\n";
+        } elseif ($name === 'InlineKeyboardMarkup') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasInlineKeyboardHelpers';
+            $traitStatement = "    use HasInlineKeyboardHelpers;\n\n";
+        } elseif ($name === 'ReplyKeyboardMarkup') {
+            $imports[] = 'Tueen\Telegram\Types\Concerns\HasReplyKeyboardHelpers';
+            $traitStatement = "    use HasReplyKeyboardHelpers;\n\n";
         }
 
         $propsCode = implode("\n\n", $propLines);

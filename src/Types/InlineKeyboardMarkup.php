@@ -6,6 +6,7 @@ namespace Tueen\Telegram\Types;
 
 use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
+use Tueen\Telegram\Types\Concerns\HasInlineKeyboardHelpers;
 
 /**
  * This object represents an inline keyboard that appears right next to the message it belongs to.
@@ -14,6 +15,8 @@ use Tueen\Telegram\Attributes\Field;
  */
 class InlineKeyboardMarkup extends Type
 {
+    use HasInlineKeyboardHelpers;
+
     /**
      * Array of button rows, each represented by an Array of InlineKeyboardButton objects
      * @var InlineKeyboardButton[]|null
