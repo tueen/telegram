@@ -8,6 +8,21 @@ use Tueen\Telegram\Types\Type;
 
 class CodeGenerator
 {
+    public const array CONTEXTUAL_FIELDS = [
+        'chat_id',
+        'business_connection_id',
+        'message_thread_id',
+        'direct_messages_topic_id',
+        'user_id',
+        'message_id',
+        'callback_query_id',
+        'inline_query_id',
+        'shipping_query_id',
+        'pre_checkout_query_id',
+        'guest_query_id',
+        'inline_message_id',
+    ];
+
     private array $spec;
     private string $typesDir;
     private string $methodsDir;
@@ -254,12 +269,18 @@ PHP;
         $params = [];
         $props = [];
         $constructBody = [];
+        $hasSeenDefault = false;
 
         foreach ($fields as $field) {
             $fieldName = $field['name'];
             $camelName = Type::toCamelCase($fieldName);
             $fieldTypes = $field['types'] ?? [];
-            $required = $field['required'] ?? false;
+            $specRequired = $field['required'] ?? false;
+            $isContextual = in_array($fieldName, self::CONTEXTUAL_FIELDS, true);
+            $isOptional = !$specRequired || $isContextual || $hasSeenDefault;
+            if ($isOptional) {
+                $hasSeenDefault = true;
+            }
             $fieldDesc = $field['description'] ?? '';
 
             // Check if parameter can be a file
@@ -269,11 +290,11 @@ PHP;
                 $imports[] = 'Tueen\Telegram\Attributes\RequiresUpload';
             }
 
-            $phpType = $this->mapMethodParamType($methodName, $fieldName, $fieldTypes, $required, $imports);
+            $phpType = $this->mapMethodParamType($methodName, $fieldName, $fieldTypes, !$isOptional, $imports);
 
             $propDoc = "    /**\n     * {$fieldDesc}\n     */";
             $attrs = [];
-            $attrs[] = "    #[Field('{$fieldName}', required: " . ($required ? 'true' : 'false') . ")]";
+            $attrs[] = "    #[Field('{$fieldName}', required: " . ($specRequired ? 'true' : 'false') . ")]";
             $imports[] = 'Tueen\Telegram\Attributes\Field';
 
             if ($isFile) {
@@ -281,14 +302,14 @@ PHP;
             }
 
             $attrStr = implode("\n", $attrs);
-            $defaultVal = $required ? '' : ' = null';
+            $defaultVal = $isOptional ? ' = null' : '';
 
             $props[] = "{$propDoc}\n{$attrStr}\n    public {$phpType} \${$camelName}{$defaultVal};";
 
             $paramDoc = "{$phpType} \${$camelName}{$defaultVal}";
             $params[] = $paramDoc;
 
-            if ($required) {
+            if (!$isOptional) {
                 $constructBody[] = "        \$this->{$camelName} = \${$camelName};";
             } else {
                 $constructBody[] = "        if (\${$camelName} !== null) \$this->{$camelName} = \${$camelName};";
@@ -663,18 +684,24 @@ PHP;
             $retType = implode('|', array_unique($docReturnTypes)) ?: 'Type|Error';
 
             $paramList = [];
+            $hasSeenDefault = false;
             foreach ($fields as $field) {
                 $c = Type::toCamelCase($field['name']);
-                $required = $field['required'] ?? false;
+                $specRequired = $field['required'] ?? false;
+                $isContextual = in_array($field['name'], self::CONTEXTUAL_FIELDS, true);
+                $isOptional = !$specRequired || $isContextual || $hasSeenDefault;
+                if ($isOptional) {
+                    $hasSeenDefault = true;
+                }
                 $fTypes = $field['types'] ?? [];
 
                 if (in_array('InputFile', $fTypes, true)) {
                     $allImports[] = 'Tueen\Telegram\Types\Custom\InputFile';
                 }
 
-                $phpType = $this->mapMethodParamType($rawName, $field['name'], $fTypes, $required, $allImports);
+                $phpType = $this->mapMethodParamType($rawName, $field['name'], $fTypes, !$isOptional, $allImports);
 
-                $def = $required ? '' : ' = null';
+                $def = $isOptional ? ' = null' : '';
                 $paramList[] = "{$phpType} \${$c}{$def}";
             }
 

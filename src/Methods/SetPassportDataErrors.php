@@ -23,22 +23,22 @@ class SetPassportDataErrors extends Method
      * User identifier
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * A JSON-serialized Array describing the errors
      */
     #[Field('errors', required: true)]
-    public array $errors;
+    public ?array $errors = null;
 
     public function __construct(
-        int $userId,
-        array $errors,
+        ?int $userId = null,
+        ?array $errors = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->errors = $errors;
+        if ($userId !== null) $this->userId = $userId;
+        if ($errors !== null) $this->errors = $errors;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -23,13 +23,13 @@ class StopPoll extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the original message with the poll
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message to be edited was sent
@@ -44,15 +44,15 @@ class StopPoll extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        int $messageId,
+        int|string|null $chatId = null,
+        ?int $messageId = null,
         ?string $businessConnectionId = null,
         ?InlineKeyboardMarkup $replyMarkup = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
         if ($extra) $this->handleExtraParameters($extra);

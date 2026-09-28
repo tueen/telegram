@@ -22,7 +22,7 @@ class GetChatAdministrators extends Method
      * Unique identifier for the target chat or username of the target supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Pass True to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted.
@@ -31,12 +31,12 @@ class GetChatAdministrators extends Method
     public ?bool $returnBots = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?bool $returnBots = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($returnBots !== null) $this->returnBots = $returnBots;
         if ($extra) $this->handleExtraParameters($extra);
     }

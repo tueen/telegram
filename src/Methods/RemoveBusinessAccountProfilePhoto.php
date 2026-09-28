@@ -22,7 +22,7 @@ class RemoveBusinessAccountProfilePhoto extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Pass True to remove the public photo, which is visible even if the main photo is hidden by the business account's privacy settings. After the main photo is removed, the previous profile photo (if present) becomes the main photo.
@@ -31,12 +31,12 @@ class RemoveBusinessAccountProfilePhoto extends Method
     public ?bool $isPublic = null;
 
     public function __construct(
-        string $businessConnectionId,
+        ?string $businessConnectionId = null,
         ?bool $isPublic = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($isPublic !== null) $this->isPublic = $isPublic;
         if ($extra) $this->handleExtraParameters($extra);
     }

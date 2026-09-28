@@ -23,13 +23,13 @@ class SavePreparedInlineMessage extends Method
      * Unique identifier of the target user that can use the prepared message
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * A JSON-serialized object describing the message to be sent
      */
     #[Field('result', required: true)]
-    public InlineQueryResult $result;
+    public ?InlineQueryResult $result = null;
 
     /**
      * Pass True if the message can be sent to private chats with users
@@ -56,8 +56,8 @@ class SavePreparedInlineMessage extends Method
     public ?bool $allowChannelChats = null;
 
     public function __construct(
-        int $userId,
-        InlineQueryResult $result,
+        ?int $userId = null,
+        ?InlineQueryResult $result = null,
         ?bool $allowUserChats = null,
         ?bool $allowBotChats = null,
         ?bool $allowGroupChats = null,
@@ -65,8 +65,8 @@ class SavePreparedInlineMessage extends Method
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->result = $result;
+        if ($userId !== null) $this->userId = $userId;
+        if ($result !== null) $this->result = $result;
         if ($allowUserChats !== null) $this->allowUserChats = $allowUserChats;
         if ($allowBotChats !== null) $this->allowBotChats = $allowBotChats;
         if ($allowGroupChats !== null) $this->allowGroupChats = $allowGroupChats;

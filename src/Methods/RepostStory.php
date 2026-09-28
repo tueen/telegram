@@ -23,25 +23,25 @@ class RepostStory extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the chat which posted the story that should be reposted
      */
     #[Field('from_chat_id', required: true)]
-    public int $fromChatId;
+    public ?int $fromChatId = null;
 
     /**
      * Unique identifier of the story that should be reposted
      */
     #[Field('from_story_id', required: true)]
-    public int $fromStoryId;
+    public ?int $fromStoryId = null;
 
     /**
      * Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
      */
     #[Field('active_period', required: true)]
-    public StoryActivePeriod|int $activePeriod;
+    public StoryActivePeriod|int|null $activePeriod = null;
 
     /**
      * Pass True to keep the story accessible after it expires
@@ -56,19 +56,19 @@ class RepostStory extends Method
     public ?bool $protectContent = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int $fromChatId,
-        int $fromStoryId,
-        StoryActivePeriod|int $activePeriod,
+        ?string $businessConnectionId = null,
+        ?int $fromChatId = null,
+        ?int $fromStoryId = null,
+        StoryActivePeriod|int|null $activePeriod = null,
         ?bool $postToChatPage = null,
         ?bool $protectContent = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->fromChatId = $fromChatId;
-        $this->fromStoryId = $fromStoryId;
-        $this->activePeriod = $activePeriod;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
+        if ($fromStoryId !== null) $this->fromStoryId = $fromStoryId;
+        if ($activePeriod !== null) $this->activePeriod = $activePeriod;
         if ($postToChatPage !== null) $this->postToChatPage = $postToChatPage;
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($extra) $this->handleExtraParameters($extra);

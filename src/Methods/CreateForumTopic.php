@@ -23,13 +23,13 @@ class CreateForumTopic extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Topic name, 1-128 characters
      */
     #[Field('name', required: true)]
-    public string $name;
+    public ?string $name = null;
 
     /**
      * Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F).
@@ -44,15 +44,15 @@ class CreateForumTopic extends Method
     public ?string $iconCustomEmojiId = null;
 
     public function __construct(
-        int|string $chatId,
-        string $name,
+        int|string|null $chatId = null,
+        ?string $name = null,
         ForumIconColor|int|null $iconColor = null,
         ?string $iconCustomEmojiId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->name = $name;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($name !== null) $this->name = $name;
         if ($iconColor !== null) $this->iconColor = $iconColor;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
         if ($extra) $this->handleExtraParameters($extra);

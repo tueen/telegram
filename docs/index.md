@@ -23,7 +23,7 @@ features:
   - title: Smart Update & Message Helpers
     details: Instant type detection via $update->type, smart model extractors, and command argument parsing.
   - title: Complete API & Enum Coverage
-    details: Complete coverage of Bot API methods, types, and enums with full IDE autocompletion.
+    details: Full coverage of Bot API methods with named parameters, typed enums, and complete IDE autocompletion.
   - title: File Transfers & Progress
     details: Upload files via InputFile and stream downloads with real-time percentage progress callbacks.
 ---

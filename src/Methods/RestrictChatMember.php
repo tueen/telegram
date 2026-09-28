@@ -23,19 +23,19 @@ class RestrictChatMember extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * A JSON-serialized object for new user permissions
      */
     #[Field('permissions', required: true)]
-    public ChatPermissions $permissions;
+    public ?ChatPermissions $permissions = null;
 
     /**
      * Pass True if chat permissions are set independently. Otherwise, the can_send_other_messages and can_add_web_page_previews permissions will imply the can_send_messages, can_send_audios, can_send_documents, can_send_photos, can_send_videos, can_send_video_notes, and can_send_voice_notes permissions; the can_send_polls permission will imply the can_send_messages permission.
@@ -50,17 +50,17 @@ class RestrictChatMember extends Method
     public ?int $untilDate = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
-        ChatPermissions $permissions,
+        int|string|null $chatId = null,
+        ?int $userId = null,
+        ?ChatPermissions $permissions = null,
         ?bool $useIndependentChatPermissions = null,
         ?int $untilDate = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
-        $this->permissions = $permissions;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
+        if ($permissions !== null) $this->permissions = $permissions;
         if ($useIndependentChatPermissions !== null) $this->useIndependentChatPermissions = $useIndependentChatPermissions;
         if ($untilDate !== null) $this->untilDate = $untilDate;
         if ($extra) $this->handleExtraParameters($extra);

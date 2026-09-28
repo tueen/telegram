@@ -22,22 +22,22 @@ class SetChatStickerSet extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Name of the sticker set to be set as the group sticker set
      */
     #[Field('sticker_set_name', required: true)]
-    public string $stickerSetName;
+    public ?string $stickerSetName = null;
 
     public function __construct(
-        int|string $chatId,
-        string $stickerSetName,
+        int|string|null $chatId = null,
+        ?string $stickerSetName = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->stickerSetName = $stickerSetName;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($stickerSetName !== null) $this->stickerSetName = $stickerSetName;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

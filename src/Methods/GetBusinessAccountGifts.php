@@ -22,7 +22,7 @@ class GetBusinessAccountGifts extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Pass True to exclude gifts that aren't saved to the account's profile page
@@ -85,7 +85,7 @@ class GetBusinessAccountGifts extends Method
     public ?int $limit = null;
 
     public function __construct(
-        string $businessConnectionId,
+        ?string $businessConnectionId = null,
         ?bool $excludeUnsaved = null,
         ?bool $excludeSaved = null,
         ?bool $excludeUnlimited = null,
@@ -99,7 +99,7 @@ class GetBusinessAccountGifts extends Method
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($excludeUnsaved !== null) $this->excludeUnsaved = $excludeUnsaved;
         if ($excludeSaved !== null) $this->excludeSaved = $excludeSaved;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;

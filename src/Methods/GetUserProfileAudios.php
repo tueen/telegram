@@ -22,7 +22,7 @@ class GetUserProfileAudios extends Method
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Sequential number of the first audio to be returned. By default, all audios are returned.
@@ -37,13 +37,13 @@ class GetUserProfileAudios extends Method
     public ?int $limit = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         ?int $offset = null,
         ?int $limit = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($offset !== null) $this->offset = $offset;
         if ($limit !== null) $this->limit = $limit;
         if ($extra) $this->handleExtraParameters($extra);

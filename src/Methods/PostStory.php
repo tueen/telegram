@@ -25,19 +25,19 @@ class PostStory extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Content of the story
      */
     #[Field('content', required: true)]
-    public InputStoryContent $content;
+    public ?InputStoryContent $content = null;
 
     /**
      * Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400
      */
     #[Field('active_period', required: true)]
-    public StoryActivePeriod|int $activePeriod;
+    public StoryActivePeriod|int|null $activePeriod = null;
 
     /**
      * Caption of the story, 0-2048 characters after entities parsing
@@ -76,9 +76,9 @@ class PostStory extends Method
     public ?bool $protectContent = null;
 
     public function __construct(
-        string $businessConnectionId,
-        InputStoryContent $content,
-        StoryActivePeriod|int $activePeriod,
+        ?string $businessConnectionId = null,
+        ?InputStoryContent $content = null,
+        StoryActivePeriod|int|null $activePeriod = null,
         ?string $caption = null,
         ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
@@ -88,9 +88,9 @@ class PostStory extends Method
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->content = $content;
-        $this->activePeriod = $activePeriod;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($content !== null) $this->content = $content;
+        if ($activePeriod !== null) $this->activePeriod = $activePeriod;
         if ($caption !== null) $this->caption = $caption;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;

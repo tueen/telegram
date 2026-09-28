@@ -22,22 +22,22 @@ class TransferBusinessAccountStars extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Number of Telegram Stars to transfer; 1-10000
      */
     #[Field('star_count', required: true)]
-    public int $starCount;
+    public ?int $starCount = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int $starCount,
+        ?string $businessConnectionId = null,
+        ?int $starCount = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->starCount = $starCount;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($starCount !== null) $this->starCount = $starCount;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

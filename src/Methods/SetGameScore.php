@@ -22,13 +22,13 @@ class SetGameScore extends Method
      * User identifier
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * New score, must be non-negative
      */
     #[Field('score', required: true)]
-    public int $score;
+    public ?int $score = null;
 
     /**
      * Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters.
@@ -61,8 +61,8 @@ class SetGameScore extends Method
     public ?string $inlineMessageId = null;
 
     public function __construct(
-        int $userId,
-        int $score,
+        ?int $userId = null,
+        ?int $score = null,
         ?bool $force = null,
         ?bool $disableEditMessage = null,
         ?int $chatId = null,
@@ -71,8 +71,8 @@ class SetGameScore extends Method
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->score = $score;
+        if ($userId !== null) $this->userId = $userId;
+        if ($score !== null) $this->score = $score;
         if ($force !== null) $this->force = $force;
         if ($disableEditMessage !== null) $this->disableEditMessage = $disableEditMessage;
         if ($chatId !== null) $this->chatId = $chatId;

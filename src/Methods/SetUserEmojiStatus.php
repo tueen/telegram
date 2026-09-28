@@ -22,7 +22,7 @@ class SetUserEmojiStatus extends Method
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status.
@@ -37,13 +37,13 @@ class SetUserEmojiStatus extends Method
     public ?int $emojiStatusExpirationDate = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         ?string $emojiStatusCustomEmojiId = null,
         ?int $emojiStatusExpirationDate = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($emojiStatusCustomEmojiId !== null) $this->emojiStatusCustomEmojiId = $emojiStatusCustomEmojiId;
         if ($emojiStatusExpirationDate !== null) $this->emojiStatusExpirationDate = $emojiStatusExpirationDate;
         if ($extra) $this->handleExtraParameters($extra);

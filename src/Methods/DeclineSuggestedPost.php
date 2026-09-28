@@ -22,13 +22,13 @@ class DeclineSuggestedPost extends Method
      * Unique identifier for the target direct messages chat
      */
     #[Field('chat_id', required: true)]
-    public int $chatId;
+    public ?int $chatId = null;
 
     /**
      * Identifier of a suggested post message to decline
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * Comment for the creator of the suggested post; 0-128 characters
@@ -37,14 +37,14 @@ class DeclineSuggestedPost extends Method
     public ?string $comment = null;
 
     public function __construct(
-        int $chatId,
-        int $messageId,
+        ?int $chatId = null,
+        ?int $messageId = null,
         ?string $comment = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($comment !== null) $this->comment = $comment;
         if ($extra) $this->handleExtraParameters($extra);
     }

@@ -22,7 +22,7 @@ class GetUserGifts extends Method
      * Unique identifier of the user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Pass True to exclude gifts that can be purchased an unlimited number of times
@@ -73,7 +73,7 @@ class GetUserGifts extends Method
     public ?int $limit = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         ?bool $excludeUnlimited = null,
         ?bool $excludeLimitedUpgradable = null,
         ?bool $excludeLimitedNonUpgradable = null,
@@ -85,7 +85,7 @@ class GetUserGifts extends Method
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;
         if ($excludeLimitedUpgradable !== null) $this->excludeLimitedUpgradable = $excludeLimitedUpgradable;
         if ($excludeLimitedNonUpgradable !== null) $this->excludeLimitedNonUpgradable = $excludeLimitedNonUpgradable;

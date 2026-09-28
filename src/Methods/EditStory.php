@@ -24,19 +24,19 @@ class EditStory extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the story to edit
      */
     #[Field('story_id', required: true)]
-    public int $storyId;
+    public ?int $storyId = null;
 
     /**
      * Content of the story
      */
     #[Field('content', required: true)]
-    public InputStoryContent $content;
+    public ?InputStoryContent $content = null;
 
     /**
      * Caption of the story, 0-2048 characters after entities parsing
@@ -63,9 +63,9 @@ class EditStory extends Method
     public ?array $areas = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int $storyId,
-        InputStoryContent $content,
+        ?string $businessConnectionId = null,
+        ?int $storyId = null,
+        ?InputStoryContent $content = null,
         ?string $caption = null,
         ParseMode|string|null $parseMode = null,
         ?array $captionEntities = null,
@@ -73,9 +73,9 @@ class EditStory extends Method
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->storyId = $storyId;
-        $this->content = $content;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($storyId !== null) $this->storyId = $storyId;
+        if ($content !== null) $this->content = $content;
         if ($caption !== null) $this->caption = $caption;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($captionEntities !== null) $this->captionEntities = $captionEntities;

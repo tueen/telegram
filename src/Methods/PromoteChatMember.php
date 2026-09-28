@@ -22,13 +22,13 @@ class PromoteChatMember extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Pass True if the administrator's presence in the chat is hidden
@@ -139,8 +139,8 @@ class PromoteChatMember extends Method
     public ?bool $canSendWelcomeMessages = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
+        int|string|null $chatId = null,
+        ?int $userId = null,
         ?bool $isAnonymous = null,
         ?bool $canManageChat = null,
         ?bool $canDeleteMessages = null,
@@ -162,8 +162,8 @@ class PromoteChatMember extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
         if ($isAnonymous !== null) $this->isAnonymous = $isAnonymous;
         if ($canManageChat !== null) $this->canManageChat = $canManageChat;
         if ($canDeleteMessages !== null) $this->canDeleteMessages = $canDeleteMessages;

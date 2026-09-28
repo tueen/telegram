@@ -22,7 +22,7 @@ class CreateChatInviteLink extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Invite link name; 0-32 characters
@@ -49,7 +49,7 @@ class CreateChatInviteLink extends Method
     public ?bool $createsJoinRequest = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?string $name = null,
         ?int $expireDate = null,
         ?int $memberLimit = null,
@@ -57,7 +57,7 @@ class CreateChatInviteLink extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($name !== null) $this->name = $name;
         if ($expireDate !== null) $this->expireDate = $expireDate;
         if ($memberLimit !== null) $this->memberLimit = $memberLimit;

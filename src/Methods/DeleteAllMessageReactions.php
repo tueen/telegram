@@ -22,7 +22,7 @@ class DeleteAllMessageReactions extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the user whose reactions will be removed, if the reactions were added by a user
@@ -37,13 +37,13 @@ class DeleteAllMessageReactions extends Method
     public ?int $actorChatId = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?int $userId = null,
         ?int $actorChatId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($userId !== null) $this->userId = $userId;
         if ($actorChatId !== null) $this->actorChatId = $actorChatId;
         if ($extra) $this->handleExtraParameters($extra);

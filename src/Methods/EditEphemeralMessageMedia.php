@@ -24,25 +24,25 @@ class EditEphemeralMessageMedia extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the user who received the message
      */
     #[Field('receiver_user_id', required: true)]
-    public int $receiverUserId;
+    public ?int $receiverUserId = null;
 
     /**
      * Identifier of the ephemeral message to edit
      */
     #[Field('ephemeral_message_id', required: true)]
-    public int $ephemeralMessageId;
+    public ?int $ephemeralMessageId = null;
 
     /**
      * A JSON-serialized object for the new media content of the message
      */
     #[Field('media', required: true)]
-    public InputMedia $media;
+    public ?InputMedia $media = null;
 
     /**
      * A JSON-serialized object for an inline keyboard
@@ -51,18 +51,18 @@ class EditEphemeralMessageMedia extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
-        InputMedia $media,
+        int|string|null $chatId = null,
+        ?int $receiverUserId = null,
+        ?int $ephemeralMessageId = null,
+        ?InputMedia $media = null,
         ?InlineKeyboardMarkup $replyMarkup = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->receiverUserId = $receiverUserId;
-        $this->ephemeralMessageId = $ephemeralMessageId;
-        $this->media = $media;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
+        if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
+        if ($media !== null) $this->media = $media;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
         if ($extra) $this->handleExtraParameters($extra);
     }

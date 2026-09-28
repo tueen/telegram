@@ -29,7 +29,7 @@ class SendDice extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -98,7 +98,7 @@ class SendDice extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -113,7 +113,7 @@ class SendDice extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

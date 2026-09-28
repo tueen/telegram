@@ -22,7 +22,7 @@ class UnpinChatMessage extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be unpinned
@@ -37,13 +37,13 @@ class UnpinChatMessage extends Method
     public ?int $messageId = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?string $businessConnectionId = null,
         ?int $messageId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($extra) $this->handleExtraParameters($extra);

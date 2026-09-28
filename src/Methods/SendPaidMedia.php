@@ -29,19 +29,19 @@ class SendPaidMedia extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * The number of Telegram Stars that must be paid to buy access to the media; 1-25000
      */
     #[Field('star_count', required: true)]
-    public int $starCount;
+    public ?int $starCount = null;
 
     /**
      * A JSON-serialized Array describing the media to be sent; up to 10 items
      */
     #[Field('media', required: true)]
-    public array $media;
+    public ?array $media = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -128,9 +128,9 @@ class SendPaidMedia extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        int $starCount,
-        array $media,
+        int|string|null $chatId = null,
+        ?int $starCount = null,
+        ?array $media = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -148,9 +148,9 @@ class SendPaidMedia extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->starCount = $starCount;
-        $this->media = $media;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($starCount !== null) $this->starCount = $starCount;
+        if ($media !== null) $this->media = $media;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

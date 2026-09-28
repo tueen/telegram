@@ -24,6 +24,8 @@ tueen/telegram/
 │   ├── Telegram.php                   # Main client facade entry point (@mixin TelegramMethods)
 │   ├── Contracts/
 │   │   └── TelegramMethods.php        # Method signatures mixin (all 185 Bot API methods for IDE)
+│   ├── Context/                       # Contextual parameter resolution (chat_id, user_id, business_id)
+│   │   └── ContextResolver.php        # Auto-injects default values from active Update
 │   ├── Config.php                     # Immutable client configuration
 │   ├── ConfigBuilder.php              # Fluent configuration builder
 │   ├── Running/                       # Running modes (WebhookMode, PollingMode)

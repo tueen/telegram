@@ -22,7 +22,7 @@ class GetChatGifts extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Pass True to exclude gifts that aren't saved to the chat's profile page. Always True, unless the bot has the can_post_messages administrator right in the channel.
@@ -85,7 +85,7 @@ class GetChatGifts extends Method
     public ?int $limit = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?bool $excludeUnsaved = null,
         ?bool $excludeSaved = null,
         ?bool $excludeUnlimited = null,
@@ -99,7 +99,7 @@ class GetChatGifts extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($excludeUnsaved !== null) $this->excludeUnsaved = $excludeUnsaved;
         if ($excludeSaved !== null) $this->excludeSaved = $excludeSaved;
         if ($excludeUnlimited !== null) $this->excludeUnlimited = $excludeUnlimited;

@@ -22,19 +22,19 @@ class ForwardMessages extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
      */
     #[Field('from_chat_id', required: true)]
-    public int|string $fromChatId;
+    public int|string|null $fromChatId = null;
 
     /**
      * A JSON-serialized list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order.
      */
     #[Field('message_ids', required: true)]
-    public array $messageIds;
+    public ?array $messageIds = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -61,9 +61,9 @@ class ForwardMessages extends Method
     public ?bool $protectContent = null;
 
     public function __construct(
-        int|string $chatId,
-        int|string $fromChatId,
-        array $messageIds,
+        int|string|null $chatId = null,
+        int|string|null $fromChatId = null,
+        ?array $messageIds = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?bool $disableNotification = null,
@@ -71,9 +71,9 @@ class ForwardMessages extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->fromChatId = $fromChatId;
-        $this->messageIds = $messageIds;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
+        if ($messageIds !== null) $this->messageIds = $messageIds;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;

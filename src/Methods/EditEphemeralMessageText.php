@@ -26,19 +26,19 @@ class EditEphemeralMessageText extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the user who received the message
      */
     #[Field('receiver_user_id', required: true)]
-    public int $receiverUserId;
+    public ?int $receiverUserId = null;
 
     /**
      * Identifier of the ephemeral message to edit
      */
     #[Field('ephemeral_message_id', required: true)]
-    public int $ephemeralMessageId;
+    public ?int $ephemeralMessageId = null;
 
     /**
      * New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified
@@ -77,9 +77,9 @@ class EditEphemeralMessageText extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        int $receiverUserId,
-        int $ephemeralMessageId,
+        int|string|null $chatId = null,
+        ?int $receiverUserId = null,
+        ?int $ephemeralMessageId = null,
         ?string $text = null,
         ParseMode|string|null $parseMode = null,
         ?array $entities = null,
@@ -89,9 +89,9 @@ class EditEphemeralMessageText extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->receiverUserId = $receiverUserId;
-        $this->ephemeralMessageId = $ephemeralMessageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($receiverUserId !== null) $this->receiverUserId = $receiverUserId;
+        if ($ephemeralMessageId !== null) $this->ephemeralMessageId = $ephemeralMessageId;
         if ($text !== null) $this->text = $text;
         if ($parseMode !== null) $this->parseMode = $parseMode;
         if ($entities !== null) $this->entities = $entities;

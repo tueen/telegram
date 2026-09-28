@@ -22,19 +22,19 @@ class TransferGift extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the regular gift that should be transferred
      */
     #[Field('owned_gift_id', required: true)]
-    public string $ownedGiftId;
+    public ?string $ownedGiftId = null;
 
     /**
      * Unique identifier of the chat which will own the gift. The chat must be active in the last 24 hours.
      */
     #[Field('new_owner_chat_id', required: true)]
-    public int $newOwnerChatId;
+    public ?int $newOwnerChatId = null;
 
     /**
      * The amount of Telegram Stars that will be paid for the transfer from the business account balance. If positive, then the can_transfer_stars business bot right is required.
@@ -43,16 +43,16 @@ class TransferGift extends Method
     public ?int $starCount = null;
 
     public function __construct(
-        string $businessConnectionId,
-        string $ownedGiftId,
-        int $newOwnerChatId,
+        ?string $businessConnectionId = null,
+        ?string $ownedGiftId = null,
+        ?int $newOwnerChatId = null,
         ?int $starCount = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->ownedGiftId = $ownedGiftId;
-        $this->newOwnerChatId = $newOwnerChatId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
+        if ($newOwnerChatId !== null) $this->newOwnerChatId = $newOwnerChatId;
         if ($starCount !== null) $this->starCount = $starCount;
         if ($extra) $this->handleExtraParameters($extra);
     }

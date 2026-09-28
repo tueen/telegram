@@ -25,19 +25,19 @@ class SendChecklist extends Method
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier for the target chat or username of the target bot in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * A JSON-serialized object for the checklist to send
      */
     #[Field('checklist', required: true)]
-    public InputChecklist $checklist;
+    public ?InputChecklist $checklist = null;
 
     /**
      * Sends the message silently. Users will receive a notification with no sound.
@@ -70,9 +70,9 @@ class SendChecklist extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int|string $chatId,
-        InputChecklist $checklist,
+        ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
+        ?InputChecklist $checklist = null,
         ?bool $disableNotification = null,
         ?bool $protectContent = null,
         ?string $messageEffectId = null,
@@ -81,9 +81,9 @@ class SendChecklist extends Method
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->chatId = $chatId;
-        $this->checklist = $checklist;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($checklist !== null) $this->checklist = $checklist;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;
         if ($protectContent !== null) $this->protectContent = $protectContent;
         if ($messageEffectId !== null) $this->messageEffectId = $messageEffectId;

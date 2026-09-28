@@ -22,13 +22,13 @@ class ApproveSuggestedPost extends Method
      * Unique identifier for the target direct messages chat
      */
     #[Field('chat_id', required: true)]
-    public int $chatId;
+    public ?int $chatId = null;
 
     /**
      * Identifier of a suggested post message to approve
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * Point in time (Unix timestamp) when the post is expected to be published; omit if the date has already been specified when the suggested post was created. If specified, then the date must be not more than 2678400 seconds (30 days) in the future.
@@ -37,14 +37,14 @@ class ApproveSuggestedPost extends Method
     public ?int $sendDate = null;
 
     public function __construct(
-        int $chatId,
-        int $messageId,
+        ?int $chatId = null,
+        ?int $messageId = null,
         ?int $sendDate = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($sendDate !== null) $this->sendDate = $sendDate;
         if ($extra) $this->handleExtraParameters($extra);
     }

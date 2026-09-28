@@ -22,14 +22,14 @@ class GetManagedBotAccessSettings extends Method
      * User identifier of the managed bot whose access settings will be returned
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

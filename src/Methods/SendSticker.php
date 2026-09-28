@@ -31,14 +31,14 @@ class SendSticker extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Video and animated stickers can't be sent via an HTTP URL.
      */
     #[Field('sticker', required: true)]
     #[RequiresUpload]
-    public InputFile|string $sticker;
+    public InputFile|string|null $sticker = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -113,8 +113,8 @@ class SendSticker extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        InputFile|string $sticker,
+        int|string|null $chatId = null,
+        InputFile|string|null $sticker = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -130,8 +130,8 @@ class SendSticker extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->sticker = $sticker;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($sticker !== null) $this->sticker = $sticker;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

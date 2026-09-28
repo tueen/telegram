@@ -31,14 +31,14 @@ class SendVideoNote extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Sending video notes by a URL is currently unsupported.
      */
     #[Field('video_note', required: true)]
     #[RequiresUpload]
-    public InputFile|string $videoNote;
+    public InputFile|string|null $videoNote = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -126,8 +126,8 @@ class SendVideoNote extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        InputFile|string $videoNote,
+        int|string|null $chatId = null,
+        InputFile|string|null $videoNote = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -145,8 +145,8 @@ class SendVideoNote extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->videoNote = $videoNote;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($videoNote !== null) $this->videoNote = $videoNote;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

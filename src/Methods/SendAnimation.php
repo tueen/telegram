@@ -32,14 +32,14 @@ class SendAnimation extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files
      */
     #[Field('animation', required: true)]
     #[RequiresUpload]
-    public InputFile|string $animation;
+    public InputFile|string|null $animation = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -163,8 +163,8 @@ class SendAnimation extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        InputFile|string $animation,
+        int|string|null $chatId = null,
+        InputFile|string|null $animation = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -188,8 +188,8 @@ class SendAnimation extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->animation = $animation;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($animation !== null) $this->animation = $animation;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

@@ -22,22 +22,22 @@ class RefundStarPayment extends Method
      * Identifier of the user whose payment will be refunded
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Telegram payment identifier
      */
     #[Field('telegram_payment_charge_id', required: true)]
-    public string $telegramPaymentChargeId;
+    public ?string $telegramPaymentChargeId = null;
 
     public function __construct(
-        int $userId,
-        string $telegramPaymentChargeId,
+        ?int $userId = null,
+        ?string $telegramPaymentChargeId = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->telegramPaymentChargeId = $telegramPaymentChargeId;
+        if ($userId !== null) $this->userId = $userId;
+        if ($telegramPaymentChargeId !== null) $this->telegramPaymentChargeId = $telegramPaymentChargeId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

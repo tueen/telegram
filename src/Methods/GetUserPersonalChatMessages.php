@@ -22,22 +22,22 @@ class GetUserPersonalChatMessages extends Method
      * Unique identifier for the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * The maximum number of messages to return; 1-20
      */
     #[Field('limit', required: true)]
-    public int $limit;
+    public ?int $limit = null;
 
     public function __construct(
-        int $userId,
-        int $limit,
+        ?int $userId = null,
+        ?int $limit = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->limit = $limit;
+        if ($userId !== null) $this->userId = $userId;
+        if ($limit !== null) $this->limit = $limit;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -23,22 +23,22 @@ class AnswerGuestQuery extends Method
      * Unique identifier for the query to be answered
      */
     #[Field('guest_query_id', required: true)]
-    public string $guestQueryId;
+    public ?string $guestQueryId = null;
 
     /**
      * A JSON-serialized object describing the message to be sent
      */
     #[Field('result', required: true)]
-    public InlineQueryResult $result;
+    public ?InlineQueryResult $result = null;
 
     public function __construct(
-        string $guestQueryId,
-        InlineQueryResult $result,
+        ?string $guestQueryId = null,
+        ?InlineQueryResult $result = null,
         mixed ...$extra
     )
     {
-        $this->guestQueryId = $guestQueryId;
-        $this->result = $result;
+        if ($guestQueryId !== null) $this->guestQueryId = $guestQueryId;
+        if ($result !== null) $this->result = $result;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

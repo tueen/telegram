@@ -22,14 +22,14 @@ class GetBusinessConnection extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     public function __construct(
-        string $businessConnectionId,
+        ?string $businessConnectionId = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

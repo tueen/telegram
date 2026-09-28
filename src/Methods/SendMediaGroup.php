@@ -23,13 +23,13 @@ class SendMediaGroup extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * A JSON-serialized Array describing messages to be sent, must include 2-10 items
      */
     #[Field('media', required: true)]
-    public array $media;
+    public ?array $media = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -80,8 +80,8 @@ class SendMediaGroup extends Method
     public ?ReplyParameters $replyParameters = null;
 
     public function __construct(
-        int|string $chatId,
-        array $media,
+        int|string|null $chatId = null,
+        ?array $media = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -93,8 +93,8 @@ class SendMediaGroup extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->media = $media;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($media !== null) $this->media = $media;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

@@ -29,31 +29,31 @@ class SendVenue extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Latitude of the venue
      */
     #[Field('latitude', required: true)]
-    public float $latitude;
+    public ?float $latitude = null;
 
     /**
      * Longitude of the venue
      */
     #[Field('longitude', required: true)]
-    public float $longitude;
+    public ?float $longitude = null;
 
     /**
      * Name of the venue
      */
     #[Field('title', required: true)]
-    public string $title;
+    public ?string $title = null;
 
     /**
      * Address of the venue
      */
     #[Field('address', required: true)]
-    public string $address;
+    public ?string $address = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -146,11 +146,11 @@ class SendVenue extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        float $latitude,
-        float $longitude,
-        string $title,
-        string $address,
+        int|string|null $chatId = null,
+        ?float $latitude = null,
+        ?float $longitude = null,
+        ?string $title = null,
+        ?string $address = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -169,11 +169,11 @@ class SendVenue extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
-        $this->title = $title;
-        $this->address = $address;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($latitude !== null) $this->latitude = $latitude;
+        if ($longitude !== null) $this->longitude = $longitude;
+        if ($title !== null) $this->title = $title;
+        if ($address !== null) $this->address = $address;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

@@ -94,6 +94,10 @@ $message = $telegram->sendMessage(
 echo "Message sent with ID: {$message->messageId}\n";
 ```
 
+::: tip Always Use Named Parameters
+In `tueen/telegram`, **always invoke API methods using PHP named parameters** (e.g. `chatId: ...`, `text: ...`, `parseMode: ...`). Named parameters make your code self-documenting, protect against argument reordering in future Bot API updates, and allow you to omit contextual parameters (like `chatId`) seamlessly.
+:::
+
 ---
 
 ## Handling Incoming Updates

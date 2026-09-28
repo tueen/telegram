@@ -24,13 +24,13 @@ class SendGame extends Method
      * Unique identifier for the target chat or username of the target bot in the format @username. Games can't be sent to channel direct messages chats and channel chats.
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Short name of the game, serves as the unique identifier for the game. Set up your games via @BotFather.
      */
     #[Field('game_short_name', required: true)]
-    public string $gameShortName;
+    public ?string $gameShortName = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -81,8 +81,8 @@ class SendGame extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        string $gameShortName,
+        int|string|null $chatId = null,
+        ?string $gameShortName = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?bool $disableNotification = null,
@@ -94,8 +94,8 @@ class SendGame extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->gameShortName = $gameShortName;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($gameShortName !== null) $this->gameShortName = $gameShortName;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($disableNotification !== null) $this->disableNotification = $disableNotification;

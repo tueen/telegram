@@ -22,13 +22,13 @@ class UpgradeGift extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the regular gift that should be upgraded to a unique one
      */
     #[Field('owned_gift_id', required: true)]
-    public string $ownedGiftId;
+    public ?string $ownedGiftId = null;
 
     /**
      * Pass True to keep the original gift text, sender and receiver in the upgraded gift
@@ -43,15 +43,15 @@ class UpgradeGift extends Method
     public ?int $starCount = null;
 
     public function __construct(
-        string $businessConnectionId,
-        string $ownedGiftId,
+        ?string $businessConnectionId = null,
+        ?string $ownedGiftId = null,
         ?bool $keepOriginalDetails = null,
         ?int $starCount = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->ownedGiftId = $ownedGiftId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($ownedGiftId !== null) $this->ownedGiftId = $ownedGiftId;
         if ($keepOriginalDetails !== null) $this->keepOriginalDetails = $keepOriginalDetails;
         if ($starCount !== null) $this->starCount = $starCount;
         if ($extra) $this->handleExtraParameters($extra);

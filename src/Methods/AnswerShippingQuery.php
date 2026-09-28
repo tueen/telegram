@@ -22,13 +22,13 @@ class AnswerShippingQuery extends Method
      * Unique identifier for the query to be answered
      */
     #[Field('shipping_query_id', required: true)]
-    public string $shippingQueryId;
+    public ?string $shippingQueryId = null;
 
     /**
      * Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)
      */
     #[Field('ok', required: true)]
-    public bool $ok;
+    public ?bool $ok = null;
 
     /**
      * Required if ok is True. A JSON-serialized Array of available shipping options.
@@ -43,15 +43,15 @@ class AnswerShippingQuery extends Method
     public ?string $errorMessage = null;
 
     public function __construct(
-        string $shippingQueryId,
-        bool $ok,
+        ?string $shippingQueryId = null,
+        ?bool $ok = null,
         ?array $shippingOptions = null,
         ?string $errorMessage = null,
         mixed ...$extra
     )
     {
-        $this->shippingQueryId = $shippingQueryId;
-        $this->ok = $ok;
+        if ($shippingQueryId !== null) $this->shippingQueryId = $shippingQueryId;
+        if ($ok !== null) $this->ok = $ok;
         if ($shippingOptions !== null) $this->shippingOptions = $shippingOptions;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
         if ($extra) $this->handleExtraParameters($extra);

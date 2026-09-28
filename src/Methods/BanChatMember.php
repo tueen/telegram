@@ -22,13 +22,13 @@ class BanChatMember extends Method
      * Unique identifier for the target group or username of the target supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Date when the user will be unbanned; Unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever. Applied for supergroups and channels only.
@@ -43,15 +43,15 @@ class BanChatMember extends Method
     public ?bool $revokeMessages = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
+        int|string|null $chatId = null,
+        ?int $userId = null,
         ?int $untilDate = null,
         ?bool $revokeMessages = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
         if ($untilDate !== null) $this->untilDate = $untilDate;
         if ($revokeMessages !== null) $this->revokeMessages = $revokeMessages;
         if ($extra) $this->handleExtraParameters($extra);

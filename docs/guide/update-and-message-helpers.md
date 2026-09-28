@@ -53,6 +53,40 @@ $userId    = $update->findUserId();    // Returns ?int
 $chatId    = $update->findChatId();    // Returns ?int
 $messageId = $update->findMessageId(); // Returns ?int
 $fileId    = $update->findFileId();    // Returns ?string (or $update->fileId)
+$bizConnId = $update->findBusinessConnectionId(); // Returns ?string
+$threadId  = $update->findMessageThreadId();      // Returns ?int
+```
+
+### Modern PHP 8.4 Property Hooks
+Using PHP 8.4 property hooks, you can access these values directly as properties without invoking methods:
+
+```php
+$chatId    = $update->chatId;
+$userId    = $update->userId;
+$messageId = $update->messageId;
+$bizId     = $update->businessConnectionId;
+$threadId  = $update->messageThreadId;
+$cbQueryId = $update->callbackQueryId;
+$inlineId  = $update->inlineMessageId;
+```
+
+---
+
+## 2. Client-Level Contextual Shortcuts (`Telegram`)
+
+The `Telegram` client facade exposes direct helper methods that proxy the active update:
+
+```php
+// Active ID getters
+$chatId = $telegram->chatId();
+$userId = $telegram->userId();
+$msgId  = $telegram->messageId();
+$bizId  = $telegram->businessConnectionId();
+
+// Model objects
+$user    = $telegram->user();    // ?User
+$chat    = $telegram->chat();    // ?Chat
+$message = $telegram->message(); // ?Message
 ```
 
 ---

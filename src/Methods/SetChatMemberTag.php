@@ -22,13 +22,13 @@ class SetChatMemberTag extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * New tag for the member; 0-16 characters, emoji are not allowed
@@ -37,14 +37,14 @@ class SetChatMemberTag extends Method
     public ?string $tag = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
+        int|string|null $chatId = null,
+        ?int $userId = null,
         ?string $tag = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
         if ($tag !== null) $this->tag = $tag;
         if ($extra) $this->handleExtraParameters($extra);
     }

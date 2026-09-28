@@ -26,37 +26,37 @@ class SendInvoice extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Product name, 1-32 characters
      */
     #[Field('title', required: true)]
-    public string $title;
+    public ?string $title = null;
 
     /**
      * Product description, 1-255 characters
      */
     #[Field('description', required: true)]
-    public string $description;
+    public ?string $description = null;
 
     /**
      * Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes.
      */
     #[Field('payload', required: true)]
-    public string $payload;
+    public ?string $payload = null;
 
     /**
      * Three-letter ISO 4217 currency code, see more on currencies. Pass "XTR" for payments in Telegram Stars.
      */
     #[Field('currency', required: true)]
-    public Currency|string $currency;
+    public Currency|string|null $currency = null;
 
     /**
      * Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars.
      */
     #[Field('prices', required: true)]
-    public array $prices;
+    public ?array $prices = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -209,12 +209,12 @@ class SendInvoice extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        string $title,
-        string $description,
-        string $payload,
-        Currency|string $currency,
-        array $prices,
+        int|string|null $chatId = null,
+        ?string $title = null,
+        ?string $description = null,
+        ?string $payload = null,
+        Currency|string|null $currency = null,
+        ?array $prices = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?string $providerToken = null,
@@ -243,12 +243,12 @@ class SendInvoice extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->title = $title;
-        $this->description = $description;
-        $this->payload = $payload;
-        $this->currency = $currency;
-        $this->prices = $prices;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($title !== null) $this->title = $title;
+        if ($description !== null) $this->description = $description;
+        if ($payload !== null) $this->payload = $payload;
+        if ($currency !== null) $this->currency = $currency;
+        if ($prices !== null) $this->prices = $prices;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($providerToken !== null) $this->providerToken = $providerToken;

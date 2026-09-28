@@ -22,22 +22,22 @@ class DeleteStory extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the story to delete
      */
     #[Field('story_id', required: true)]
-    public int $storyId;
+    public ?int $storyId = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int $storyId,
+        ?string $businessConnectionId = null,
+        ?int $storyId = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->storyId = $storyId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($storyId !== null) $this->storyId = $storyId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

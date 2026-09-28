@@ -22,22 +22,22 @@ class ReopenForumTopic extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread of the forum topic
      */
     #[Field('message_thread_id', required: true)]
-    public int $messageThreadId;
+    public ?int $messageThreadId = null;
 
     public function __construct(
-        int|string $chatId,
-        int $messageThreadId,
+        int|string|null $chatId = null,
+        ?int $messageThreadId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageThreadId = $messageThreadId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

@@ -22,19 +22,19 @@ class CreateChatSubscriptionInviteLink extends Method
      * Unique identifier for the target channel chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days).
      */
     #[Field('subscription_period', required: true)]
-    public int $subscriptionPeriod;
+    public ?int $subscriptionPeriod = null;
 
     /**
      * The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-10000
      */
     #[Field('subscription_price', required: true)]
-    public int $subscriptionPrice;
+    public ?int $subscriptionPrice = null;
 
     /**
      * Invite link name; 0-32 characters
@@ -43,16 +43,16 @@ class CreateChatSubscriptionInviteLink extends Method
     public ?string $name = null;
 
     public function __construct(
-        int|string $chatId,
-        int $subscriptionPeriod,
-        int $subscriptionPrice,
+        int|string|null $chatId = null,
+        ?int $subscriptionPeriod = null,
+        ?int $subscriptionPrice = null,
         ?string $name = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->subscriptionPeriod = $subscriptionPeriod;
-        $this->subscriptionPrice = $subscriptionPrice;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($subscriptionPeriod !== null) $this->subscriptionPeriod = $subscriptionPeriod;
+        if ($subscriptionPrice !== null) $this->subscriptionPrice = $subscriptionPrice;
         if ($name !== null) $this->name = $name;
         if ($extra) $this->handleExtraParameters($extra);
     }

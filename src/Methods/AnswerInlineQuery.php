@@ -24,13 +24,13 @@ class AnswerInlineQuery extends Method
      * Unique identifier for the answered query
      */
     #[Field('inline_query_id', required: true)]
-    public string $inlineQueryId;
+    public ?string $inlineQueryId = null;
 
     /**
      * A JSON-serialized Array of results for the inline query
      */
     #[Field('results', required: true)]
-    public array $results;
+    public ?array $results = null;
 
     /**
      * The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300.
@@ -57,8 +57,8 @@ class AnswerInlineQuery extends Method
     public ?InlineQueryResultsButton $button = null;
 
     public function __construct(
-        string $inlineQueryId,
-        array $results,
+        ?string $inlineQueryId = null,
+        ?array $results = null,
         ?int $cacheTime = null,
         ?bool $isPersonal = null,
         ?string $nextOffset = null,
@@ -66,8 +66,8 @@ class AnswerInlineQuery extends Method
         mixed ...$extra
     )
     {
-        $this->inlineQueryId = $inlineQueryId;
-        $this->results = $results;
+        if ($inlineQueryId !== null) $this->inlineQueryId = $inlineQueryId;
+        if ($results !== null) $this->results = $results;
         if ($cacheTime !== null) $this->cacheTime = $cacheTime;
         if ($isPersonal !== null) $this->isPersonal = $isPersonal;
         if ($nextOffset !== null) $this->nextOffset = $nextOffset;

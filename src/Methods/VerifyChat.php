@@ -22,7 +22,7 @@ class VerifyChat extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Channel direct messages chats can't be verified.
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
@@ -31,12 +31,12 @@ class VerifyChat extends Method
     public ?string $customDescription = null;
 
     public function __construct(
-        int|string $chatId,
+        int|string|null $chatId = null,
         ?string $customDescription = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
         if ($extra) $this->handleExtraParameters($extra);
     }

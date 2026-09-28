@@ -22,22 +22,22 @@ class SetChatTitle extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * New chat title, 1-128 characters
      */
     #[Field('title', required: true)]
-    public string $title;
+    public ?string $title = null;
 
     public function __construct(
-        int|string $chatId,
-        string $title,
+        int|string|null $chatId = null,
+        ?string $title = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->title = $title;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($title !== null) $this->title = $title;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

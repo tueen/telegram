@@ -63,6 +63,7 @@ class TelegramFake extends Telegram
     public function fakeUpdate(array|Update $update): mixed
     {
         $updateInstance = $update instanceof Update ? $update : new Update($update);
+        $this->setUpdate($updateInstance);
         $payload = json_encode($updateInstance->toArray());
 
         $this->setRunningMode(new WebhookMode(rawInput: $payload));

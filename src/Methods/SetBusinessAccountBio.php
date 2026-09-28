@@ -22,7 +22,7 @@ class SetBusinessAccountBio extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * The new value of the bio for the business account; 0-140 characters
@@ -31,12 +31,12 @@ class SetBusinessAccountBio extends Method
     public ?string $bio = null;
 
     public function __construct(
-        string $businessConnectionId,
+        ?string $businessConnectionId = null,
         ?string $bio = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($bio !== null) $this->bio = $bio;
         if ($extra) $this->handleExtraParameters($extra);
     }

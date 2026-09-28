@@ -22,13 +22,13 @@ class SetManagedBotAccessSettings extends Method
      * User identifier of the managed bot whose access settings will be changed
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Pass True if only selected users can access the bot. The bot's owner can always access it.
      */
     #[Field('is_access_restricted', required: true)]
-    public bool $isAccessRestricted;
+    public ?bool $isAccessRestricted = null;
 
     /**
      * A JSON-serialized list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if is_access_restricted is False.
@@ -37,14 +37,14 @@ class SetManagedBotAccessSettings extends Method
     public ?array $addedUserIds = null;
 
     public function __construct(
-        int $userId,
-        bool $isAccessRestricted,
+        ?int $userId = null,
+        ?bool $isAccessRestricted = null,
         ?array $addedUserIds = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->isAccessRestricted = $isAccessRestricted;
+        if ($userId !== null) $this->userId = $userId;
+        if ($isAccessRestricted !== null) $this->isAccessRestricted = $isAccessRestricted;
         if ($addedUserIds !== null) $this->addedUserIds = $addedUserIds;
         if ($extra) $this->handleExtraParameters($extra);
     }

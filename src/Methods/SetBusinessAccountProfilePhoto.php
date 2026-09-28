@@ -23,13 +23,13 @@ class SetBusinessAccountProfilePhoto extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * The new profile photo to set
      */
     #[Field('photo', required: true)]
-    public InputProfilePhoto $photo;
+    public ?InputProfilePhoto $photo = null;
 
     /**
      * Pass True to set the public photo, which will be visible even if the main photo is hidden by the business account's privacy settings. An account can have only one public photo.
@@ -38,14 +38,14 @@ class SetBusinessAccountProfilePhoto extends Method
     public ?bool $isPublic = null;
 
     public function __construct(
-        string $businessConnectionId,
-        InputProfilePhoto $photo,
+        ?string $businessConnectionId = null,
+        ?InputProfilePhoto $photo = null,
         ?bool $isPublic = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->photo = $photo;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($photo !== null) $this->photo = $photo;
         if ($isPublic !== null) $this->isPublic = $isPublic;
         if ($extra) $this->handleExtraParameters($extra);
     }

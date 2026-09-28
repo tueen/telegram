@@ -22,7 +22,7 @@ class AnswerCallbackQuery extends Method
      * Unique identifier for the query to be answered
      */
     #[Field('callback_query_id', required: true)]
-    public string $callbackQueryId;
+    public ?string $callbackQueryId = null;
 
     /**
      * Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters.
@@ -49,7 +49,7 @@ class AnswerCallbackQuery extends Method
     public ?int $cacheTime = null;
 
     public function __construct(
-        string $callbackQueryId,
+        ?string $callbackQueryId = null,
         ?string $text = null,
         ?bool $showAlert = null,
         ?string $url = null,
@@ -57,7 +57,7 @@ class AnswerCallbackQuery extends Method
         mixed ...$extra
     )
     {
-        $this->callbackQueryId = $callbackQueryId;
+        if ($callbackQueryId !== null) $this->callbackQueryId = $callbackQueryId;
         if ($text !== null) $this->text = $text;
         if ($showAlert !== null) $this->showAlert = $showAlert;
         if ($url !== null) $this->url = $url;

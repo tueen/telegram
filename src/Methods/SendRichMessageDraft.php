@@ -23,19 +23,19 @@ class SendRichMessageDraft extends Method
      * Unique identifier for the target private chat
      */
     #[Field('chat_id', required: true)]
-    public int $chatId;
+    public ?int $chatId = null;
 
     /**
      * Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
      */
     #[Field('draft_id', required: true)]
-    public int $draftId;
+    public ?int $draftId = null;
 
     /**
      * The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported.
      */
     #[Field('rich_message', required: true)]
-    public InputRichMessage $richMessage;
+    public ?InputRichMessage $richMessage = null;
 
     /**
      * Unique identifier for the target message thread
@@ -56,18 +56,18 @@ class SendRichMessageDraft extends Method
     public ?bool $keepOnStop = null;
 
     public function __construct(
-        int $chatId,
-        int $draftId,
-        InputRichMessage $richMessage,
+        ?int $chatId = null,
+        ?int $draftId = null,
+        ?InputRichMessage $richMessage = null,
         ?int $messageThreadId = null,
         ?bool $canStop = null,
         ?bool $keepOnStop = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->draftId = $draftId;
-        $this->richMessage = $richMessage;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($draftId !== null) $this->draftId = $draftId;
+        if ($richMessage !== null) $this->richMessage = $richMessage;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($canStop !== null) $this->canStop = $canStop;
         if ($keepOnStop !== null) $this->keepOnStop = $keepOnStop;

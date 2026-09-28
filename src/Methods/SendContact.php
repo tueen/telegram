@@ -29,19 +29,19 @@ class SendContact extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Contact's phone number
      */
     #[Field('phone_number', required: true)]
-    public string $phoneNumber;
+    public ?string $phoneNumber = null;
 
     /**
      * Contact's first name
      */
     #[Field('first_name', required: true)]
-    public string $firstName;
+    public ?string $firstName = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -122,9 +122,9 @@ class SendContact extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        string $phoneNumber,
-        string $firstName,
+        int|string|null $chatId = null,
+        ?string $phoneNumber = null,
+        ?string $firstName = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -141,9 +141,9 @@ class SendContact extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->phoneNumber = $phoneNumber;
-        $this->firstName = $firstName;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($phoneNumber !== null) $this->phoneNumber = $phoneNumber;
+        if ($firstName !== null) $this->firstName = $firstName;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

@@ -22,13 +22,13 @@ class AnswerPreCheckoutQuery extends Method
      * Unique identifier for the query to be answered
      */
     #[Field('pre_checkout_query_id', required: true)]
-    public string $preCheckoutQueryId;
+    public ?string $preCheckoutQueryId = null;
 
     /**
      * Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems.
      */
     #[Field('ok', required: true)]
-    public bool $ok;
+    public ?bool $ok = null;
 
     /**
      * Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user.
@@ -37,14 +37,14 @@ class AnswerPreCheckoutQuery extends Method
     public ?string $errorMessage = null;
 
     public function __construct(
-        string $preCheckoutQueryId,
-        bool $ok,
+        ?string $preCheckoutQueryId = null,
+        ?bool $ok = null,
         ?string $errorMessage = null,
         mixed ...$extra
     )
     {
-        $this->preCheckoutQueryId = $preCheckoutQueryId;
-        $this->ok = $ok;
+        if ($preCheckoutQueryId !== null) $this->preCheckoutQueryId = $preCheckoutQueryId;
+        if ($ok !== null) $this->ok = $ok;
         if ($errorMessage !== null) $this->errorMessage = $errorMessage;
         if ($extra) $this->handleExtraParameters($extra);
     }

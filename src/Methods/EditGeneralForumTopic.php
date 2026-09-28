@@ -22,22 +22,22 @@ class EditGeneralForumTopic extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * New topic name, 1-128 characters
      */
     #[Field('name', required: true)]
-    public string $name;
+    public ?string $name = null;
 
     public function __construct(
-        int|string $chatId,
-        string $name,
+        int|string|null $chatId = null,
+        ?string $name = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->name = $name;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($name !== null) $this->name = $name;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

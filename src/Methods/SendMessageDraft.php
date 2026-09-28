@@ -23,13 +23,13 @@ class SendMessageDraft extends Method
      * Unique identifier for the target private chat
      */
     #[Field('chat_id', required: true)]
-    public int $chatId;
+    public ?int $chatId = null;
 
     /**
      * Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation.
      */
     #[Field('draft_id', required: true)]
-    public int $draftId;
+    public ?int $draftId = null;
 
     /**
      * Unique identifier for the target message thread
@@ -68,8 +68,8 @@ class SendMessageDraft extends Method
     public ?bool $keepOnStop = null;
 
     public function __construct(
-        int $chatId,
-        int $draftId,
+        ?int $chatId = null,
+        ?int $draftId = null,
         ?int $messageThreadId = null,
         ?string $text = null,
         ParseMode|string|null $parseMode = null,
@@ -79,8 +79,8 @@ class SendMessageDraft extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->draftId = $draftId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($draftId !== null) $this->draftId = $draftId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($text !== null) $this->text = $text;
         if ($parseMode !== null) $this->parseMode = $parseMode;

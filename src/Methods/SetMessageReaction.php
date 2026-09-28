@@ -22,13 +22,13 @@ class SetMessageReaction extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead.
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * A JSON-serialized list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots.
@@ -43,15 +43,15 @@ class SetMessageReaction extends Method
     public ?bool $isBig = null;
 
     public function __construct(
-        int|string $chatId,
-        int $messageId,
+        int|string|null $chatId = null,
+        ?int $messageId = null,
         ?array $reaction = null,
         ?bool $isBig = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($reaction !== null) $this->reaction = $reaction;
         if ($isBig !== null) $this->isBig = $isBig;
         if ($extra) $this->handleExtraParameters($extra);

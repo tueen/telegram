@@ -22,22 +22,22 @@ class RevokeChatInviteLink extends Method
      * Unique identifier of the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * The invite link to revoke
      */
     #[Field('invite_link', required: true)]
-    public string $inviteLink;
+    public ?string $inviteLink = null;
 
     public function __construct(
-        int|string $chatId,
-        string $inviteLink,
+        int|string|null $chatId = null,
+        ?string $inviteLink = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->inviteLink = $inviteLink;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

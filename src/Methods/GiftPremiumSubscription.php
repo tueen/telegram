@@ -23,19 +23,19 @@ class GiftPremiumSubscription extends Method
      * Unique identifier of the target user who will receive a Telegram Premium subscription
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Number of months the Telegram Premium subscription will be active for the user; must be one of 3, 6, or 12
      */
     #[Field('month_count', required: true)]
-    public int $monthCount;
+    public ?int $monthCount = null;
 
     /**
      * Number of Telegram Stars to pay for the Telegram Premium subscription; must be 1000 for 3 months, 1500 for 6 months, and 2500 for 12 months
      */
     #[Field('star_count', required: true)]
-    public int $starCount;
+    public ?int $starCount = null;
 
     /**
      * Text that will be shown along with the service message about the subscription; 0-128 characters
@@ -56,18 +56,18 @@ class GiftPremiumSubscription extends Method
     public ?array $textEntities = null;
 
     public function __construct(
-        int $userId,
-        int $monthCount,
-        int $starCount,
+        ?int $userId = null,
+        ?int $monthCount = null,
+        ?int $starCount = null,
         ?string $text = null,
         ParseMode|string|null $textParseMode = null,
         ?array $textEntities = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->monthCount = $monthCount;
-        $this->starCount = $starCount;
+        if ($userId !== null) $this->userId = $userId;
+        if ($monthCount !== null) $this->monthCount = $monthCount;
+        if ($starCount !== null) $this->starCount = $starCount;
         if ($text !== null) $this->text = $text;
         if ($textParseMode !== null) $this->textParseMode = $textParseMode;
         if ($textEntities !== null) $this->textEntities = $textEntities;

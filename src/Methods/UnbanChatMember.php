@@ -22,13 +22,13 @@ class UnbanChatMember extends Method
      * Unique identifier for the target group or username of the target supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Do nothing if the user is not banned
@@ -37,14 +37,14 @@ class UnbanChatMember extends Method
     public ?bool $onlyIfBanned = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
+        int|string|null $chatId = null,
+        ?int $userId = null,
         ?bool $onlyIfBanned = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
         if ($onlyIfBanned !== null) $this->onlyIfBanned = $onlyIfBanned;
         if ($extra) $this->handleExtraParameters($extra);
     }

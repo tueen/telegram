@@ -24,13 +24,13 @@ class SendChatAction extends Method
      * Unique identifier for the target chat or username of the target bot or supergroup in the format @username. Channel chats and channel direct messages chats aren't supported.
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes.
      */
     #[Field('action', required: true)]
-    public ChatAction|string $action;
+    public ChatAction|string|null $action = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the action will be sent
@@ -45,15 +45,15 @@ class SendChatAction extends Method
     public ?int $messageThreadId = null;
 
     public function __construct(
-        int|string $chatId,
-        ChatAction|string $action,
+        int|string|null $chatId = null,
+        ChatAction|string|null $action = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->action = $action;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($action !== null) $this->action = $action;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($extra) $this->handleExtraParameters($extra);

@@ -23,25 +23,25 @@ class CreateNewStickerSet extends Method
      * User identifier of created sticker set owner
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Short name of sticker set, to be used in t.me/addstickers/ URLs (e.g., animals). Can contain only English letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in "_by_<bot_username>". <bot_username> is case insensitive. 1-64 characters.
      */
     #[Field('name', required: true)]
-    public string $name;
+    public ?string $name = null;
 
     /**
      * Sticker set title, 1-64 characters
      */
     #[Field('title', required: true)]
-    public string $title;
+    public ?string $title = null;
 
     /**
      * A JSON-serialized list of 1-50 initial stickers to be added to the sticker set
      */
     #[Field('stickers', required: true)]
-    public array $stickers;
+    public ?array $stickers = null;
 
     /**
      * Type of stickers in the set, pass "regular", "mask", or "custom_emoji". By default, a regular sticker set is created.
@@ -56,19 +56,19 @@ class CreateNewStickerSet extends Method
     public ?bool $needsRepainting = null;
 
     public function __construct(
-        int $userId,
-        string $name,
-        string $title,
-        array $stickers,
+        ?int $userId = null,
+        ?string $name = null,
+        ?string $title = null,
+        ?array $stickers = null,
         StickerType|string|null $stickerType = null,
         ?bool $needsRepainting = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->name = $name;
-        $this->title = $title;
-        $this->stickers = $stickers;
+        if ($userId !== null) $this->userId = $userId;
+        if ($name !== null) $this->name = $name;
+        if ($title !== null) $this->title = $title;
+        if ($stickers !== null) $this->stickers = $stickers;
         if ($stickerType !== null) $this->stickerType = $stickerType;
         if ($needsRepainting !== null) $this->needsRepainting = $needsRepainting;
         if ($extra) $this->handleExtraParameters($extra);

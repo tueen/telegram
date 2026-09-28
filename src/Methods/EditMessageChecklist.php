@@ -24,25 +24,25 @@ class EditMessageChecklist extends Method
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier for the target chat or username of the target bot in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * A JSON-serialized object for the new checklist
      */
     #[Field('checklist', required: true)]
-    public InputChecklist $checklist;
+    public ?InputChecklist $checklist = null;
 
     /**
      * A JSON-serialized object for the new inline keyboard for the message
@@ -51,18 +51,18 @@ class EditMessageChecklist extends Method
     public ?InlineKeyboardMarkup $replyMarkup = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int|string $chatId,
-        int $messageId,
-        InputChecklist $checklist,
+        ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
+        ?int $messageId = null,
+        ?InputChecklist $checklist = null,
         ?InlineKeyboardMarkup $replyMarkup = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
-        $this->checklist = $checklist;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
+        if ($checklist !== null) $this->checklist = $checklist;
         if ($replyMarkup !== null) $this->replyMarkup = $replyMarkup;
         if ($extra) $this->handleExtraParameters($extra);
     }

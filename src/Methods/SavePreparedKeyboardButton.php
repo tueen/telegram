@@ -23,22 +23,22 @@ class SavePreparedKeyboardButton extends Method
      * Unique identifier of the target user that can use the button
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * A JSON-serialized object describing the button to be saved. The button must be of the type request_users, request_chat, or request_managed_bot.
      */
     #[Field('button', required: true)]
-    public KeyboardButton $button;
+    public ?KeyboardButton $button = null;
 
     public function __construct(
-        int $userId,
-        KeyboardButton $button,
+        ?int $userId = null,
+        ?KeyboardButton $button = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->button = $button;
+        if ($userId !== null) $this->userId = $userId;
+        if ($button !== null) $this->button = $button;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

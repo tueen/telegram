@@ -30,19 +30,19 @@ class SendPoll extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Poll question, 1-300 characters
      */
     #[Field('question', required: true)]
-    public string $question;
+    public ?string $question = null;
 
     /**
      * A JSON-serialized list of 1-12 answer options
      */
     #[Field('options', required: true)]
-    public array $options;
+    public ?array $options = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -231,9 +231,9 @@ class SendPoll extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        string $question,
-        array $options,
+        int|string|null $chatId = null,
+        ?string $question = null,
+        ?array $options = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ParseMode|string|null $questionParseMode = null,
@@ -268,9 +268,9 @@ class SendPoll extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->question = $question;
-        $this->options = $options;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($question !== null) $this->question = $question;
+        if ($options !== null) $this->options = $options;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($questionParseMode !== null) $this->questionParseMode = $questionParseMode;

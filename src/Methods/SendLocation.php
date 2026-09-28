@@ -29,19 +29,19 @@ class SendLocation extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Latitude of the location
      */
     #[Field('latitude', required: true)]
-    public float $latitude;
+    public ?float $latitude = null;
 
     /**
      * Longitude of the location
      */
     #[Field('longitude', required: true)]
-    public float $longitude;
+    public ?float $longitude = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -134,9 +134,9 @@ class SendLocation extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        float $latitude,
-        float $longitude,
+        int|string|null $chatId = null,
+        ?float $latitude = null,
+        ?float $longitude = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -155,9 +155,9 @@ class SendLocation extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->latitude = $latitude;
-        $this->longitude = $longitude;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($latitude !== null) $this->latitude = $latitude;
+        if ($longitude !== null) $this->longitude = $longitude;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

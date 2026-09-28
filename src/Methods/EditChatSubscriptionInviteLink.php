@@ -22,13 +22,13 @@ class EditChatSubscriptionInviteLink extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * The invite link to edit
      */
     #[Field('invite_link', required: true)]
-    public string $inviteLink;
+    public ?string $inviteLink = null;
 
     /**
      * Invite link name; 0-32 characters
@@ -37,14 +37,14 @@ class EditChatSubscriptionInviteLink extends Method
     public ?string $name = null;
 
     public function __construct(
-        int|string $chatId,
-        string $inviteLink,
+        int|string|null $chatId = null,
+        ?string $inviteLink = null,
         ?string $name = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->inviteLink = $inviteLink;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($inviteLink !== null) $this->inviteLink = $inviteLink;
         if ($name !== null) $this->name = $name;
         if ($extra) $this->handleExtraParameters($extra);
     }

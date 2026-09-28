@@ -32,14 +32,14 @@ class SendVoice extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files
      */
     #[Field('voice', required: true)]
     #[RequiresUpload]
-    public InputFile|string $voice;
+    public InputFile|string|null $voice = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -132,8 +132,8 @@ class SendVoice extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        InputFile|string $voice,
+        int|string|null $chatId = null,
+        InputFile|string|null $voice = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -152,8 +152,8 @@ class SendVoice extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->voice = $voice;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($voice !== null) $this->voice = $voice;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

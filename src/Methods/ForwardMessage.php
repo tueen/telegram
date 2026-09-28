@@ -23,19 +23,19 @@ class ForwardMessage extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
      */
     #[Field('from_chat_id', required: true)]
-    public int|string $fromChatId;
+    public int|string|null $fromChatId = null;
 
     /**
      * Message identifier in the chat specified in from_chat_id
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -80,9 +80,9 @@ class ForwardMessage extends Method
     public ?SuggestedPostParameters $suggestedPostParameters = null;
 
     public function __construct(
-        int|string $chatId,
-        int|string $fromChatId,
-        int $messageId,
+        int|string|null $chatId = null,
+        int|string|null $fromChatId = null,
+        ?int $messageId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?int $videoStartTimestamp = null,
@@ -93,9 +93,9 @@ class ForwardMessage extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->fromChatId = $fromChatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($fromChatId !== null) $this->fromChatId = $fromChatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($videoStartTimestamp !== null) $this->videoStartTimestamp = $videoStartTimestamp;

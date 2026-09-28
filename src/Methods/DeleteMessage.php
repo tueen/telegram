@@ -32,22 +32,22 @@ class DeleteMessage extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Identifier of the message to delete
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     public function __construct(
-        int|string $chatId,
-        int $messageId,
+        int|string|null $chatId = null,
+        ?int $messageId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

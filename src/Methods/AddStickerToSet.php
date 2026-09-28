@@ -23,30 +23,30 @@ class AddStickerToSet extends Method
      * User identifier of sticker set owner
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Sticker set name
      */
     #[Field('name', required: true)]
-    public string $name;
+    public ?string $name = null;
 
     /**
      * A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set isn't changed.
      */
     #[Field('sticker', required: true)]
-    public InputSticker $sticker;
+    public ?InputSticker $sticker = null;
 
     public function __construct(
-        int $userId,
-        string $name,
-        InputSticker $sticker,
+        ?int $userId = null,
+        ?string $name = null,
+        ?InputSticker $sticker = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
-        $this->name = $name;
-        $this->sticker = $sticker;
+        if ($userId !== null) $this->userId = $userId;
+        if ($name !== null) $this->name = $name;
+        if ($sticker !== null) $this->sticker = $sticker;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

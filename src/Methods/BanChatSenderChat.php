@@ -22,22 +22,22 @@ class BanChatSenderChat extends Method
      * Unique identifier for the target chat or username of the target channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target sender chat
      */
     #[Field('sender_chat_id', required: true)]
-    public int $senderChatId;
+    public ?int $senderChatId = null;
 
     public function __construct(
-        int|string $chatId,
-        int $senderChatId,
+        int|string|null $chatId = null,
+        ?int $senderChatId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->senderChatId = $senderChatId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($senderChatId !== null) $this->senderChatId = $senderChatId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

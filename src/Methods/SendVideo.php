@@ -32,14 +32,14 @@ class SendVideo extends Method
      * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files
      */
     #[Field('video', required: true)]
     #[RequiresUpload]
-    public InputFile|string $video;
+    public InputFile|string|null $video = null;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
@@ -182,8 +182,8 @@ class SendVideo extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string $chatId,
-        InputFile|string $video,
+        int|string|null $chatId = null,
+        InputFile|string|null $video = null,
         ?string $businessConnectionId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
@@ -210,8 +210,8 @@ class SendVideo extends Method
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->video = $video;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($video !== null) $this->video = $video;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;

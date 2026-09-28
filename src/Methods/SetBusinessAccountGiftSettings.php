@@ -23,30 +23,30 @@ class SetBusinessAccountGiftSettings extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Pass True if a button for sending a gift to the user or by the business account must always be shown in the input field
      */
     #[Field('show_gift_button', required: true)]
-    public bool $showGiftButton;
+    public ?bool $showGiftButton = null;
 
     /**
      * Types of gifts accepted by the business account
      */
     #[Field('accepted_gift_types', required: true)]
-    public AcceptedGiftTypes $acceptedGiftTypes;
+    public ?AcceptedGiftTypes $acceptedGiftTypes = null;
 
     public function __construct(
-        string $businessConnectionId,
-        bool $showGiftButton,
-        AcceptedGiftTypes $acceptedGiftTypes,
+        ?string $businessConnectionId = null,
+        ?bool $showGiftButton = null,
+        ?AcceptedGiftTypes $acceptedGiftTypes = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->showGiftButton = $showGiftButton;
-        $this->acceptedGiftTypes = $acceptedGiftTypes;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($showGiftButton !== null) $this->showGiftButton = $showGiftButton;
+        if ($acceptedGiftTypes !== null) $this->acceptedGiftTypes = $acceptedGiftTypes;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

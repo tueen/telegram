@@ -22,13 +22,13 @@ class EditForumTopic extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread of the forum topic
      */
     #[Field('message_thread_id', required: true)]
-    public int $messageThreadId;
+    public ?int $messageThreadId = null;
 
     /**
      * New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept.
@@ -43,15 +43,15 @@ class EditForumTopic extends Method
     public ?string $iconCustomEmojiId = null;
 
     public function __construct(
-        int|string $chatId,
-        int $messageThreadId,
+        int|string|null $chatId = null,
+        ?int $messageThreadId = null,
         ?string $name = null,
         ?string $iconCustomEmojiId = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->messageThreadId = $messageThreadId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($name !== null) $this->name = $name;
         if ($iconCustomEmojiId !== null) $this->iconCustomEmojiId = $iconCustomEmojiId;
         if ($extra) $this->handleExtraParameters($extra);

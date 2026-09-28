@@ -22,30 +22,30 @@ class ReadBusinessMessage extends Method
      * Unique identifier of the business connection on behalf of which to read the message
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * Unique identifier of the chat in which the message was received. The chat must have been active in the last 24 hours.
      */
     #[Field('chat_id', required: true)]
-    public int $chatId;
+    public ?int $chatId = null;
 
     /**
      * Unique identifier of the message to mark as read
      */
     #[Field('message_id', required: true)]
-    public int $messageId;
+    public ?int $messageId = null;
 
     public function __construct(
-        string $businessConnectionId,
-        int $chatId,
-        int $messageId,
+        ?string $businessConnectionId = null,
+        ?int $chatId = null,
+        ?int $messageId = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
-        $this->chatId = $chatId;
-        $this->messageId = $messageId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($messageId !== null) $this->messageId = $messageId;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

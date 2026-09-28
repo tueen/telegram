@@ -22,7 +22,7 @@ class VerifyUser extends Method
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description.
@@ -31,12 +31,12 @@ class VerifyUser extends Method
     public ?string $customDescription = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         ?string $customDescription = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
         if ($extra) $this->handleExtraParameters($extra);
     }

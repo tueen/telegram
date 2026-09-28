@@ -22,7 +22,7 @@ class SetBusinessAccountUsername extends Method
      * Unique identifier of the business connection
      */
     #[Field('business_connection_id', required: true)]
-    public string $businessConnectionId;
+    public ?string $businessConnectionId = null;
 
     /**
      * The new value of the username for the business account; 0-32 characters
@@ -31,12 +31,12 @@ class SetBusinessAccountUsername extends Method
     public ?string $username = null;
 
     public function __construct(
-        string $businessConnectionId,
+        ?string $businessConnectionId = null,
         ?string $username = null,
         mixed ...$extra
     )
     {
-        $this->businessConnectionId = $businessConnectionId;
+        if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
         if ($username !== null) $this->username = $username;
         if ($extra) $this->handleExtraParameters($extra);
     }

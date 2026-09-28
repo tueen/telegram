@@ -11,6 +11,7 @@ use Tueen\Telegram\Client\GuzzleHttpClient;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\Response;
+use Tueen\Telegram\Context\ContextResolver;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Enums\UpdateType;
 use Tueen\Telegram\Exceptions\ApiException;
@@ -29,10 +30,13 @@ use Tueen\Telegram\Types\Custom\ArrayResult;
 use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Custom\IntegerResult;
 use Tueen\Telegram\Types\Custom\StringResult;
+use Tueen\Telegram\Types\Chat;
 use Tueen\Telegram\Types\Error;
 use Tueen\Telegram\Types\File;
+use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Types\User;
 
 /**
  * Tueen Telegram Client - The Royal Client for Telegram Bot API.
@@ -56,6 +60,11 @@ class Telegram
      * Defaults to null until resolved by Webhook or Polling runner.
      */
     private(set) ?Update $update = null;
+
+    /**
+     * Contextual parameter resolver for auto-injecting update values.
+     */
+    private(set) ContextResolver $context;
 
     private Config $config;
     private HttpClientInterface $httpClient;
@@ -86,6 +95,7 @@ class Telegram
             $this->config = $tokenOrConfig;
         }
 
+        $this->context = new ContextResolver($this->update);
         $this->httpClient = $this->config->httpClient ?? new GuzzleHttpClient();
         $this->pipeline = new Pipeline();
 
@@ -175,6 +185,8 @@ class Telegram
      */
     public function send(Method $method, ?Closure $uploadProgress = null, ?Closure $downloadProgress = null): mixed
     {
+        $this->context->resolveMethod($method);
+
         [$params, $files] = $method->buildRequestData();
 
         $request = new Request(
@@ -273,6 +285,8 @@ class Telegram
      */
     private function instantiateMethod(string $className, array $arguments): Method
     {
+        $arguments = $this->context->resolveArguments($className, $arguments);
+
         $reflection = new ReflectionClass($className);
         $constructor = $reflection->getConstructor();
 
@@ -492,12 +506,150 @@ class Telegram
     }
 
     /**
-     * Manually updates the active Update instance.
+     * Manually updates the active Update instance and context.
      */
     public function setUpdate(?Update $update): static
     {
         $this->update = $update;
+        $this->context->setUpdate($update);
         return $this;
+    }
+
+    /**
+     * Resolves the current chat ID from the active update or context.
+     */
+    public function chatId(): ?int
+    {
+        return $this->context->resolveChatId();
+    }
+
+    /**
+     * Resolves the current user ID from the active update or context.
+     */
+    public function userId(): ?int
+    {
+        return $this->context->resolveUserId();
+    }
+
+    /**
+     * Resolves the current message ID from the active update or context.
+     */
+    public function messageId(): ?int
+    {
+        return $this->context->resolveMessageId();
+    }
+
+    /**
+     * Resolves the business connection ID from the active update or context.
+     */
+    public function businessConnectionId(): ?string
+    {
+        return $this->context->resolveBusinessConnectionId();
+    }
+
+    /**
+     * Resolves the message thread (forum topic) ID from the active update or context.
+     */
+    public function messageThreadId(): ?int
+    {
+        return $this->context->resolveMessageThreadId();
+    }
+
+    /**
+     * Resolves the inline message ID from the active update or context.
+     */
+    public function inlineMessageId(): ?string
+    {
+        return $this->context->resolveInlineMessageId();
+    }
+
+    /**
+     * Resolves the callback query ID from the active update or context.
+     */
+    public function callbackQueryId(): ?string
+    {
+        return $this->context->resolveCallbackQueryId();
+    }
+
+    /**
+     * Resolves the inline query ID from the active update or context.
+     */
+    public function inlineQueryId(): ?string
+    {
+        return $this->context->resolveInlineQueryId();
+    }
+
+    /**
+     * Resolves the shipping query ID from the active update or context.
+     */
+    public function shippingQueryId(): ?string
+    {
+        return $this->context->resolveShippingQueryId();
+    }
+
+    /**
+     * Resolves the pre-checkout query ID from the active update or context.
+     */
+    public function preCheckoutQueryId(): ?string
+    {
+        return $this->context->resolvePreCheckoutQueryId();
+    }
+
+    /**
+     * Resolves the direct messages topic ID from the active update or context.
+     */
+    public function directMessagesTopicId(): ?int
+    {
+        return $this->context->resolveDirectMessagesTopicId();
+    }
+
+    /**
+     * Resolves the guest query ID from the active update or context.
+     */
+    public function guestQueryId(): ?string
+    {
+        return $this->context->resolveGuestQueryId();
+    }
+
+    /**
+     * Resolves the acting User object from the active update.
+     */
+    public function user(): ?User
+    {
+        return $this->update?->findUser();
+    }
+
+    /**
+     * Resolves the active Chat object from the active update.
+     */
+    public function chat(): ?Chat
+    {
+        return $this->update?->findChat();
+    }
+
+    /**
+     * Resolves the primary Message object from the active update.
+     */
+    public function message(): ?Message
+    {
+        return $this->update?->findMessage();
+    }
+
+    /**
+     * Binds a custom default resolver callback for a parameter name.
+     */
+    public function bindDefault(string $param, callable $resolver): static
+    {
+        $this->context->bind($param, $resolver);
+        return $this;
+    }
+
+    /**
+     * Returns the contextual parameter resolver.
+     */
+    public function context(): ContextResolver
+    {
+        return $this->context;
     }
 
     /**
@@ -710,7 +862,7 @@ class Telegram
         }
 
         $dispatcher = function (Update $update) use ($allHandlers): mixed {
-            $this->update = $update;
+            $this->setUpdate($update);
 
             // Prioritize active conversation Flow if running
             if ($this->flowManager()->handle($update, $this)) {

@@ -22,30 +22,30 @@ class SetChatAdministratorCustomTitle extends Method
      * Unique identifier for the target chat or username of the target supergroup in the format @username
      */
     #[Field('chat_id', required: true)]
-    public int|string $chatId;
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier of the target user
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * New custom title for the administrator; 0-16 characters, emoji are not allowed
      */
     #[Field('custom_title', required: true)]
-    public string $customTitle;
+    public ?string $customTitle = null;
 
     public function __construct(
-        int|string $chatId,
-        int $userId,
-        string $customTitle,
+        int|string|null $chatId = null,
+        ?int $userId = null,
+        ?string $customTitle = null,
         mixed ...$extra
     )
     {
-        $this->chatId = $chatId;
-        $this->userId = $userId;
-        $this->customTitle = $customTitle;
+        if ($chatId !== null) $this->chatId = $chatId;
+        if ($userId !== null) $this->userId = $userId;
+        if ($customTitle !== null) $this->customTitle = $customTitle;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

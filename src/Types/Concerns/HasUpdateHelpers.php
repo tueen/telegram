@@ -26,6 +26,76 @@ trait HasUpdateHelpers
     }
 
     /**
+     * Target chat ID extracted from this update, or null.
+     */
+    public ?int $chatId {
+        get => $this->findChatId();
+    }
+
+    /**
+     * Acting user ID extracted from this update, or null.
+     */
+    public ?int $userId {
+        get => $this->findUserId();
+    }
+
+    /**
+     * Primary message ID extracted from this update, or null.
+     */
+    public ?int $messageId {
+        get => $this->findMessageId();
+    }
+
+    /**
+     * Business connection ID associated with this update, or null.
+     */
+    public ?string $businessConnectionId {
+        get => $this->findBusinessConnectionId();
+    }
+
+    /**
+     * Message thread (forum topic) ID associated with this update, or null.
+     */
+    public ?int $messageThreadId {
+        get => $this->findMessageThreadId();
+    }
+
+    /**
+     * Inline message ID associated with this update, or null.
+     */
+    public ?string $inlineMessageId {
+        get => $this->findInlineMessageId();
+    }
+
+    /**
+     * Callback query ID associated with this update, or null.
+     */
+    public ?string $callbackQueryId {
+        get => $this->findCallbackQueryId();
+    }
+
+    /**
+     * Inline query ID associated with this update, or null.
+     */
+    public ?string $inlineQueryId {
+        get => $this->findInlineQueryId();
+    }
+
+    /**
+     * Shipping query ID associated with this update, or null.
+     */
+    public ?string $shippingQueryId {
+        get => $this->findShippingQueryId();
+    }
+
+    /**
+     * Pre-checkout query ID associated with this update, or null.
+     */
+    public ?string $preCheckoutQueryId {
+        get => $this->findPreCheckoutQueryId();
+    }
+
+    /**
      * Resolves the UpdateType enum for this update.
      */
     public function resolveUpdateType(): UpdateType
@@ -110,8 +180,10 @@ trait HasUpdateHelpers
     {
         $user = $this->message?->from
             ?? $this->editedMessage?->from
+            ?? $this->businessConnection?->user
             ?? $this->businessMessage?->from
             ?? $this->editedBusinessMessage?->from
+            ?? $this->guestMessage?->from
             ?? $this->callbackQuery?->from
             ?? $this->inlineQuery?->from
             ?? $this->chosenInlineResult?->from
@@ -139,16 +211,33 @@ trait HasUpdateHelpers
             ?? $this->editedChannelPost?->chat
             ?? $this->businessMessage?->chat
             ?? $this->editedBusinessMessage?->chat
+            ?? $this->deletedBusinessMessages?->chat
+            ?? $this->guestMessage?->chat
             ?? $this->callbackQuery?->message?->chat
             ?? $this->myChatMember?->chat
             ?? $this->chatMember?->chat
             ?? $this->chatJoinRequest?->chat
             ?? $this->messageReaction?->chat
+            ?? $this->messageReactionCount?->chat
             ?? $this->chatBoost?->chat
             ?? $this->removedChatBoost?->chat
             ?? null;
 
-        return $chat instanceof Chat ? $chat : null;
+        if ($chat instanceof Chat) {
+            return $chat;
+        }
+
+        if ($this->businessConnection !== null) {
+            return new Chat([
+                'id' => $this->businessConnection->userChatId,
+                'type' => 'private',
+                'first_name' => $this->businessConnection->user->firstName ?? null,
+                'last_name' => $this->businessConnection->user->lastName ?? null,
+                'username' => $this->businessConnection->user->username ?? null,
+            ]);
+        }
+
+        return null;
     }
 
     /**
@@ -164,7 +253,8 @@ trait HasUpdateHelpers
      */
     public function findChatId(): ?int
     {
-        return $this->findChat()?->id;
+        return $this->findChat()?->id
+            ?? $this->businessConnection?->userChatId;
     }
 
     /**
@@ -173,6 +263,114 @@ trait HasUpdateHelpers
     public function findMessageId(): ?int
     {
         return $this->findMessage()?->messageId;
+    }
+
+    /**
+     * Smart business connection ID finder.
+     */
+    public function findBusinessConnectionId(): ?string
+    {
+        return $this->findMessage()?->businessConnectionId
+            ?? $this->businessConnection?->id
+            ?? $this->deletedBusinessMessages?->businessConnectionId
+            ?? null;
+    }
+
+    /**
+     * Smart message thread ID (forum topic) finder.
+     */
+    public function findMessageThreadId(): ?int
+    {
+        $msg = $this->findMessage();
+        if ($msg === null) {
+            return null;
+        }
+
+        if ($msg->isTopicMessage || $msg->messageThreadId !== null) {
+            return $msg->messageThreadId;
+        }
+
+        return null;
+    }
+
+    /**
+     * Smart inline message ID finder.
+     */
+    public function findInlineMessageId(): ?string
+    {
+        return $this->chosenInlineResult?->inlineMessageId
+            ?? $this->callbackQuery?->inlineMessageId
+            ?? null;
+    }
+
+    /**
+     * Smart callback query ID finder.
+     */
+    public function findCallbackQueryId(): ?string
+    {
+        return $this->callbackQuery?->id;
+    }
+
+    /**
+     * Smart inline query ID finder.
+     */
+    public function findInlineQueryId(): ?string
+    {
+        return $this->inlineQuery?->id;
+    }
+
+    /**
+     * Smart shipping query ID finder.
+     */
+    public function findShippingQueryId(): ?string
+    {
+        return $this->shippingQuery?->id;
+    }
+
+    /**
+     * Smart pre-checkout query ID finder.
+     */
+    public function findPreCheckoutQueryId(): ?string
+    {
+        return $this->preCheckoutQuery?->id;
+    }
+
+    /**
+     * Smart direct messages topic ID finder.
+     */
+    public function findDirectMessagesTopicId(): ?int
+    {
+        return $this->findMessage()?->directMessagesTopicId
+            ?? $this->findMessage()?->directMessagesTopic?->topicId
+            ?? null;
+    }
+
+    /**
+     * Smart guest query ID finder.
+     */
+    public function findGuestQueryId(): ?string
+    {
+        return $this->findMessage()?->guestQueryId
+            ?? $this->guestMessage?->guestQueryId
+            ?? null;
+    }
+
+    /**
+     * Smart receiver user ID finder.
+     */
+    public function findReceiverUserId(): ?int
+    {
+        return $this->findMessage()?->receiverUser?->id
+            ?? null;
+    }
+
+    /**
+     * Smart ephemeral message ID finder.
+     */
+    public function findEphemeralMessageId(): ?int
+    {
+        return $this->findMessage()?->ephemeralMessageId
+            ?? null;
     }
 
     /**

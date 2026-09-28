@@ -22,7 +22,7 @@ class GetGameHighScores extends Method
      * Target user id
      */
     #[Field('user_id', required: true)]
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * Required if inline_message_id is not specified. Unique identifier for the target chat.
@@ -43,14 +43,14 @@ class GetGameHighScores extends Method
     public ?string $inlineMessageId = null;
 
     public function __construct(
-        int $userId,
+        ?int $userId = null,
         ?int $chatId = null,
         ?int $messageId = null,
         ?string $inlineMessageId = null,
         mixed ...$extra
     )
     {
-        $this->userId = $userId;
+        if ($userId !== null) $this->userId = $userId;
         if ($chatId !== null) $this->chatId = $chatId;
         if ($messageId !== null) $this->messageId = $messageId;
         if ($inlineMessageId !== null) $this->inlineMessageId = $inlineMessageId;
