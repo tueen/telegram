@@ -3,7 +3,7 @@ name: tueen-telegram-development
 description: >-
   Use this skill when developing, testing, or extending features in the tueen/telegram library,
   including creating middlewares, modifying client transport, handling file uploads/downloads with progress,
-  and enforcing PHP 8.4/8.5 coding standards.
+  and enforcing modern PHP coding standards.
 ---
 
 # Tueen Telegram Development & Contribution Guide
@@ -14,11 +14,13 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 
 ## 💎 Core Architecture Rules
 
-### 1. Modern PHP 8.4 & 8.5 Standards
+### 1. Modern PHP Coding Standards
 - Always enforce `declare(strict_types=1);`.
+- Refer to `php-84-standards` for Property Hooks, Asymmetric Visibility, and `array_*()` utilities.
+- Refer to `php-85-standards` for Pipe Operator (`|>`), `clone with`, `#[\NoDiscard]`, and persistent share handles.
 - Use **Asymmetric Visibility** (`private(set)`) on all response Types. Never write redundant `public private(set)` as read-visibility is public by default.
 - Use **Property Hooks** for dynamic transformation, normalization, or validation.
-- Respect the PHP 8.5 Pipe Operator (`|>`) and fluent middleware pipeline (`$telegram->pipe(...)`).
+- Support the Pipe Operator (`|>`) and fluent middleware pipeline (`$telegram->pipe(...)`).
 
 ### 2. Forward-Compatibility & Resilience
 - Every response model must extend `Tueen\Telegram\Types\Type`.

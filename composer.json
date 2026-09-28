@@ -1,6 +1,6 @@
 {
     "name": "tueen/telegram",
-    "description": "The Royal Telegram Bot API Client for PHP 8.4 & 8.5 - fast, elegant, and ultra-modern",
+    "description": "The Royal Telegram Bot API Client for Tueen - fast, elegant, and ultra-modern",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=8.4.0",
+        "php": ">=8.5.0",
         "guzzlehttp/guzzle": "^7.8",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.0",

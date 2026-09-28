@@ -57,7 +57,7 @@ for (const item of versions.archived) {
 
 export default defineConfig({
   title: "Tueen Telegram",
-  description: "The Royal Telegram Bot API Client for PHP 8.4 & 8.5",
+  description: "The Royal Telegram Bot API Client for Tueen",
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },

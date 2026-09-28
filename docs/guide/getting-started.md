@@ -8,7 +8,7 @@
 
 ## Requirements
 
-- **PHP 8.4+** or **PHP 8.5+**
+- **PHP 8.5+**
 - **Composer 2.x**
 - Extensions: `json`, `curl` or stream wrappers
 

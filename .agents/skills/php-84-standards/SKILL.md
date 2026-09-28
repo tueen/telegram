@@ -1,62 +1,23 @@
 ---
 name: php-84-standards
 description: >-
-  Rules and best practices for modern PHP 8.4 & 8.5 features in tueen/telegram,
-  specifically Asymmetric Visibility (omitting redundant 'public' on private(set)/protected(set)),
-  Property Hooks, typed class constants, and new language constructs.
+  Rules and best practices for PHP 8.4 features, specifically Property Hooks,
+  Asymmetric Visibility (omitting redundant 'public'), new array_* functions (array_find, array_any, array_all),
+  method chaining on new without parentheses, and #[\Deprecated] attribute.
 ---
 
-# PHP 8.4 & 8.5 Standards & Asymmetric Visibility Runbook
+# PHP 8.4 Standards & Language Features Guide
 
-This skill defines the mandatory coding conventions and rules for modern PHP 8.4 and PHP 8.5 features within the `tueen/telegram` codebase.
-
----
-
-## 🔒 1. Asymmetric Visibility (`private(set)` & `protected(set)`)
-
-PHP 8.4 introduces asymmetric visibility, allowing separate visibility modifiers for read and write access on object properties.
-
-### The Redundancy Rule (CRITICAL)
-
-In PHP 8.4, if no main read-visibility modifier is specified, **it defaults to `public`**.
-
-```php
-// ✅ CORRECT (Idiomatic PHP 8.4+):
-private(set) string $title;
-private(set) ?User $user = null;
-protected(set) int $offset = 0;
-
-// ❌ INCORRECT (Anti-pattern - Triggers IDE inspection "Visibility modifier can be removed"):
-public private(set) string $title;
-public protected(set) int $offset = 0;
-```
-
-### Why IDEs Flag `public private(set)`:
-IDEs like PhpStorm and static analysis tools (PHPStan, Psalm) issue a inspection warning:
-> *"Visibility modifier can be removed"* (Redundant visibility modifier).
-
-Specifying `public` before `private(set)` or `protected(set)` adds unnecessary boilerplate because `public` read-access is already the default behavior of the language specification.
-
-### Guidelines for tueen/telegram:
-1. **API Response Types (`src/Types/`):**
-   - Every deserialized response field must use `private(set)`:
-     ```php
-     #[Field('file_id', required: true)]
-     private(set) string $fileId;
-     ```
-2. **Generator Rules (`src/Generator/CodeGenerator.php`):**
-   - When compiling property lines for generated types, always emit `private(set)` directly without `public`.
-3. **When to use `protected(set)`:**
-   - Use `protected(set)` when child or extending classes within the library need write access, but external callers should only read the property.
+This skill defines the coding conventions, standards, and rules for **PHP 8.4** features within the `tueen/telegram` codebase, grounded directly in the official [PHP 8.4 Release Announcement](https://www.php.net/releases/8.4/en.php).
 
 ---
 
-## 🪝 2. Property Hooks (`get` & `set`)
+## 🪝 1. Property Hooks (`get` & `set`)
 
-PHP 8.4 Property Hooks eliminate traditional getter and setter boilerplate.
+Property hooks provide support for computed and validated properties that are natively recognized by IDEs and static analysis tools without getter/setter boilerplate.
 
 ### Computed Properties
-Use property hooks for computed values derived from raw data:
+Use property hooks for computed values derived from object state:
 ```php
 public UpdateType $type {
     get => $this->resolveType();
@@ -68,52 +29,115 @@ public bool $isCommand {
 ```
 
 ### Backed Properties with Validation / Normalization
-When a property stores data but requires normalization:
+When a property stores data but requires normalization or pre-processing:
 ```php
 public string $username {
     set (string $value) => ltrim($value, '@');
+}
+
+public string $countryCode {
+    set (string $countryCode) {
+        $this->countryCode = strtoupper($countryCode);
+    }
 }
 ```
 
 ---
 
-## 🏷️ 3. Typed Class Constants
+## 🔒 2. Asymmetric Visibility (`private(set)` & `protected(set)`)
 
-In PHP 8.3+, class constants must always be strictly typed:
+The scope to write to a property may be controlled independently from the scope to read the property.
+
+### The Redundancy Rule (CRITICAL)
+In PHP 8.4, if no explicit read-visibility modifier is specified, **it defaults to `public`**.
+Specifying `public private(set)` triggers IDE inspection warnings (*"Visibility modifier can be removed"*).
+
 ```php
-public const string BOT_API_VERSION = '10.3';
-public const string API_VERSION = self::BOT_API_VERSION;
+// ✅ CORRECT (Idiomatic PHP 8.4+):
+private(set) int $id;
+private(set) ?User $user = null;
+protected(set) int $offset = 0;
+
+// ❌ INCORRECT (Anti-pattern - triggers inspection warning):
+public private(set) int $id;
+public protected(set) int $offset = 0;
+```
+
+### Guidelines for tueen/telegram:
+1. **API Response Types (`src/Types/`):**
+   - Every deserialized response field must use `private(set)`:
+     ```php
+     #[Field('file_id', required: true)]
+     private(set) string $fileId;
+     ```
+2. **Generator Rules (`src/Generator/CodeGenerator.php`):**
+   - The code generator must always emit `private(set)` directly without `public`.
+3. **Internal State (`protected(set)`):**
+   - Use `protected(set)` when child or extending classes need write access, but external callers should only read the property.
+
+---
+
+## 🔍 3. New `array_*()` Functions
+
+PHP 8.4 introduces modern functional search utilities for arrays:
+
+- `array_find(array $array, callable $callback): mixed` — returns the first matching element, or `null`.
+- `array_find_key(array $array, callable $callback): mixed` — returns the key of the first matching element, or `null`.
+- `array_any(array $array, callable $callback): bool` — returns `true` if at least one element satisfies the predicate.
+- `array_all(array $array, callable $callback): bool` — returns `true` if all elements satisfy the predicate.
+
+```php
+// Find specific update type
+$hasPhoto = array_any($updates, fn(Update $u) => $u->message?->photo !== null);
+
+// Find first command message
+$firstCommand = array_find($messages, fn(Message $m) => $m->isCommand);
 ```
 
 ---
 
-## 🔀 4. PHP 8.5 Pipe Operator (`|>`)
+## ⛓️ 4. Method Chaining on `new` Without Parentheses
 
-- Tueen clients and middleware pipelines must remain clean callable-friendly so callers can pipe operations:
+In PHP 8.4, you can chain methods directly onto `new ClassName()->method()` without wrapping the `new` expression in extra parentheses:
+
 ```php
-$result = $payload
-    |> $telegram->parseUpdate(...)
-    |> $dispatcher->dispatch(...);
+// ✅ Modern PHP 8.4+:
+$request = new Request('POST', $url)->withHeader('Accept', 'application/json');
+
+// ❌ Pre-8.4 boilerplate:
+$request = (new Request('POST', $url))->withHeader('Accept', 'application/json');
 ```
 
 ---
 
-## 🛠️ Verification & Anti-Regression Checklist
+## 🏷️ 5. `#[\Deprecated]` Attribute
 
-Before committing changes:
+Deprecations are declared natively using the `#[\Deprecated]` attribute instead of solely relying on docblocks:
+
+```php
+#[\Deprecated(message: 'Use $message->findAnyText() instead', since: '1.0.0')]
+public function getTextOrCaption(): ?string
+{
+    return $this->findAnyText();
+}
+```
+
+---
+
+## 🔢 6. BCMath Object API & Typed Class Constants
+
+- Class constants must always have strict type declarations (`public const string BOT_API_VERSION = '10.3';`).
+- Use `BcMath\Number` for arbitrary precision calculations where needed.
+
+---
+
+## 🛠️ Verification Checklist
 
 1. **Verify No Redundant `public private(set)` Exists:**
    ```powershell
    Get-ChildItem -Path "src", "tests" -Recurse -Filter "*.php" | Select-String -Pattern "public (?:private|protected)\(set\)"
    ```
-   *(Expected output: empty / 0 matches)*
-
-2. **Run Syntax Check on All Classes:**
+2. **Verify PHP 8.4 Syntax:**
    ```powershell
-   php scratch/validate_all.php
-   ```
-
-3. **Run PHPUnit Test Suite:**
-   ```powershell
-   vendor/bin/phpunit
+   php -l <path-to-file>
    ```
