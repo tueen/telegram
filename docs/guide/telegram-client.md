@@ -1,23 +1,23 @@
-# Telegram Client Facade
+# The Telegram Client ($bot)
 
-The `Tueen\Telegram\Telegram` class is the central entry point and developer-facing facade of the `tueen/telegram` library. Designed around the **Composition Facade Pattern**, it unifies all underlying subsystems — pure Bot API network requests, update dispatching, conversational state machines, attribute routing, and contextual parameter resolution — into an elegant, fluent, and strictly typed interface.
+The `Tueen\Telegram\Telegram` class (instantiated as `$bot`) is the central entry point and primary client of the `tueen/telegram` library. Designed around a **modular composition architecture**, it brings together all underlying subsystems — pure Bot API network requests, update dispatching, conversational state machines, attribute routing, and contextual parameter resolution — into an intuitive, fluent, and strictly typed interface.
 
 ---
 
-## 🏛️ 1. Architecture: The Composition Facade
+## 🏛️ 1. Architecture: Modular Composition
 
-Rather than functioning as a monolithic "God Object", the `Telegram` class acts as a high-level orchestrator. It holds references to specialized, single-responsibility components and delegates operations to them:
+Rather than functioning as a monolithic "God Object", the `Telegram` class acts as the central client orchestrator. It holds references to specialized, single-responsibility components and delegates operations to them:
 
 ```mermaid
 flowchart TD
-    UserCode["User Application Code"] --> Facade["Telegram (Facade)"]
+    UserCode["User Application Code"] --> Bot["The Bot Client ($bot)"]
     
     subgraph Core Subsystems
-        Facade --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
-        Facade --> Dispatcher["UpdateDispatcher<br/>(Pipeline, Middleware, Exception Catching)"]
-        Facade --> Context["ContextResolver<br/>(chat_id, user_id, message_id Auto-Injection)"]
-        Facade --> Router["Router<br/>(Commands, Patterns, Attribute Controllers)"]
-        Facade --> Flows["FlowManager<br/>(State Machine, Multi-step Flows, Storage)"]
+        Bot --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
+        Bot --> Dispatcher["UpdateDispatcher<br/>(Pipeline, Middleware, Exception Catching)"]
+        Bot --> Context["ContextResolver<br/>(chat_id, user_id, message_id Auto-Injection)"]
+        Bot --> Router["Router<br/>(Commands, Patterns, Attribute Controllers)"]
+        Bot --> Flows["FlowManager<br/>(State Machine, Multi-step Flows, Storage)"]
     end
 
     Client --> TelegramAPI[("Telegram Bot API")]
@@ -26,7 +26,7 @@ flowchart TD
 
 ### Why this design matters:
 * **Separation of Concerns (SRP):** Each subsystem is completely decoupled, individually testable, and reusable in isolation (e.g. using `TelegramClient` directly in pure HTTP microservices or worker jobs).
-* **Zero Concurrency Hazards:** State is scoped cleanly; the facade uses `ContextResolver` to ensure updates and contextual parameters never leak across concurrent requests or asynchronous event loops.
+* **Zero Concurrency Hazards:** State is scoped cleanly; the client uses `ContextResolver` to ensure updates and contextual parameters never leak across concurrent requests or asynchronous event loops.
 * **Ergonomic Developer Experience (DX):** You interact with a single intuitive `$bot` object without having to wire up five disparate classes manually.
 
 ---
@@ -41,7 +41,7 @@ Below is the comprehensive catalog of all methods provided on the `Telegram` cla
 | :--- | :--- | :--- |
 | `Telegram::create(string $token)` | `ConfigBuilder` | Creates a fluent configuration builder for advanced setup (timeouts, proxy, retries, etc.). |
 | `Telegram::fake(array $responses = [], ...)` | `TelegramFake` | Creates an in-memory testing fake client with assertion helpers (`assertSent`, `assertSentCount`). |
-| `new Telegram(string\|Config $tokenOrConfig)` | `Telegram` | Instantiates the facade directly using a bot token string or an immutable `Config` object. |
+| `new Telegram(string\|Config $tokenOrConfig)` | `Telegram` | Instantiates the bot client directly using a bot token string or an immutable `Config` object. |
 | `getConfig()` | `Config` | Returns the immutable configuration instance driving the bot. |
 
 ### B. Execution & Running Modes
@@ -138,7 +138,7 @@ When processing updates, `Telegram` automatically infers contextual identifiers:
 
 ## ⚖️ 3. Canonical Methods vs. Aliases: Design Philosophy
 
-`tueen/telegram` intentionally maintains a small, carefully curated set of method aliases on the `Telegram` facade:
+`tueen/telegram` intentionally maintains a small, carefully curated set of method aliases on the `Telegram` client:
 
 ```
 ┌─────────────────────────────────┬─────────────────────────────────┬────────────────────────────────┐
@@ -160,7 +160,7 @@ When processing updates, `Telegram` automatically infers contextual identifiers:
 
 ## 🔌 4. Accessing Underlying Subsystems
 
-If you need advanced control or want to interact directly with internal subsystems without going through the facade:
+If you need advanced control or want to interact directly with internal subsystems without going through the main `$bot` instance:
 
 ```php
 use Tueen\Telegram\Telegram;
@@ -188,6 +188,6 @@ $context = $bot->context();
 
 ## 💡 5. Recommended Best Practices
 
-* **Always use named arguments:** When calling Bot API methods through the facade (e.g. `$bot->sendMessage(text: '...')`), named arguments enable automatic contextual injection of `chatId`.
-* **Inject `$bot` or `$context` into handlers:** Inside route closures or controller actions, type-hint `Telegram $bot` and `Update $update` for instant access to facade helpers.
-* **Keep Controllers Thin:** Use the facade to route requests to dedicated controller classes (`$bot->registerController(OrderController::class)`) rather than packing entire bots into a single file.
+* **Always use named arguments:** When calling Bot API methods through the `$bot` instance (e.g. `$bot->sendMessage(text: '...')`), named arguments enable automatic contextual injection of `chatId`.
+* **Inject `$bot` or `$context` into handlers:** Inside route closures or controller actions, type-hint `Telegram $bot` and `Update $update` for instant access to helper methods.
+* **Keep Controllers Thin:** Use the client to route requests to dedicated controller classes (`$bot->registerController(OrderController::class)`) rather than packing entire bots into a single file.
