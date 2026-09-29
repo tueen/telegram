@@ -95,6 +95,7 @@ Detailed operational guidelines, code examples, and conventions are encapsulated
 | **`php-85-standards`** | [`.agents/skills/php-85-standards/`](./.agents/skills/php-85-standards/) | PHP 8.5 language conventions (Pipe operator `\|>`, `clone with`, `#[\NoDiscard]`, URI extension, persistent cURL handles). |
 | **`php-84-standards`** | [`.agents/skills/php-84-standards/`](./.agents/skills/php-84-standards/) | PHP 8.4 language conventions (Property Hooks, Asymmetric Visibility without redundant `public`, `array_*()` utilities). |
 | **`vitepress-interactive-mermaid`** | [`.agents/skills/vitepress-interactive-mermaid/`](./.agents/skills/vitepress-interactive-mermaid/) | Production-grade interactive Mermaid diagrams in VitePress with zoom, pan, fullscreen modal, and SSR safety. |
+| **`vitepress-llm-integration`** | [`.agents/skills/vitepress-llm-integration/`](./.agents/skills/vitepress-llm-integration/) | Automated LLM documentation hub, `llms.txt`, consolidated context, interactive skill copy, and HMR sync. |
 
 ---
 

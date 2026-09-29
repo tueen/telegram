@@ -3,8 +3,56 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import versions from '../versions.json'
+import { generateLlms, getCanonicalSiteUrl } from '../scripts/generate-llms.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const publicDir = path.resolve(__dirname, '../public')
+
+function llmsPlugin() {
+  return {
+    name: 'vitepress-llms-generator',
+    async buildStart() {
+      await generateLlms()
+    },
+    async handleHotUpdate({ file }: { file: string }) {
+      if (file.endsWith('.md') && !file.endsWith('llms.md')) {
+        await generateLlms()
+      }
+    },
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        const url = req.url?.split('?')[0]
+        if (url === '/llms.txt' || url?.endsWith('/llms.txt')) {
+          const host = req.headers.host || '127.0.0.1:5173'
+          const protocol = req.headers['x-forwarded-proto'] || 'http'
+          const currentOrigin = `${protocol}://${host}`
+          const filePath = path.resolve(publicDir, 'llms.txt')
+          if (fs.existsSync(filePath)) {
+            const content = fs.readFileSync(filePath, 'utf-8')
+            const dynamicContent = content.replaceAll(getCanonicalSiteUrl(), currentOrigin)
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+            res.end(dynamicContent)
+            return
+          }
+        }
+        if (url === '/llms-full.txt' || url?.endsWith('/llms-full.txt')) {
+          const host = req.headers.host || '127.0.0.1:5173'
+          const protocol = req.headers['x-forwarded-proto'] || 'http'
+          const currentOrigin = `${protocol}://${host}`
+          const filePath = path.resolve(publicDir, 'llms-full.txt')
+          if (fs.existsSync(filePath)) {
+            const content = fs.readFileSync(filePath, 'utf-8')
+            const dynamicContent = content.replaceAll(getCanonicalSiteUrl(), currentOrigin)
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+            res.end(dynamicContent)
+            return
+          }
+        }
+        next()
+      })
+    }
+  }
+}
 
 export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
   return [
@@ -78,6 +126,9 @@ export default defineConfig({
   base,
   title: "Tueen Telegram",
   description: "The Royal Telegram Bot SDK for Modern PHP",
+  vite: {
+    plugins: [llmsPlugin()]
+  },
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: `${base.replace(/\/$/, '')}/icon.png` }]
   ],
@@ -98,6 +149,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
+      { text: '🤖 LLMs', link: '/llms' },
       {
         text: `v${versions.current}`,
         items: [
