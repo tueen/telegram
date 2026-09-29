@@ -22,6 +22,7 @@ use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Pipeline\Pipeline;
 use Tueen\Telegram\Pipeline\RetryMiddleware;
 use Tueen\Telegram\Routing\Router;
+use Tueen\Telegram\Running\AutoMode;
 use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\RunningModeInterface;
 use Tueen\Telegram\Running\WebhookMode;
@@ -522,6 +523,26 @@ class Telegram
     }
 
     /**
+     * Configures the client to use adaptive AutoMode (switches between Polling in CLI and Webhook in HTTP).
+     */
+    public function useAutoMode(
+        ?PollingMode $polling = null,
+        ?WebhookMode $webhook = null,
+        bool $autoDeleteWebhook = false,
+        bool $dropPendingUpdatesOnDelete = false,
+        ?callable $detector = null,
+    ): static {
+        $this->runningMode = new AutoMode(
+            pollingMode: $polling,
+            webhookMode: $webhook,
+            autoDeleteWebhook: $autoDeleteWebhook,
+            dropPendingUpdatesOnDelete: $dropPendingUpdatesOnDelete,
+            detector: $detector
+        );
+        return $this;
+    }
+
+    /**
      * Manually updates the active Update instance and context.
      */
     public function setUpdate(?Update $update): static
@@ -710,6 +731,17 @@ class Telegram
     public function setFlowStore(\Tueen\Telegram\Flow\Storage\StateStoreInterface $store): static
     {
         $this->flowManager()->setStore($store);
+        return $this;
+    }
+
+    /**
+     * Sets the default root/home flow class to navigate to on home action or /start command.
+     *
+     * @param class-string<\Tueen\Telegram\Flow\Flow>|null $flowClass
+     */
+    public function setRootFlow(?string $flowClass): static
+    {
+        $this->flowManager()->setRootFlow($flowClass);
         return $this;
     }
 
@@ -951,6 +983,21 @@ class Telegram
         };
 
         return $this->getRunningMode()->processUpdate($this, (!empty($allHandlers) || !empty($this->updateMiddlewares)) ? $dispatcher : null);
+    }
+
+    /**
+     * Executes the bot using adaptive AutoMode (switches between Polling in CLI and Webhook in HTTP).
+     *
+     * @param mixed ...$handlers Handlers passed to run()
+     * @return mixed
+     */
+    public function autoRun(mixed ...$handlers): mixed
+    {
+        if (!$this->runningMode instanceof AutoMode) {
+            $this->useAutoMode();
+        }
+
+        return $this->run(...$handlers);
     }
 
     /**

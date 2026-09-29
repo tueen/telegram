@@ -17,6 +17,7 @@ use Tueen\Telegram\Types\Update;
 class FlowManager
 {
     private StateStoreInterface $store;
+    private ?string $rootFlow = null;
 
     public function __construct(?StateStoreInterface $store = null)
     {
@@ -40,6 +41,25 @@ class FlowManager
     {
         $this->store = $store;
         return $this;
+    }
+
+    /**
+     * Sets the default root/home flow to redirect to upon home navigation or /start.
+     *
+     * @param class-string<Flow>|null $flowClass
+     */
+    public function setRootFlow(?string $flowClass): static
+    {
+        $this->rootFlow = $flowClass;
+        return $this;
+    }
+
+    /**
+     * @return class-string<Flow>|null
+     */
+    public function getRootFlow(): ?string
+    {
+        return $this->rootFlow;
     }
 
     /**
@@ -149,9 +169,42 @@ class FlowManager
         $flow = $this->createFlowInstance($flowClass, $bot);
         $flow->init($bot, $update, $chatId, $userId, $state, $this);
 
+        // Check for /start command
+        $text = trim($update->findAnyText() ?? '');
+        $isStartCommand = str_starts_with(strtolower($text), '/start');
+
+        if ($isStartCommand) {
+            if ($flow instanceof InteractiveFlow) {
+                if (!$flow->canInterrupt($update)) {
+                    $flow->handleUpdate($update);
+                    if (!$flow->isTerminated()) {
+                        $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+                    }
+                    return true;
+                }
+
+                if ($this->rootFlow !== null && $this->rootFlow !== $flowClass) {
+                    $flow->home();
+                    return true;
+                }
+            } elseif ($this->rootFlow !== null && $this->rootFlow !== $flowClass) {
+                $flow->cancel();
+                $this->startFlow($this->rootFlow, $update, $bot);
+                return true;
+            }
+        }
+
         // Check for exit commands (e.g. /cancel)
         if ($flow->shouldExit($update)) {
             $flow->cancel();
+            return true;
+        }
+
+        if ($flow instanceof InteractiveFlow) {
+            $flow->handleUpdate($update);
+            if (!$flow->isTerminated()) {
+                $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+            }
             return true;
         }
 
@@ -179,7 +232,7 @@ class FlowManager
         $this->store->delete($sessionKey);
     }
 
-    private function createFlowInstance(string $flowClass, Telegram $bot): Flow
+    public function createFlowInstance(string $flowClass, Telegram $bot): Flow
     {
         $container = $bot->getContainer();
 

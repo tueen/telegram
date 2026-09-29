@@ -296,6 +296,60 @@ $bot->run(MyHandler::class);
 
 ---
 
+## ⚡ AutoMode: Adaptive Execution (CLI Polling & HTTP Webhook)
+
+`AutoMode` is an intelligent, multi-vector execution strategy that eliminates the need to maintain separate entry points for CLI development and production webhooks. It dynamically detects whether the bot is running inside a command-line terminal (`PollingMode`) or responding to an HTTP web request (`WebhookMode`).
+
+### Key Features of `AutoMode`:
+1. **Multi-Vector Environment Detection:**
+   - Detects incoming HTTP requests (`$_SERVER['REQUEST_METHOD'] === 'POST'`, Telegram secret headers) even within CLI-based web workers such as **RoadRunner**, **Swoole**, or **FrankenPHP**.
+   - Detects standard terminal environments (`PHP_SAPI === 'cli'`) when no HTTP request is present.
+2. **Telegram Conflict Prevention (`autoDeleteWebhook`):**
+   - Automatically deletes any active webhook before starting `PollingMode` to prevent Telegram's notorious `409 Conflict: can't use getUpdates method while webhook is active`.
+3. **Observability & Hooks:**
+   - Emits structured logs to your configured PSR-3 logger detailing which mode was selected and why.
+   - Provides an `onModeResolved(fn($mode, $type, $bot) => ...)` hook for custom lifecycle logic.
+4. **Convenient Fluent API:**
+   - Use `Telegram::create()->withAutoMode(...)` or `$bot->autoRun()`.
+
+### Example 1: Fluent Builder Configuration
+
+```php
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Running\PollingMode;
+use Tueen\Telegram\Running\WebhookMode;
+
+$bot = Telegram::create($_ENV['TELEGRAM_BOT_TOKEN'])
+    ->withPollingMode(new PollingMode(timeout: 45))
+    ->withWebhookMode(new WebhookMode(secretToken: $_ENV['TELEGRAM_WEBHOOK_SECRET']))
+    ->withAutoMode(autoDeleteWebhook: true) // Prevents 409 Conflict in local CLI
+    ->client();
+
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(text: 'Hello from AutoMode!');
+});
+
+// Single unified entry point:
+// • In terminal (php bot.php): Runs continuous Long-Polling
+// • Via Web Server (Nginx / Caddy / FrankenPHP): Handles incoming Webhook
+$bot->run();
+```
+
+### Example 2: Quick `$bot->autoRun()` Execution
+
+```php
+use Tueen\Telegram\Telegram;
+
+$bot = new Telegram($_ENV['TELEGRAM_BOT_TOKEN']);
+
+$bot->onCommand('ping', fn(Update $u, Telegram $b) => $b->sendMessage(text: 'pong!'));
+
+// Automatically configures AutoMode and executes:
+$bot->autoRun();
+```
+
+---
+
 ## 🔀 PHP 8.5 Pipe Operator (`|>`) Pipelines
 
 PHP 8.5 introduces the native **Pipe Operator (`|>`)**, enabling functional, left-to-right expression composition. In traditional PHP, processing an incoming Telegram update often results in either deeply nested function calls:

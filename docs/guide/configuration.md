@@ -262,7 +262,18 @@ $config = Telegram::create('YOUR_TOKEN')
         <span class="config-badge default">default: WebhookMode</span>
       </div>
     </div>
-    <p class="config-card-desc">Configures the default bot execution runner: <code>new WebhookMode(...)</code> or <code>new PollingMode(...)</code>.</p>
+    <p class="config-card-desc">Configures the default bot execution runner: <code>new WebhookMode(...)</code>, <code>new PollingMode(...)</code>, or <code>new AutoMode(...)</code>.</p>
+  </div>
+
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">withAutoMode(?PollingMode $polling, ?WebhookMode $webhook, bool $autoDeleteWebhook = false)</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">AutoMode</span>
+        <span class="config-badge default">default: Polling in CLI / Webhook in HTTP</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Configures adaptive <code>AutoMode</code> to seamlessly switch between CLI Polling and HTTP Webhook execution.</p>
   </div>
 
   <div class="config-card">
@@ -330,7 +341,7 @@ $config = Telegram::create('YOUR_TOKEN')
 | **`testEnvironment`** | `bool` | `false` | `withTestEnvironment()` | Target Telegram's `/test` sandbox |
 | **`errorHandlingMode`** | `ErrorHandlingMode` | `EXCEPTION` | `withErrorHandlingMode()` | EXCEPTION vs ERROR_OBJECT |
 | **`convertExceptionsToError`** | `list<class-string<Throwable>>` | `[ApiException::class]` | `withConvertExceptions()` | Exceptions converted into `Error` objects |
-| **`runningMode`** | `?RunningModeInterface` | `null` (Webhook) | `withRunningMode()` | WebhookMode or PollingMode |
+| **`runningMode`** | `?RunningModeInterface` | `null` (Webhook) | `withRunningMode()`, `withAutoMode()` | WebhookMode, PollingMode, or AutoMode |
 | **`container`** | `mixed` | `null` | `withContainer()` | PSR-11 container for dependency resolution |
 
 ---
@@ -481,4 +492,24 @@ $bot = new Telegram($config);
 
 // Handlers and Flow classes now automatically resolve with full dependency injection!
 $bot->run(App\Handlers\OnboardingHandler::class);
+```
+
+---
+
+### Recipe 6: Adaptive AutoMode Execution (Unified CLI & HTTP Webhook)
+
+```php
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Running\PollingMode;
+use Tueen\Telegram\Running\WebhookMode;
+
+$bot = Telegram::create($_ENV['BOT_TOKEN'])
+    ->withPollingMode(new PollingMode(timeout: 45))
+    ->withWebhookMode(new WebhookMode(secretToken: $_ENV['WEBHOOK_SECRET']))
+    ->withAutoMode(autoDeleteWebhook: true)
+    ->client();
+
+// In CLI (php bot.php): executes PollingMode
+// In Web Server (POST /webhook): executes WebhookMode
+$bot->run(App\Handlers\BotHandler::class);
 ```

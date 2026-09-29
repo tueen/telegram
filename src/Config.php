@@ -9,7 +9,10 @@ use Psr\Log\LoggerInterface;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Running\AutoMode;
+use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\RunningModeInterface;
+use Tueen\Telegram\Running\WebhookMode;
 
 use Uri\InvalidUriException;
 use Uri\Rfc3986\Uri;
@@ -147,6 +150,23 @@ class Config
     public function withRunningMode(?RunningModeInterface $runningMode): self
     {
         return $this->copyWith(['runningMode' => $runningMode]);
+    }
+
+    #[\NoDiscard]
+    public function withAutoMode(
+        ?PollingMode $polling = null,
+        ?WebhookMode $webhook = null,
+        bool $autoDeleteWebhook = false,
+        bool $dropPendingUpdatesOnDelete = false,
+        ?callable $detector = null
+    ): self {
+        return $this->withRunningMode(new AutoMode(
+            pollingMode: $polling,
+            webhookMode: $webhook,
+            autoDeleteWebhook: $autoDeleteWebhook,
+            dropPendingUpdatesOnDelete: $dropPendingUpdatesOnDelete,
+            detector: $detector
+        ));
     }
 
     #[\NoDiscard]

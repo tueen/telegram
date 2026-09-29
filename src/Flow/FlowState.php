@@ -19,6 +19,8 @@ final class FlowState implements JsonSerializable
      * @param int $createdAt
      * @param int $updatedAt
      * @param int|null $expiresAt
+     * @param int|null $messageId Active Telegram message ID for in-place screen updates
+     * @param list<array<string, mixed>> $flowStack Hierarchical stack of parent flows
      */
     public function __construct(
         public string $flowClass,
@@ -28,6 +30,8 @@ final class FlowState implements JsonSerializable
         public int $createdAt = 0,
         public int $updatedAt = 0,
         public ?int $expiresAt = null,
+        public ?int $messageId = null,
+        public array $flowStack = [],
     ) {
         $now = time();
         if ($this->createdAt === 0) {
@@ -59,6 +63,8 @@ final class FlowState implements JsonSerializable
             createdAt: (int) ($data['created_at'] ?? $data['createdAt'] ?? time()),
             updatedAt: (int) ($data['updated_at'] ?? $data['updatedAt'] ?? time()),
             expiresAt: isset($data['expires_at']) ? (int) $data['expires_at'] : (isset($data['expiresAt']) ? (int) $data['expiresAt'] : null),
+            messageId: isset($data['message_id']) ? (int) $data['message_id'] : (isset($data['messageId']) ? (int) $data['messageId'] : null),
+            flowStack: (array) ($data['flow_stack'] ?? $data['flowStack'] ?? []),
         );
     }
 
@@ -75,6 +81,8 @@ final class FlowState implements JsonSerializable
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
             'expires_at' => $this->expiresAt,
+            'message_id' => $this->messageId,
+            'flow_stack' => $this->flowStack,
         ];
     }
 

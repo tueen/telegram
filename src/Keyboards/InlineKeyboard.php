@@ -73,6 +73,14 @@ class InlineKeyboard extends InlineKeyboardMarkup
     }
 
     /**
+     * Adds an action button (alias for callback).
+     */
+    public function action(string $text, string $action): self
+    {
+        return $this->callback($text, $action);
+    }
+
+    /**
      * Adds an HTTP/HTTPS URL button to the current row.
      */
     public function url(string $text, string $url): self

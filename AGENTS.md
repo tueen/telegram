@@ -28,10 +28,11 @@ tueen/telegram/
 │   │   └── ContextResolver.php        # Auto-injects default values from active Update
 │   ├── Config.php                     # Immutable client configuration
 │   ├── ConfigBuilder.php              # Fluent configuration builder
-│   ├── Running/                       # Running modes (WebhookMode, PollingMode)
+│   ├── Running/                       # Running modes (WebhookMode, PollingMode, AutoMode)
 │   │   ├── RunningModeInterface.php
 │   │   ├── WebhookMode.php            # Webhook runner (secret_token validation, safeResponse)
-│   │   └── PollingMode.php            # Long-polling runner (offset tracking, auto-backoff, forkProcess)
+│   │   ├── PollingMode.php            # Long-polling runner (offset tracking, auto-backoff, forkProcess)
+│   │   └── AutoMode.php               # Adaptive runner (switches CLI polling / HTTP webhook automatically)
 │   ├── Routing/                       # Update routing system & attribute controllers
 │   │   ├── Router.php                 # Route dispatcher & controller reflection
 │   │   ├── Route.php                  # Individual route matcher (commands, callbacks, regex, inline)

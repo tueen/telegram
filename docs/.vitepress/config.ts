@@ -21,7 +21,18 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
         { text: 'Running Modes', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
         { text: 'Update Routing & Attributes', link: `${basePath}routing` },
-        { text: 'Flows', link: `${basePath}flows` },
+      ]
+    },
+    {
+      text: 'Flow Ecosystem',
+      items: [
+        { text: 'Overview & Quickstart', link: `${basePath}flow/` },
+        { text: 'Conversational Flows', link: `${basePath}flow/conversational-flows` },
+        { text: 'Interactive Screens', link: `${basePath}flow/interactive-screens` },
+        { text: 'Lifecycle Hooks', link: `${basePath}flow/lifecycle-hooks` },
+        { text: 'Keyboards & Actions', link: `${basePath}flow/keyboards-and-actions` },
+        { text: 'Navigation & Stack', link: `${basePath}flow/navigation-and-stack` },
+        { text: 'State Storage', link: `${basePath}flow/state-storage` },
       ]
     },
     {

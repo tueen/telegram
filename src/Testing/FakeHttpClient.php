@@ -102,6 +102,11 @@ class FakeHttpClient implements HttpClientInterface
         ));
     }
 
+    public function hasSent(string $endpoint): bool
+    {
+        return !empty($this->recorded($endpoint));
+    }
+
     public function clear(): void
     {
         $this->recordedRequests = [];

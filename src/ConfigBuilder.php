@@ -10,7 +10,10 @@ use Throwable;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Exceptions\ApiException;
+use Tueen\Telegram\Running\AutoMode;
+use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\RunningModeInterface;
+use Tueen\Telegram\Running\WebhookMode;
 
 class ConfigBuilder
 {
@@ -29,6 +32,8 @@ class ConfigBuilder
     /** @var list<class-string<Throwable>> */
     private array $convertExceptionsToError = [ApiException::class];
     private ?RunningModeInterface $runningMode = null;
+    private ?PollingMode $configuredPollingMode = null;
+    private ?WebhookMode $configuredWebhookMode = null;
     private mixed $container = null;
 
     public function __construct(string $botToken = '')
@@ -190,6 +195,44 @@ class ConfigBuilder
     }
 
     #[\NoDiscard]
+    public function withPollingMode(PollingMode $mode): static
+    {
+        $this->configuredPollingMode = $mode;
+        $this->runningMode = $mode;
+        return $this;
+    }
+
+    #[\NoDiscard]
+    public function withWebhookMode(WebhookMode $mode): static
+    {
+        $this->configuredWebhookMode = $mode;
+        $this->runningMode = $mode;
+        return $this;
+    }
+
+    #[\NoDiscard]
+    public function withAutoMode(
+        ?PollingMode $polling = null,
+        ?WebhookMode $webhook = null,
+        bool $autoDeleteWebhook = false,
+        bool $dropPendingUpdatesOnDelete = false,
+        ?callable $detector = null
+    ): static {
+        $pollingMode = $polling ?? $this->configuredPollingMode ?? new PollingMode();
+        $webhookMode = $webhook ?? $this->configuredWebhookMode ?? new WebhookMode();
+
+        $this->runningMode = new AutoMode(
+            pollingMode: $pollingMode,
+            webhookMode: $webhookMode,
+            autoDeleteWebhook: $autoDeleteWebhook,
+            dropPendingUpdatesOnDelete: $dropPendingUpdatesOnDelete,
+            detector: $detector
+        );
+
+        return $this;
+    }
+
+    #[\NoDiscard]
     public function withContainer(mixed $container): static
     {
         $this->container = $container;
@@ -216,5 +259,23 @@ class ConfigBuilder
             runningMode: $this->runningMode,
             container: $this->container
         );
+    }
+
+    /**
+     * Builds and returns an instantiated Telegram client instance.
+     */
+    #[\NoDiscard]
+    public function client(): Telegram
+    {
+        return new Telegram($this->build());
+    }
+
+    /**
+     * Alias for client().
+     */
+    #[\NoDiscard]
+    public function make(): Telegram
+    {
+        return $this->client();
     }
 }
