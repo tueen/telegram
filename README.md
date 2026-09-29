@@ -7,7 +7,7 @@
 <h1 align="center">Tueen Telegram 👑</h1>
 
 <p align="center">
-  <strong>The Royal Telegram Bot Framework & API Client</strong><br>
+  <strong>The Royal Telegram Bot SDK for Modern PHP</strong><br>
   <em>Part of the Tueen ecosystem — "The Queen of Telegram"</em>
 </p>
 
@@ -19,7 +19,7 @@
 
 ---
 
-`tueen/telegram` is a high-performance, strictly-typed Telegram Bot framework and API client crafted for modern PHP (8.4+). Built with zero legacy overhead, it pairs complete Bot API coverage with declarative attribute routing, stateful conversation flows, an embedded real-time web dashboard, and royal developer ergonomics.
+`tueen/telegram` is a high-performance, strictly-typed Telegram Bot SDK crafted for modern PHP (8.4+). Built with zero legacy overhead, it pairs complete Bot API coverage with declarative attribute routing, stateful conversation flows, an embedded real-time web dashboard, and royal developer ergonomics.
 
 ---
 

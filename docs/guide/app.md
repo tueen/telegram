@@ -35,28 +35,34 @@ return [
 
 ### 2. `routes.php`
 
-Define your commands and message handlers:
+Define your commands and message handlers by returning a closure:
 
 ```php
 <?php
 
 declare(strict_types=1);
 
-use Tueen\Telegram\App;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
-/** @var App $app */
-/** @var Telegram $bot */
+return function (Telegram $bot): void {
+    $bot->onCommand('start', function (Update $update, Telegram $bot) {
+        $bot->sendMessage(text: "👑 Welcome to my royal Telegram Bot!");
+    });
 
-$app->onCommand('start', function (Update $update, Telegram $bot) {
-    $bot->sendMessage(text: "👑 Welcome to my royal Telegram Bot!");
-});
-
-$app->onMessage('ping', function (Update $update, Telegram $bot) {
-    $bot->sendMessage(text: "pong 🏓");
-});
+    $bot->onMessage('ping', function (Update $update, Telegram $bot) {
+        $bot->sendMessage(text: "pong 🏓");
+    });
+};
 ```
+
+::: tip Recommended Pattern: Closure-Based Routes
+Returning a closure `return function (Telegram $bot): void { ... };` is the recommended best practice:
+- **Direct Execution Safety:** If accessed directly via a web browser, it safely returns a closure without throwing fatal errors or executing side effects.
+- **Bot-First & Optional App:** `$bot` is the primary argument. If you also need access to the `App` orchestrator, simply add `?App $app = null` (or `App $app`) as the second argument (`return function (Telegram $bot, App $app): void`). Leaving it out causes no error.
+- **Native Type Safety:** Full IDE autocompletion and static analysis without needing `/** @var */` PHPDoc annotations.
+- **Scope Isolation:** Avoids polluting any global or calling scope.
+:::
 
 ### 3. `index.php`
 

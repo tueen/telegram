@@ -24,7 +24,7 @@ use Tueen\Telegram\Running\WebhookMode;
  * Provides effortless zero-config project setup, auto environment detection,
  * file-based flow storage defaults, route loading, and web setup wizard.
  *
- * @mixin \Tueen\Telegram\Contracts\TelegramMethods
+ * @mixin \Tueen\Telegram\Telegram
  */
 class App
 {
@@ -208,12 +208,20 @@ class App
     {
         $routesPath = $this->config['routes'] ?? ($this->basePath . '/routes.php');
         if (file_exists($routesPath)) {
-            $callback = (function (App $app, Telegram $bot) use ($routesPath) {
+            $callback = (function (Telegram $bot, App $app) use ($routesPath) {
                 return require $routesPath;
-            })($this, $this->bot);
+            })($this->bot, $this);
 
             if (is_callable($callback)) {
-                $callback($this, $this->bot);
+                $ref = new \ReflectionFunction(\Closure::fromCallable($callback));
+                $firstParam = $ref->getParameters()[0] ?? null;
+                $firstType = $firstParam?->getType();
+
+                if ($firstType instanceof \ReflectionNamedType && $firstType->getName() === App::class) {
+                    $callback($this, $this->bot);
+                } else {
+                    $callback($this->bot, $this);
+                }
             }
         }
 
@@ -369,114 +377,16 @@ class App
         return $this->bot->flowManager();
     }
 
-    public function onCommand(string $command, mixed $handler): static
-    {
-        $this->bot->onCommand($command, $handler);
-        return $this;
-    }
-
-    public function onCallbackQuery(?string $pattern, mixed $handler): static
-    {
-        $this->bot->onCallbackQuery($pattern, $handler);
-        return $this;
-    }
-
-    public function onMessage(?string $pattern, mixed $handler): static
-    {
-        $this->bot->onMessage($pattern, $handler);
-        return $this;
-    }
-
-    public function onInlineQuery(?string $pattern, mixed $handler): static
-    {
-        $this->bot->onInlineQuery($pattern, $handler);
-        return $this;
-    }
-
-    public function on(string|\Tueen\Telegram\Enums\UpdateType $type, mixed $handler): static
-    {
-        $this->bot->on($type, $handler);
-        return $this;
-    }
-
-    public function onFallback(mixed $handler): static
-    {
-        $this->bot->onFallback($handler);
-        return $this;
-    }
-
-    public function registerController(string|object $controller): static
-    {
-        $this->bot->registerController($controller);
-        return $this;
-    }
-
-    public function handle(mixed ...$handlers): static
-    {
-        $this->bot->handle(...$handlers);
-        return $this;
-    }
-
-    public function use(callable $middleware): static
-    {
-        $this->bot->use($middleware);
-        return $this;
-    }
-
-    public function middleware(callable $middleware): static
-    {
-        $this->bot->middleware($middleware);
-        return $this;
-    }
-
-    public function pipe(MiddlewareInterface|Closure $middleware): static
-    {
-        $this->bot->pipe($middleware);
-        return $this;
-    }
-
-    /**
-     * Registers an update exception handler.
-     *
-     * Usage:
-     * $app->catch(function (\Throwable $e, Update $update, Telegram $bot) { ... });
-     * $app->catch(MyException::class, function (MyException $e, Update $update, Telegram $bot) { ... });
-     *
-     * @param class-string<\Throwable>|callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed $exceptionOrHandler
-     * @param (callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed)|null $handler
-     */
-    public function catch(string|callable $exceptionOrHandler, ?callable $handler = null): static
-    {
-        $this->bot->catch($exceptionOrHandler, $handler);
-        return $this;
-    }
-
-    /**
-     * Alias for catch() with universal \Throwable handler.
-     *
-     * @param callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed $handler
-     */
-    public function onUpdateError(callable $handler): static
-    {
-        $this->bot->onUpdateError($handler);
-        return $this;
-    }
-
-    /**
-     * Quick reply helper to send a text message to the active chat in context.
-     *
-     * @param string|\Tueen\Telegram\Formatting\Text $text
-     */
-    public function reply(string|\Tueen\Telegram\Formatting\Text $text, mixed ...$args): mixed
-    {
-        return $this->bot->reply($text, ...$args);
-    }
-
     /**
      * Dynamically proxies method calls to the underlying Telegram client.
+     *
+     * Fluent methods that return the Telegram client instance are transparently
+     * chained to return this App instance instead.
      */
     public function __call(string $name, array $arguments): mixed
     {
-        return $this->bot->$name(...$arguments);
+        $result = $this->bot->$name(...$arguments);
+
+        return $result === $this->bot ? $this : $result;
     }
 }

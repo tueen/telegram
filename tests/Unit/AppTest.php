@@ -195,12 +195,83 @@ PHP;
     {
         $app = App::create($this->tempDir, ['token' => 'TEST_TOKEN']);
 
-        $app->onMessage('hello', fn() => 'world');
+        // Verify fluent chaining on $app returns $app instance
+        $chained = $app->onCommand('start', fn() => 'start')
+            ->onMessage('hello', fn() => 'world')
+            ->onCallbackQuery('btn', fn() => 'clicked');
+
+        $this->assertSame($app, $chained);
         $this->assertTrue($app->router()->hasRoutes());
 
         $this->assertInstanceOf(\Tueen\Telegram\Routing\Router::class, $app->router());
         $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $app->flowManager());
         $this->assertInstanceOf(Telegram::class, $app->getBot());
+    }
+
+    public function testRoutesWithBotOnlyParameter(): void
+    {
+        $routesPath = $this->tempDir . '/routes.php';
+        $routesCode = <<<'PHP'
+<?php
+
+use Tueen\Telegram\Telegram;
+
+return function (Telegram $bot): void {
+    $bot->onCommand('bot_only', fn() => 'BOT_ONLY_SUCCESS');
+};
+PHP;
+        file_put_contents($routesPath, $routesCode);
+
+        $app = App::create($this->tempDir, ['token' => 'TEST_TOKEN']);
+        $this->assertTrue($app->router()->hasRoutes());
+
+        $update = new Update([
+            'update_id' => 300,
+            'message' => [
+                'message_id' => 301,
+                'date' => time(),
+                'text' => '/bot_only',
+                'chat' => ['id' => 456, 'type' => 'private'],
+                'from' => ['id' => 456, 'first_name' => 'Bob', 'is_bot' => false],
+            ],
+        ]);
+
+        $res = $app->router()->dispatch($update, $app->bot());
+        $this->assertSame('BOT_ONLY_SUCCESS', $res);
+    }
+
+    public function testRoutesWithBotAndAppParameters(): void
+    {
+        $routesPath = $this->tempDir . '/routes.php';
+        $routesCode = <<<'PHP'
+<?php
+
+use Tueen\Telegram\App;
+use Tueen\Telegram\Telegram;
+
+return function (Telegram $bot, App $app): void {
+    $bot->onCommand('bot_and_app', function ($update, $bot) use ($app) {
+        return 'BASE:' . basename($app->basePath);
+    });
+};
+PHP;
+        file_put_contents($routesPath, $routesCode);
+
+        $app = App::create($this->tempDir, ['token' => 'TEST_TOKEN']);
+
+        $update = new Update([
+            'update_id' => 400,
+            'message' => [
+                'message_id' => 401,
+                'date' => time(),
+                'text' => '/bot_and_app',
+                'chat' => ['id' => 456, 'type' => 'private'],
+                'from' => ['id' => 456, 'first_name' => 'Bob', 'is_bot' => false],
+            ],
+        ]);
+
+        $res = $app->router()->dispatch($update, $app->bot());
+        $this->assertSame('BASE:' . basename($this->tempDir), $res);
     }
 
     public function testCliExecutionHelpCommand(): void

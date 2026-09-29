@@ -1,6 +1,6 @@
 # AGENTS.md - Developer & Agent Guide for `tueen/telegram`
 
-Welcome to `tueen/telegram` — **The Royal Telegram Bot API Client for Tueen**, a proud cornerstone of the **Tueen Ecosystem** (*"The Queen of Telegram"*).
+Welcome to `tueen/telegram` — **The Royal Telegram Bot SDK for Modern PHP**, a proud cornerstone of the **Tueen Ecosystem** (*"The Queen of Telegram"*).
 
 This file serves as the **Master Architectural Reference and Sitemap** for AI agents and human contributors. Detailed coding standards and domain procedures are organized into specialized skills within [`.agents/skills/`](./.agents/skills/) and rules within [`.agents/rules/`](./.agents/rules/).
 
@@ -9,7 +9,7 @@ This file serves as the **Master Architectural Reference and Sitemap** for AI ag
 ## 👑 1. Library Identity & Mission
 
 - **Package Name:** `tueen/telegram`
-- **Slogan:** *The Royal Telegram Bot API Client for Tueen*
+- **Slogan:** *The Royal Telegram Bot SDK for Modern PHP*
 - **Target Runtime:** PHP 8.4+ (strict types, property hooks, asymmetric visibility, modern pipeline pattern, compatible with PHP 8.5+ enhancements).
 - **Coverage:** Complete Telegram Bot API 10.3 (all 185 methods, 400 types, and property enums).
 - **Bot API Version Constant:** `Telegram::BOT_API_VERSION` (alias `Telegram::API_VERSION`).

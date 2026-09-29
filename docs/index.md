@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Tueen Telegram"
-  text: "The Royal Telegram Bot Framework"
-  tagline: "Declarative, stateful, and crafted for modern PHP."
+  text: "The Royal Telegram Bot SDK for Modern PHP"
+  tagline: "Declarative, stateful, and resilient."
   image:
     src: /icon.png
     alt: Tueen Telegram Logo

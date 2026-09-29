@@ -252,7 +252,7 @@ PHP;
                         <div class="logo">👑</div>
                         <div>
                             <h1 class="title">Tueen Telegram</h1>
-                            <p class="subtitle">The Royal Telegram Bot Client • Bot API v<?= Telegram::BOT_API_VERSION ?></p>
+                            <p class="subtitle">The Royal Telegram Bot SDK • Bot API v<?= Telegram::BOT_API_VERSION ?></p>
                         </div>
                     </div>
                     <div>
@@ -476,7 +476,7 @@ PHP;
                 <?php endif; ?>
 
                 <div class="footer">
-                    Powered by <strong style="color: #f1f5f9;">Tueen Telegram</strong> • Slogan: <em>"The Royal Telegram Bot Client"</em>
+                    Powered by <strong style="color: #f1f5f9;">Tueen Telegram</strong> • Slogan: <em>"The Royal Telegram Bot SDK for Modern PHP"</em>
                 </div>
             </div>
 

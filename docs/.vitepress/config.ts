@@ -12,14 +12,14 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       text: 'Getting Started',
       items: [
         { text: 'Introduction & Setup', link: `${basePath}getting-started` },
-        { text: 'App Orchestrator', link: `${basePath}app` },
         { text: 'Configuration', link: `${basePath}configuration` },
+        { text: 'Running Modes', link: `${basePath}running-modes` },
+        { text: 'App Orchestrator', link: `${basePath}app` },
       ]
     },
     {
-      text: 'Updates & Running Modes',
+      text: 'Update Handling',
       items: [
-        { text: 'Running Modes', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
         { text: 'Update Routing & Attributes', link: `${basePath}routing` },
       ]
@@ -82,7 +82,7 @@ const base = process.env.VITEPRESS_BASE ?? (process.env.GITHUB_ACTIONS && !hasCu
 export default defineConfig({
   base,
   title: "Tueen Telegram",
-  description: "The Royal Telegram Bot Framework & API Client for Tueen",
+  description: "The Royal Telegram Bot SDK for Modern PHP",
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: `${base.replace(/\/$/, '')}/icon.png` }]
   ],

@@ -110,13 +110,15 @@ const frozenSidebar = [
     items: [
       { text: 'Introduction & Setup', link: `${versionPrefix}getting-started` },
       { text: 'Configuration', link: `${versionPrefix}configuration` },
+      { text: 'Running Modes', link: `${versionPrefix}running-modes` },
+      { text: 'App Orchestrator', link: `${versionPrefix}app` },
     ]
   },
   {
-    text: 'Updates & Running Modes',
+    text: 'Update Handling',
     items: [
-      { text: 'Running Modes (Webhook & Polling)', link: `${versionPrefix}running-modes` },
       { text: 'Update & Message Helpers', link: `${versionPrefix}update-and-message-helpers` },
+      { text: 'Update Routing & Attributes', link: `${versionPrefix}routing` },
     ]
   },
   {

@@ -1,6 +1,6 @@
 {
     "name": "tueen/telegram",
-    "description": "The Royal Telegram Bot Framework for modern PHP — declarative, stateful, and resilient.",
+    "description": "The Royal Telegram Bot SDK for Modern PHP — declarative, stateful, and resilient.",
     "type": "library",
     "license": "MIT",
     "keywords": ["telegram", "telegram-bot", "telegram-bot-api", "bot-api", "bot-framework", "bot", "tueen", "sdk", "api-client", "conversation-flows", "dashboard"],
