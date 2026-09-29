@@ -217,3 +217,62 @@ $bot->onResponse(function (Type $result, Request $request) {
     // Inspect the resulting Type or Error instance
 });
 ```
+
+---
+
+## 8. Incoming Update Error Handling (`catch` & `onUpdateError`)
+
+When handling incoming updates (in controllers, routes, conversation flows, or update handlers), uncaught exceptions can disrupt update dispatching if not handled. `tueen/telegram` provides first-class, bulletproof update exception handling:
+
+### Universal Catch
+
+Catches any `\Throwable` thrown during the processing of an incoming update:
+
+```php
+$bot->catch(function (Throwable $e, Update $update, Telegram $bot) {
+    // 1. Log or report to monitoring service
+    error_log("[Update {$update->updateId} Failed]: " . $e->getMessage());
+
+    // 2. Safely reply to the user using contextual chatId
+    $bot->reply('⚠️ An unexpected error occurred while processing your request.');
+});
+```
+
+> [!TIP]
+> You can also use `$bot->onUpdateError(...)` or `$app->catch(...)` as an identical fluent alias.
+
+### Typed Catch (Specific Exception Filtering)
+
+You can register granular error handlers for specific exception classes. Any unmatched exceptions will cascade to subsequent handlers or default logging:
+
+```php
+// Handles database query failures
+$bot->catch(DatabaseException::class, function (DatabaseException $e, Update $update, Telegram $bot) {
+    $bot->reply('Database temporarily unavailable. Please try again shortly.');
+});
+
+// Handles payment or order domain exceptions
+$bot->catch(OrderExpiredException::class, function (OrderExpiredException $e, Update $update, Telegram $bot) {
+    $bot->reply('Your order has expired. Please restart the checkout.');
+});
+
+// Fallback universal catch
+$bot->catch(function (Throwable $e, Update $update, Telegram $bot) {
+    $bot->reply('Something went wrong.');
+});
+```
+
+### Quick Reply Helper (`$bot->reply`)
+
+Inside any update handler or error handler, `$bot->reply($text, ...)` automatically resolves the active `chat_id` from the contextual update:
+
+```php
+// Automatically sends to current chat without manually extracting chatId
+$bot->reply('Hello from Tueen!');
+
+// Accepts formatted Text, keyboards, and extra API parameters
+$bot->reply(
+    text: Text::bold('Notice: ') . 'Service updated.',
+    replyMarkup: InlineKeyboard::make()->url('Support', 'https://example.com/support')
+);
+```

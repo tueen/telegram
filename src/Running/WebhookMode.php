@@ -16,7 +16,8 @@ class WebhookMode implements RunningModeInterface
     public function __construct(
         private ?string $secretToken = null,
         private ?string $rawInput = null,
-        private ?array $headers = null
+        private ?array $headers = null,
+        private bool $safeExceptions = true
     ) {}
 
     /**
@@ -47,6 +48,23 @@ class WebhookMode implements RunningModeInterface
     {
         $this->headers = $headers;
         return $this;
+    }
+
+    public function setSafeExceptions(bool $safeExceptions): static
+    {
+        $this->safeExceptions = $safeExceptions;
+        return $this;
+    }
+
+    public function safeExceptions(bool $enable = true): static
+    {
+        $this->safeExceptions = $enable;
+        return $this;
+    }
+
+    public function isSafeExceptions(): bool
+    {
+        return $this->safeExceptions;
     }
 
     /**
@@ -88,7 +106,19 @@ class WebhookMode implements RunningModeInterface
         $bot->setUpdate($update);
 
         if ($handler !== null) {
-            $handler($update);
+            try {
+                $handler($update);
+            } catch (\Throwable $e) {
+                if ($this->safeExceptions) {
+                    $this->safeResponse();
+                    if ($bot->getConfig()->logger !== null) {
+                        $bot->getConfig()->logger->error("Webhook update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
+                    }
+                    return $update;
+                }
+
+                throw $e;
+            }
         }
 
         return $update;
@@ -140,7 +170,17 @@ class WebhookMode implements RunningModeInterface
         $this->rawInput = (string)$request->getBody();
         $this->headers = $request->getHeaders();
 
-        $bot->run(...$handlers);
+        try {
+            $bot->run(...$handlers);
+        } catch (\Throwable $e) {
+            if ($this->safeExceptions) {
+                if ($bot->getConfig()->logger !== null) {
+                    $bot->getConfig()->logger->error("Webhook PSR-7 update failed: " . $e->getMessage(), ['exception' => $e]);
+                }
+            } else {
+                throw $e;
+            }
+        }
 
         return new Psr7Response(
             status: 200,

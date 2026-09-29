@@ -26,7 +26,8 @@ class PollingMode implements RunningModeInterface
         private int $errorBackoffSeconds = 2,
         private bool $forkProcess = false,
         ?callable $processDispatcher = null,
-        private int $maxForkWorkers = 16
+        private int $maxForkWorkers = 16,
+        private bool $stopOnError = false
     ) {
         if ($processDispatcher !== null) {
             $this->processDispatcher = $processDispatcher(...);
@@ -100,6 +101,23 @@ class PollingMode implements RunningModeInterface
         return $this->processDispatcher;
     }
 
+    public function setStopOnError(bool $stopOnError): static
+    {
+        $this->stopOnError = $stopOnError;
+        return $this;
+    }
+
+    public function stopOnError(bool $enable = true): static
+    {
+        $this->stopOnError = $enable;
+        return $this;
+    }
+
+    public function isStopOnError(): bool
+    {
+        return $this->stopOnError;
+    }
+
     /**
      * Returns the first update of a batch, or null if empty.
      */
@@ -169,12 +187,22 @@ class PollingMode implements RunningModeInterface
 
                     $this->offset = max($this->offset, $update->updateId + 1);
 
-                    if ($this->processDispatcher !== null) {
-                        ($this->processDispatcher)($update, $bot, fn() => $this->dispatchUpdate($bot, $update, $handler));
-                    } elseif ($this->forkProcess) {
-                        $this->forkAndDispatch($bot, $update, $handler);
-                    } else {
-                        $this->dispatchUpdate($bot, $update, $handler);
+                    try {
+                        if ($this->processDispatcher !== null) {
+                            ($this->processDispatcher)($update, $bot, fn() => $this->dispatchUpdate($bot, $update, $handler));
+                        } elseif ($this->forkProcess) {
+                            $this->forkAndDispatch($bot, $update, $handler);
+                        } else {
+                            $this->dispatchUpdate($bot, $update, $handler);
+                        }
+                    } catch (\Throwable $e) {
+                        if ($this->stopOnError) {
+                            throw $e;
+                        }
+
+                        if ($bot->getConfig()->logger !== null) {
+                            $bot->getConfig()->logger->error("Polling update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
+                        }
                     }
 
                     if ($this->stopped) {

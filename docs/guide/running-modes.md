@@ -250,8 +250,9 @@ $polling->setProcessDispatcher(function (Update $update, Telegram $bot, callable
 
 ### Features of `PollingMode`:
 1. **Automatic Offset Advancement:** Tracks `update_id + 1` automatically so updates are never processed twice.
-2. **Resilience & Backoff:** Automatically handles transient network interruptions with a configurable cooldown (`errorBackoffSeconds`).
-3. **Graceful Shutdown:** You can call `$polling->stop()` from a signal handler (e.g. `SIGINT` / `SIGTERM`) to cleanly exit the polling loop.
+2. **Per-Update Isolation & Resilience:** If a single update in a batch throws an uncaught exception, `PollingMode` logs the error, safely advances the offset, and continues processing remaining updates in the batch without crashing the long-polling daemon (configurable via `stopOnError(bool)`).
+3. **Resilience & Backoff:** Automatically handles transient network interruptions with a configurable cooldown (`errorBackoffSeconds`).
+4. **Graceful Shutdown:** You can call `$polling->stop()` from a signal handler (e.g. `SIGINT` / `SIGTERM`) to cleanly exit the polling loop.
 
 ### Manual Generator Iteration
 If you prefer standard PHP `foreach` iteration:

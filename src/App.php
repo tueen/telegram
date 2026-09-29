@@ -436,6 +436,43 @@ class App
     }
 
     /**
+     * Registers an update exception handler.
+     *
+     * Usage:
+     * $app->catch(function (\Throwable $e, Update $update, Telegram $bot) { ... });
+     * $app->catch(MyException::class, function (MyException $e, Update $update, Telegram $bot) { ... });
+     *
+     * @param class-string<\Throwable>|callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed $exceptionOrHandler
+     * @param (callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed)|null $handler
+     */
+    public function catch(string|callable $exceptionOrHandler, ?callable $handler = null): static
+    {
+        $this->bot->catch($exceptionOrHandler, $handler);
+        return $this;
+    }
+
+    /**
+     * Alias for catch() with universal \Throwable handler.
+     *
+     * @param callable(\Throwable, \Tueen\Telegram\Types\Update, Telegram): mixed $handler
+     */
+    public function onUpdateError(callable $handler): static
+    {
+        $this->bot->onUpdateError($handler);
+        return $this;
+    }
+
+    /**
+     * Quick reply helper to send a text message to the active chat in context.
+     *
+     * @param string|\Tueen\Telegram\Formatting\Text $text
+     */
+    public function reply(string|\Tueen\Telegram\Formatting\Text $text, mixed ...$args): mixed
+    {
+        return $this->bot->reply($text, ...$args);
+    }
+
+    /**
      * Dynamically proxies method calls to the underlying Telegram client.
      */
     public function __call(string $name, array $arguments): mixed

@@ -91,6 +91,9 @@ class Telegram
     /** @var list<callable> */
     private array $updateMiddlewares = [];
 
+    /** @var list<array{type: class-string<\Throwable>|null, handler: callable}> */
+    private array $updateExceptionHandlers = [];
+
     public function __construct(string|Config $tokenOrConfig)
     {
         if (is_string($tokenOrConfig)) {
@@ -182,6 +185,79 @@ class Telegram
     {
         $this->responseHooks[] = $callback;
         return $this;
+    }
+
+    /**
+     * Registers an exception handler for incoming update processing errors.
+     *
+     * Usage:
+     * 1. Universal catch:
+     *    $bot->catch(function (\Throwable $e, Update $update, Telegram $bot) { ... });
+     * 2. Type-specific catch:
+     *    $bot->catch(SpecificException::class, function (SpecificException $e, Update $update, Telegram $bot) { ... });
+     *
+     * @param class-string<\Throwable>|callable(\Throwable, Update, Telegram): mixed $exceptionOrHandler
+     * @param (callable(\Throwable, Update, Telegram): mixed)|null $handler
+     */
+    public function catch(string|callable $exceptionOrHandler, ?callable $handler = null): static
+    {
+        if (is_callable($exceptionOrHandler) && $handler === null) {
+            $this->updateExceptionHandlers[] = [
+                'type' => null,
+                'handler' => $exceptionOrHandler,
+            ];
+            return $this;
+        }
+
+        if (is_string($exceptionOrHandler) && $handler !== null) {
+            $this->updateExceptionHandlers[] = [
+                'type' => $exceptionOrHandler,
+                'handler' => $handler,
+            ];
+            return $this;
+        }
+
+        throw new \InvalidArgumentException("Invalid catch handler signature. Provide either a callable or an exception class string and callable.");
+    }
+
+    /**
+     * Alias for catch() with universal \Throwable handler.
+     *
+     * @param callable(\Throwable, Update, Telegram): mixed $handler
+     */
+    public function onUpdateError(callable $handler): static
+    {
+        return $this->catch($handler);
+    }
+
+    /**
+     * Handles an exception thrown during incoming update processing.
+     *
+     * @return bool True if the exception was handled by at least one handler, false otherwise.
+     */
+    public function handleUpdateException(\Throwable $e, Update $update): bool
+    {
+        $handled = false;
+
+        foreach ($this->updateExceptionHandlers as $item) {
+            $type = $item['type'];
+            $handler = $item['handler'];
+
+            if ($type === null || $e instanceof $type) {
+                $handler($e, $update, $this);
+                $handled = true;
+            }
+        }
+
+        if (!$handled && $this->config->logger !== null) {
+            $this->config->logger->error("Uncaught update processing exception: " . $e->getMessage(), [
+                'exception' => $e,
+                'update_id' => $update->updateId,
+                'update_type' => $update->type->value,
+            ]);
+        }
+
+        return $handled;
     }
 
     /**
@@ -673,6 +749,25 @@ class Telegram
     }
 
     /**
+     * Quick reply helper to send a text message to the active chat in context.
+     *
+     * @param string|\Tueen\Telegram\Formatting\Text $text
+     */
+    public function reply(string|\Tueen\Telegram\Formatting\Text $text, mixed ...$args): mixed
+    {
+        $params = ['text' => $text];
+        foreach ($args as $k => $v) {
+            if (is_array($v) && is_int($k)) {
+                $params = array_merge($params, $v);
+            } else {
+                $params[$k] = $v;
+            }
+        }
+
+        return $this->sendMessage($params);
+    }
+
+    /**
      * Binds a custom default resolver callback for a parameter name.
      */
     public function bindDefault(string $param, callable $resolver): static
@@ -967,19 +1062,27 @@ class Telegram
         $dispatcher = function (Update $update) use ($coreDispatcher): mixed {
             $this->setUpdate($update);
 
-            if (empty($this->updateMiddlewares)) {
-                return $coreDispatcher($update);
+            try {
+                if (empty($this->updateMiddlewares)) {
+                    return $coreDispatcher($update);
+                }
+
+                $pipeline = array_reduce(
+                    array_reverse($this->updateMiddlewares),
+                    function (callable $next, callable $middleware) {
+                        return fn(Update $up, Telegram $bot) => $middleware($up, $bot, $next);
+                    },
+                    fn(Update $up, Telegram $bot) => $coreDispatcher($up)
+                );
+
+                return $pipeline($update, $this);
+            } catch (\Throwable $e) {
+                if ($this->handleUpdateException($e, $update)) {
+                    return null;
+                }
+
+                throw $e;
             }
-
-            $pipeline = array_reduce(
-                array_reverse($this->updateMiddlewares),
-                function (callable $next, callable $middleware) {
-                    return fn(Update $up, Telegram $bot) => $middleware($up, $bot, $next);
-                },
-                fn(Update $up, Telegram $bot) => $coreDispatcher($up)
-            );
-
-            return $pipeline($update, $this);
         };
 
         return $this->getRunningMode()->processUpdate($this, (!empty($allHandlers) || !empty($this->updateMiddlewares)) ? $dispatcher : null);

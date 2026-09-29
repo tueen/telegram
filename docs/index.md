@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "Tueen Telegram"
-  text: "The Royal Telegram Bot API Client"
-  tagline: "Strictly typed, forward-compatible, and crafted for modern PHP."
+  text: "The Royal Telegram Bot Framework"
+  tagline: "Declarative, stateful, and crafted for modern PHP."
   image:
     src: /icon.png
     alt: Tueen Telegram Logo
@@ -17,30 +17,30 @@ hero:
       link: https://github.com/tueen/telegram
 
 features:
-  - icon: 👑
-    title: Modern PHP Architecture
-    details: 100% strict typing, property hooks, asymmetric visibility (private(set)), and bulletproof forward compatibility for unknown fields.
+  - icon: 🚀
+    title: Zero-Config App & Dashboard
+    details: Instant bot boot with App::run(), auto-detecting runners, CLI toolkit, and a built-in real-time Web Dashboard for webhook inspection.
   - icon: 🧭
-    title: Attribute Routing & Dispatcher
+    title: Attribute Routing & Controllers
     details: Declarative update dispatching via #[OnCommand], #[OnCallbackQuery], regex matchers, and organized controller classes.
   - icon: 💬
     title: Conversation Flows & State
     details: Stateful multi-step user dialogues with step navigation (to, stay, back, finish) and pluggable state storage drivers.
+  - icon: 👑
+    title: Modern PHP 8.4+ Architecture
+    details: 100% strict typing, property hooks, asymmetric visibility (private(set)), and bulletproof forward compatibility for unknown fields.
+  - icon: 🔄
+    title: Adaptive Running Modes
+    details: Seamless switching between WebhookMode (with secret token & safeResponse), PollingMode, and adaptive AutoMode.
   - icon: ⌨️
     title: Fluent Keyboards & Formatting
     details: Expressive builders for Inline and Reply keyboards, alongside Telegram spec-compliant HTML and MarkdownV2 text escaping.
-  - icon: 🔄
-    title: Flexible Running Modes
-    details: Production-ready WebhookMode with secret token validation and safeResponse, plus robust PollingMode with auto-backoff.
-  - icon: 🎯
-    title: Smart Helpers & Context
-    details: Instant type detection via $update->type, argument parsing, model extractors, and contextual chat/user ID resolution.
-  - icon: 🛡️
-    title: Dual Error Handling & ok()
-    details: Universal ok() checks across all response types. Choose seamlessly between traditional exceptions or typed Error objects.
   - icon: 🔌
     title: Resilient Pipeline Middleware
     details: Extensible onion architecture featuring token-bucket rate limiting, automatic 429 flood-wait pacing, and PSR-3 logging.
+  - icon: 🎯
+    title: Smart Helpers & Context
+    details: Instant type detection via $update->type, argument parsing, model extractors, and contextual chat/user ID resolution.
   - icon: 🧪
     title: Testing & In-Memory Fakes
     details: Test your bots with zero HTTP calls using TelegramFake, pre-configured stubs, and expressive assertions like assertSent.

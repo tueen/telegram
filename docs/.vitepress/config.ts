@@ -82,7 +82,7 @@ const base = process.env.VITEPRESS_BASE ?? (process.env.GITHUB_ACTIONS && !hasCu
 export default defineConfig({
   base,
   title: "Tueen Telegram",
-  description: "The Royal Telegram Bot API Client for Tueen",
+  description: "The Royal Telegram Bot Framework & API Client for Tueen",
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: `${base.replace(/\/$/, '')}/icon.png` }]
   ],

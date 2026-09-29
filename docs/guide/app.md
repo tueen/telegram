@@ -238,3 +238,24 @@ It verifies:
 - Telegram Bot API server reachability and latency.
 - Webhook URL HTTPS compliance.
 
+---
+
+## 🛡️ Update Error Handling & Quick Replies
+
+You can register global exception handlers directly on `$app`:
+
+```php
+// In routes.php or index.php:
+$app->catch(function (Throwable $e, Update $update, Telegram $bot) {
+    error_log("Update error: " . $e->getMessage());
+    $app->reply('⚠️ An unexpected error occurred. Please try again later.');
+});
+
+// Or catch specific exception types:
+$app->catch(DatabaseException::class, function ($e, $update, $bot) use ($app) {
+    $app->reply('Database connection error. Admin notified.');
+});
+```
+
+The `$app->reply($text, ...)` helper automatically resolves the active chat from context and dispatches `sendMessage` without requiring you to manually resolve chat IDs.
+
