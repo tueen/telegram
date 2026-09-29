@@ -206,6 +206,30 @@ class RoutingTest extends TestCase
 
         $this->assertTrue($called);
     }
+
+    public function testChannelPostAndBusinessMessagePatternMatching(): void
+    {
+        $bot = new Telegram('TEST_TOKEN');
+        $router = new Router();
+        $matched = false;
+
+        $router->on('channel_post', function (Update $u) use (&$matched) {
+            $matched = true;
+        });
+
+        $channelUpdate = new Update([
+            'update_id' => 60,
+            'channel_post' => [
+                'message_id' => 60,
+                'date' => 1700000000,
+                'text' => 'News broadcast',
+                'chat' => ['id' => -1001234567, 'type' => 'channel', 'title' => 'My Channel'],
+            ],
+        ]);
+
+        $router->dispatch($channelUpdate, $bot);
+        $this->assertTrue($matched);
+    }
 }
 
 class TestSampleController

@@ -209,7 +209,15 @@ class PollingMode implements RunningModeInterface
                         break 2;
                     }
                 }
-            } catch (TelegramException $e) {
+            } catch (\Throwable $e) {
+                if ($this->stopOnError) {
+                    throw $e;
+                }
+
+                if ($bot->getConfig()->logger !== null) {
+                    $bot->getConfig()->logger->error("Polling request failed: " . $e->getMessage(), ['exception' => $e]);
+                }
+
                 if ($this->errorBackoffSeconds > 0) {
                     sleep($this->errorBackoffSeconds);
                 }

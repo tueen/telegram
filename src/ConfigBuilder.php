@@ -299,7 +299,9 @@ class ConfigBuilder
     }
 
     /**
-     * Alias for client().
+     * Shorthand alias for {@see client()}.
+     *
+     * @see client()
      */
     #[\NoDiscard]
     public function make(): Telegram

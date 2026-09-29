@@ -60,6 +60,7 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       text: 'Getting Started',
       items: [
         { text: 'Introduction & Setup', link: `${basePath}getting-started` },
+        { text: 'Telegram Client Facade', link: `${basePath}telegram-facade` },
         { text: 'Configuration', link: `${basePath}configuration` },
         { text: 'Running Modes', link: `${basePath}running-modes` },
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },

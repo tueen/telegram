@@ -42,6 +42,8 @@ class WebDashboard
 
             if (empty($token)) {
                 $error = 'Bot token cannot be empty.';
+            } elseif (!preg_match('/^\d{5,16}:[A-Za-z0-9_-]{30,}$/', $token)) {
+                $error = 'Invalid Telegram bot token format. Bot tokens must match <id>:<secret>.';
             } else {
                 try {
                     $testBot = new Telegram($token);
@@ -115,22 +117,36 @@ class WebDashboard
     private function isAuthorized(): bool
     {
         $password = $this->app->config['setup']['password'] ?? null;
-        if (empty($password)) {
+
+        // If password is configured, require authentication
+        if (!empty($password)) {
+            if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+                @session_start();
+            }
+
+            if (isset($_POST['dashboard_password'])) {
+                if (hash_equals((string)$password, (string)$_POST['dashboard_password'])) {
+                    $_SESSION['tueen_dashboard_auth'] = true;
+                    return true;
+                }
+            }
+
+            return !empty($_SESSION['tueen_dashboard_auth']);
+        }
+
+        // If no password configured: allow only on local loopback / private IP,
+        // or if explicitly permitted via config
+        if (!empty($this->app->config['setup']['allow_unauthenticated'])) {
             return true;
         }
 
-        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-            @session_start();
-        }
+        $remote = $_SERVER['REMOTE_ADDR'] ?? '';
+        $isLocal = in_array($remote, ['127.0.0.1', '::1', 'localhost', ''], true)
+            || str_starts_with($remote, '192.168.')
+            || str_starts_with($remote, '10.')
+            || str_starts_with($remote, '172.');
 
-        if (isset($_POST['dashboard_password'])) {
-            if (hash_equals((string)$password, (string)$_POST['dashboard_password'])) {
-                $_SESSION['tueen_dashboard_auth'] = true;
-                return true;
-            }
-        }
-
-        return !empty($_SESSION['tueen_dashboard_auth']);
+        return $isLocal;
     }
 
     /**
@@ -138,10 +154,15 @@ class WebDashboard
      */
     private function saveConfig(string $token, ?string $secret, ?string $webhookUrl): bool
     {
+        if (!preg_match('/^\d{5,16}:[A-Za-z0-9_-]{30,}$/', $token)) {
+            throw new \InvalidArgumentException("Invalid bot token format. Telegram tokens must match <id>:<secret>.");
+        }
+
         $configFile = $this->app->basePath . '/config.php';
 
-        $secretExport = $secret !== null ? "'" . addslashes($secret) . "'" : 'null';
-        $urlExport = $webhookUrl !== null ? "'" . addslashes($webhookUrl) . "'" : 'null';
+        $tokenExport = var_export($token, true);
+        $secretExport = var_export($secret, true);
+        $urlExport = var_export($webhookUrl, true);
 
         $content = <<<PHP
 <?php
@@ -149,7 +170,7 @@ class WebDashboard
 declare(strict_types=1);
 
 return [
-    'token' => '{$token}',
+    'token' => {$tokenExport},
     'secret_token' => {$secretExport},
     'webhook_url' => {$urlExport},
     'mode' => 'auto',

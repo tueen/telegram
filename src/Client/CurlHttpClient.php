@@ -44,8 +44,10 @@ class CurlHttpClient implements HttpClientInterface
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, (int)($config->timeout * 1000));
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, (int)($config->connectTimeout * 1000));
+        $timeout = $request->timeout ?? $config->timeout;
+        $connectTimeout = $request->connectTimeout ?? $config->connectTimeout;
+        curl_setopt($ch, CURLOPT_TIMEOUT_MS, (int)($timeout * 1000));
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT_MS, (int)($connectTimeout * 1000));
 
         if ($config->proxy !== null) {
             curl_setopt($ch, CURLOPT_PROXY, $config->proxy);

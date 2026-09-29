@@ -41,12 +41,12 @@ use Tueen\Telegram\Types\Update;
  */
 abstract class Flow
 {
-    public Telegram $bot;
-    public Update $update;
-    public int|string $chatId;
-    public ?int $userId = null;
-    public FlowState $state;
-    public FlowManager $manager;
+    protected(set) Telegram $bot;
+    protected(set) Update $update;
+    protected(set) int|string $chatId;
+    protected(set) ?int $userId = null;
+    protected(set) FlowState $state;
+    protected(set) FlowManager $manager;
 
     /**
      * Commands that immediately cancel and exit the flow (e.g. ['/cancel', '/exit']).

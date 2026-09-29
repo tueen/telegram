@@ -81,13 +81,14 @@ class Route
             return $this->matchPattern($this->pattern, $query, $parameters);
         }
 
-        // 5. Message text matching
-        if ($updateType === UpdateType::MESSAGE->value || $updateType === UpdateType::EDITED_MESSAGE->value) {
-            $text = $update->findMessage()?->findAnyText() ?? '';
+        // 5. Message text matching (including edited messages, channel posts, and business messages)
+        $msg = $update->findMessage();
+        if ($msg !== null) {
+            $text = $msg->findAnyText() ?? '';
             return $this->matchPattern($this->pattern, $text, $parameters);
         }
 
-        return true;
+        return false;
     }
 
     /**

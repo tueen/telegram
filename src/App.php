@@ -68,7 +68,9 @@ class App
     }
 
     /**
-     * Alias for create().
+     * Shorthand alias for {@see create()}.
+     *
+     * @see create()
      */
     #[\NoDiscard]
     public static function boot(string $basePath, array $config = []): static
@@ -354,7 +356,9 @@ class App
     }
 
     /**
-     * Alias for bot().
+     * Shorthand alias for {@see bot()}.
+     *
+     * @see bot()
      */
     public function getBot(): Telegram
     {

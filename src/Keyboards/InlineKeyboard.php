@@ -73,7 +73,12 @@ class InlineKeyboard extends InlineKeyboardMarkup
     }
 
     /**
-     * Adds an action button (alias for callback).
+     * Adds an action button (shorthand alias for {@see callback()}).
+     *
+     * @param string $text Button label text
+     * @param string $action Callback action data string
+     * @return self
+     * @see callback()
      */
     public function action(string $text, string $action): self
     {

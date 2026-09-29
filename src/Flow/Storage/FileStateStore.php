@@ -43,7 +43,6 @@ class FileStateStore implements StateStoreInterface
 
         $data = json_decode($raw, true);
         if (!is_array($data)) {
-            @unlink($path);
             return null;
         }
 
@@ -65,7 +64,13 @@ class FileStateStore implements StateStoreInterface
 
         $path = $this->getFilePath($key);
         $json = json_encode($state->toArray(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        @file_put_contents($path, $json, LOCK_EX);
+
+        $tempPath = $path . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        if (@file_put_contents($tempPath, $json, LOCK_EX) !== false) {
+            @rename($tempPath, $path);
+        } else {
+            @file_put_contents($path, $json, LOCK_EX);
+        }
     }
 
     public function delete(string $key): void

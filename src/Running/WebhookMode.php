@@ -137,6 +137,9 @@ class WebhookMode implements RunningModeInterface
         $receivedToken = $this->resolveReceivedSecretToken();
 
         if ($receivedToken === null || !hash_equals($this->secretToken, $receivedToken)) {
+            if (PHP_SAPI !== 'cli' && !headers_sent()) {
+                http_response_code(403);
+            }
             throw new TelegramException("Invalid or missing Telegram webhook secret token.");
         }
 

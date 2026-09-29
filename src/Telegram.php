@@ -6,34 +6,31 @@ namespace Tueen\Telegram;
 
 use Closure;
 use Generator;
-use ReflectionClass;
-use Tueen\Telegram\Client\GuzzleHttpClient;
-use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Request;
+use Tueen\Telegram\Client\RequestOptions;
 use Tueen\Telegram\Client\Response;
+use Tueen\Telegram\Client\TelegramClient;
+use Tueen\Telegram\Context\Context;
 use Tueen\Telegram\Context\ContextResolver;
-use Tueen\Telegram\Enums\ErrorHandlingMode;
+use Tueen\Telegram\Dispatcher\UpdateDispatcher;
 use Tueen\Telegram\Enums\UpdateType;
-use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\TelegramException;
+use Tueen\Telegram\Flow\Flow;
+use Tueen\Telegram\Flow\FlowManager;
+use Tueen\Telegram\Flow\FlowSession;
+use Tueen\Telegram\Flow\Storage\StateStoreInterface;
+use Tueen\Telegram\Formatting\Text;
 use Tueen\Telegram\Methods\Method;
-use Tueen\Telegram\Pipeline\LoggingMiddleware;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
-use Tueen\Telegram\Pipeline\Pipeline;
-use Tueen\Telegram\Pipeline\RetryMiddleware;
 use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Running\AutoMode;
 use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\RunningModeInterface;
 use Tueen\Telegram\Running\WebhookMode;
 use Tueen\Telegram\Testing\TelegramFake;
-use Tueen\Telegram\Types\Custom\ArrayResult;
-use Tueen\Telegram\Types\Custom\BooleanResult;
-use Tueen\Telegram\Types\Custom\IntegerResult;
-use Tueen\Telegram\Types\Custom\StringResult;
 use Tueen\Telegram\Types\Chat;
+use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Error;
-use Tueen\Telegram\Types\File;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;
@@ -41,6 +38,12 @@ use Tueen\Telegram\Types\User;
 
 /**
  * Tueen Telegram Client - The Royal Client for Telegram Bot API.
+ *
+ * Designed using modern layered composition:
+ * - TelegramClient: handles pure Bot API requests, HTTP transport & serialization
+ * - UpdateDispatcher: orchestrates middlewares, flows, routers, and handlers
+ * - ContextResolver: contextual argument injection
+ * - Context: scoped request context per update
  *
  * @mixin \Tueen\Telegram\Contracts\TelegramMethods
  */
@@ -52,7 +55,9 @@ class Telegram
     public const string BOT_API_VERSION = '10.3';
 
     /**
-     * Alias for BOT_API_VERSION.
+     * Shorthand alias for {@see self::BOT_API_VERSION}.
+     *
+     * @see self::BOT_API_VERSION
      */
     public const string API_VERSION = self::BOT_API_VERSION;
 
@@ -67,32 +72,21 @@ class Telegram
      */
     private(set) ContextResolver $context;
 
+    /**
+     * Pure Telegram Bot API client.
+     */
+    private(set) TelegramClient $client;
+
+    /**
+     * Incoming update pipeline & exception dispatcher.
+     */
+    private(set) UpdateDispatcher $dispatcher;
+
     private Config $config;
-    private HttpClientInterface $httpClient;
-    private Pipeline $pipeline;
     private ?RunningModeInterface $runningMode = null;
     private mixed $container = null;
-
-    /** @var list<mixed> */
-    private array $updateHandlers = [];
-
-    /** @var list<callable> */
-    private array $beforeRequestHooks = [];
-
-    /** @var list<callable> */
-    private array $afterRequestHooks = [];
-
-    /** @var list<callable> */
-    private array $errorHooks = [];
-
-    /** @var list<callable> */
-    private array $responseHooks = [];
-
-    /** @var list<callable> */
-    private array $updateMiddlewares = [];
-
-    /** @var list<array{type: class-string<\Throwable>|null, handler: callable}> */
-    private array $updateExceptionHandlers = [];
+    protected ?FlowManager $flowManager = null;
+    protected ?Router $router = null;
 
     public function __construct(string|Config $tokenOrConfig)
     {
@@ -103,17 +97,10 @@ class Telegram
         }
 
         $this->context = new ContextResolver($this->update);
-        $this->httpClient = $this->config->httpClient ?? new GuzzleHttpClient();
-        $this->pipeline = new Pipeline();
-
-        // Default middlewares
-        $this->pipeline->pipe(new RetryMiddleware($this->config->retryCount));
-        if ($this->config->logger !== null) {
-            $this->pipeline->pipe(new LoggingMiddleware($this->config->logger));
-        }
-
-        $this->runningMode = $this->config->runningMode;
+        $this->client = new TelegramClient($this->config, $this->context);
         $this->container = $this->config->container;
+        $this->dispatcher = new UpdateDispatcher($this->container);
+        $this->runningMode = $this->config->runningMode;
 
         if ($this->config->rootFlow !== null) {
             $this->setRootFlow($this->config->rootFlow);
@@ -141,12 +128,22 @@ class Telegram
         return new TelegramFake($botToken, $responses);
     }
 
+    public function getClient(): TelegramClient
+    {
+        return $this->client;
+    }
+
+    public function getDispatcher(): UpdateDispatcher
+    {
+        return $this->dispatcher;
+    }
+
     /**
      * Appends a middleware to the execution pipeline.
      */
     public function pipe(MiddlewareInterface|Closure $middleware): static
     {
-        $this->pipeline->pipe($middleware);
+        $this->client->pipe($middleware);
         return $this;
     }
 
@@ -157,7 +154,7 @@ class Telegram
      */
     public function onBeforeRequest(callable $callback): static
     {
-        $this->beforeRequestHooks[] = $callback;
+        $this->client->onBeforeRequest($callback);
         return $this;
     }
 
@@ -168,7 +165,7 @@ class Telegram
      */
     public function onAfterRequest(callable $callback): static
     {
-        $this->afterRequestHooks[] = $callback;
+        $this->client->onAfterRequest($callback);
         return $this;
     }
 
@@ -179,7 +176,7 @@ class Telegram
      */
     public function onError(callable $callback): static
     {
-        $this->errorHooks[] = $callback;
+        $this->client->onError($callback);
         return $this;
     }
 
@@ -190,47 +187,29 @@ class Telegram
      */
     public function onResponse(callable $callback): static
     {
-        $this->responseHooks[] = $callback;
+        $this->client->onResponse($callback);
         return $this;
     }
 
     /**
      * Registers an exception handler for incoming update processing errors.
      *
-     * Usage:
-     * 1. Universal catch:
-     *    $bot->catch(function (\Throwable $e, Update $update, Telegram $bot) { ... });
-     * 2. Type-specific catch:
-     *    $bot->catch(SpecificException::class, function (SpecificException $e, Update $update, Telegram $bot) { ... });
-     *
      * @param class-string<\Throwable>|callable(\Throwable, Update, Telegram): mixed $exceptionOrHandler
      * @param (callable(\Throwable, Update, Telegram): mixed)|null $handler
+     * @return static
      */
     public function catch(string|callable $exceptionOrHandler, ?callable $handler = null): static
     {
-        if (is_callable($exceptionOrHandler) && $handler === null) {
-            $this->updateExceptionHandlers[] = [
-                'type' => null,
-                'handler' => $exceptionOrHandler,
-            ];
-            return $this;
-        }
-
-        if (is_string($exceptionOrHandler) && $handler !== null) {
-            $this->updateExceptionHandlers[] = [
-                'type' => $exceptionOrHandler,
-                'handler' => $handler,
-            ];
-            return $this;
-        }
-
-        throw new \InvalidArgumentException("Invalid catch handler signature. Provide either a callable or an exception class string and callable.");
+        $this->dispatcher->catch($exceptionOrHandler, $handler);
+        return $this;
     }
 
     /**
-     * Alias for catch() with universal \Throwable handler.
+     * Convenience shorthand alias for {@see catch()} with a universal \Throwable handler.
      *
      * @param callable(\Throwable, Update, Telegram): mixed $handler
+     * @return static
+     * @see catch()
      */
     public function onUpdateError(callable $handler): static
     {
@@ -239,368 +218,35 @@ class Telegram
 
     /**
      * Handles an exception thrown during incoming update processing.
-     *
-     * @return bool True if the exception was handled by at least one handler, false otherwise.
      */
     public function handleUpdateException(\Throwable $e, Update $update): bool
     {
-        $handled = false;
-
-        foreach ($this->updateExceptionHandlers as $item) {
-            $type = $item['type'];
-            $handler = $item['handler'];
-
-            if ($type === null || $e instanceof $type) {
-                $handler($e, $update, $this);
-                $handled = true;
-            }
-        }
-
-        if (!$handled && $this->config->logger !== null) {
-            $this->config->logger->error("Uncaught update processing exception: " . $e->getMessage(), [
-                'exception' => $e,
-                'update_id' => $update->updateId,
-                'update_type' => $update->type->value,
-            ]);
-        }
-
-        return $handled;
+        return $this->dispatcher->handleException($e, $update, $this);
     }
 
     public function send(
         Method $method,
         ?Closure $uploadProgress = null,
         ?Closure $downloadProgress = null,
-        ?\Tueen\Telegram\Client\RequestOptions $options = null
+        ?RequestOptions $options = null
     ): mixed {
-        $this->context->resolveMethod($method);
-
-        [$params, $files] = $method->buildRequestData();
-
-        $endpoint = $method->getEndpoint();
-        $requestTimeout = null;
-
-        // Long-polling: ensure HTTP client timeout exceeds Telegram server wait timeout
-        if ($endpoint === 'getUpdates' && isset($params['timeout']) && is_numeric($params['timeout'])) {
-            $pollTimeout = (float)$params['timeout'];
-            $requestTimeout = max($pollTimeout + 15.0, $this->config->timeout);
-        } elseif (!empty($files)) {
-            // Generous timeout buffer for file uploads (minimum 120s or config timeout)
-            $requestTimeout = max(120.0, $this->config->timeout);
-        }
-
-        if ($options?->timeout !== null) {
-            $requestTimeout = $options->timeout;
-        }
-
-        $request = new Request(
-            endpoint: $endpoint,
-            parameters: $params,
-            files: $files,
-            httpMethod: $method->getHttpMethod(),
-            uploadProgress: $uploadProgress ?? $options?->uploadProgress ?? $this->config->uploadProgress,
-            downloadProgress: $downloadProgress ?? $options?->downloadProgress ?? $this->config->downloadProgress,
-            timeout: $requestTimeout,
-            connectTimeout: $options?->connectTimeout
-        );
-
-        $this->triggerBeforeRequest($request);
-
-        try {
-            $response = $this->pipeline->run(
-                $request,
-                $this->config,
-                fn(Request $req, Config $cfg): Response => $this->httpClient->send($cfg, $req)
-            );
-
-            $this->triggerAfterRequest($response, $request);
-
-            if (!$response->isOk()) {
-                throw ApiException::fromResponse($response->data);
-            }
-
-            $result = $response->getResult();
-            $returnInfo = $method->getReturnTypeInfo();
-            $unwrapped = $this->unwrapResult($result, $returnInfo?->type, $returnInfo?->isArray ?? false);
-
-            if ($unwrapped instanceof Type) {
-                $this->triggerResponse($unwrapped, $request);
-            }
-
-            return $unwrapped;
-        } catch (\Throwable $e) {
-            $this->triggerError($e, $request);
-
-            if ($this->shouldCatchException($e)) {
-                if ($e instanceof ApiException && isset($response) && is_array($response->data)) {
-                    $error = Error::fromResponse($response->data, $e);
-                } else {
-                    $error = Error::fromThrowable($e);
-                }
-
-                $this->triggerResponse($error, $request);
-                return $error;
-            }
-
-            throw $e;
-        }
+        return $this->client->send($method, $uploadProgress, $downloadProgress, $options);
     }
 
     /**
      * Dynamic method invocation for any Telegram Bot API method.
-     *
-     * Example:
-     * $bot->sendMessage(chatId: 123456, text: 'Hello, Queen!');
      */
     public function __call(string $name, array $arguments): mixed
     {
-        $options = null;
-        if (array_key_exists('_', $arguments)) {
-            $options = \Tueen\Telegram\Client\RequestOptions::from($arguments['_']);
-            unset($arguments['_']);
-        } elseif (count($arguments) === 1 && isset($arguments[0]) && is_array($arguments[0]) && array_key_exists('_', $arguments[0])) {
-            $options = \Tueen\Telegram\Client\RequestOptions::from($arguments[0]['_']);
-            unset($arguments[0]['_']);
-        }
-
-        $className = 'Tueen\\Telegram\\Methods\\' . ucfirst($name);
-
-        if (class_exists($className)) {
-            $methodInstance = $this->instantiateMethod($className, $arguments);
-            return $this->send($methodInstance, options: $options);
-        }
-
-        // Dynamic fallback: build a dynamic Method instance
-        $dynamicMethod = new class($name, $arguments) extends Method {
-            public function __construct(
-                private readonly string $endpointName,
-                array $args
-            ) {
-                // If single associative array passed, or named args
-                if (count($args) === 1 && isset($args[0]) && is_array($args[0])) {
-                    $this->parameters = $args[0];
-                } else {
-                    foreach ($args as $k => $v) {
-                        $this->parameters[Type::toSnakeCase((string)$k)] = $v;
-                    }
-                }
-            }
-
-            public function getEndpoint(): string
-            {
-                return $this->endpointName;
-            }
-        };
-
-        return $this->send($dynamicMethod);
-    }
-
-    /**
-     * Dynamically instantiates a Method class matching named or positional arguments.
-     */
-    private function instantiateMethod(string $className, array $arguments): Method
-    {
-        $arguments = $this->context->resolveArguments($className, $arguments);
-
-        $reflection = new ReflectionClass($className);
-        $constructor = $reflection->getConstructor();
-
-        if ($constructor === null || empty($arguments)) {
-            return $reflection->newInstance();
-        }
-
-        // If a single associative array is provided, e.g. $bot->sendMessage([...])
-        if (count($arguments) === 1 && isset($arguments[0]) && is_array($arguments[0])) {
-            $arguments = $arguments[0];
-        }
-
-        $parameters = $constructor->getParameters();
-        $passedArgs = [];
-        $consumedKeys = [];
-
-        foreach ($parameters as $param) {
-            if ($param->isVariadic()) {
-                continue;
-            }
-
-            $pName = $param->getName();
-            $snake = Type::toSnakeCase($pName);
-
-            $val = null;
-            $found = false;
-
-            if (array_key_exists($pName, $arguments)) {
-                $val = $arguments[$pName];
-                $consumedKeys[$pName] = true;
-                $found = true;
-            } elseif (array_key_exists($snake, $arguments)) {
-                $val = $arguments[$snake];
-                $consumedKeys[$snake] = true;
-                $found = true;
-            } elseif ($param->isDefaultValueAvailable()) {
-                if (!array_key_exists($pName, $passedArgs)) {
-                    $passedArgs[$pName] = $param->getDefaultValue();
-                }
-            }
-
-            if ($found) {
-                if ($val instanceof \Tueen\Telegram\Formatting\Text) {
-                    $passedArgs[$pName] = (string) $val;
-                    if (!isset($arguments['parse_mode']) && !isset($arguments['parseMode']) && !isset($passedArgs['parseMode'])) {
-                        $passedArgs['parseMode'] = $val->parseMode();
-                    }
-                } elseif ($val instanceof \Tueen\Telegram\Keyboards\InlineKeyboard || $val instanceof \Tueen\Telegram\Keyboards\ReplyKeyboard) {
-                    $passedArgs[$pName] = $val->build();
-                } else {
-                    $passedArgs[$pName] = $val;
-                }
-            }
-        }
-
-        $extraArgs = [];
-        foreach ($arguments as $k => $v) {
-            if (!isset($consumedKeys[$k])) {
-                $extraArgs[$k] = $v;
-            }
-        }
-
-        /** @var Method $instance */
-        $instance = $reflection->newInstanceArgs($passedArgs);
-        if (!empty($extraArgs)) {
-            $instance->handleExtraParameters($extraArgs);
-        }
-
-        return $instance;
-    }
-
-    /**
-     * Unwraps and deserializes API response result.
-     */
-    private function unwrapResult(mixed $result, ?string $expectedType = null, bool $isArray = false): mixed
-    {
-        if (is_bool($result)) {
-            return new BooleanResult($result);
-        }
-
-        if (is_int($result)) {
-            return new IntegerResult($result);
-        }
-
-        if (is_string($result)) {
-            return new StringResult($result);
-        }
-
-        if ($result === null) {
-            return null;
-        }
-
-        if ($isArray && is_array($result)) {
-            $targetClass = $expectedType ?? Type::class;
-            $items = Type::castArrayOf($result, $targetClass);
-            return new ArrayResult($items);
-        }
-
-        if (is_array($result)) {
-            if (array_is_list($result)) {
-                $targetClass = $expectedType ?? Type::class;
-                $items = Type::castArrayOf($result, $targetClass);
-                return new ArrayResult($items);
-            }
-
-            $targetClass = $expectedType ?? Type::class;
-            return Type::factory($targetClass, $result);
-        }
-
-        return $result;
+        return $this->client->__call($name, $arguments);
     }
 
     /**
      * Downloads a file from Telegram.
-     *
-     * @param string|File $file File ID, file path, or File type instance
-     * @param resource|string $destination Target local path or stream resource
-     * @param callable|null $progress fn(int $downloadedBytes, int $totalBytes, float $percentage)
      */
     public function downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult|Error
     {
-        $filePath = null;
-
-        if ($file instanceof File) {
-            $filePath = $file->filePath;
-        } elseif (is_string($file)) {
-            // Check if it's already a relative path with extension
-            if (str_contains($file, '/') || str_contains($file, '.')) {
-                $filePath = $file;
-            } else {
-                // It's a file_id, retrieve File object first
-                $fileObj = $this->getFile(fileId: $file);
-                if ($fileObj instanceof Error) {
-                    return $fileObj;
-                }
-                $filePath = $fileObj->filePath;
-            }
-        }
-
-        if (empty($filePath)) {
-            $exception = new TelegramException("Unable to resolve file path for download.");
-            if ($this->shouldCatchException($exception)) {
-                return Error::fromThrowable($exception);
-            }
-            throw $exception;
-        }
-
-        try {
-            $ok = $this->httpClient->download($this->config, $filePath, $destination, $progress);
-            return new BooleanResult($ok);
-        } catch (\Throwable $e) {
-            if ($this->shouldCatchException($e)) {
-                return Error::fromThrowable($e);
-            }
-            throw $e;
-        }
-    }
-
-    private function triggerBeforeRequest(Request $request): void
-    {
-        foreach ($this->beforeRequestHooks as $hook) {
-            $hook($request, $this->config);
-        }
-    }
-
-    private function triggerAfterRequest(Response $response, Request $request): void
-    {
-        foreach ($this->afterRequestHooks as $hook) {
-            $hook($response, $request);
-        }
-    }
-
-    private function triggerError(\Throwable $error, Request $request): void
-    {
-        foreach ($this->errorHooks as $hook) {
-            $hook($error, $request);
-        }
-    }
-
-    private function triggerResponse(Type $result, Request $request): void
-    {
-        foreach ($this->responseHooks as $hook) {
-            $hook($result, $request);
-        }
-    }
-
-    private function shouldCatchException(\Throwable $e): bool
-    {
-        if ($this->config->errorHandlingMode !== ErrorHandlingMode::ERROR_OBJECT) {
-            return false;
-        }
-
-        foreach ($this->config->convertExceptionsToError as $class) {
-            if ($e instanceof $class) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->client->downloadFile($file, $destination, $progress);
     }
 
     /**
@@ -650,121 +296,76 @@ class Telegram
         return $this;
     }
 
-    /**
-     * Resolves the current chat ID from the active update or context.
-     */
     public function chatId(): ?int
     {
         return $this->context->resolveChatId();
     }
 
-    /**
-     * Resolves the current user ID from the active update or context.
-     */
     public function userId(): ?int
     {
         return $this->context->resolveUserId();
     }
 
-    /**
-     * Resolves the current message ID from the active update or context.
-     */
     public function messageId(): ?int
     {
         return $this->context->resolveMessageId();
     }
 
-    /**
-     * Resolves the business connection ID from the active update or context.
-     */
     public function businessConnectionId(): ?string
     {
         return $this->context->resolveBusinessConnectionId();
     }
 
-    /**
-     * Resolves the message thread (forum topic) ID from the active update or context.
-     */
     public function messageThreadId(): ?int
     {
         return $this->context->resolveMessageThreadId();
     }
 
-    /**
-     * Resolves the inline message ID from the active update or context.
-     */
     public function inlineMessageId(): ?string
     {
         return $this->context->resolveInlineMessageId();
     }
 
-    /**
-     * Resolves the callback query ID from the active update or context.
-     */
     public function callbackQueryId(): ?string
     {
         return $this->context->resolveCallbackQueryId();
     }
 
-    /**
-     * Resolves the inline query ID from the active update or context.
-     */
     public function inlineQueryId(): ?string
     {
         return $this->context->resolveInlineQueryId();
     }
 
-    /**
-     * Resolves the shipping query ID from the active update or context.
-     */
     public function shippingQueryId(): ?string
     {
         return $this->context->resolveShippingQueryId();
     }
 
-    /**
-     * Resolves the pre-checkout query ID from the active update or context.
-     */
     public function preCheckoutQueryId(): ?string
     {
         return $this->context->resolvePreCheckoutQueryId();
     }
 
-    /**
-     * Resolves the direct messages topic ID from the active update or context.
-     */
     public function directMessagesTopicId(): ?int
     {
         return $this->context->resolveDirectMessagesTopicId();
     }
 
-    /**
-     * Resolves the guest query ID from the active update or context.
-     */
     public function guestQueryId(): ?string
     {
         return $this->context->resolveGuestQueryId();
     }
 
-    /**
-     * Resolves the acting User object from the active update.
-     */
     public function user(): ?User
     {
         return $this->update?->findUser();
     }
 
-    /**
-     * Resolves the active Chat object from the active update.
-     */
     public function chat(): ?Chat
     {
         return $this->update?->findChat();
     }
 
-    /**
-     * Resolves the primary Message object from the active update.
-     */
     public function message(): ?Message
     {
         return $this->update?->findMessage();
@@ -773,9 +374,9 @@ class Telegram
     /**
      * Quick reply helper to send a text message to the active chat in context.
      *
-     * @param string|\Tueen\Telegram\Formatting\Text $text
+     * @param string|Text $text
      */
-    public function reply(string|\Tueen\Telegram\Formatting\Text $text, mixed ...$args): mixed
+    public function reply(string|Text $text, mixed ...$args): mixed
     {
         $params = ['text' => $text];
         foreach ($args as $k => $v) {
@@ -789,90 +390,58 @@ class Telegram
         return $this->sendMessage($params);
     }
 
-    /**
-     * Binds a custom default resolver callback for a parameter name.
-     */
     public function bindDefault(string $param, callable $resolver): static
     {
         $this->context->bind($param, $resolver);
         return $this;
     }
 
-    /**
-     * Returns the contextual parameter resolver.
-     */
     public function context(): ContextResolver
     {
         return $this->context;
     }
 
-    /**
-     * Sets a dependency injection container or callable resolver for handler instantiation.
-     */
     public function setContainer(mixed $container): static
     {
         $this->container = $container;
+        $this->dispatcher->setContainer($container);
         return $this;
     }
 
-    /**
-     * Gets the configured container or resolver.
-     */
     public function getContainer(): mixed
     {
         return $this->container ?? $this->config->container;
     }
 
-    protected ?\Tueen\Telegram\Flow\FlowManager $flowManager = null;
-
-    /**
-     * Retrieves or lazily creates the FlowManager instance.
-     */
-    public function flowManager(): \Tueen\Telegram\Flow\FlowManager
+    public function flowManager(): FlowManager
     {
-        return $this->flowManager ??= new \Tueen\Telegram\Flow\FlowManager();
+        return $this->flowManager ??= new FlowManager();
     }
 
-    /**
-     * Sets a custom FlowManager instance.
-     */
-    public function setFlowManager(\Tueen\Telegram\Flow\FlowManager $manager): static
+    public function setFlowManager(FlowManager $manager): static
     {
         $this->flowManager = $manager;
         return $this;
     }
 
-    /**
-     * Sets the active state storage driver for flows (e.g. MemoryStateStore, FileStateStore).
-     */
-    public function setFlowStore(\Tueen\Telegram\Flow\Storage\StateStoreInterface $store): static
+    public function setFlowStore(StateStoreInterface $store): static
     {
         $this->flowManager()->setStore($store);
         return $this;
     }
 
-    /**
-     * Sets the default root/home flow class to navigate to on home action or /start command.
-     *
-     * @param class-string<\Tueen\Telegram\Flow\Flow>|null $flowClass
-     */
     public function setRootFlow(?string $flowClass): static
     {
         $this->flowManager()->setRootFlow($flowClass);
         return $this;
     }
 
-    /**
-     * Starts a multi-step Flow for the user associated with the update.
-     *
-     * @param class-string<\Tueen\Telegram\Flow\Flow> $flowClass
-     */
     public function startFlow(
         string $flowClass,
         ?Update $update = null,
         string $initialStep = 'start',
         array $initialData = []
-    ): \Tueen\Telegram\Flow\Flow {
+    ): Flow {
         $resolvedUpdate = $update ?? $this->update;
         if ($resolvedUpdate === null) {
             throw new TelegramException("Cannot start Flow: no active Update found. Pass Update explicitly or run inside an update handler.");
@@ -887,10 +456,7 @@ class Telegram
         );
     }
 
-    /**
-     * Resolves a fluent FlowSession to inspect and control a conversation Flow from outside.
-     */
-    public function flow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): \Tueen\Telegram\Flow\FlowSession
+    public function flow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): FlowSession
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
         if ($resolvedChatId === null) {
@@ -900,9 +466,6 @@ class Telegram
         return $this->flowManager()->flowSession($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
-    /**
-     * Checks if there is an active conversation Flow for the resolved chat/user.
-     */
     public function hasActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
@@ -913,11 +476,6 @@ class Telegram
         return $this->flowManager()->hasActiveFlow($resolvedChatId, $resolvedUserId);
     }
 
-    /**
-     * Retrieves the active Flow class for the resolved chat/user, or null if none active.
-     *
-     * @return class-string<\Tueen\Telegram\Flow\Flow>|null
-     */
     public function getActiveFlowClass(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?string
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
@@ -928,10 +486,7 @@ class Telegram
         return $this->flowManager()->getActiveFlowClass($resolvedChatId, $resolvedUserId);
     }
 
-    /**
-     * Retrieves the active Flow instance for the resolved chat/user, or null if none active.
-     */
-    public function getActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?\Tueen\Telegram\Flow\Flow
+    public function getActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?Flow
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
         if ($resolvedChatId === null) {
@@ -941,9 +496,6 @@ class Telegram
         return $this->flowManager()->getActiveFlowInstance($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
-    /**
-     * Navigates back in the active Flow for the resolved chat/user.
-     */
     public function flowBack(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = null, ?Update $update = null): bool
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
@@ -954,9 +506,6 @@ class Telegram
         return $this->flowManager()->navigateBack($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
     }
 
-    /**
-     * Cancels the active Flow for the resolved chat/user.
-     */
     public function cancelFlow(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = 'Operation cancelled.', ?Update $update = null): bool
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
@@ -967,9 +516,6 @@ class Telegram
         return $this->flowManager()->cancelFlow($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
     }
 
-    /**
-     * Finishes the active Flow for the resolved chat/user.
-     */
     public function finishFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
     {
         [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
@@ -980,11 +526,6 @@ class Telegram
         return $this->flowManager()->finishFlow($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
-    /**
-     * Helper to resolve chatId and userId from parameters or the active update context.
-     *
-     * @return array{0: int|string|null, 1: int|null}
-     */
     private function resolveSessionChatAndUser(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): array
     {
         if ($chatId !== null) {
@@ -1001,28 +542,12 @@ class Telegram
         return [$resolvedChatId, $resolvedUserId];
     }
 
-    /**
-     * Registers one or more update handlers to be invoked when the bot is run.
-     *
-     * Handlers can be:
-     * - A callable: fn(Update $update, Telegram $bot) => ...
-     * - An invokable class string: MyHandler::class
-     * - An invokable class instance: new MyHandler()
-     * - An array/list of any of the above
-     */
     public function handle(mixed ...$handlers): static
     {
-        foreach ($this->normalizeHandlers($handlers) as $handler) {
-            $this->updateHandlers[] = $handler;
-        }
+        $this->dispatcher->addHandler(...$handlers);
         return $this;
     }
 
-    /**
-     * Parses a raw JSON string or array update payload into a strongly-typed Update object.
-     * Callable-friendly for use in PHP 8.5 pipe operator (|>) pipelines:
-     * $update = $jsonString |> $bot->parseUpdate(...);
-     */
     #[\NoDiscard]
     public function parseUpdate(string|array $payload): Update
     {
@@ -1037,10 +562,8 @@ class Telegram
         return new Update($payload);
     }
 
-    private ?Router $router = null;
-
     /**
-     * Gets or creates the internal Update Router.
+     * Retrieves or initializes the update router.
      */
     public function router(): Router
     {
@@ -1048,7 +571,11 @@ class Telegram
     }
 
     /**
-     * Registers a command route (e.g. 'start', 'help').
+     * Registers a command route handler (e.g. '/start', '/help').
+     *
+     * @param string $command Command name with or without leading slash
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function onCommand(string $command, mixed $handler): static
     {
@@ -1057,7 +584,11 @@ class Telegram
     }
 
     /**
-     * Registers a callback query route with pattern matching (exact, placeholder 'item:{id}', or regex).
+     * Registers a callback query route handler matching an optional regex pattern.
+     *
+     * @param string|null $pattern Regex pattern to match against callback_data, or null for any
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function onCallbackQuery(?string $pattern, mixed $handler): static
     {
@@ -1066,7 +597,11 @@ class Telegram
     }
 
     /**
-     * Registers a message text route by pattern or regex.
+     * Registers a message route handler matching an optional regex pattern against message text/caption.
+     *
+     * @param string|null $pattern Regex pattern to match against text, or null for any message
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function onMessage(?string $pattern, mixed $handler): static
     {
@@ -1075,7 +610,11 @@ class Telegram
     }
 
     /**
-     * Registers an inline query route.
+     * Registers an inline query route handler matching an optional regex pattern against query text.
+     *
+     * @param string|null $pattern Regex pattern to match against query text, or null for any
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function onInlineQuery(?string $pattern, mixed $handler): static
     {
@@ -1084,7 +623,11 @@ class Telegram
     }
 
     /**
-     * Registers a route for any specific UpdateType.
+     * Registers an update route handler for a specific update type.
+     *
+     * @param UpdateType|string $type Telegram update type enum or string (e.g. 'message', 'chat_member')
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function on(UpdateType|string $type, mixed $handler): static
     {
@@ -1093,7 +636,10 @@ class Telegram
     }
 
     /**
-     * Registers a fallback route when no other route matches.
+     * Registers a fallback route handler when no other routes or flows match the incoming update.
+     *
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @return static
      */
     public function onFallback(mixed $handler): static
     {
@@ -1102,7 +648,10 @@ class Telegram
     }
 
     /**
-     * Registers an attribute-decorated controller class with #[OnCommand], #[OnCallbackQuery], etc.
+     * Registers an attribute-annotated controller class or instance.
+     *
+     * @param string|object $controller Class name or object instance decorated with #[OnCommand], etc.
+     * @return static
      */
     public function registerController(string|object $controller): static
     {
@@ -1111,34 +660,23 @@ class Telegram
     }
 
     /**
-     * Executes the bot with optional update handler(s) according to the configured running mode.
+     * Registers a global update middleware into the dispatch pipeline.
      *
-     * Handlers receive:
-     * - Parameter 1: Update $update (the incoming update)
-     * - Parameter 2: Telegram $bot (this bot client instance)
-     *
-     * Handlers can be:
-     * - Callables: fn(Update $update, Telegram $bot)
-     * - Invokable class names: MyHandler::class
-    /**
-     * Appends an update middleware to the incoming update pipeline.
-     *
-     * Example:
-     * $bot->middleware(function (Update $update, Telegram $bot, callable $next) {
-     *     if ($update->findUserId() === 999) return null; // Block user
-     *     return $next($update, $bot);
-     * });
-     *
-     * @param callable(Update, Telegram, callable): mixed $middleware
+     * @param callable(Update, callable(Update): mixed, Telegram): mixed $middleware
+     * @return static
      */
     public function middleware(callable $middleware): static
     {
-        $this->updateMiddlewares[] = $middleware;
+        $this->dispatcher->middleware($middleware);
         return $this;
     }
 
     /**
-     * Alias for middleware().
+     * Expressive shorthand alias for {@see middleware()} (popularized by Telegraf/grammY conventions).
+     *
+     * @param callable(Update, callable(Update): mixed, Telegram): mixed $middleware
+     * @return static
+     * @see middleware()
      */
     public function use(callable $middleware): static
     {
@@ -1146,89 +684,30 @@ class Telegram
     }
 
     /**
-     * Executes the bot with optional update handler(s) according to the configured running mode.
+     * Executes the bot using the configured running mode (WebhookMode or PollingMode).
      *
-     * Handlers receive:
-     * - Parameter 1: Update $update (the incoming update)
-     * - Parameter 2: Telegram $bot (this bot client instance)
-     *
-     * Handlers can be:
-     * - Callables: fn(Update $update, Telegram $bot)
-     * - Invokable class names: MyHandler::class
-     * - Invokable class instances: new MyHandler()
-     * - Arrays/lists of the above
-     *
-     * In WebhookMode: resolves the incoming update from webhook request, sets $this->update,
-     * executes handler(s), and returns the resolved Update.
-     * In PollingMode: enters an infinite long-polling loop, resolves incoming updates, sets $this->update,
-     * and dispatches them to handler(s) (synchronously, in spawned child processes, or via custom dispatcher).
-     *
-     * @param mixed ...$handlers Handlers passed to run()
-     * @return mixed
+     * @param mixed ...$handlers Optional handlers, closures, or controller instances
+     * @return mixed Running mode execution result or response
      */
     public function run(mixed ...$handlers): mixed
     {
-        $allHandlers = [...$this->updateHandlers, ...$this->normalizeHandlers($handlers)];
+        $hasHandlers = !empty($this->dispatcher->getHandlers())
+            || !empty($handlers)
+            || ($this->router !== null && $this->router->hasRoutes());
 
-        // Automatically dispatch to router if any routes have been registered
-        if ($this->router !== null && $this->router->hasRoutes()) {
-            $allHandlers[] = $this->router;
-        }
+        $handlerCallback = $hasHandlers
+            ? fn(Update $update) => $this->dispatcher->dispatch($update, $this, $handlers, $this->router, $this->flowManager)
+            : null;
 
-        $coreDispatcher = function (Update $update) use ($allHandlers): mixed {
-            $this->setUpdate($update);
-
-            // Prioritize active conversation Flow if running
-            if ($this->flowManager()->handle($update, $this)) {
-                return true;
-            }
-
-            $result = null;
-
-            foreach ($allHandlers as $handler) {
-                $result = $this->invokeHandler($handler, $update);
-                if ($result === false) {
-                    break;
-                }
-            }
-
-            return $result;
-        };
-
-        $dispatcher = function (Update $update) use ($coreDispatcher): mixed {
-            $this->setUpdate($update);
-
-            try {
-                if (empty($this->updateMiddlewares)) {
-                    return $coreDispatcher($update);
-                }
-
-                $pipeline = array_reduce(
-                    array_reverse($this->updateMiddlewares),
-                    function (callable $next, callable $middleware) {
-                        return fn(Update $up, Telegram $bot) => $middleware($up, $bot, $next);
-                    },
-                    fn(Update $up, Telegram $bot) => $coreDispatcher($up)
-                );
-
-                return $pipeline($update, $this);
-            } catch (\Throwable $e) {
-                if ($this->handleUpdateException($e, $update)) {
-                    return null;
-                }
-
-                throw $e;
-            }
-        };
-
-        return $this->getRunningMode()->processUpdate($this, (!empty($allHandlers) || !empty($this->updateMiddlewares)) ? $dispatcher : null);
+        return $this->getRunningMode()->processUpdate($this, $handlerCallback);
     }
 
     /**
-     * Executes the bot using adaptive AutoMode (switches between Polling in CLI and Webhook in HTTP).
+     * Executes the bot with automatic runtime detection (AutoMode).
+     * Automatically uses Polling in CLI environments and Webhook in HTTP server environments.
      *
-     * @param mixed ...$handlers Handlers passed to run()
-     * @return mixed
+     * @param mixed ...$handlers Optional handlers, closures, or controller instances
+     * @return mixed Running mode execution result or response
      */
     public function autoRun(mixed ...$handlers): mixed
     {
@@ -1240,77 +719,24 @@ class Telegram
     }
 
     /**
-     * Invokes an individual update handler.
+     * Resolves dependencies and invokes a single update handler.
      *
-     * @throws TelegramException
+     * @param mixed $handler Handler callable, closure, or [Class, 'method']
+     * @param Update $update The active Telegram update
+     * @return mixed
      */
     public function invokeHandler(mixed $handler, Update $update): mixed
     {
-        if (is_string($handler) && class_exists($handler)) {
-            $instance = $this->resolveHandlerInstance($handler);
-
-            if (is_callable($instance)) {
-                return $instance($update, $this);
-            }
-
-            throw new TelegramException("Handler class [{$handler}] must be invokable (missing __invoke method).");
-        }
-
-        if (is_callable($handler)) {
-            return $handler($update, $this);
-        }
-
-        throw new TelegramException("Invalid update handler provided: expected callable or invokable class name, got " . get_debug_type($handler));
+        return $this->dispatcher->invokeHandler($handler, $update, $this);
     }
 
     /**
-     * Resolves an instance of a handler class, using the container if configured, or direct instantiation.
-     */
-    private function resolveHandlerInstance(string $className): object
-    {
-        $container = $this->container ?? $this->config->container;
-
-        if ($container !== null) {
-            if (is_object($container) && method_exists($container, 'get') && method_exists($container, 'has')) {
-                if ($container->has($className)) {
-                    return $container->get($className);
-                }
-            } elseif (is_callable($container)) {
-                $resolved = $container($className);
-                if (is_object($resolved)) {
-                    return $resolved;
-                }
-            }
-        }
-
-        return new $className();
-    }
-
-    /**
-     * Normalizes handlers passed as variadic arguments or arrays into a flat list.
+     * Returns a lazy Generator that long-polls Telegram Bot API for incoming updates.
      *
-     * @param array<mixed> $handlers
-     * @return list<mixed>
-     */
-    private function normalizeHandlers(array $handlers): array
-    {
-        $flat = [];
-        foreach ($handlers as $handler) {
-            if (is_array($handler)) {
-                foreach ($this->normalizeHandlers($handler) as $h) {
-                    $flat[] = $h;
-                }
-            } elseif ($handler !== null) {
-                $flat[] = $handler;
-            }
-        }
-        return $flat;
-    }
-
-    /**
-     * Long polling update generator.
-     *
-     * @return Generator<Update>
+     * @param int $timeout Polling timeout in seconds
+     * @param int $limit Maximum updates to fetch per request (1-100)
+     * @param array<string>|null $allowedUpdates List of update types to receive
+     * @return Generator<int, Update>
      */
     public function poll(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null): Generator
     {
@@ -1318,6 +744,9 @@ class Telegram
         return $mode->getUpdatesGenerator($this);
     }
 
+    /**
+     * Retrieves the immutable configuration instance.
+     */
     #[\NoDiscard]
     public function getConfig(): Config
     {

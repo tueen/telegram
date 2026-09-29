@@ -24,15 +24,20 @@ class RateLimitMiddleware implements MiddlewareInterface
     /** @var (callable(string, ?float): ?float)|null */
     private mixed $timeStore = null;
 
+    /** @var (callable(float): void)|null */
+    private mixed $sleeper = null;
+
     public function __construct(
         int $maxRequestsPerSecond = 30,
         private float $minPerChatInterval = 1.0,
         private bool $autoRetryOnRateLimit = true,
         private int $maxRetries = 2,
-        ?callable $timeStore = null
+        ?callable $timeStore = null,
+        ?callable $sleeper = null
     ) {
         $this->minInterval = $maxRequestsPerSecond > 0 ? (1.0 / $maxRequestsPerSecond) : 0.0;
         $this->timeStore = $timeStore;
+        $this->sleeper = $sleeper;
     }
 
     public function handle(Request $request, Config $config, callable $next): Response
@@ -47,9 +52,9 @@ class RateLimitMiddleware implements MiddlewareInterface
 
                 if ($response->statusCode === 429 && $this->autoRetryOnRateLimit && $attempts < $this->maxRetries) {
                     $attempts++;
-                    $retryAfter = (int)($response->data['parameters']['retry_after'] ?? 1);
+                    $retryAfter = (float)($response->data['parameters']['retry_after'] ?? 1);
                     if ($retryAfter > 0) {
-                        sleep($retryAfter);
+                        $this->sleepSeconds($retryAfter);
                     }
                     continue;
                 }
@@ -58,9 +63,9 @@ class RateLimitMiddleware implements MiddlewareInterface
             } catch (ApiException $e) {
                 if ($e->hasResponseParameters() && $e->responseParameters?->retryAfter !== null && $this->autoRetryOnRateLimit && $attempts < $this->maxRetries) {
                     $attempts++;
-                    $retryAfter = $e->responseParameters->retryAfter;
+                    $retryAfter = (float)$e->responseParameters->retryAfter;
                     if ($retryAfter > 0) {
-                        sleep($retryAfter);
+                        $this->sleepSeconds($retryAfter);
                     }
                     continue;
                 }
@@ -68,6 +73,20 @@ class RateLimitMiddleware implements MiddlewareInterface
                 throw $e;
             }
         }
+    }
+
+    private function sleepSeconds(float $seconds): void
+    {
+        if ($seconds <= 0.0) {
+            return;
+        }
+
+        if ($this->sleeper !== null) {
+            ($this->sleeper)($seconds);
+            return;
+        }
+
+        usleep((int)($seconds * 1_000_000));
     }
 
     /** @var array<string|int, float> */
@@ -104,10 +123,7 @@ class RateLimitMiddleware implements MiddlewareInterface
         if ($this->minInterval > 0 && $lastGlobal !== null && $lastGlobal > 0) {
             $elapsed = $now - $lastGlobal;
             if ($elapsed < $this->minInterval) {
-                $sleepMicro = (int)(($this->minInterval - $elapsed) * 1_000_000);
-                if ($sleepMicro > 0) {
-                    usleep($sleepMicro);
-                }
+                $this->sleepSeconds($this->minInterval - $elapsed);
             }
         }
 
@@ -129,10 +145,7 @@ class RateLimitMiddleware implements MiddlewareInterface
             if ($lastChat !== null && $lastChat > 0) {
                 $chatElapsed = microtime(true) - $lastChat;
                 if ($chatElapsed < $this->minPerChatInterval) {
-                    $sleepMicro = (int)(($this->minPerChatInterval - $chatElapsed) * 1_000_000);
-                    if ($sleepMicro > 0) {
-                        usleep($sleepMicro);
-                    }
+                    $this->sleepSeconds($this->minPerChatInterval - $chatElapsed);
                 }
             }
 
