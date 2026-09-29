@@ -122,7 +122,13 @@ Create `.vitepress/theme/components/Mermaid.vue` with the following implementati
         <button type="button" class="tool-btn" @click="zoomInline(-0.25)" title="Zoom Out">
           <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
         </button>
-        <button type="button" class="tool-btn zoom-level" @click="resetInline" title="Reset Zoom (100%)">
+        <button
+          type="button"
+          class="tool-btn zoom-level"
+          :class="{ 'is-active': inlineScale !== 1 }"
+          @click="resetInline"
+          title="Reset Zoom (100%)"
+        >
           {{ Math.round(inlineScale * 100) }}%
         </button>
         <button type="button" class="tool-btn" @click="zoomInline(0.25)" title="Zoom In">
@@ -136,15 +142,46 @@ Create `.vitepress/theme/components/Mermaid.vue` with the following implementati
       </div>
 
       <!-- Inline Diagram Viewport -->
-      <div class="mermaid-viewport" :style="inlineViewportStyle" @dblclick="openModal">
+      <div
+        ref="inlineViewport"
+        class="mermaid-viewport"
+        :class="{ 'is-zoomed': inlineScale !== 1, 'is-panning': isInlinePanning }"
+        :style="[inlineViewportStyle, { cursor: inlineCursor }]"
+        :title="inlineTooltip"
+        @click="onInlineClick"
+        @dblclick="onInlineDblClick"
+        @mousedown="onInlineMouseDown"
+        @mousemove="onInlineMouseMove"
+        @mouseup="onInlineMouseUp"
+        @mouseleave="onInlineMouseUp"
+        @wheel="onInlineWheel"
+        @touchstart="onInlineTouchStart"
+        @touchmove="onInlineTouchMove"
+        @touchend="onInlineTouchEnd"
+      >
         <div
           v-if="svg"
           v-html="svg"
           ref="inlineSvgContainer"
           class="mermaid-svg-container"
-          :style="{ transform: `scale(${inlineScale})`, transformOrigin: 'top center' }"
+          :style="inlineSvgStyle"
         ></div>
         <pre v-else class="mermaid-raw"><code>{{ rawCode }}</code></pre>
+
+        <!-- Floating Quick-Reset Pill (Visible when inline zoomed) -->
+        <Transition name="fade">
+          <div
+            v-if="inlineScale !== 1"
+            class="inline-zoom-hint"
+            @click.stop="resetInline"
+            title="Reset Zoom (100%) [Esc]"
+          >
+            <span class="hint-scale">{{ Math.round(inlineScale * 100) }}%</span>
+            <span class="hint-dot">•</span>
+            <span class="hint-text">Click or Esc to reset</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" stroke-width="2.2" fill="none"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+          </div>
+        </Transition>
       </div>
     </div>
 
@@ -243,25 +280,202 @@ const svg = ref('')
 const loading = ref(true)
 const { isDark } = useData()
 
+const inlineViewport = ref(null)
 const inlineSvgContainer = ref(null)
 const modalSvgContainer = ref(null)
 const modalBackdrop = ref(null)
 
-// Inline view zoom
+// Inline view zoom & pan
 const inlineScale = ref(1)
-function zoomInline(delta) {
-  inlineScale.value = Math.max(0.4, Math.min(5, +(inlineScale.value + delta).toFixed(2)))
-}
-function resetInline() {
-  inlineScale.value = 1
-}
+const inlinePanX = ref(0)
+const inlinePanY = ref(0)
+const isInlinePanning = ref(false)
+let inlineStartMouseX = 0
+let inlineStartMouseY = 0
+let inlineStartPanX = 0
+let inlineStartPanY = 0
+let hasInlinePanned = false
+let inlineClickTimer = null
+
+const inlineCursor = computed(() => {
+  if (isInlinePanning.value) return 'grabbing'
+  if (inlineScale.value > 1) return 'zoom-out'
+  if (inlineScale.value < 1) return 'zoom-in'
+  return 'zoom-in'
+})
+
+const inlineTooltip = computed(() => {
+  if (inlineScale.value === 1) {
+    return 'Click to zoom in • Double-click for fullscreen'
+  }
+  return 'Click to zoom out (100%) • Drag to pan • Esc to reset'
+})
 
 const inlineViewportStyle = computed(() => {
   return {
-    overflow: 'auto',
-    maxHeight: inlineScale.value > 1.1 ? '80vh' : 'none',
+    overflow: inlineScale.value > 1 ? 'hidden' : 'visible',
+    maxHeight: inlineScale.value > 1 ? '75vh' : 'none',
   }
 })
+
+const inlineSvgStyle = computed(() => {
+  return {
+    transform: `translate(${inlinePanX.value}px, ${inlinePanY.value}px) scale(${inlineScale.value})`,
+    transformOrigin: 'center center',
+    transition: isInlinePanning.value ? 'none' : 'transform 0.25s cubic-bezier(0.2, 0, 0, 1)',
+  }
+})
+
+function zoomInline(delta) {
+  const newScale = Math.max(0.4, Math.min(5, +(inlineScale.value + delta).toFixed(2)))
+  inlineScale.value = newScale
+  if (newScale === 1) {
+    inlinePanX.value = 0
+    inlinePanY.value = 0
+  }
+}
+
+function resetInline() {
+  inlineScale.value = 1
+  inlinePanX.value = 0
+  inlinePanY.value = 0
+  hasInlinePanned = false
+}
+
+function onInlineMouseDown(e) {
+  if (e.button !== 0) return
+  if (e.target.closest('button') || e.target.closest('.mermaid-toolbar') || e.target.closest('.inline-zoom-hint')) return
+
+  inlineStartMouseX = e.clientX
+  inlineStartMouseY = e.clientY
+  inlineStartPanX = inlinePanX.value
+  inlineStartPanY = inlinePanY.value
+  hasInlinePanned = false
+
+  if (inlineScale.value > 1) {
+    isInlinePanning.value = true
+  }
+}
+
+function onInlineMouseMove(e) {
+  if (!isInlinePanning.value) return
+
+  const dx = e.clientX - inlineStartMouseX
+  const dy = e.clientY - inlineStartMouseY
+
+  if (Math.hypot(dx, dy) > 5) {
+    hasInlinePanned = true
+    inlinePanX.value = inlineStartPanX + dx
+    inlinePanY.value = inlineStartPanY + dy
+  }
+}
+
+function onInlineMouseUp() {
+  isInlinePanning.value = false
+}
+
+function onInlineClick(e) {
+  if (hasInlinePanned) {
+    hasInlinePanned = false
+    return
+  }
+
+  if (e.target.closest('button') || e.target.closest('.mermaid-toolbar') || e.target.closest('.inline-zoom-hint')) return
+
+  if (inlineClickTimer) {
+    clearTimeout(inlineClickTimer)
+    inlineClickTimer = null
+  }
+
+  inlineClickTimer = setTimeout(() => {
+    inlineClickTimer = null
+
+    // If Alt or Shift is held, zoom out / step down
+    if (e.altKey || e.shiftKey) {
+      if (inlineScale.value > 1) {
+        zoomInline(-0.25)
+      }
+      return
+    }
+
+    // Toggle: 100% -> 150%, or if already zoomed, reset to 100%
+    if (inlineScale.value === 1) {
+      inlineScale.value = 1.5
+      inlinePanX.value = 0
+      inlinePanY.value = 0
+    } else {
+      resetInline()
+    }
+  }, 220)
+}
+
+function onInlineDblClick(e) {
+  if (inlineClickTimer) {
+    clearTimeout(inlineClickTimer)
+    inlineClickTimer = null
+  }
+  openModal()
+}
+
+function onInlineWheel(e) {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault()
+    const delta = e.deltaY < 0 ? 0.2 : -0.2
+    zoomInline(delta)
+    return
+  }
+
+  if (inlineScale.value > 1) {
+    e.preventDefault()
+    inlinePanX.value -= e.deltaX * 0.8
+    inlinePanY.value -= e.deltaY * 0.8
+  }
+}
+
+// Mobile touch gestures for inline viewport
+let inlineTouchStartDist = 0
+let inlineTouchStartScale = 1
+function onInlineTouchStart(e) {
+  if (e.touches.length === 1 && inlineScale.value > 1) {
+    isInlinePanning.value = true
+    inlineStartMouseX = e.touches[0].clientX
+    inlineStartMouseY = e.touches[0].clientY
+    inlineStartPanX = inlinePanX.value
+    inlineStartPanY = inlinePanY.value
+    hasInlinePanned = false
+  } else if (e.touches.length === 2) {
+    isInlinePanning.value = false
+    inlineTouchStartDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    inlineTouchStartScale = inlineScale.value
+  }
+}
+
+function onInlineTouchMove(e) {
+  if (e.touches.length === 1 && isInlinePanning.value) {
+    const dx = e.touches[0].clientX - inlineStartMouseX
+    const dy = e.touches[0].clientY - inlineStartMouseY
+    if (Math.hypot(dx, dy) > 5) {
+      hasInlinePanned = true
+      inlinePanX.value = inlineStartPanX + dx
+      inlinePanY.value = inlineStartPanY + dy
+    }
+  } else if (e.touches.length === 2 && inlineTouchStartDist > 0) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    const factor = dist / inlineTouchStartDist
+    inlineScale.value = Math.max(0.4, Math.min(5, +(inlineTouchStartScale * factor).toFixed(2)))
+  }
+}
+
+function onInlineTouchEnd() {
+  isInlinePanning.value = false
+  inlineTouchStartDist = 0
+}
 
 // Modal View Zoom & Pan
 const isModalOpen = ref(false)
@@ -449,7 +663,12 @@ function onTouchEnd() {
 }
 
 function handleKeydown(e) {
-  if (!isModalOpen.value) return
+  if (!isModalOpen.value) {
+    if (e.key === 'Escape' && inlineScale.value !== 1) {
+      resetInline()
+    }
+    return
+  }
   if (e.key === 'Escape') closeModal()
   else if (e.key === '+' || e.key === '=') zoomModalRelative(1.25)
   else if (e.key === '-' || e.key === '_') zoomModalRelative(0.8)
@@ -600,6 +819,13 @@ watch(isDark, () => {
   font-family: monospace;
 }
 
+.tool-btn.zoom-level.is-active {
+  color: var(--vp-c-brand-1);
+  font-weight: 700;
+  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-c-brand-1);
+}
+
 .toolbar-divider {
   width: 1px;
   height: 16px;
@@ -623,19 +849,69 @@ watch(isDark, () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: zoom-in;
+  position: relative;
+  user-select: none;
+  touch-action: pan-x pan-y;
+  transition: background-color 0.2s;
+}
+
+.mermaid-viewport.is-zoomed {
+  background: var(--vp-c-bg-alt);
 }
 
 .mermaid-svg-container {
   display: flex;
   justify-content: center;
-  transition: transform 0.2s ease-out;
+  align-items: center;
   max-width: 100%;
+  will-change: transform;
 }
 
 .mermaid-svg-container :deep(svg) {
   max-width: 100%;
   height: auto;
+}
+
+/* Floating Inline Quick-Reset Pill */
+.inline-zoom-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-brand-1);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vp-c-brand-1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.inline-zoom-hint:hover {
+  background: var(--vp-c-brand-1);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.inline-zoom-hint .hint-scale {
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.inline-zoom-hint .hint-dot {
+  opacity: 0.6;
+}
+
+.inline-zoom-hint .hint-text {
+  letter-spacing: 0.2px;
 }
 
 .mermaid-raw {
