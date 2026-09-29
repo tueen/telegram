@@ -22,8 +22,9 @@ This file serves as the **Master Architectural Reference and Sitemap** for AI ag
 tueen/telegram/
 ├── src/
 │   ├── Telegram.php                   # Main client facade entry point (@mixin TelegramMethods)
-│   ├── Contracts/
-│   │   └── TelegramMethods.php        # Method signatures mixin (all 185 Bot API methods for IDE)
+│   ├── App.php                        # High-level zero-config application orchestrator
+│   ├── App/                           # App components (WebDashboard, CliHandler)
+│   ├── Contracts/                     # Method signatures mixin (all 185 Bot API methods for IDE)
 │   ├── Context/                       # Contextual parameter resolution (chat_id, user_id, business_id)
 │   │   └── ContextResolver.php        # Auto-injects default values from active Update
 │   ├── Config.php                     # Immutable client configuration

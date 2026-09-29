@@ -320,7 +320,7 @@ Automatically activated when running under Web server SAPIs (`fpm-fcgi`, `apache
 use Tueen\Telegram\Flow\Storage\FileStateStore;
 
 // Custom storage directory:
-$bot->setFlowStore(new FileStateStore(storageDir: '/var/run/bot_flows'));
+$bot->setFlowStore(new FileStateStore(directory: '/var/run/bot_flows'));
 ```
 
 ---

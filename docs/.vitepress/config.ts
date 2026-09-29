@@ -12,6 +12,7 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       text: 'Getting Started',
       items: [
         { text: 'Introduction & Setup', link: `${basePath}getting-started` },
+        { text: 'App Orchestrator', link: `${basePath}app` },
         { text: 'Configuration', link: `${basePath}configuration` },
       ]
     },
@@ -71,11 +72,19 @@ for (const item of versions.archived) {
   }
 }
 
+// Determine base path for GitHub Pages or custom domain:
+// 1. Explicit VITEPRESS_BASE environment variable
+// 2. In GitHub Actions without a custom CNAME, default to '/telegram/'
+// 3. Otherwise default to '/' (local development or custom domain)
+const hasCustomDomain = fs.existsSync(path.resolve(__dirname, '../public/CNAME'))
+const base = process.env.VITEPRESS_BASE ?? (process.env.GITHUB_ACTIONS && !hasCustomDomain ? '/telegram/' : '/')
+
 export default defineConfig({
+  base,
   title: "Tueen Telegram",
   description: "The Royal Telegram Bot API Client for Tueen",
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/icon.png' }]
+    ['link', { rel: 'icon', type: 'image/png', href: `${base.replace(/\/$/, '')}/icon.png` }]
   ],
   markdown: {
     config(md) {
