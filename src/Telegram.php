@@ -267,11 +267,12 @@ class Telegram
         return $handled;
     }
 
-    /**
-     * Sends a Method object to the Telegram Bot API.
-     */
-    public function send(Method $method, ?Closure $uploadProgress = null, ?Closure $downloadProgress = null): mixed
-    {
+    public function send(
+        Method $method,
+        ?Closure $uploadProgress = null,
+        ?Closure $downloadProgress = null,
+        ?\Tueen\Telegram\Client\RequestOptions $options = null
+    ): mixed {
         $this->context->resolveMethod($method);
 
         [$params, $files] = $method->buildRequestData();
@@ -288,14 +289,19 @@ class Telegram
             $requestTimeout = max(120.0, $this->config->timeout);
         }
 
+        if ($options?->timeout !== null) {
+            $requestTimeout = $options->timeout;
+        }
+
         $request = new Request(
             endpoint: $endpoint,
             parameters: $params,
             files: $files,
             httpMethod: $method->getHttpMethod(),
-            uploadProgress: $uploadProgress ?? $this->config->uploadProgress,
-            downloadProgress: $downloadProgress ?? $this->config->downloadProgress,
-            timeout: $requestTimeout
+            uploadProgress: $uploadProgress ?? $options?->uploadProgress ?? $this->config->uploadProgress,
+            downloadProgress: $downloadProgress ?? $options?->downloadProgress ?? $this->config->downloadProgress,
+            timeout: $requestTimeout,
+            connectTimeout: $options?->connectTimeout
         );
 
         $this->triggerBeforeRequest($request);
@@ -348,11 +354,20 @@ class Telegram
      */
     public function __call(string $name, array $arguments): mixed
     {
+        $options = null;
+        if (array_key_exists('_', $arguments)) {
+            $options = \Tueen\Telegram\Client\RequestOptions::from($arguments['_']);
+            unset($arguments['_']);
+        } elseif (count($arguments) === 1 && isset($arguments[0]) && is_array($arguments[0]) && array_key_exists('_', $arguments[0])) {
+            $options = \Tueen\Telegram\Client\RequestOptions::from($arguments[0]['_']);
+            unset($arguments[0]['_']);
+        }
+
         $className = 'Tueen\\Telegram\\Methods\\' . ucfirst($name);
 
         if (class_exists($className)) {
             $methodInstance = $this->instantiateMethod($className, $arguments);
-            return $this->send($methodInstance);
+            return $this->send($methodInstance, options: $options);
         }
 
         // Dynamic fallback: build a dynamic Method instance

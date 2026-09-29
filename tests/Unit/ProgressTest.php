@@ -82,4 +82,31 @@ class ProgressTest extends TestCase
         $this->assertSame([500, 1000, 50.0], $downloadEvents[0]);
         $this->assertSame([1000, 1000, 100.0], $downloadEvents[1]);
     }
+
+    public function testRequestOptionsViaUnderscoreParameter(): void
+    {
+        $mockHttp = $this->createMock(HttpClientInterface::class);
+        $mockHttp->expects($this->once())
+            ->method('send')
+            ->willReturnCallback(function ($config, Request $req) {
+                $this->assertSame(45.0, $req->timeout);
+                $this->assertSame(10.0, $req->connectTimeout);
+                $this->assertArrayNotHasKey('_', $req->parameters);
+                $this->assertNotNull($req->uploadProgress);
+                return new Response(statusCode: 200, data: ['ok' => true, 'result' => true]);
+            });
+
+        $config = Telegram::create('TOKEN')
+            ->withHttpClient($mockHttp)
+            ->build();
+
+        $bot = new Telegram($config);
+
+        $options = \Tueen\Telegram\Client\RequestOptions::make()
+            ->timeout(45.0)
+            ->connectTimeout(10.0)
+            ->onUploadProgress(fn($u, $t) => null);
+
+        $bot->sendMessage(chatId: 12345, text: 'Hello Options', _: $options);
+    }
 }

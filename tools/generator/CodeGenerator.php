@@ -741,6 +741,8 @@ PHP;
                 $paramList[] = "{$phpType} \${$c}{$def}";
             }
 
+            $allImports[] = 'Tueen\Telegram\Client\RequestOptions';
+            $paramList[] = 'RequestOptions|array|null $_ = null';
             $paramList[] = 'mixed ...$extra';
             $paramsStr = implode(', ', $paramList);
             $lines[] = " * @method {$retType} {$rawName}({$paramsStr})";
