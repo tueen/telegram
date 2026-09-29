@@ -55,6 +55,21 @@ abstract class Flow
     protected array $exitCommands = ['/cancel', '/exit', '/stop'];
 
     /**
+     * Allowed update types for this flow.
+     * An empty array indicates all update types are accepted (or uses default from config).
+     *
+     * @var list<string|\Tueen\Telegram\Enums\UpdateType>
+     */
+    protected array $allowedUpdates = [];
+
+    /**
+     * Optional fallback Flow class to transition to if an unresolvable error or missing step occurs.
+     *
+     * @var class-string<Flow>|null
+     */
+    protected ?string $fallbackFlow = null;
+
+    /**
      * Time-to-live for this flow state in seconds (default: 3600 = 1 hour).
      * Set to null for unlimited lifetime.
      */
@@ -102,6 +117,108 @@ abstract class Flow
     public function onExit(Update $update, string $reason): void
     {
         // Child classes can override this for cleanup or analytics
+    }
+
+    /**
+     * Returns the list of allowed update types for this flow.
+     *
+     * @return list<string|\Tueen\Telegram\Enums\UpdateType>
+     */
+    public function allowedUpdates(): array
+    {
+        if (!empty($this->allowedUpdates)) {
+            return $this->allowedUpdates;
+        }
+
+        // Check for #[AllowedUpdates] attribute
+        $ref = new \ReflectionClass($this);
+        $attrs = $ref->getAttributes(\Tueen\Telegram\Flow\Attributes\AllowedUpdates::class);
+        if (!empty($attrs)) {
+            /** @var \Tueen\Telegram\Flow\Attributes\AllowedUpdates $instance */
+            $instance = $attrs[0]->newInstance();
+            return $instance->types;
+        }
+
+        return $this->manager->getDefaultAllowedUpdates();
+    }
+
+    /**
+     * Determines whether an incoming update is allowed to be handled by this flow.
+     */
+    public function allowsUpdate(Update $update): bool
+    {
+        $allowed = $this->allowedUpdates();
+        if (empty($allowed)) {
+            return true;
+        }
+
+        $type = $update->type;
+        foreach ($allowed as $item) {
+            if ($item instanceof \Tueen\Telegram\Enums\UpdateType && $item === $type) {
+                return true;
+            }
+            if (is_string($item)) {
+                if ($item === '*' || strtolower($item) === strtolower($type->value)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the fallback Flow class configured for this flow.
+     *
+     * @return class-string<Flow>|null
+     */
+    public function fallbackFlow(): ?string
+    {
+        return $this->fallbackFlow;
+    }
+
+    /**
+     * Handles an incoming update when the target step method does not exist on this Flow.
+     * By default, attempts to navigate back in history, or fallback to start() / fallbackFlow / rootFlow.
+     */
+    public function onMissingStep(string $step, Update $update): void
+    {
+        // 1. If history exists, navigate back to previous step
+        if (!empty($this->state->history)) {
+            $this->back();
+            return;
+        }
+
+        // 2. If InteractiveFlow and parent stack exists, pop to parent flow
+        if ($this instanceof InteractiveFlow && !empty($this->state->flowStack)) {
+            $this->pop();
+            return;
+        }
+
+        // 3. Fallback to start() method if current step is not already start
+        if ($step !== 'start' && method_exists($this, 'start')) {
+            $this->state->currentStep = 'start';
+            $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+            $this->start($update);
+            return;
+        }
+
+        // 4. Fallback to custom fallbackFlow if specified
+        $fallback = $this->fallbackFlow();
+        if ($fallback !== null && $fallback !== static::class && class_exists($fallback)) {
+            $this->jumpTo($fallback);
+            return;
+        }
+
+        // 5. Fallback to rootFlow if configured on FlowManager
+        $rootFlow = $this->manager->getRootFlow();
+        if ($rootFlow !== null && $rootFlow !== static::class && class_exists($rootFlow)) {
+            $this->jumpTo($rootFlow);
+            return;
+        }
+
+        // 6. Otherwise safely finish flow
+        $this->finish();
     }
 
     /**

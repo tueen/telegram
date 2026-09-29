@@ -378,6 +378,14 @@ class App
     }
 
     /**
+     * Resolves a fluent FlowSession to inspect and control a conversation Flow from outside.
+     */
+    public function flow(int|string|null $chatId = null, ?int $userId = null, ?\Tueen\Telegram\Types\Update $update = null): \Tueen\Telegram\Flow\FlowSession
+    {
+        return $this->bot->flow($chatId, $userId, $update);
+    }
+
+    /**
      * Dynamically proxies method calls to the underlying Telegram client.
      *
      * Fluent methods that return the Telegram client instance are transparently

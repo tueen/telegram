@@ -18,6 +18,8 @@ class FlowManager
 {
     private StateStoreInterface $store;
     private ?string $rootFlow = null;
+    /** @var list<string|\Tueen\Telegram\Enums\UpdateType> */
+    private array $defaultAllowedUpdates = [];
 
     public function __construct(?StateStoreInterface $store = null)
     {
@@ -60,6 +62,25 @@ class FlowManager
     public function getRootFlow(): ?string
     {
         return $this->rootFlow;
+    }
+
+    /**
+     * Sets the default allowed update types for flows that do not specify their own.
+     *
+     * @param list<string|\Tueen\Telegram\Enums\UpdateType> $types
+     */
+    public function setDefaultAllowedUpdates(array $types): static
+    {
+        $this->defaultAllowedUpdates = $types;
+        return $this;
+    }
+
+    /**
+     * @return list<string|\Tueen\Telegram\Enums\UpdateType>
+     */
+    public function getDefaultAllowedUpdates(): array
+    {
+        return $this->defaultAllowedUpdates;
     }
 
     /**
@@ -160,14 +181,23 @@ class FlowManager
             return false;
         }
 
-        $flowClass = $state->flowClass;
-        if (!class_exists($flowClass) || !is_subclass_of($flowClass, Flow::class)) {
+        if ($state->isExpired()) {
             $this->store->delete($sessionKey);
             return false;
         }
 
+        $flowClass = $state->flowClass;
+        if (!class_exists($flowClass) || !is_subclass_of($flowClass, Flow::class)) {
+            return $this->handleMissingFlowClass($sessionKey, $state, $update, $bot, $chatId, $userId);
+        }
+
         $flow = $this->createFlowInstance($flowClass, $bot);
         $flow->init($bot, $update, $chatId, $userId, $state, $this);
+
+        // Check if update type is allowed for this Flow
+        if (!$flow->allowsUpdate($update)) {
+            return false;
+        }
 
         // Check for /start command
         $text = trim($update->findAnyText() ?? '');
@@ -210,9 +240,11 @@ class FlowManager
 
         $step = $state->currentStep;
         if (!method_exists($flow, $step)) {
-            // Step missing: abort flow safely
-            $this->store->delete($sessionKey);
-            return false;
+            $flow->onMissingStep($step, $update);
+            if (!$flow->isTerminated()) {
+                $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+            }
+            return true;
         }
 
         $flow->$step($update);
@@ -220,6 +252,67 @@ class FlowManager
             $this->saveState($sessionKey, $flow->state, $flow->getTtl());
         }
         return true;
+    }
+
+    /**
+     * Resiliently handles incoming updates when the active Flow class was deleted or cannot be resolved.
+     * Navigates back in the flow stack, falls back to the configured rootFlow, or safely terminates.
+     */
+    protected function handleMissingFlowClass(
+        string $sessionKey,
+        FlowState $state,
+        Update $update,
+        Telegram $bot,
+        int|string $chatId,
+        ?int $userId
+    ): bool {
+        // 1. Attempt to navigate back in hierarchical flow stack (pop parent flows)
+        while (!empty($state->flowStack)) {
+            $parentSnapshot = array_pop($state->flowStack);
+            $parentClass = $parentSnapshot['flowClass'] ?? '';
+
+            if (class_exists($parentClass) && is_subclass_of($parentClass, Flow::class)) {
+                $state->flowClass = $parentClass;
+                $state->currentStep = $parentSnapshot['currentStep'] ?? 'start';
+                $state->data = $parentSnapshot['data'] ?? [];
+                if (isset($parentSnapshot['messageId'])) {
+                    $state->messageId = $parentSnapshot['messageId'];
+                }
+
+                $parentFlow = $this->createFlowInstance($parentClass, $bot);
+                $parentFlow->init($bot, $update, $chatId, $userId, $state, $this);
+
+                if ($parentFlow instanceof InteractiveFlow) {
+                    $parentFlow->onResume(null);
+                    $parentFlow->renderScreen();
+                } else {
+                    $step = $parentFlow->state->currentStep;
+                    if (method_exists($parentFlow, $step)) {
+                        $parentFlow->$step($update);
+                    } elseif (method_exists($parentFlow, 'start')) {
+                        $parentFlow->start($update);
+                    }
+                }
+
+                if (!$parentFlow->isTerminated()) {
+                    $this->saveState($sessionKey, $parentFlow->state, $parentFlow->getTtl());
+                }
+
+                return true;
+            }
+        }
+
+        // 2. Fallback to configured root flow
+        $rootFlow = $this->rootFlow;
+        if ($rootFlow !== null && class_exists($rootFlow) && is_subclass_of($rootFlow, Flow::class)) {
+            $this->store->delete($sessionKey);
+            $this->startFlow($rootFlow, $update, $bot);
+            return true;
+        }
+
+        // 3. Fallback: safely delete state and let regular bot routes process the update
+        $this->store->delete($sessionKey);
+        return false;
     }
 
     public function saveState(string $sessionKey, FlowState $state, ?int $ttl = null): void
@@ -250,5 +343,122 @@ class FlowManager
         }
 
         return new $flowClass();
+    }
+
+    /**
+     * Resolves a fluent FlowSession object to inspect and control a flow from outside.
+     */
+    public function flowSession(int|string $chatId, ?int $userId, Telegram $bot, ?Update $update = null): FlowSession
+    {
+        return new FlowSession($chatId, $userId, $bot, $this, $update);
+    }
+
+    /**
+     * Gets the active Flow class for the specified session, or null if none active.
+     *
+     * @return class-string<Flow>|null
+     */
+    public function getActiveFlowClass(int|string $chatId, ?int $userId = null): ?string
+    {
+        return $this->getActiveState($chatId, $userId)?->flowClass;
+    }
+
+    /**
+     * Instantiates and initializes the active Flow instance, or null if none active.
+     */
+    public function getActiveFlowInstance(
+        int|string $chatId,
+        ?int $userId,
+        Telegram $bot,
+        ?Update $update = null
+    ): ?Flow {
+        $state = $this->getActiveState($chatId, $userId);
+        if ($state === null) {
+            return null;
+        }
+
+        $flowClass = $state->flowClass;
+        if (!class_exists($flowClass) || !is_subclass_of($flowClass, Flow::class)) {
+            return null;
+        }
+
+        $resolvedUpdate = $update ?? $bot->update ?? new Update([]);
+        $flow = $this->createFlowInstance($flowClass, $bot);
+        $flow->init($bot, $resolvedUpdate, $chatId, $userId, $state, $this);
+        return $flow;
+    }
+
+    /**
+     * Cancels the active flow for the given session.
+     */
+    public function cancelFlow(
+        int|string $chatId,
+        ?int $userId,
+        Telegram $bot,
+        ?string $replyMessage = 'Operation cancelled.',
+        ?Update $update = null
+    ): bool {
+        $flow = $this->getActiveFlowInstance($chatId, $userId, $bot, $update);
+        if ($flow === null) {
+            $key = self::resolveSessionKey($chatId, $userId);
+            if ($this->store->get($key) !== null) {
+                $this->store->delete($key);
+                return true;
+            }
+            return false;
+        }
+
+        $flow->cancel($replyMessage);
+        return true;
+    }
+
+    /**
+     * Finishes the active flow for the given session.
+     */
+    public function finishFlow(
+        int|string $chatId,
+        ?int $userId = null,
+        ?Telegram $bot = null,
+        ?Update $update = null
+    ): bool {
+        if ($bot !== null) {
+            $flow = $this->getActiveFlowInstance($chatId, $userId, $bot, $update);
+            if ($flow !== null) {
+                $flow->finish();
+                return true;
+            }
+        }
+
+        $key = self::resolveSessionKey($chatId, $userId);
+        if ($this->store->get($key) !== null) {
+            $this->store->delete($key);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Navigates back in history or pops parent flow for the active session.
+     */
+    public function navigateBack(
+        int|string $chatId,
+        ?int $userId,
+        Telegram $bot,
+        ?string $replyMessage = null,
+        ?Update $update = null
+    ): bool {
+        $flow = $this->getActiveFlowInstance($chatId, $userId, $bot, $update);
+        if ($flow === null) {
+            return false;
+        }
+
+        if ($flow instanceof InteractiveFlow) {
+            $flow->pop();
+        } else {
+            $flow->back($replyMessage);
+        }
+
+        return true;
     }
 }

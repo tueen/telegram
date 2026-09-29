@@ -92,3 +92,115 @@ Completes the flow, removes session state from storage, and executes `onExit($up
 
 ### `$this->cancel(?string $replyMessage = 'Operation cancelled.'): void`
 Cancels the flow, purges stored state, sends the optional cancellation message, and triggers `onExit($update, 'cancelled')`.
+
+---
+
+## 🎯 Filtering Allowed Updates (`allowedUpdates` & `#[AllowedUpdates]`)
+
+By default, an active Flow intercepts all incoming updates for that user/chat. However, you can restrict which update types enter a Flow using either property, attribute, or global configuration:
+
+### Using the `#[AllowedUpdates]` Attribute
+```php
+use Tueen\Telegram\Flow\Flow;
+use Tueen\Telegram\Flow\Attributes\AllowedUpdates;
+use Tueen\Telegram\Enums\UpdateType;
+
+#[AllowedUpdates('message', 'callback_query')]
+// Or with enums: #[AllowedUpdates(UpdateType::MESSAGE, UpdateType::CALLBACK_QUERY)]
+class SurveyFlow extends Flow
+{
+    public function start(Update $update): void
+    {
+        // ...
+    }
+}
+```
+
+### Using the `$allowedUpdates` Property or Method
+```php
+class CustomFlow extends Flow
+{
+    protected array $allowedUpdates = ['message'];
+
+    // Or dynamic check:
+    public function allowsUpdate(Update $update): bool
+    {
+        return $update->isMessage();
+    }
+}
+```
+
+### Global Default via Configuration
+```php
+$config = Telegram::create('TOKEN')
+    ->withFlowAllowedUpdates(['message', 'callback_query'])
+    ->build();
+```
+
+> [!TIP]
+> When an update type is not allowed for an active flow (for example, a `chat_join_request` or `inline_query`), the flow **leaves the user's active session intact** and allows the update to pass through to your regular bot routes and attribute controllers!
+
+---
+
+## 🕹️ External Flow Inspection & Control (`$bot->flow()`)
+
+You can inspect and control active conversation flows from anywhere outside the flow — such as inside command handlers, route controllers, update middlewares, or background jobs.
+
+### The Fluent `FlowSession` Interface
+Call `$bot->flow()` (which automatically resolves `chatId` and `userId` from the current update), or pass explicit IDs:
+
+```php
+$bot->onCommand('status', function (Update $update, Telegram $bot) {
+    $session = $bot->flow();
+
+    if ($session->isActive()) {
+        $flowClass = $session->getClass(); // e.g. App\Flows\OrderFlow
+        $step = $session->getStep();       // e.g. 'askQuantity'
+        $data = $session->getData();       // ['item_id' => 42]
+
+        $bot->sendMessage(
+            chatId: $update->chat->id,
+            text: "You are currently in {$flowClass} on step: {$step}"
+        );
+    }
+});
+```
+
+### Controlling Flows from Outside
+You can programmatically navigate, modify, or terminate flows:
+
+```php
+$session = $bot->flow();
+
+// Navigate back to previous step:
+$session->back('Returning to previous question...');
+
+// Jump directly to another step:
+$session->to('confirm', ['reviewed' => true]);
+
+// Transition seamlessly to a different flow:
+$session->jumpTo(HelpFlow::class);
+
+// Reset flow back to start step and clear data:
+$session->reset();
+
+// Cancel or finish the active flow:
+$session->cancel('Flow was cancelled.');
+$session->finish();
+
+// Directly mutate state data:
+$session->set('discount_code', 'SUMMER2026');
+$code = $session->get('discount_code');
+```
+
+### Direct Facade Shortcuts on `$bot` & `$app`
+For quick checks, convenient one-line helpers are available directly on `$bot` and `$app`:
+
+```php
+if ($bot->hasActiveFlow()) {
+    $activeClass = $bot->getActiveFlowClass();
+    $bot->flowBack();   // Navigate back
+    $bot->cancelFlow(); // Cancel active flow
+    $bot->finishFlow(); // Finish active flow
+}
+```

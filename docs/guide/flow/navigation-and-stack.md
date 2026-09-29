@@ -122,13 +122,79 @@ Catalog » Electronics » Headphones
 Sony WH-1000XM5 Specs...
 ```
 
-### Dynamic Breadcrumb Titles
-If your breadcrumb title depends on dynamic state data (such as product name loaded from database), override `getBreadcrumbTitle()`:
-
 ```php
 public function getBreadcrumbTitle(): string
 {
     return $this->get('product_name', 'Item');
 }
 ```
+
+---
+
+## 🛡️ Resilience & Missing Class Fallback
+
+In long-running or distributed systems, code deployments may remove, rename, or refactor a Flow class while active users still have that Flow recorded in their persistent storage (e.g. `storage/flow/*.json` or Redis/database).
+
+`tueen/telegram` features an intelligent, multi-layered resilience algorithm to ensure your bot never crashes or leaves users stranded:
+
+```mermaid
+graph TD
+    Update["Incoming User Update"] --> CheckClass{"Flow Class Exists?"}
+    CheckClass -->|Yes| CheckStep{"Step Method Exists?"}
+    CheckStep -->|Yes| Execute["Execute Flow Step"]
+    CheckStep -->|No| MissingStep["Trigger onMissingStep()"]
+    MissingStep --> BackHist{"Step History Available?"}
+    BackHist -->|Yes| NavigateBack["$this->back()"]
+    BackHist -->|No| CheckStart{"start() Exists?"}
+    CheckStart -->|Yes| GoStart["$this->start($update)"]
+    CheckStart -->|No| CheckRoot1{"rootFlow Available?"}
+
+    CheckClass -->|No: Class Deleted| CheckStack{"Parent Stack in flowStack?"}
+    CheckStack -->|Yes| UnwindStack["Pop & Resume Nearest Valid Parent Flow"]
+    CheckStack -->|No| CheckRoot1
+    CheckRoot1 -->|Yes| RedirectRoot["Transition to rootFlow / defaultFlow"]
+    CheckRoot1 -->|No| CleanUp["Purge Orphaned State & Fallthrough to Bot Router"]
+```
+
+### 1. Unwinding Navigation Stack to Parent Flows
+If the user was inside a child flow (pushed via `$this->push(...)`) whose class was removed, `FlowManager` automatically inspects `$state->flowStack` and pops back to the nearest parent Flow that still exists, resuming it smoothly with its original state and `messageId`.
+
+### 2. Fallback to `rootFlow` (Default Flow)
+If the stack is empty (or parent classes were also removed), `FlowManager` checks if a `rootFlow` (or `defaultFlow`) is configured in `Config`:
+
+```php
+$config = Telegram::create('TOKEN')
+    ->withRootFlow(MainMenuFlow::class) // or withDefaultFlow(MainMenuFlow::class)
+    ->build();
+```
+
+When configured, the user's corrupted state is cleared and they are seamlessly redirected to the entry step of the root flow.
+
+### 3. Missing Step Recovery (`onMissingStep`)
+If a Flow class exists, but a specific step method was removed or renamed in code, `Flow::onMissingStep($step, $update)` is automatically invoked:
+- It checks `$state->history` and navigates back one step.
+- If history is empty, it attempts to return to the `start($update)` method.
+- If a custom `$this->fallbackFlow` is set on the flow, it transitions there.
+- Or it redirects to `rootFlow`.
+
+You can also customize missing step handling directly on any Flow:
+
+```php
+class CustomFlow extends Flow
+{
+    protected ?string $fallbackFlow = HomeFlow::class;
+
+    public function onMissingStep(string $step, Update $update): void
+    {
+        $this->bot->sendMessage(
+            chatId: $this->chatId,
+            text: "This section was recently updated. Taking you back..."
+        );
+        $this->back();
+    }
+}
+```
+
+### 4. Graceful Router Fallthrough
+If no parent flows, root flows, or step recovery paths are available, `FlowManager` purges the orphaned session and returns `false`. This ensures the user's message is not discarded and is immediately handled by your regular command handlers, router attributes, or fallback routes.
 

@@ -35,8 +35,15 @@ class Config
         /** @var list<class-string<\Throwable>> */
         public readonly array $convertExceptionsToError = [ApiException::class],
         public readonly ?RunningModeInterface $runningMode = null,
-        public readonly mixed $container = null
+        public readonly mixed $container = null,
+        public readonly ?string $rootFlow = null,
+        /** @var list<string|\Tueen\Telegram\Enums\UpdateType> */
+        public readonly array $flowAllowedUpdates = []
     ) {}
+
+    public ?string $defaultFlow {
+        get => $this->rootFlow;
+    }
 
     #[\NoDiscard]
     public static function builder(string $botToken = ''): ConfigBuilder
@@ -62,6 +69,8 @@ class Config
             convertExceptionsToError: $overrides['convertExceptionsToError'] ?? $this->convertExceptionsToError,
             runningMode: array_key_exists('runningMode', $overrides) ? $overrides['runningMode'] : $this->runningMode,
             container: array_key_exists('container', $overrides) ? $overrides['container'] : $this->container,
+            rootFlow: array_key_exists('rootFlow', $overrides) ? $overrides['rootFlow'] : $this->rootFlow,
+            flowAllowedUpdates: $overrides['flowAllowedUpdates'] ?? $this->flowAllowedUpdates,
         );
     }
 
@@ -150,6 +159,39 @@ class Config
     public function withRunningMode(?RunningModeInterface $runningMode): self
     {
         return $this->copyWith(['runningMode' => $runningMode]);
+    }
+
+    #[\NoDiscard]
+    public function withPollingMode(PollingMode $mode): self
+    {
+        return $this->withRunningMode($mode);
+    }
+
+    #[\NoDiscard]
+    public function withWebhookMode(WebhookMode $mode): self
+    {
+        return $this->withRunningMode($mode);
+    }
+
+    #[\NoDiscard]
+    public function withRootFlow(?string $flowClass): self
+    {
+        return $this->copyWith(['rootFlow' => $flowClass]);
+    }
+
+    #[\NoDiscard]
+    public function withDefaultFlow(?string $flowClass): self
+    {
+        return $this->withRootFlow($flowClass);
+    }
+
+    /**
+     * @param list<string|\Tueen\Telegram\Enums\UpdateType> $types
+     */
+    #[\NoDiscard]
+    public function withFlowAllowedUpdates(array $types): self
+    {
+        return $this->copyWith(['flowAllowedUpdates' => $types]);
     }
 
     #[\NoDiscard]

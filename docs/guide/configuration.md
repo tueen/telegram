@@ -267,13 +267,33 @@ $config = Telegram::create('YOUR_TOKEN')
 
   <div class="config-card">
     <div class="config-card-header">
-      <code class="method-name">withAutoMode(?PollingMode $polling, ?WebhookMode $webhook, bool $autoDeleteWebhook = false)</code>
+      <code class="method-name">withPollingMode(PollingMode $mode)</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">PollingMode</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Convenience shortcut to configure long-polling mode with custom batch limits, timeout, backoff, and process concurrency.</p>
+  </div>
+
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">withWebhookMode(WebhookMode $mode)</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">WebhookMode</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Convenience shortcut to configure webhook mode with secret token verification and non-blocking safe responses.</p>
+  </div>
+
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">withAutoMode(?PollingMode $polling, ?WebhookMode $webhook, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)</code>
       <div class="config-card-badges">
         <span class="config-badge type">AutoMode</span>
         <span class="config-badge default">default: Polling in CLI / Webhook in HTTP</span>
       </div>
     </div>
-    <p class="config-card-desc">Configures adaptive <code>AutoMode</code> to seamlessly switch between CLI Polling and HTTP Webhook execution.</p>
+    <p class="config-card-desc">Configures adaptive <code>AutoMode</code> to seamlessly switch between CLI Polling and HTTP Webhook execution with optional webhook cleanup and custom environment detection.</p>
   </div>
 
   <div class="config-card">
@@ -285,6 +305,34 @@ $config = Telegram::create('YOUR_TOKEN')
       </div>
     </div>
     <p class="config-card-desc">Number of automatic retries on rate limits (<code>429 Too Many Requests</code> with <code>retry_after</code>) or transient network dropouts.</p>
+  </div>
+</div>
+
+---
+
+### 🔄 Conversation Flow & Orchestration
+
+<div class="config-group">
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">withRootFlow(?string $flowClass) / withDefaultFlow(?string $flowClass)</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">?class-string&lt;Flow&gt;</span>
+        <span class="config-badge default">default: null</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Specifies the root/home Flow class. Automatically redirected to on <code>/start</code>, home navigation actions, or as a graceful recovery fallback when an orphaned Flow class was deleted.</p>
+  </div>
+
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">withFlowAllowedUpdates(array $types)</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">list&lt;string|UpdateType&gt;</span>
+        <span class="config-badge default">default: [] (all updates)</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Sets the global default allowed update types for conversation flows. An empty array permits all updates. Disallowed updates bypass the flow and fall through to regular bot routes.</p>
   </div>
 </div>
 
@@ -324,29 +372,23 @@ $config = Telegram::create('YOUR_TOKEN')
 
 ---
 
-## 📑 3. Complete Reference Table
+### ⚡ Client Instantiation Shortcuts
 
-| Property on `Config` | PHP Type | Default | ConfigBuilder Method | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **`botToken`** | `string` | `''` | `withToken()` | Telegram Bot API token |
-| **`apiServer`** | `string` | `'https://api.telegram.org'` | `withApiServer()` | Base API endpoint URL |
-| **`timeout`** | `float` | `30.0` | `withTimeout()` | HTTP request execution timeout (seconds) |
-| **`connectTimeout`** | `float` | `10.0` | `withConnectTimeout()` | TCP/TLS connection timeout (seconds) |
-| **`proxy`** | `?string` | `null` | `withProxy()` | HTTP or SOCKS5 proxy URL |
-| **`httpClient`** | `?HttpClientInterface` | `null` (Guzzle) | `withHttpClient()`, `withCurlClient()` | HTTP transport client |
-| **`logger`** | `?LoggerInterface` | `null` | `withLogger()` | PSR-3 compliant logger instance |
-| **`uploadProgress`** | `?Closure` | `null` | `withUploadProgress()` | Upload progress callback |
-| **`downloadProgress`** | `?Closure` | `null` | `withDownloadProgress()` | Download progress callback |
-| **`retryCount`** | `int` | `3` | `withRetryCount()` | Automatic retry attempts on 429/network errors |
-| **`testEnvironment`** | `bool` | `false` | `withTestEnvironment()` | Target Telegram's `/test` sandbox |
-| **`errorHandlingMode`** | `ErrorHandlingMode` | `EXCEPTION` | `withErrorHandlingMode()` | EXCEPTION vs ERROR_OBJECT |
-| **`convertExceptionsToError`** | `list<class-string<Throwable>>` | `[ApiException::class]` | `withConvertExceptions()` | Exceptions converted into `Error` objects |
-| **`runningMode`** | `?RunningModeInterface` | `null` (Webhook) | `withRunningMode()`, `withAutoMode()` | WebhookMode, PollingMode, or AutoMode |
-| **`container`** | `mixed` | `null` | `withContainer()` | PSR-11 container for dependency resolution |
+<div class="config-group">
+  <div class="config-card">
+    <div class="config-card-header">
+      <code class="method-name">client() / make()</code>
+      <div class="config-card-badges">
+        <span class="config-badge type">Telegram</span>
+      </div>
+    </div>
+    <p class="config-card-desc">Directly constructs and returns an initialized <code>Telegram</code> client instance without having to manually call <code>new Telegram($builder->build())</code>.</p>
+  </div>
+</div>
 
 ---
 
-## 🧬 4. Immutability & Modern PHP 8.5 Patterns
+## 🧬 3. Immutability & Modern PHP 8.5 Patterns
 
 The `Config` class is completely immutable. Every `with...()` method creates and returns a clean new instance using PHP 8.5's `clone with` and `#[\NoDiscard]` attributes:
 
@@ -366,7 +408,7 @@ $fastConfig = $baseConfig
 
 ---
 
-## 🌐 5. Standard URI & URL Resolution Methods
+## 🌐 4. Standard URI & URL Resolution Methods
 
 `Config` provides convenient methods to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
 
@@ -390,7 +432,7 @@ echo $uri->getPath(); // "/bot123456:ABC"
 
 ---
 
-## 💡 6. Real-World Configuration Recipes
+## 💡 5. Real-World Configuration Recipes
 
 ### Recipe 1: Production Webhook with Persistent cURL & Monolog
 

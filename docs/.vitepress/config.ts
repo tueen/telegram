@@ -14,14 +14,9 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
         { text: 'Introduction & Setup', link: `${basePath}getting-started` },
         { text: 'Configuration', link: `${basePath}configuration` },
         { text: 'Running Modes', link: `${basePath}running-modes` },
-        { text: 'App Orchestrator', link: `${basePath}app` },
-      ]
-    },
-    {
-      text: 'Update Handling',
-      items: [
         { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
         { text: 'Update Routing & Attributes', link: `${basePath}routing` },
+        { text: 'App Orchestrator', link: `${basePath}app` },
       ]
     },
     {

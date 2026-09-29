@@ -114,6 +114,13 @@ class Telegram
 
         $this->runningMode = $this->config->runningMode;
         $this->container = $this->config->container;
+
+        if ($this->config->rootFlow !== null) {
+            $this->setRootFlow($this->config->rootFlow);
+        }
+        if (!empty($this->config->flowAllowedUpdates)) {
+            $this->flowManager()->setDefaultAllowedUpdates($this->config->flowAllowedUpdates);
+        }
     }
 
     /**
@@ -863,6 +870,120 @@ class Telegram
             initialStep: $initialStep,
             initialData: $initialData
         );
+    }
+
+    /**
+     * Resolves a fluent FlowSession to inspect and control a conversation Flow from outside.
+     */
+    public function flow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): \Tueen\Telegram\Flow\FlowSession
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            throw new TelegramException("Cannot resolve Flow session: no chat ID available.");
+        }
+
+        return $this->flowManager()->flowSession($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+    }
+
+    /**
+     * Checks if there is an active conversation Flow for the resolved chat/user.
+     */
+    public function hasActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return false;
+        }
+
+        return $this->flowManager()->hasActiveFlow($resolvedChatId, $resolvedUserId);
+    }
+
+    /**
+     * Retrieves the active Flow class for the resolved chat/user, or null if none active.
+     *
+     * @return class-string<\Tueen\Telegram\Flow\Flow>|null
+     */
+    public function getActiveFlowClass(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?string
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return null;
+        }
+
+        return $this->flowManager()->getActiveFlowClass($resolvedChatId, $resolvedUserId);
+    }
+
+    /**
+     * Retrieves the active Flow instance for the resolved chat/user, or null if none active.
+     */
+    public function getActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?\Tueen\Telegram\Flow\Flow
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return null;
+        }
+
+        return $this->flowManager()->getActiveFlowInstance($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+    }
+
+    /**
+     * Navigates back in the active Flow for the resolved chat/user.
+     */
+    public function flowBack(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = null, ?Update $update = null): bool
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return false;
+        }
+
+        return $this->flowManager()->navigateBack($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
+    }
+
+    /**
+     * Cancels the active Flow for the resolved chat/user.
+     */
+    public function cancelFlow(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = 'Operation cancelled.', ?Update $update = null): bool
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return false;
+        }
+
+        return $this->flowManager()->cancelFlow($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
+    }
+
+    /**
+     * Finishes the active Flow for the resolved chat/user.
+     */
+    public function finishFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
+    {
+        [$resolvedChatId, $resolvedUserId] = $this->resolveSessionChatAndUser($chatId, $userId, $update);
+        if ($resolvedChatId === null) {
+            return false;
+        }
+
+        return $this->flowManager()->finishFlow($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+    }
+
+    /**
+     * Helper to resolve chatId and userId from parameters or the active update context.
+     *
+     * @return array{0: int|string|null, 1: int|null}
+     */
+    private function resolveSessionChatAndUser(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): array
+    {
+        if ($chatId !== null) {
+            return [$chatId, $userId];
+        }
+
+        $resolvedUpdate = $update ?? $this->update;
+        $chat = $resolvedUpdate?->findChat();
+        $user = $resolvedUpdate?->findUser();
+
+        $resolvedChatId = $chat?->id ?? $this->context->getChatId();
+        $resolvedUserId = $userId ?? $user?->id ?? $this->context->getUserId();
+
+        return [$resolvedChatId, $resolvedUserId];
     }
 
     /**

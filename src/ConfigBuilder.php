@@ -35,6 +35,9 @@ class ConfigBuilder
     private ?PollingMode $configuredPollingMode = null;
     private ?WebhookMode $configuredWebhookMode = null;
     private mixed $container = null;
+    private ?string $rootFlow = null;
+    /** @var list<string|\Tueen\Telegram\Enums\UpdateType> */
+    private array $flowAllowedUpdates = [];
 
     public function __construct(string $botToken = '')
     {
@@ -240,6 +243,29 @@ class ConfigBuilder
     }
 
     #[\NoDiscard]
+    public function withRootFlow(?string $flowClass): static
+    {
+        $this->rootFlow = $flowClass;
+        return $this;
+    }
+
+    #[\NoDiscard]
+    public function withDefaultFlow(?string $flowClass): static
+    {
+        return $this->withRootFlow($flowClass);
+    }
+
+    /**
+     * @param list<string|\Tueen\Telegram\Enums\UpdateType> $types
+     */
+    #[\NoDiscard]
+    public function withFlowAllowedUpdates(array $types): static
+    {
+        $this->flowAllowedUpdates = $types;
+        return $this;
+    }
+
+    #[\NoDiscard]
     public function build(): Config
     {
         return new Config(
@@ -257,7 +283,9 @@ class ConfigBuilder
             errorHandlingMode: $this->errorHandlingMode,
             convertExceptionsToError: $this->convertExceptionsToError,
             runningMode: $this->runningMode,
-            container: $this->container
+            container: $this->container,
+            rootFlow: $this->rootFlow,
+            flowAllowedUpdates: $this->flowAllowedUpdates
         );
     }
 
