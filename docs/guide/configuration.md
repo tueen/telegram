@@ -53,8 +53,6 @@ Below is the exhaustive catalog of all configuration options available on `Confi
 
 ### 🌐 Server & Credentials
 
-### 🌐 Server & Credentials
-
 <ApiGroup description="Endpoints, bot tokens, and sandbox testing server flags.">
   <ApiCard
     sig="withToken(string $token)"

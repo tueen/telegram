@@ -60,16 +60,29 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       text: 'Getting Started',
       items: [
         { text: 'Introduction & Setup', link: `${basePath}getting-started` },
-        { text: 'The Telegram Client ($bot)', link: `${basePath}telegram-client` },
-        { text: 'Configuration', link: `${basePath}configuration` },
-        { text: 'Running Modes', link: `${basePath}running-modes` },
-        { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
-        { text: 'Update Routing & Attributes', link: `${basePath}routing` },
-        { text: 'App Orchestrator', link: `${basePath}app` },
+        { text: 'The Telegram Client', link: `${basePath}telegram-client` },
+        { text: 'Configuration Reference', link: `${basePath}configuration` },
       ]
     },
     {
-      text: 'Flow Ecosystem',
+      text: 'Core Essentials',
+      items: [
+        { text: 'Calling Methods & Types', link: `${basePath}methods-and-types` },
+        { text: 'Interactive Keyboards', link: `${basePath}keyboards` },
+        { text: 'Text Formatting & Escaping', link: `${basePath}formatting` },
+        { text: 'File Upload & Download', link: `${basePath}file-upload-download` },
+      ]
+    },
+    {
+      text: 'Updates & Routing',
+      items: [
+        { text: 'Running Modes (Polling & Webhook)', link: `${basePath}running-modes` },
+        { text: 'Update Routing & Attributes', link: `${basePath}routing` },
+        { text: 'Update & Message Helpers', link: `${basePath}update-and-message-helpers` },
+      ]
+    },
+    {
+      text: 'Conversational Flows',
       items: [
         { text: 'Overview & Quickstart', link: `${basePath}flow/` },
         { text: 'Conversational Flows', link: `${basePath}flow/conversational-flows` },
@@ -81,14 +94,11 @@ export function getSidebar(basePath = '/guide/'): DefaultTheme.SidebarItem[] {
       ]
     },
     {
-      text: 'Client Features',
+      text: 'Application & Production',
       items: [
-        { text: 'Calling Methods & Types', link: `${basePath}methods-and-types` },
-        { text: 'Fluent Keyboards', link: `${basePath}keyboards` },
-        { text: 'Text Formatting & Escaping', link: `${basePath}formatting` },
-        { text: 'File Upload & Download', link: `${basePath}file-upload-download` },
-        { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
+        { text: 'Zero-Config App & Web Dashboard', link: `${basePath}app` },
         { text: 'Pipeline & Middlewares', link: `${basePath}pipeline-middleware` },
+        { text: 'Error Handling & Hooks', link: `${basePath}error-handling-and-hooks` },
         { text: 'Testing & Fakes', link: `${basePath}testing` },
         { text: 'Enums Reference', link: `${basePath}enums` },
       ]

@@ -7,6 +7,8 @@
 
 ## Introduction
 
+> *The Royal Telegram Bot SDK for Modern PHP*
+
 `tueen/telegram` is a modern Telegram Bot API client for PHP. It provides strict typing, full IDE autocompletion, and forward compatibility with the Telegram Bot API specification.
 
 ---
@@ -55,6 +57,10 @@ $config = Telegram::create('YOUR_BOT_TOKEN')
 
 $bot = new Telegram($config);
 ```
+
+::: tip Building a Standalone Bot with a Web Dashboard?
+If you're building a standalone bot from scratch, `tueen/telegram` also includes **`App`** — a zero-config application orchestrator featuring a 3-file project template, automated session storage, CLI tools, and a real-time **Web Setup & Management Dashboard**. See the [Zero-Config App & Web Dashboard Guide](./app).
+:::
 
 ---
 
@@ -125,7 +131,664 @@ $bot->run(function (Update $update, Telegram $bot) {
 });
 ```
 
-Learn more about execution strategies, invokable handler classes, and multi-process polling in the [Running Modes Guide](./running-modes).
+---
+
+## Next Steps
+
+Now that your bot is running, explore the core essentials:
+
+- 💬 **[Calling Methods & Types](./methods-and-types):** Learn how to invoke Bot API methods with named arguments and contextual auto-injection.
+- ⌨️ **[Interactive Keyboards](./keyboards):** Build Inline and Reply keyboards with fluent builders.
+- 📝 **[Text Formatting & Escaping](./formatting):** Format messages safely using HTML and MarkdownV2 without entity parsing errors.
+- 🧭 **[Update Routing & Attributes](./routing):** Organize commands, regex patterns, and callback queries with attributes and controllers.
+- 🔄 **[Running Modes](./running-modes):** Dive deeper into Webhook, Polling, and AutoMode configurations.
+
+
+# ==============================================================================
+# File: /guide/telegram-client
+# Section: Getting Started > The Telegram Client
+# ==============================================================================
+
+# The Telegram Client
+
+The `Tueen\Telegram\Telegram` class (conventionally instantiated as `$bot`) is the primary entry point and client facade of the `tueen/telegram` library. It provides a unified, strictly typed interface for sending Bot API requests, listening for updates, managing multi-step flows, and resolving contextual parameters.
+
+---
+
+## 🚀 1. Instantiation
+
+You can initialize the client either directly with your bot token or via a pre-built `Config` object:
+
+### Basic Instantiation
+```php
+use Tueen\Telegram\Telegram;
+
+$bot = new Telegram('YOUR_BOT_TOKEN');
+```
+
+### Advanced Instantiation with `ConfigBuilder`
+For production environments requiring custom timeouts, proxy connections, retry policies, or test servers:
+```php
+use Tueen\Telegram\Telegram;
+
+$config = Telegram::create('YOUR_BOT_TOKEN')
+    ->withTimeout(30.0)
+    ->withRetryCount(3)
+    ->build();
+
+$bot = new Telegram($config);
+```
+> For a full list of networking and runtime settings, see the [Configuration Reference](./configuration).
+
+---
+
+## ⚡ 2. The Three Primary Roles of `$bot`
+
+In your application, the `$bot` instance serves three essential purposes:
+
+### 1. Direct Bot API Client
+You can invoke all 185 Telegram Bot API methods dynamically with full IDE autocompletion and named arguments:
+```php
+$bot->sendMessage(
+    chatId: 123456789,
+    text: 'Hello from tueen/telegram!'
+);
+```
+> Learn more in [Calling Methods & Types](./methods-and-types).
+
+### 2. Update Router & Dispatcher
+The client listens for incoming updates and dispatches them to closures, classes, or attribute controllers:
+```php
+// Register a command route:
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(text: 'Welcome! How can I assist you today?');
+});
+
+// Run the bot via Webhook, Polling, or AutoMode:
+$bot->run();
+```
+> Learn more in [Update Routing & Attributes](./routing) and [Running Modes](./running-modes).
+
+### 3. Contextual Entity Resolver
+During update processing, `$bot` automatically tracks the active update and provides instant shortcuts to chat, user, and message identifiers:
+```php
+$chatId  = $bot->chatId();  // e.g. 123456789
+$userId  = $bot->userId();  // e.g. 987654321
+$message = $bot->message(); // Current ?Message instance
+```
+> Learn more in [Update & Message Helpers](./update-and-message-helpers).
+
+---
+
+## 💡 3. Client Best Practices
+
+Here are the recommended patterns to keep in mind when working with the `$bot` instance:
+
+### 1. Always Use PHP Named Arguments
+Telegram Bot API methods accept many optional parameters. Named arguments protect your code against parameter order changes and enable **Contextual Auto-Injection** (where repetitive parameters like `chatId` are automatically resolved from the active update):
+
+```php
+// ✅ RECOMMENDED: Order-independent, self-documenting, auto-injects chatId:
+$bot->sendMessage(
+    text: 'Order confirmed successfully.',
+    parseMode: ParseMode::HTML
+);
+
+// ❌ AVOID: Fragile positional arguments with trailing nulls:
+$bot->sendMessage(123456, 'Order confirmed successfully.', null, null, null, null, 'HTML');
+```
+
+### 2. Reusing a Single Client Instance
+`Telegram` is lightweight and designed to be created once. In modern frameworks (such as Laravel, Symfony, or Slim), register `$bot` as a singleton in your dependency injection container:
+
+```php
+// Example: Registering as a singleton in a PSR-11 container:
+$container->singleton(Telegram::class, function () {
+    return new Telegram(getenv('TELEGRAM_BOT_TOKEN'));
+});
+```
+
+### 3. Organizing Complex Bots with Controllers
+For simple bots, defining routes with closures directly in your script is quick and convenient. As your application grows, organize your commands and actions into dedicated Controller classes:
+
+```php
+// Register a dedicated controller class decorated with routing attributes:
+$bot->registerController(OrderController::class);
+```
+> See [Attribute-Driven Controllers](./routing#3-attribute-driven-controllers) for examples of using `#[OnCommand]` and `#[OnCallbackQuery]`.
+
+---
+
+## 🏛️ 4. Architecture & Decoupled Subsystems
+
+Under the hood, `Telegram` is not a monolithic class holding all bot logic. Instead, it uses a **modular composition architecture** that delegates work to single-responsibility components:
+
+```mermaid
+flowchart TD
+    UserCode["User Application Code"] --> Bot["Telegram Client ($bot)"]
+    
+    subgraph Core Subsystems
+        Bot --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
+        Bot --> Dispatcher["UpdateDispatcher<br/>(Pipeline, Middleware, Exception Catching)"]
+        Bot --> Context["ContextResolver<br/>(chat_id, user_id, message_id Auto-Injection)"]
+        Bot --> Router["Router<br/>(Commands, Patterns, Attribute Controllers)"]
+        Bot --> Flows["FlowManager<br/>(State Machine, Multi-step Flows, Storage)"]
+    end
+
+    Client --> TelegramAPI[("Telegram Bot API")]
+    Dispatcher --> Handlers["Handlers & Middlewares"]
+```
+
+### When to Access Subsystems Directly:
+Most of the time, you interact exclusively with the `$bot` facade. However, you can access underlying subsystems when building low-level extensions, worker queues, or custom integrations:
+
+```php
+use Tueen\Telegram\Telegram;
+
+$bot = new Telegram('YOUR_BOT_TOKEN');
+
+// 1. Pure HTTP client (useful for worker queue jobs that only call API methods without processing updates):
+$client = $bot->getClient();
+$me = $client->getMe();
+
+// 2. Underlying router instance:
+$router = $bot->router();
+
+// 3. Flow state manager (for custom state stores or manual session manipulation):
+$flowManager = $bot->flowManager();
+
+// 4. Context parameter resolver:
+$context = $bot->context();
+```
+
+---
+
+## 🧭 5. Complete Method & Property Reference
+
+Below is the comprehensive catalog of all constants, properties, and methods provided on the `Telegram` class, grouped by architectural responsibility. Every item features syntax-highlighted signatures, parameter types, default values, and status badges.
+
+### 🏛️ Class Constants & Public Properties
+
+<ApiGroup description="Core version identifiers and read-only subsystem properties protected by PHP 8.4 asymmetric visibility.">
+  <ApiCard
+    type="constant"
+    sig="public const string BOT_API_VERSION = '10.3'"
+    returns="string"
+    badge="Constant"
+    desc="Canonical Telegram Bot API version currently supported and validated against (10.3)."
+  />
+  <ApiCard
+    type="constant"
+    sig="public const string API_VERSION = self::BOT_API_VERSION"
+    returns="string"
+    badge="Alias"
+    aliasFor="Telegram::BOT_API_VERSION"
+    desc="Shorthand alias for BOT_API_VERSION for cleaner references."
+  />
+  <ApiCard
+    type="property"
+    sig="public private(set) ?Update $update = null"
+    returns="?Update"
+    badge="Asymmetric Visibility"
+    desc="Current resolved Update instance for the active request lifecycle. Defaults to null until resolved by WebhookMode or PollingMode."
+  />
+  <ApiCard
+    type="property"
+    sig="public private(set) ContextResolver $context"
+    returns="ContextResolver"
+    badge="Asymmetric Visibility"
+    desc="Contextual parameter resolver instance automatically bound to $update for argument auto-injection."
+  />
+  <ApiCard
+    type="property"
+    sig="public private(set) TelegramClient $client"
+    returns="TelegramClient"
+    badge="Asymmetric Visibility"
+    desc="Underlying pure HTTP transport client handling serialization, multipart uploads, and PSR-18 communication."
+  />
+  <ApiCard
+    type="property"
+    sig="public private(set) UpdateDispatcher $dispatcher"
+    returns="UpdateDispatcher"
+    badge="Asymmetric Visibility"
+    desc="Incoming update dispatcher managing the middleware pipeline, route execution, and exception catchers."
+  />
+</ApiGroup>
+
+---
+
+### A. Initialization & Testing Factory
+
+<ApiGroup description="Instantiation shortcuts, immutable configuration loading, and testing fakes.">
+  <ApiCard
+    sig="Telegram::create(string $botToken)"
+    returns="ConfigBuilder"
+    badge="Factory"
+    desc="Initializes a fluent ConfigBuilder for configuring network timeouts, persistent cURL handles, proxies, retries, and running modes."
+  />
+  <ApiCard
+    sig="Telegram::fake(array $responses = [], string $botToken = 'FAKE_BOT_TOKEN')"
+    returns="TelegramFake"
+    badge="Testing"
+    desc="Creates an in-memory testing fake client with recording capabilities and assertion helpers (assertSent, assertSentCount, assertNotSent)."
+  />
+  <ApiCard
+    sig="new Telegram(string|Config $tokenOrConfig)"
+    returns="Telegram"
+    badge="Constructor"
+    desc="Instantiates the primary Telegram client directly using either a plain bot token string or a pre-built immutable Config object."
+  />
+  <ApiCard
+    sig="getConfig()"
+    returns="Config"
+    desc="Retrieves the immutable Config instance currently driving this client."
+  />
+</ApiGroup>
+
+---
+
+### B. Execution & Running Modes
+
+<ApiGroup description="Primary bot runtime execution, long-polling streams, and adaptive CLI/HTTP orchestration.">
+  <ApiCard
+    sig="run(mixed ...$handlers)"
+    returns="mixed"
+    badge="Canonical"
+    desc="Executes update ingestion using the configured running mode (WebhookMode or PollingMode), dispatching updates through middlewares and routes."
+  />
+  <ApiCard
+    sig="autoRun(mixed ...$handlers)"
+    returns="mixed"
+    badge="Adaptive"
+    desc="Zero-config adaptive runner: automatically selects PollingMode in CLI environments and WebhookMode under HTTP server processes."
+  />
+  <ApiCard
+    sig="useAutoMode(?PollingMode $polling = null, ?WebhookMode $webhook = null, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)"
+    returns="static"
+    desc="Explicitly configures AutoMode with custom runner instances, automated webhook cleanup on shutdown, and optional environment detection overrides."
+  />
+  <ApiCard
+    sig="setRunningMode(RunningModeInterface $mode)"
+    returns="static"
+    desc="Sets an explicit running mode instance (e.g. custom WebhookMode, PollingMode, or user-defined runner)."
+  />
+  <ApiCard
+    sig="getRunningMode()"
+    returns="RunningModeInterface"
+    desc="Returns the active running mode instance (defaults to WebhookMode if unspecified)."
+  />
+  <ApiCard
+    sig="poll(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null)"
+    returns="Generator<int, Update>"
+    badge="Streaming"
+    desc="Returns a lazy PHP generator yielding incoming Update objects via continuous long-polling with automatic offset tracking."
+  />
+</ApiGroup>
+
+---
+
+### C. Update Pipeline & Middleware
+
+<ApiGroup description="Global incoming update middleware, outbound HTTP pipeline, and granular lifecycle hooks.">
+  <ApiCard
+    sig="middleware(callable $middleware)"
+    returns="static"
+    badge="Canonical"
+    desc="Appends an update middleware to the incoming dispatch pipeline. Receives ($update, $next, $bot)."
+  />
+  <ApiCard
+    sig="use(callable $middleware)"
+    returns="static"
+    badge="Alias"
+    aliasFor="middleware()"
+    desc="Developer experience shorthand alias for middleware(), popularized by Telegraf and grammY."
+  />
+  <ApiCard
+    sig="pipe(MiddlewareInterface|Closure $middleware)"
+    returns="static"
+    badge="Outbound"
+    desc="Appends an outbound HTTP request middleware to the client transport pipeline (e.g. RetryMiddleware, RateLimitMiddleware, LoggingMiddleware)."
+  />
+  <ApiCard
+    sig="onBeforeRequest(callable $callback)"
+    returns="static"
+    badge="Hook"
+    desc="Lifecycle hook triggered immediately before sending any outbound HTTP request to Telegram. Receives ($request, $config)."
+  />
+  <ApiCard
+    sig="onAfterRequest(callable $callback)"
+    returns="static"
+    badge="Hook"
+    desc="Lifecycle hook triggered after receiving a raw HTTP response. Receives ($response, $request)."
+  />
+  <ApiCard
+    sig="onError(callable $callback)"
+    returns="static"
+    badge="Hook"
+    desc="Lifecycle hook triggered when a transport error or HTTP exception occurs. Receives ($throwable, $request)."
+  />
+  <ApiCard
+    sig="onResponse(callable $callback)"
+    returns="static"
+    badge="Hook"
+    desc="Lifecycle hook triggered when a final parsed response (Type or Error object) is produced. Receives ($type, $request)."
+  />
+</ApiGroup>
+
+---
+
+### D. Exception & Error Handling
+
+<ApiGroup description="Typed exception catchers and incoming update error dispatching.">
+  <ApiCard
+    sig="catch(string|callable $exceptionOrHandler, ?callable $handler = null)"
+    returns="static"
+    badge="Canonical"
+    desc="Registers a typed exception catcher for errors thrown during update processing. Matches exact exception classes or any \Throwable."
+  />
+  <ApiCard
+    sig="onUpdateError(callable $handler)"
+    returns="static"
+    badge="Alias"
+    aliasFor="catch(\Throwable::class, $handler)"
+    desc="Convenience shorthand alias registering a universal error catcher for all unhandled update exceptions."
+  />
+  <ApiCard
+    sig="handleUpdateException(\Throwable $e, Update $update)"
+    returns="bool"
+    badge="Internal"
+    desc="Dispatches an uncaught exception through registered error catchers. Returns true if handled by a matching catcher."
+  />
+</ApiGroup>
+
+---
+
+### E. Update Routing & Controllers
+
+<ApiGroup description="Declarative command matching, callback query regex routes, and attribute controller registration.">
+  <ApiCard
+    sig="onCommand(string $command, mixed $handler)"
+    returns="static"
+    desc="Matches bot commands (e.g. 'start', '/help') with automatic command argument parsing passed to handler parameters."
+  />
+  <ApiCard
+    sig="onCallbackQuery(?string $pattern, mixed $handler)"
+    returns="static"
+    desc="Matches inline keyboard callback queries against an optional regex pattern with named regex group injection."
+  />
+  <ApiCard
+    sig="onMessage(?string $pattern, mixed $handler)"
+    returns="static"
+    desc="Matches text messages against an optional regex pattern or matches all standard text messages if pattern is null."
+  />
+  <ApiCard
+    sig="onInlineQuery(?string $pattern, mixed $handler)"
+    returns="static"
+    desc="Matches inline search queries with optional regex filtering."
+  />
+  <ApiCard
+    sig="on(UpdateType|string $type, mixed $handler)"
+    returns="static"
+    desc="Matches any Telegram update type (e.g. UpdateType::Message, UpdateType::CallbackQuery, or 'chat_member')."
+  />
+  <ApiCard
+    sig="onFallback(mixed $handler)"
+    returns="static"
+    badge="Fallback"
+    desc="Registers a default fallback handler invoked when no route, command, or active conversational flow matches the incoming update."
+  />
+  <ApiCard
+    sig="registerController(string|object $controller)"
+    returns="static"
+    desc="Scans and registers an attribute-annotated controller class or object instance decorated with #[OnCommand], #[OnCallbackQuery], etc."
+  />
+  <ApiCard
+    sig="router()"
+    returns="Router"
+    desc="Retrieves or initializes the underlying Router instance for custom route group manipulation."
+  />
+  <ApiCard
+    sig="handle(mixed ...$handlers)"
+    returns="static"
+    desc="Appends raw update handler callables or invokable handler classes directly to the dispatcher queue."
+  />
+  <ApiCard
+    sig="invokeHandler(mixed $handler, Update $update)"
+    returns="mixed"
+    badge="Dispatcher"
+    desc="Resolves parameter dependencies via the DI container / ContextResolver and executes a single update handler."
+  />
+</ApiGroup>
+
+---
+
+### F. Multi-Step Conversational Flows
+
+<ApiGroup description="Finite state machines, persistent multi-step forms, conversational navigation, and step stacks.">
+  <ApiCard
+    sig="flow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null)"
+    returns="FlowSession"
+    desc="Retrieves a fluent FlowSession for interacting with the active conversation, setting step state, or retrieving stored session data."
+  />
+  <ApiCard
+    sig="startFlow(string $flowClass, ?Update $update = null, string $initialStep = 'start', array $initialData = [])"
+    returns="Flow"
+    desc="Initiates a multi-step conversation flow for the resolved chat and user, transitioning immediately to $initialStep."
+  />
+  <ApiCard
+    sig="hasActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null)"
+    returns="bool"
+    desc="Checks whether the chat/user currently has an active, unfinished conversation flow in persistent storage."
+  />
+  <ApiCard
+    sig="getActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null)"
+    returns="?Flow"
+    desc="Instantiates and returns the active Flow object populated with current state, or null if no flow is active."
+  />
+  <ApiCard
+    sig="getActiveFlowClass(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null)"
+    returns="?string"
+    desc="Returns the fully-qualified class string of the active flow without instantiating it."
+  />
+  <ApiCard
+    sig="flowBack(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = null, ?Update $update = null)"
+    returns="bool"
+    desc="Navigates the conversation back one step using the internal flow history stack, optionally sending a reply message."
+  />
+  <ApiCard
+    sig="cancelFlow(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = 'Operation cancelled.', ?Update $update = null)"
+    returns="bool"
+    desc="Cancels the active conversation, triggers onCancel() hooks, and wipes state from storage."
+  />
+  <ApiCard
+    sig="finishFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null)"
+    returns="bool"
+    desc="Marks the active conversation as successfully completed and cleans up persistent storage."
+  />
+  <ApiCard
+    sig="flowManager()"
+    returns="FlowManager"
+    desc="Returns the underlying FlowManager state orchestrator managing storage drivers and transition hooks."
+  />
+  <ApiCard
+    sig="setFlowStore(StateStoreInterface $store)"
+    returns="static"
+    desc="Replaces the state driver with a custom implementation (e.g. MemoryStateStore, FileStateStore, Redis, or database)."
+  />
+  <ApiCard
+    sig="setRootFlow(?string $flowClass)"
+    returns="static"
+    desc="Configures a default/root Flow class to automatically launch when an idle user sends a message or on /start."
+  />
+</ApiGroup>
+
+---
+
+### G. Contextual Accessors & Shortcuts
+
+<ApiGroup description="Automatic resolution of active chat, user, thread, and message entities from the incoming update.">
+  <ApiCard
+    sig="$bot->chatId()"
+    returns="?int"
+    badge="Contextual"
+    desc="Resolves the active chat ID (extracted from message->chat->id, callback_query->message->chat->id, etc.)."
+  />
+  <ApiCard
+    sig="$bot->userId()"
+    returns="?int"
+    badge="Contextual"
+    desc="Resolves the active user ID from the current update (from->id)."
+  />
+  <ApiCard
+    sig="$bot->messageId()"
+    returns="?int"
+    badge="Contextual"
+    desc="Resolves the active message ID from the current update (message->message_id)."
+  />
+  <ApiCard
+    sig="$bot->businessConnectionId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the active Telegram Business connection ID for enterprise bots."
+  />
+  <ApiCard
+    sig="$bot->messageThreadId()"
+    returns="?int"
+    badge="Contextual"
+    desc="Resolves the active forum topic thread ID for supergroups."
+  />
+  <ApiCard
+    sig="$bot->inlineMessageId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the inline message identifier for updates initiated via inline queries."
+  />
+  <ApiCard
+    sig="$bot->callbackQueryId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the active callback query ID from an inline button interaction."
+  />
+  <ApiCard
+    sig="$bot->inlineQueryId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the active inline query ID."
+  />
+  <ApiCard
+    sig="$bot->shippingQueryId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the active shipping query ID for e-commerce checkout flows."
+  />
+  <ApiCard
+    sig="$bot->preCheckoutQueryId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the active pre-checkout query ID before payment finalization."
+  />
+  <ApiCard
+    sig="$bot->directMessagesTopicId()"
+    returns="?int"
+    badge="Contextual"
+    desc="Resolves the direct messages forum topic ID in Telegram Business."
+  />
+  <ApiCard
+    sig="$bot->guestQueryId()"
+    returns="?string"
+    badge="Contextual"
+    desc="Resolves the guest query ID for anonymous web interactions."
+  />
+  <ApiCard
+    sig="$bot->chat()"
+    returns="?Chat"
+    badge="Contextual"
+    desc="Extracts and returns the primary Chat type object from the current update."
+  />
+  <ApiCard
+    sig="$bot->user()"
+    returns="?User"
+    badge="Contextual"
+    desc="Extracts and returns the primary User type object from the current update."
+  />
+  <ApiCard
+    sig="$bot->message()"
+    returns="?Message"
+    badge="Contextual"
+    desc="Extracts and returns the primary Message type object from the current update."
+  />
+  <ApiCard
+    sig="reply(string|Text $text, mixed ...$args)"
+    returns="mixed"
+    badge="Shortcut"
+    desc="Direct convenience shortcut to send a text message to the active chat in context without specifying chatId manually."
+  />
+  <ApiCard
+    sig="bindDefault(string $param, callable $resolver)"
+    returns="static"
+    desc="Binds a custom contextual resolver for any Bot API method parameter (e.g. auto-injecting custom tenant or business connection IDs)."
+  />
+</ApiGroup>
+
+---
+
+### H. Bot API Method Calls & File Operations
+
+<ApiGroup description="Direct Bot API calls, explicit Method execution, file downloads, and payload parsing.">
+  <ApiCard
+    sig="$bot->sendMessage(mixed ...$args)"
+    returns="mixed"
+    badge="Dynamic"
+    desc="All Telegram Bot API methods are callable dynamically with full named argument support and automatic contextual parameter injection."
+  />
+  <ApiCard
+    sig="send(Method $method, ?Closure $uploadProgress = null, ?Closure $downloadProgress = null, ?RequestOptions $options = null)"
+    returns="mixed"
+    desc="Executes an explicit Method instance with optional progress callbacks and per-request timeout/proxy options."
+  />
+  <ApiCard
+    sig="downloadFile(mixed $file, mixed $destination, ?callable $progress = null)"
+    returns="BooleanResult|Error"
+    desc="Downloads a file from Telegram servers (by file_id, File object, or path) directly to disk or stream with download progress tracking."
+  />
+  <ApiCard
+    sig="parseUpdate(string|array $payload)"
+    returns="Update"
+    desc="Parses a raw webhook JSON payload string or decoded array into a fully typed Update object."
+  />
+</ApiGroup>
+
+---
+
+### I. Underlying Subsystems & Dependency Injection
+
+<ApiGroup description="Direct access to decoupled client subsystems and PSR-11 container integration.">
+  <ApiCard
+    sig="getClient()"
+    returns="TelegramClient"
+    desc="Returns the pure TelegramClient instance to execute Bot API requests directly, bypassing update processing."
+  />
+  <ApiCard
+    sig="getDispatcher()"
+    returns="UpdateDispatcher"
+    desc="Returns the underlying UpdateDispatcher instance managing handlers and catchers."
+  />
+  <ApiCard
+    sig="context()"
+    returns="ContextResolver"
+    desc="Returns the ContextResolver instance for registering or inspecting contextual defaults."
+  />
+  <ApiCard
+    sig="setContainer(mixed $container)"
+    returns="static"
+    desc="Configures a PSR-11 container or callable resolver used for dependency injection in controllers, handlers, and flows."
+  />
+  <ApiCard
+    sig="getContainer()"
+    returns="mixed"
+    desc="Returns the configured PSR-11 dependency injection container."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -185,8 +848,6 @@ $bot = new Telegram($config);
 ## 🧭 2. Detailed Configuration Reference
 
 Below is the exhaustive catalog of all configuration options available on `ConfigBuilder` and `Config`.
-
-### 🌐 Server & Credentials
 
 ### 🌐 Server & Credentials
 
@@ -599,8 +1260,688 @@ $bot->run(App\Handlers\BotHandler::class);
 
 
 # ==============================================================================
+# File: /guide/methods-and-types
+# Section: Core Essentials > Methods & Types
+# ==============================================================================
+
+# Methods & Types
+
+`tueen/telegram` provides native, strictly typed support for Telegram Bot API methods and types with full IDE autocompletion and enums.
+
+---
+
+## Method Invocations
+
+You can invoke API methods either dynamically or via dedicated Method classes:
+
+### 1. Dynamic Method Calls (Recommended)
+
+Call any Telegram method directly using camelCase and named arguments:
+
+```php
+use Tueen\Telegram\Enums\ParseMode;
+
+$message = $bot->sendMessage(
+    chatId: 12345678,
+    text: "Hello from <b>Tueen</b>!",
+    parseMode: ParseMode::HTML // Direct Enum instance
+);
+```
+
+::: tip Recommended: Use PHP Named Arguments
+In `tueen/telegram`, **always invoke API methods using PHP named arguments** (`paramName: $value`).
+
+```php
+// ✅ RECOMMENDED: Explicit, readable, and order-independent
+$bot->sendMessage(
+    text: "Welcome to our bot!",
+    parseMode: ParseMode::HTML
+);
+
+// ❌ AVOID: Fragile positional arguments
+$bot->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
+```
+
+#### Why Named Arguments Are Recommended:
+1. **Contextual Auto-Injection:** Because parameters like `chatId`, `businessConnectionId`, and query IDs are automatically inferred from the active update, named arguments allow you to supply only the parameters you need (e.g. `text: "..."`) without worrying about parameter position.
+2. **No Trailing Nulls:** Telegram Bot API methods accept dozens of optional parameters. Named arguments eliminate the need for long lists of `null` placeholders.
+3. **Forward-Compatibility:** When Telegram adds new parameters to Bot API methods, named arguments prevent positional shift bugs.
+4. **Self-Documenting:** Code is clear and easy to read during code review.
+:::
+
+Full IDE autocompletion and parameter docblocks are provided via the `@mixin TelegramMethods` contract.
+
+### 2. Method Objects (For Custom Pipelines & Architecture)
+
+Every Telegram Bot API method has a dedicated class in `Tueen\Telegram\Methods`:
+
+```php
+use Tueen\Telegram\Methods\SendMessage;
+
+$method = new SendMessage(
+    chatId: 12345678,
+    text: "Hello from Tueen!"
+);
+
+$message = $bot->send($method);
+```
+
+### 3. Forward-Compatible Unknown / New Parameters
+
+If Telegram introduces a new parameter before the library updates, you can pass it immediately as a named parameter or via variadic `$extra`:
+
+```php
+// If Telegram adds 'new_feature_flag' tomorrow:
+$message = $bot->sendMessage(
+    chatId: 12345678,
+    text: "Testing new feature",
+    newFeatureFlag: true // Seamlessly passed to the API
+);
+```
+
+### 4. Passing Complex & Nested Types (Objects or Arrays)
+
+Methods that accept complex structures (such as `reply_markup`, `link_preview_options`, or `reply_parameters`) accept both **strongly-typed Type objects** and **associative arrays**:
+
+#### A. Using Strongly-Typed Type Objects
+```php
+use Tueen\Telegram\Types\InlineKeyboardMarkup;
+use Tueen\Telegram\Types\InlineKeyboardButton;
+use Tueen\Telegram\Types\LinkPreviewOptions;
+
+$bot->sendMessage(
+    chatId: 123456,
+    text: "Check out Tueen:",
+    replyMarkup: new InlineKeyboardMarkup(
+        inlineKeyboard: [
+            [
+                new InlineKeyboardButton(text: '🌐 Website', url: 'https://tueen.dev'),
+                new InlineKeyboardButton(text: '⭐ GitHub', url: 'https://github.com/tueen/telegram'),
+            ]
+        ]
+    ),
+    linkPreviewOptions: new LinkPreviewOptions(isDisabled: true)
+);
+```
+
+#### B. Using Structured Arrays
+You can also pass arrays; the library automatically normalizes, converts nested objects/enums, and serializes them:
+```php
+$bot->sendMessage(
+    chatId: 123456,
+    text: "Choose an option:",
+    replyMarkup: [
+        'inline_keyboard' => [
+            [
+                ['text' => 'Option 1', 'callback_data' => 'opt_1'],
+                ['text' => 'Option 2', 'callback_data' => 'opt_2'],
+            ]
+        ]
+    ]
+);
+```
+
+---
+
+## 🎯 Contextual Default Parameter Injection
+
+In bot applications, repetitive parameters like `chat_id`, `business_connection_id`, `message_thread_id`, or `user_id` are already present in the incoming `Update`. `tueen/telegram` features an **intelligent Context Resolver** that automatically extracts and injects these parameters whenever they are omitted or `null`.
+
+### 1. Automatic `chat_id` Injection
+Inside any update handler or flow step, you never have to specify `chat_id` manually:
+
+```php
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
+    // chatId is automatically resolved from $update!
+    // Always use named parameters:
+    $bot->sendMessage(text: "Welcome to our bot!");
+    $bot->sendMessage(
+        text: "Please select an option from the menu below:",
+        replyMarkup: $inlineKeyboard
+    );
+});
+```
+
+### 2. Supported Contextual Parameters
+The following parameters are automatically inferred from the active update:
+
+| Parameter | Automatically Inferred From |
+| :--- | :--- |
+| `chat_id` | Active chat from message, callback query, business message, channel post, or reaction |
+| `business_connection_id` | Business connection or business message update |
+| `message_thread_id` | Forum topic thread ID from the incoming message |
+| `user_id` | Acting user ID (for `getUserProfilePhotos`, `getUserGifts`, etc.) |
+| `message_id` | Primary message ID (for `deleteMessage`, `pinChatMessage`, etc.) |
+| `inline_message_id` | Inline message ID from callback queries |
+| `callback_query_id` | Query ID for `answerCallbackQuery(text: 'Done!')` |
+| `inline_query_id` | Query ID for `answerInlineQuery(results: [...])` |
+| `shipping_query_id` | Query ID for `answerShippingQuery(ok: true)` |
+| `pre_checkout_query_id` | Query ID for `answerPreCheckoutQuery(ok: true)` |
+
+### 3. Dual Resolution for Message Edits
+Methods that can edit either a chat message or an inline query message (`editMessageText`, `editMessageCaption`, `editMessageReplyMarkup`, etc.) automatically detect whether the update came from an inline callback or a regular message:
+
+```php
+$bot->onCallbackQuery('confirm', function (Update $update, Telegram $bot) {
+    // Automatically injects either inline_message_id OR (chat_id + message_id)
+    $bot->editMessageText(text: "Confirmed!");
+});
+```
+
+### 4. Custom Parameter Binding
+You can bind custom default values or dynamic resolvers using `bindDefault`:
+
+```php
+// Always default parse_mode to HTML across all methods
+$bot->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
+
+// Send message without parse_mode parameter; HTML is injected automatically
+$bot->sendMessage(text: "<b>Order</b> confirmed successfully.");
+```
+
+---
+
+## Types & Property Access
+
+All API responses are automatically deserialized into strongly-typed objects in `Tueen\Telegram\Types`.
+
+### Dual Access: camelCase and snake_case
+
+```php
+// CamelCase property access
+echo $message->messageId;
+echo $message->chat->firstName;
+
+// Snake_case property access
+echo $message->message_id;
+
+// ArrayAccess with snake_case
+echo $message['message_id'];
+echo $message['chat']['first_name'];
+```
+
+---
+
+## Custom Result Wrapper Types
+
+Methods that return primitive types (such as `boolean`, `integer`, or arrays) are wrapped in typed classes inside `Tueen\Telegram\Types\Custom\` so you can always check `$result->ok()`:
+
+- **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`)
+  ```php
+  $result = $bot->deleteMessage(chatId: 123, messageId: 456);
+  if ($result->ok() && $result->value) {
+      echo "Deleted successfully";
+  }
+  ```
+- **`IntegerResult`** (e.g. from `getChatMemberCount`)
+  ```php
+  $count = $bot->getChatMemberCount(chatId: -100123);
+  echo "Members: " . $count->value;
+  ```
+- **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`)
+  ```php
+  $link = $bot->exportChatInviteLink(chatId: -100123);
+  echo "Invite link: " . $link->value;
+  ```
+- **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
+  ```php
+  $updates = $bot->getUpdates();
+  foreach ($updates as $update) {
+    echo $update->updateId;
+  }
+  ```
+
+---
+
+## Forward Compatibility & Dynamic Fallback
+
+If Telegram adds new fields or entire response types in future API versions, your application will **never crash**:
+
+- The unknown field is preserved in `$extra` storage.
+- You can access it immediately via `$message->newField` or `$message['new_field']`.
+- If Telegram returns an entirely new Type object, it seamlessly falls back to the base `Type` class.
+
+
+# ==============================================================================
+# File: /guide/keyboards
+# Section: Core Essentials > Fluent Keyboard Builders
+# ==============================================================================
+
+# Fluent Keyboard Builders
+
+`tueen/telegram` provides modern, fluent builders for creating both **Inline Keyboards** (`InlineKeyboardMarkup`) and **Reply Keyboards** (`ReplyKeyboardMarkup` / `ReplyKeyboardRemove`).
+
+---
+
+## 1. Inline Keyboards (`InlineKeyboard`)
+
+Inline keyboards appear directly attached to a specific message. Buttons trigger actions such as callback queries, opening URLs, launching Telegram Web Apps, or initiating payments.
+
+### Basic Usage
+
+Use `InlineKeyboard::make()` followed by rows and buttons:
+
+```php
+use Tueen\Telegram\Keyboards\InlineKeyboard;
+
+$keyboard = InlineKeyboard::make()
+    ->row()
+        ->callback('👍 Like', 'action:like')
+        ->callback('👎 Dislike', 'action:dislike')
+    ->row()
+        ->url('🌐 Visit Website', 'https://tueen.org')
+    ->build();
+
+$bot->sendMessage(
+    chatId: $chatId,
+    text: 'Please cast your vote:',
+    replyMarkup: $keyboard
+);
+```
+
+### Supported Button Types
+
+`InlineKeyboard` supports all Telegram Bot API 10.3 inline button types:
+
+```php
+$keyboard = InlineKeyboard::make()
+    // Callback data button
+    ->callback('Confirm', 'order:confirm')
+
+    // External URL button
+    ->url('Documentation', 'https://tueen.org/docs')
+
+    // Telegram Mini App (Web App)
+    ->webApp('Open App', 'https://webapp.tueen.org')
+
+    // Seamless Telegram Login URL
+    ->loginUrl('Login with Telegram', 'https://example.com/auth/telegram')
+
+    // Copy text to clipboard on tap (Bot API 7.5+)
+    ->copyText('Copy Promo Code', 'TUEEN-VIP-2026')
+
+    // Telegram Payments Pay button
+    ->pay('💳 Pay Now')
+
+    // Prompt user to select a chat and paste inline query
+    ->switchInlineQuery('Share with friends', 'check out this bot!')
+
+    // Insert inline query into current chat
+    ->switchInlineQueryCurrentChat('Search here', 'query')
+
+    // Prompt user to select a specific type of chat (channel, group, etc.)
+    ->switchInlineQueryChosenChat('Send to Channel', $chosenChatConfig)
+
+    ->build();
+```
+
+### Auto-Chunking Buttons (`chunk`)
+
+Instead of manually breaking rows with `->row()`, you can add all buttons and let `chunk($size)` automatically arrange them into neat rows:
+
+```php
+$builder = InlineKeyboard::make();
+
+for ($i = 1; $i <= 9; $i++) {
+    $builder->callback((string) $i, "num:{$i}");
+}
+
+// Automatically divides into 3 rows of 3 buttons:
+$grid = $builder->chunk(3)->build();
+```
+
+---
+
+## 2. Reply Keyboards (`ReplyKeyboard`)
+
+Reply keyboards replace the user's regular keyboard with custom option buttons.
+
+### Basic Usage
+
+```php
+use Tueen\Telegram\Keyboards\ReplyKeyboard;
+
+$keyboard = ReplyKeyboard::make()
+    ->resize() // Automatically fit buttons neatly
+    ->placeholder('Select an option...')
+    ->row()
+        ->text('📦 My Orders')
+        ->text('⚙️ Settings')
+    ->row()
+        ->requestContact('📱 Share Phone Number')
+        ->requestLocation('📍 Share Location')
+    ->build();
+
+$bot->sendMessage(
+    chatId: $chatId,
+    text: 'Main Menu:',
+    replyMarkup: $keyboard
+);
+```
+
+### Supported Features & Button Types
+
+```php
+$keyboard = ReplyKeyboard::make()
+    // Keyboard behaviors:
+    ->resize(true)                  // Scale keyboard vertically to button count
+    ->oneTime(true)                 // Hide keyboard after first button press
+    ->persistent(true)              // Keep keyboard visible even when soft keyboard is closed
+    ->selective(true)               // Show only to specific target users (e.g. in groups)
+    ->placeholder('Type message...')// Placeholder text in input bar
+
+    // Button types:
+    ->text('Plain Text')
+    ->requestContact('Send Contact')
+    ->requestLocation('Send Location')
+    ->requestPoll('Create a Quiz', type: 'quiz')
+    ->requestUsers('Select Friends', requestId: 1, userIsBot: false, maxQuantity: 5)
+    ->requestChat('Select Channel', requestId: 2, chatIsChannel: true)
+    ->webApp('Open Mini App', 'https://webapp.tueen.org')
+
+    ->build();
+```
+
+### Removing Keyboards (`ReplyKeyboard::remove`)
+
+To hide an active reply keyboard from the user's interface:
+
+```php
+$bot->sendMessage(
+    chatId: $chatId,
+    text: 'Keyboard dismissed.',
+    replyMarkup: ReplyKeyboard::remove()
+);
+```
+
+
+# ==============================================================================
+# File: /guide/formatting
+# Section: Core Essentials > Text Formatting & Escaping
+# ==============================================================================
+
+# Text Formatting & Escaping
+
+Telegram supports rich text formatting via **HTML**, **MarkdownV2**, and legacy **Markdown**. However, unescaped characters (such as `_`, `*`, `[`, `<`, `>`, `&`) frequently cause Telegram API errors like `400 Bad Request: can't parse entities`.
+
+`tueen/telegram` provides two complementary utilities strictly adhering to the [Telegram Bot API Formatting Options specification](https://core.telegram.org/bots/api#formatting-options):
+1. **`Text` Builder**: A safe, fluent, nesting-capable builder for constructing styled messages.
+2. **`Escape` Helper**: Low-level escaping functions for user-generated strings.
+
+---
+
+## 1. Fluent `Text` Builder
+
+The `Text` builder lets you chain formatting methods while automatically escaping any dynamic or user-supplied variables.
+
+### Direct API Integration
+
+You can pass `Text` instances directly into Telegram methods like `$bot->sendMessage()` or `$bot->sendPhoto(caption: ...)`. Tueen **automatically casts the text to a string** and **auto-sets `parseMode`** to the builder's mode:
+
+```php
+use Tueen\Telegram\Formatting\Text;
+
+// No need to manually cast (string) or specify parseMode:
+$bot->sendMessage(
+    chatId: $chatId,
+    text: Text::html()
+        ->bold('Invoice #100')->line()
+        ->plain('Total: $50.00')
+);
+```
+
+### HTML Formatting (`Text::html`)
+
+```php
+$message = Text::html()
+    ->bold('Order Confirmation')->line()
+    ->line()
+    ->plain('User: ')->userMention($user->name, $user->id)->line()
+    ->plain('Item: ')->bold($item->name)->line()
+    ->plain('Price: ')->code("$" . number_format($item->price, 2))->line()
+    ->line()
+    ->blockquote('Thank you for shopping with us!')
+    ->line()
+    ->link('Track Package', 'https://track.example.com/12345');
+```
+
+### MarkdownV2 Formatting (`Text::markdownV2`)
+
+You can generate bulletproof MarkdownV2 without manually escaping the 18 reserved Telegram characters:
+
+```php
+$message = Text::markdownV2()
+    ->bold('System Alert!')->line()
+    ->spoiler('Secret token inside')->line()
+    ->expandableBlockquote("Log line 1: OK\nLog line 2: WARNING\nLog line 3: SUCCESS")
+    ->line()
+    ->pre("<?php\necho 'Hello World!';", language: 'php');
+```
+
+---
+
+## 2. Nested Formatting Styles
+
+Telegram allows entities to be nested (e.g. bold italic text or links with bold labels). `Text` supports nesting using **Closures**, sub-`Text` instances, or strings:
+
+```php
+// Bold italic text: <b><i>Bold and Italic</i></b>
+$text = Text::html()->bold(fn(Text $t) => $t->italic('Bold and Italic'));
+
+// Bold spoiler in MarkdownV2: *||Secret||*
+$text = Text::markdownV2()->bold(fn(Text $t) => $t->spoiler('Secret'));
+
+// Hyperlink with bold label
+$link = Text::html()->link(fn(Text $t) => $t->bold('Click Here'), 'https://example.com');
+```
+
+---
+
+## 3. Supported Formatting Styles
+
+Both `Text::html()` and `Text::markdownV2()` support the full range of Telegram formatting features:
+
+| Method | HTML Output | MarkdownV2 Output | Description |
+| :--- | :--- | :--- | :--- |
+| `->bold($content)` | `<b>...</b>` | `*...*` | Bold weight text (supports nesting) |
+| `->italic($content)` | `<i>...</i>` | `_..._` | Italicized text (supports nesting) |
+| `->underline($content)` | `<u>...</u>` | `__...__` | Underlined text (supports nesting) |
+| `->strikethrough($content)` | `<s>...</s>` | `~...~` | Strikethrough text (supports nesting) |
+| `->spoiler($content)` | `<tg-spoiler>...</tg-spoiler>` | `\|\|...\|\|` | Hidden spoiler text (supports nesting) |
+| `->blockquote($content)` | `<blockquote>...</blockquote>` | `>...` | Block quotation |
+| `->expandableBlockquote($content)` | `<blockquote expandable>...</blockquote>` | `**>...` | Collapsible block quote |
+| `->code($code)` | `<code>...</code>` | `` `...` `` | Inline monospace code |
+| `->pre($code, $lang)` | `<pre><code class="...">...</code></pre>` | ```` ```lang ... ``` ```` | Pre-formatted code block |
+| `->link($content, $url)` | `<a href="...">...</a>` | `[...] (...)` | Inline hyperlink (supports styled labels) |
+| `->userMention($content, $userId)` | `<a href="tg://user?id=...">...</a>` | `[...] (tg://user?id=...)` | Mention user by Telegram ID |
+| `->customEmoji($emoji, $id)` | `<tg-emoji emoji-id="...">...</tg-emoji>` | `![emoji](tg://emoji?id=...)` | Custom animated Telegram emoji |
+| `->plain($text)` | Escaped text | Escaped text | Regular text, automatically escaped |
+| `->raw($string)` | Unescaped string | Unescaped string | Raw text without escaping |
+
+---
+
+## 4. Entity Helpers & Dividers
+
+```php
+$text = Text::html()
+    ->mention('@my_bot')                     // Adds @my_bot
+    ->space()
+    ->hashtag('#tueen')                      // Adds #tueen
+    ->space()
+    ->cashtag('$TON')                        // Adds $TON
+    ->space()
+    ->botCommand('/help')                    // Adds /help
+    ->line()
+    ->email('support@tueen.org')             // Creates mailto: link
+    ->line()
+    ->phone('+1234567890')                   // Creates tel: link
+    ->br(2)                                  // Appends 2 blank lines
+    ->hr(25);                                // Appends a horizontal divider (—————————)
+```
+
+---
+
+## 5. Length & Character Limit Utilities
+
+Telegram enforces strict character limits (e.g. 4096 characters for messages, 1024 characters for media captions):
+
+```php
+$text = Text::html()->bold('Very long text...');
+
+echo $text->length();                       // UTF-8 character count
+$text->isEmpty();                           // bool
+$text->isNotEmpty();                        // bool
+$text->isWithinLimit(4096);                 // true if <= 4096 characters
+
+// Safely truncate to a maximum length with suffix:
+$text->truncate(4096, '... [read more]');
+```
+
+---
+
+## 6. Low-Level `Escape` Utility
+
+When assembling strings manually or using existing templates, use `Escape` to sanitize user input:
+
+```php
+use Tueen\Telegram\Formatting\Escape;
+
+// HTML escaping: replaces <, >, &, and " with &lt;, &gt;, &amp;, &quot;
+$safeUserName = Escape::html($userInput);
+
+// MarkdownV2 escaping: escapes all 18 Telegram special characters:
+// _, *, [, ], (, ), ~, `, >, #, +, -, =, |, {, }, ., !
+$safeComment = Escape::markdownV2($userInput);
+
+// Code and Pre escaping: inside code blocks, only ` and \ need escaping
+$safeCode = Escape::markdownV2Code($rawCode);
+
+// Inline link URL escaping: inside link URLs, only ) and \ need escaping
+$safeUrl = Escape::markdownV2Link($userUrl);
+
+// Custom Emoji escaping: inside [...] only ] and \ need escaping
+$safeEmoji = Escape::markdownV2CustomEmoji($rawEmoji);
+
+// Legacy Markdown escaping
+$safeLegacy = Escape::markdown($userInput);
+```
+
+
+# ==============================================================================
+# File: /guide/file-upload-download
+# Section: Core Essentials > File Upload & Download
+# ==============================================================================
+
+# File Upload & Download
+
+`tueen/telegram` makes file transfers seamless using the `InputFile` wrapper, streaming HTTP transports, and real-time upload/download progress callbacks.
+
+---
+
+## 1. File Uploads with `InputFile`
+
+`InputFile` can wrap local files, streams, raw strings, or PSR-7 streams:
+
+### From Local File Path
+```php
+use Tueen\Telegram\Types\Custom\InputFile;
+
+$photo = InputFile::fromPath('/path/to/cat.jpg');
+
+$bot->sendPhoto(
+    chatId: 123456,
+    photo: $photo,
+    caption: 'My cute cat!'
+);
+```
+
+### From Stream Resource
+```php
+$fp = fopen('https://example.com/audio.mp3', 'rb');
+$audio = InputFile::fromResource($fp, 'audio.mp3');
+
+$bot->sendAudio(
+    chatId: 123456,
+    audio: $audio
+);
+```
+
+### From Raw In-Memory String
+```php
+$csv = InputFile::fromString("id,name\n1,Alice\n2,Bob", 'report.csv', 'text/csv');
+
+$bot->sendDocument(
+    chatId: 123456,
+    document: $csv
+);
+```
+
+---
+
+## 2. Sending Media Groups (Albums)
+
+To send multiple photos or videos as an album in a single message:
+
+```php
+$bot->sendMediaGroup(
+    chatId: 123456,
+    media: [
+        [
+            'type' => 'photo',
+            'media' => 'https://example.com/photo1.jpg',
+            'caption' => 'Holiday album'
+        ],
+        [
+            'type' => 'photo',
+            'media' => 'https://example.com/photo2.jpg',
+        ]
+    ]
+);
+```
+
+---
+
+## 3. Real-Time Upload Progress
+
+You can track upload progress per-request:
+
+```php
+use Tueen\Telegram\Methods\SendDocument;
+use Tueen\Telegram\Types\Custom\InputFile;
+
+$bot->send(
+    new SendDocument(
+        chatId: 123456,
+        document: InputFile::fromPath('/path/to/large_video.mp4')
+    ),
+    uploadProgress: function (int $bytesUploaded, int $totalBytes, float $percentage) {
+        printf("Upload: %d / %d bytes (%.2f%%)\r", $bytesUploaded, $totalBytes, $percentage);
+    }
+);
+```
+
+---
+
+## 4. Streaming File Downloads with Progress
+
+Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
+
+`$bot->downloadFile` downloads directly to a local file or stream without loading the entire payload into RAM:
+
+```php
+$bot->downloadFile(
+    file: 'photos/file_0.jpg', // or File object / file_id
+    destination: '/local/path/saved.jpg',
+    progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {
+        printf("Download: %.2f%%\r", $percentage);
+    }
+);
+```
+
+
+# ==============================================================================
 # File: /guide/running-modes
-# Section: Getting Started > Running Modes
+# Section: Updates & Routing > Running Modes
 # ==============================================================================
 
 # Running Modes
@@ -1119,8 +2460,187 @@ file_get_contents('php://input')
 
 
 # ==============================================================================
+# File: /guide/routing
+# Section: Updates & Routing > Update Routing & Attributes
+# ==============================================================================
+
+# Update Routing & Attributes
+
+Instead of writing monolithic `switch` or `if/else` ladders inside your update handlers, `tueen/telegram` features an expressive, type-safe **Update Router**.
+
+The router supports both **Fluent Route Definitions** and **Attribute-Driven Controllers** (via PHP 8 Attributes).
+
+---
+
+## 1. Fluent Routing
+
+You can register routes directly on your `Telegram` client instance.
+
+```php
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+
+$bot = new Telegram('YOUR_BOT_TOKEN');
+
+// 1. Handle bot commands (/start, /help, etc.)
+// Bot username (@my_bot) is stripped automatically:
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(
+        chatId: $update->findChat()->id,
+        text: 'Welcome! How can I assist you today?'
+    );
+});
+
+// 2. Handle callback queries with parameterized patterns
+$bot->onCallbackQuery('item:{id}:details', function (Update $update, Telegram $bot, string $id) {
+    $bot->answerCallbackQuery(callbackQueryId: $update->callbackQuery->id);
+    $bot->sendMessage(
+        chatId: $update->findChat()->id,
+        text: "Viewing details for item #{$id}"
+    );
+});
+
+// 3. Handle messages matching a regex pattern
+$bot->onMessage('/^contact support$/i', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(
+        chatId: $update->findChat()->id,
+        text: 'A support agent will reach out shortly.'
+    );
+});
+
+// 4. Handle inline queries
+$bot->onInlineQuery(function (Update $update, Telegram $bot) {
+    $query = $update->inlineQuery->query;
+    // Answer inline query...
+});
+
+// 5. Catch-all fallback route
+$bot->onFallback(function (Update $update, Telegram $bot) {
+    $bot->sendMessage(
+        chatId: $update->findChat()?->id,
+        text: 'Sorry, I did not understand that command.'
+    );
+});
+
+// Execute the bot (automatically triggers router dispatch)
+$bot->run();
+```
+
+---
+
+## 2. Parameter Extraction in Routes
+
+The router provides first-class support for parameterized patterns using `{paramName}`:
+
+```php
+$bot->onCallbackQuery('cart:add:{productId}:{quantity}', function (
+    Update $update,
+    Telegram $bot,
+    string $productId,
+    string $quantity
+) {
+    // Parameters are automatically injected into the handler arguments!
+});
+```
+
+You can also use full regular expressions:
+
+```php
+$bot->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', function (
+    Update $update,
+    Telegram $bot,
+    string $action,
+    string $id
+) {
+    // Named regex capture groups are passed as parameters
+});
+```
+
+---
+
+## 3. Attribute-Driven Controllers
+
+For medium to large applications, you can organize your routes into dedicated Controller classes decorated with PHP 8 Attributes:
+
+### Example Controller
+
+```php
+namespace App\Controllers;
+
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Routing\Attributes\OnCommand;
+use Tueen\Telegram\Routing\Attributes\OnCallbackQuery;
+use Tueen\Telegram\Routing\Attributes\OnMessage;
+use Tueen\Telegram\Routing\Attributes\OnInlineQuery;
+
+class ShopController
+{
+    #[OnCommand('shop')]
+    public function openShop(Update $update, Telegram $bot): void
+    {
+        $bot->sendMessage(
+            chatId: $update->findChat()->id,
+            text: 'Welcome to our shop!'
+        );
+    }
+
+    #[OnCallbackQuery('product:{id}')]
+    public function showProduct(Update $update, Telegram $bot, string $id): void
+    {
+        $bot->answerCallbackQuery($update->callbackQuery->id);
+        $bot->sendMessage(
+            chatId: $update->findChat()->id,
+            text: "Loading product #{$id}..."
+        );
+    }
+
+    #[OnMessage('/^\$([0-9\.]+)$/')]
+    public function handleTip(Update $update, Telegram $bot, string $amount): void
+    {
+        $bot->sendMessage(
+            chatId: $update->findChat()->id,
+            text: "Received tip: \${$amount}"
+        );
+    }
+
+    #[OnInlineQuery]
+    public function search(Update $update, Telegram $bot): void
+    {
+        // Handle inline query
+    }
+}
+```
+
+### Registering Controllers
+
+Register controllers with `$bot->registerController(...)`:
+
+```php
+$bot->registerController(ShopController::class);
+$bot->registerController(UserController::class);
+
+$bot->run();
+```
+
+If a PSR-11 container is configured (`$bot->setContainer($container)`), controller instances and their constructor dependencies will be resolved automatically.
+
+---
+
+## 4. Available Routing Attributes
+
+| Attribute | Matches | Example |
+| :--- | :--- | :--- |
+| `#[OnCommand('name')]` | Bot commands (`/name` or `/name@bot`) | `#[OnCommand('help')]` |
+| `#[OnCallbackQuery('pattern')]` | Callback queries matching pattern or regex | `#[OnCallbackQuery('confirm:{id}')]` |
+| `#[OnMessage('pattern')]` | Text messages matching string or regex | `#[OnMessage('/hi\|hello/i')]` |
+| `#[OnInlineQuery('pattern')]` | Inline queries matching optional pattern | `#[OnInlineQuery]` |
+| `#[OnUpdate('type')]` | Specific update types (`channel_post`, etc.) | `#[OnUpdate('edited_message')]` |
+
+
+# ==============================================================================
 # File: /guide/update-and-message-helpers
-# Section: Getting Started > Update & Message Helpers
+# Section: Updates & Routing > Update & Message Helpers
 # ==============================================================================
 
 # Update & Message Helpers
@@ -1337,460 +2857,8 @@ echo $user->fullName;
 
 
 # ==============================================================================
-# File: /guide/routing
-# Section: Getting Started > Update Routing & Attributes
-# ==============================================================================
-
-# Update Routing & Attributes
-
-Instead of writing monolithic `switch` or `if/else` ladders inside your update handlers, `tueen/telegram` features an expressive, type-safe **Update Router**.
-
-The router supports both **Fluent Route Definitions** and **Attribute-Driven Controllers** (via PHP 8 Attributes).
-
----
-
-## 1. Fluent Routing
-
-You can register routes directly on your `Telegram` client instance.
-
-```php
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Types\Update;
-
-$bot = new Telegram('YOUR_BOT_TOKEN');
-
-// 1. Handle bot commands (/start, /help, etc.)
-// Bot username (@my_bot) is stripped automatically:
-$bot->onCommand('start', function (Update $update, Telegram $bot) {
-    $bot->sendMessage(
-        chatId: $update->findChat()->id,
-        text: 'Welcome! How can I assist you today?'
-    );
-});
-
-// 2. Handle callback queries with parameterized patterns
-$bot->onCallbackQuery('item:{id}:details', function (Update $update, Telegram $bot, string $id) {
-    $bot->answerCallbackQuery(callbackQueryId: $update->callbackQuery->id);
-    $bot->sendMessage(
-        chatId: $update->findChat()->id,
-        text: "Viewing details for item #{$id}"
-    );
-});
-
-// 3. Handle messages matching a regex pattern
-$bot->onMessage('/^contact support$/i', function (Update $update, Telegram $bot) {
-    $bot->sendMessage(
-        chatId: $update->findChat()->id,
-        text: 'A support agent will reach out shortly.'
-    );
-});
-
-// 4. Handle inline queries
-$bot->onInlineQuery(function (Update $update, Telegram $bot) {
-    $query = $update->inlineQuery->query;
-    // Answer inline query...
-});
-
-// 5. Catch-all fallback route
-$bot->onFallback(function (Update $update, Telegram $bot) {
-    $bot->sendMessage(
-        chatId: $update->findChat()?->id,
-        text: 'Sorry, I did not understand that command.'
-    );
-});
-
-// Execute the bot (automatically triggers router dispatch)
-$bot->run();
-```
-
----
-
-## 2. Parameter Extraction in Routes
-
-The router provides first-class support for parameterized patterns using `{paramName}`:
-
-```php
-$bot->onCallbackQuery('cart:add:{productId}:{quantity}', function (
-    Update $update,
-    Telegram $bot,
-    string $productId,
-    string $quantity
-) {
-    // Parameters are automatically injected into the handler arguments!
-});
-```
-
-You can also use full regular expressions:
-
-```php
-$bot->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', function (
-    Update $update,
-    Telegram $bot,
-    string $action,
-    string $id
-) {
-    // Named regex capture groups are passed as parameters
-});
-```
-
----
-
-## 3. Attribute-Driven Controllers
-
-For medium to large applications, you can organize your routes into dedicated Controller classes decorated with PHP 8 Attributes:
-
-### Example Controller
-
-```php
-namespace App\Controllers;
-
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Types\Update;
-use Tueen\Telegram\Routing\Attributes\OnCommand;
-use Tueen\Telegram\Routing\Attributes\OnCallbackQuery;
-use Tueen\Telegram\Routing\Attributes\OnMessage;
-use Tueen\Telegram\Routing\Attributes\OnInlineQuery;
-
-class ShopController
-{
-    #[OnCommand('shop')]
-    public function openShop(Update $update, Telegram $bot): void
-    {
-        $bot->sendMessage(
-            chatId: $update->findChat()->id,
-            text: 'Welcome to our shop!'
-        );
-    }
-
-    #[OnCallbackQuery('product:{id}')]
-    public function showProduct(Update $update, Telegram $bot, string $id): void
-    {
-        $bot->answerCallbackQuery($update->callbackQuery->id);
-        $bot->sendMessage(
-            chatId: $update->findChat()->id,
-            text: "Loading product #{$id}..."
-        );
-    }
-
-    #[OnMessage('/^\$([0-9\.]+)$/')]
-    public function handleTip(Update $update, Telegram $bot, string $amount): void
-    {
-        $bot->sendMessage(
-            chatId: $update->findChat()->id,
-            text: "Received tip: \${$amount}"
-        );
-    }
-
-    #[OnInlineQuery]
-    public function search(Update $update, Telegram $bot): void
-    {
-        // Handle inline query
-    }
-}
-```
-
-### Registering Controllers
-
-Register controllers with `$bot->registerController(...)`:
-
-```php
-$bot->registerController(ShopController::class);
-$bot->registerController(UserController::class);
-
-$bot->run();
-```
-
-If a PSR-11 container is configured (`$bot->setContainer($container)`), controller instances and their constructor dependencies will be resolved automatically.
-
----
-
-## 4. Available Routing Attributes
-
-| Attribute | Matches | Example |
-| :--- | :--- | :--- |
-| `#[OnCommand('name')]` | Bot commands (`/name` or `/name@bot`) | `#[OnCommand('help')]` |
-| `#[OnCallbackQuery('pattern')]` | Callback queries matching pattern or regex | `#[OnCallbackQuery('confirm:{id}')]` |
-| `#[OnMessage('pattern')]` | Text messages matching string or regex | `#[OnMessage('/hi\|hello/i')]` |
-| `#[OnInlineQuery('pattern')]` | Inline queries matching optional pattern | `#[OnInlineQuery]` |
-| `#[OnUpdate('type')]` | Specific update types (`channel_post`, etc.) | `#[OnUpdate('edited_message')]` |
-
-
-# ==============================================================================
-# File: /guide/app
-# Section: Getting Started > App Orchestrator
-# ==============================================================================
-
-# App Orchestrator
-
-`tueen/telegram` provides the **`App`** orchestrator, a high-level application layer designed for effortless zero-config bot development, instant deployment on shared hosting or CLI, automated conversation flow session storage, and an interactive **Web Setup & Management Dashboard**.
-
----
-
-## 🚀 Quick Start in 60 Seconds
-
-Create a standard bot project directory:
-
-```text
-my-bot/
-├── config.php        # Configuration array (token, secret, etc.)
-├── routes.php        # Bot commands and update handlers
-├── index.php         # Entry point script
-└── storage/          # Automatically created for flow sessions
-    └── flow/
-```
-
-### 1. `config.php`
-
-Return your configuration array:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'token' => '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
-    'secret_token' => 'super-secret-token', // Optional Telegram secret token header
-    'mode' => 'auto',                      // 'auto', 'polling', or 'webhook'
-];
-```
-
-### 2. `routes.php`
-
-Define your commands and message handlers by returning a closure:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Types\Update;
-
-return function (Telegram $bot): void {
-    $bot->onCommand('start', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "👑 Welcome to my royal Telegram Bot!");
-    });
-
-    $bot->onMessage('ping', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "pong 🏓");
-    });
-};
-```
-
-::: tip Recommended Pattern: Closure-Based Routes
-Returning a closure `return function (Telegram $bot): void { ... };` is the recommended best practice:
-- **Direct Execution Safety:** If accessed directly via a web browser, it safely returns a closure without throwing fatal errors or executing side effects.
-- **Bot-First & Optional App:** `$bot` is the primary argument. If you also need access to the `App` orchestrator, simply add `?App $app = null` (or `App $app`) as the second argument (`return function (Telegram $bot, App $app): void`). Leaving it out causes no error.
-- **Native Type Safety:** Full IDE autocompletion and static analysis without needing `/** @var */` PHPDoc annotations.
-- **Scope Isolation:** Avoids polluting any global or calling scope.
-:::
-
-### 3. `index.php`
-
-Initialize the App and call `run()`:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-require __DIR__ . '/vendor/autoload.php';
-
-use Tueen\Telegram\App;
-
-$app = App::create(__DIR__);
-$app->run();
-```
-
-::: tip Flexible Entry Point Naming
-While `index.php` is standard, you can freely name your entry point file whatever you want (such as `bot.php`, `update.php`, or `webhook.php`). `App::create(__DIR__)` dynamically inspects the executing script and automatically resolves the correct public webhook URL.
-:::
-
----
-
-## ⚡ Adaptive Execution Environments
-
-When `$app->run()` is invoked, it intelligently detects the execution context:
-
-| Environment | Trigger | Behavior |
-| :--- | :--- | :--- |
-| **CLI / Terminal** | `php index.php` | Runs interactive Long-Polling or CLI helper commands (`webhook:set`, etc.). |
-| **HTTP POST** | Incoming Telegram Webhook | Verifies `secret_token`, executes update handlers/flows, and returns `200 OK`. |
-| **HTTP GET** | Opened in Web Browser | Launches the **Royal Web Dashboard** or **First-Time Setup Wizard**. |
-
----
-
-## 🌐 Web Setup Wizard & Management Console
-
-Opening `index.php` in a web browser activates the **Royal Web Dashboard**:
-
-### 1. First-Time Setup Wizard (When Token is Empty)
-If no bot token is configured in `config.php`:
-- Displays a setup form to enter your **Bot Token** (from `@BotFather`).
-- Automatically detects your public webhook URL (`https://yourdomain.com/index.php`).
-- Includes a button to generate a secure 32-character random `secret_token`.
-- Tests connection with `getMe()` and automatically sets the webhook via `setWebhook()`.
-- Automatically writes credentials into `config.php`.
-
-### 2. Live Management Console (When Configured)
-Once configured, visiting the URL in a browser displays a real-time status console:
-- **Bot Profile:** Name, `@username`, Bot ID, group permissions, and Bot API ping latency.
-- **Webhook Telemetry:** Active webhook URL, pending update queue count, SSL certificate type, max connections, and any recent delivery errors from Telegram servers.
-- **One-Click Actions:**
-  - 🎯 **Set / Update Webhook:** Sets the webhook to the current URL with optional `drop_pending_updates`.
-  - 🗑️ **Delete Webhook:** Removes the webhook from Telegram servers.
-  - 🔄 **Refresh:** Reloads live status from Telegram Bot API.
-- **Storage & Flow Metrics:** Displays active flow session files and storage path.
-
-### Securing the Dashboard
-To protect the web dashboard with a password, specify `setup.password` in your `config.php`:
-
-```php
-return [
-    'token' => '...',
-    'setup' => [
-        'enabled' => true,
-        'password' => 'my-secure-dashboard-password',
-    ],
-];
-```
-
----
-
-## 💾 Automatic Flow State Storage (`storage/flow`)
-
-`App` automatically configures persistent conversation flow storage:
-
-- By default, it creates `$basePath . '/storage/flow'` and attaches `FileStateStore`.
-- Protects the directory against direct web browser access with an Apache `.htaccess` (`Deny from all`) and an `index.php` fallback (`403 Forbidden`).
-- Multi-step conversational flows (`$bot->startFlow(...)`) automatically persist state without any external database or Redis setup.
-
-To customize the flow storage path, configure `flow_storage` in `config.php`:
-
-```php
-return [
-    'token' => '...',
-    'flow_storage' => '/var/data/telegram_flows',
-];
-```
-
----
-
-## 💻 CLI Commands
-
-You can run administrative operations directly from your terminal:
-
-```bash
-# Start polling mode with a styled welcome banner
-php index.php
-
-# Set webhook URL
-php index.php webhook:set https://example.com/index.php
-
-# Set webhook and drop pending updates
-php index.php webhook:set https://example.com/index.php --drop
-
-# Delete active webhook
-php index.php webhook:delete
-
-# Delete webhook and drop all pending updates
-php index.php webhook:delete --drop
-
-# Inspect current webhook status and errors
-php index.php webhook:info
-
-# View bot profile and permissions
-php index.php bot:info
-
-# Run system self-diagnostics
-php index.php doctor
-
-# Show help
-php index.php --help
-```
-
----
-
-## 🔑 Environment Variables (`.env`)
-
-`App` includes a zero-dependency `.env` reader that automatically loads configuration from your project's `.env` file if present:
-
-```ini
-TELEGRAM_BOT_TOKEN="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ"
-TELEGRAM_SECRET_TOKEN="my-secret-token"
-TELEGRAM_WEBHOOK_URL="https://yourdomain.com/index.php"
-```
-
-If these keys are present in `.env`, `App` automatically uses them as default fallback values without requiring hardcoded tokens in `config.php`.
-
-You can also read environment values using `Tueen\Telegram\App\Env::get('KEY', default: null)`.
-
----
-
-## 📁 Automatic Controller Discovery
-
-If your bot project has a `controllers/` directory in its project root, `App` automatically scans all PHP files inside it. Any class decorated with routing attributes (`#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`) is registered automatically with zero boilerplate!
-
-```php
-// controllers/StartController.php
-namespace App\Controllers;
-
-use Tueen\Telegram\Routing\Attributes\OnCommand;
-use Tueen\Telegram\Types\Update;
-use Tueen\Telegram\Telegram;
-
-class StartController
-{
-    #[OnCommand('start')]
-    public function start(Update $update, Telegram $bot): void
-    {
-        $bot->sendMessage(text: "Hello from auto-discovered controller!");
-    }
-}
-```
-
----
-
-## 🩺 System Diagnostics (`doctor`)
-
-To troubleshoot webhook issues, SSL certificate mismatches, or file permission errors on shared hosting:
-
-- Run `php index.php doctor` in your terminal to see a colored diagnostic status table.
-- Or open your bot in a browser to inspect the **System Diagnostics (Doctor)** card in the Web Dashboard.
-
-It verifies:
-- PHP version compatibility (PHP 8.4+).
-- Required extensions (`curl`, `json`, `mbstring`, `openssl`).
-- Flow storage permissions (`storage/flow` writable).
-- Telegram Bot API server reachability and latency.
-- Webhook URL HTTPS compliance.
-
----
-
-## 🛡️ Update Error Handling & Quick Replies
-
-You can register global exception handlers directly on `$app`:
-
-```php
-// In routes.php or index.php:
-$app->catch(function (Throwable $e, Update $update, Telegram $bot) {
-    error_log("Update error: " . $e->getMessage());
-    $app->reply('⚠️ An unexpected error occurred. Please try again later.');
-});
-
-// Or catch specific exception types:
-$app->catch(DatabaseException::class, function ($e, $update, $bot) use ($app) {
-    $app->reply('Database connection error. Admin notified.');
-});
-```
-
-The `$app->reply($text, ...)` helper automatically resolves the active chat from context and dispatches `sendMessage` without requiring you to manually resolve chat IDs.
-
-
-# ==============================================================================
 # File: /guide/flow/
-# Section: Flow Ecosystem > Flow & Interactive Screen Ecosystem
+# Section: Conversational Flows > Flow & Interactive Screen Ecosystem
 # ==============================================================================
 
 # Flow & Interactive Screen Ecosystem
@@ -1872,7 +2940,7 @@ class DashboardFlow extends InteractiveFlow
 
 # ==============================================================================
 # File: /guide/flow/conversational-flows
-# Section: Flow Ecosystem > Conversational Flows (Linear Forms)
+# Section: Conversational Flows > Conversational Flows (Linear Forms)
 # ==============================================================================
 
 # Conversational Flows (Linear Forms)
@@ -2085,7 +3153,7 @@ if ($bot->hasActiveFlow()) {
 
 # ==============================================================================
 # File: /guide/flow/interactive-screens
-# Section: Flow Ecosystem > Interactive Screens & Zero-Flicker Transitions
+# Section: Conversational Flows > Interactive Screens & Zero-Flicker Transitions
 # ==============================================================================
 
 # Interactive Screens & Zero-Flicker Transitions
@@ -2335,7 +3403,7 @@ Please enter your shipping address:
 
 # ==============================================================================
 # File: /guide/flow/lifecycle-hooks
-# Section: Flow Ecosystem > Lifecycle Hooks
+# Section: Conversational Flows > Lifecycle Hooks
 # ==============================================================================
 
 # Lifecycle Hooks
@@ -2412,7 +3480,7 @@ Invoked when `/start` or a cancellation command is received while the flow is ac
 
 # ==============================================================================
 # File: /guide/flow/keyboards-and-actions
-# Section: Flow Ecosystem > Keyboards & Action Binding
+# Section: Conversational Flows > Keyboards & Action Binding
 # ==============================================================================
 
 # Keyboards & Action Binding
@@ -2605,7 +3673,7 @@ public function claimDailyBonus(): void
 
 # ==============================================================================
 # File: /guide/flow/navigation-and-stack
-# Section: Flow Ecosystem > Navigation Stack & Root Flow
+# Section: Conversational Flows > Navigation Stack & Root Flow
 # ==============================================================================
 
 # Navigation Stack & Root Flow
@@ -2811,7 +3879,7 @@ If no parent flows, root flows, or step recovery paths are available, `FlowManag
 
 # ==============================================================================
 # File: /guide/flow/state-storage
-# Section: Flow Ecosystem > State Storage Drivers
+# Section: Conversational Flows > State Storage Drivers
 # ==============================================================================
 
 # State Storage Drivers
@@ -2872,688 +3940,358 @@ $bot->setFlowStore(new Psr16StateStore($psr16CachePool));
 
 
 # ==============================================================================
-# File: /guide/methods-and-types
-# Section: Client Features > Methods & Types
+# File: /guide/app
+# Section: Application & Production > Zero-Config App & Web Dashboard
 # ==============================================================================
 
-# Methods & Types
+# Zero-Config App & Web Dashboard
 
-`tueen/telegram` provides native, strictly typed support for Telegram Bot API methods and types with full IDE autocompletion and enums.
+`tueen/telegram` provides the **`App`** orchestrator, a high-level application layer designed for effortless zero-config bot development, instant deployment on shared hosting or CLI, automated conversation flow session storage, and an interactive **Web Setup & Management Dashboard**.
 
 ---
 
-## Method Invocations
+## 🚀 Quick Start in 60 Seconds
 
-You can invoke API methods either dynamically or via dedicated Method classes:
+Create a standard bot project directory:
 
-### 1. Dynamic Method Calls (Recommended)
-
-Call any Telegram method directly using camelCase and named arguments:
-
-```php
-use Tueen\Telegram\Enums\ParseMode;
-
-$message = $bot->sendMessage(
-    chatId: 12345678,
-    text: "Hello from <b>Tueen</b>!",
-    parseMode: ParseMode::HTML // Direct Enum instance
-);
+```text
+my-bot/
+├── config.php        # Configuration array (token, secret, etc.)
+├── routes.php        # Bot commands and update handlers
+├── index.php         # Entry point script
+└── storage/          # Automatically created for flow sessions
+    └── flow/
 ```
 
-::: tip MANDATORY BEST PRACTICE: ALWAYS USE NAMED PARAMETERS
-In `tueen/telegram`, **always invoke API methods using PHP named arguments** (`paramName: $value`).
+### 1. `config.php`
+
+Return your configuration array:
 
 ```php
-// ✅ RECOMMENDED: Clean, explicit, order-independent
-$bot->sendMessage(
-    text: "Welcome to the Royal Bot!",
-    parseMode: ParseMode::HTML
-);
+<?php
 
-// ❌ AVOID: Fragile positional arguments
-$bot->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
+declare(strict_types=1);
+
+return [
+    'token' => '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
+    'secret_token' => 'super-secret-token', // Optional Telegram secret token header
+    'mode' => 'auto',                      // 'auto', 'polling', or 'webhook'
+];
 ```
 
-#### Why Named Parameters Are Essential:
-1. **Contextual Auto-Injection:** Because parameters like `chatId`, `businessConnectionId`, `messageThreadId`, and query IDs are automatically inferred from the active update, named arguments allow you to supply only what you care about (e.g. `text: "..."`) without caring about parameter order.
-2. **No Trailing Null Placeholders:** Telegram Bot API methods often accept 15 to 25+ parameters. Positional calls force you to pass dozens of `null` values just to set an option near the end.
-3. **Forward-Compatibility:** When Telegram adds new parameters to Bot API methods in future updates, named arguments protect your code from signature changes or argument shifts.
-4. **Self-Documenting & Clean:** Code is immediately readable and understandable in code reviews without needing to look up parameter order.
+### 2. `routes.php`
+
+Define your commands and message handlers by returning a closure:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+
+return function (Telegram $bot): void {
+    $bot->onCommand('start', function (Update $update, Telegram $bot) {
+        $bot->sendMessage(text: "👋 Welcome! Send /help to see available commands.");
+    });
+
+    $bot->onMessage('ping', function (Update $update, Telegram $bot) {
+        $bot->sendMessage(text: "pong 🏓");
+    });
+};
+```
+
+::: tip Recommended Pattern: Closure-Based Routes
+Returning a closure `return function (Telegram $bot): void { ... };` is the recommended best practice:
+- **Direct Execution Safety:** If accessed directly via a web browser, it safely returns a closure without throwing fatal errors or executing side effects.
+- **Bot-First & Optional App:** `$bot` is the primary argument. If you also need access to the `App` orchestrator, simply add `?App $app = null` (or `App $app`) as the second argument (`return function (Telegram $bot, App $app): void`). Leaving it out causes no error.
+- **Native Type Safety:** Full IDE autocompletion and static analysis without needing `/** @var */` PHPDoc annotations.
+- **Scope Isolation:** Avoids polluting any global or calling scope.
 :::
 
-Full IDE autocompletion and parameter docblocks are provided via the `@mixin TelegramMethods` contract.
+### 3. `index.php`
 
-### 2. Method Objects (For Custom Pipelines & Architecture)
-
-Every Telegram Bot API method has a dedicated class in `Tueen\Telegram\Methods`:
+Initialize the App and call `run()`:
 
 ```php
-use Tueen\Telegram\Methods\SendMessage;
+<?php
 
-$method = new SendMessage(
-    chatId: 12345678,
-    text: "Hello from Tueen!"
-);
+declare(strict_types=1);
 
-$message = $bot->send($method);
+require __DIR__ . '/vendor/autoload.php';
+
+use Tueen\Telegram\App;
+
+$app = App::create(__DIR__);
+$app->run();
 ```
 
-### 3. Forward-Compatible Unknown / New Parameters
+::: tip Flexible Entry Point Naming
+While `index.php` is standard, you can freely name your entry point file whatever you want (such as `bot.php`, `update.php`, or `webhook.php`). `App::create(__DIR__)` dynamically inspects the executing script and automatically resolves the correct public webhook URL.
+:::
 
-If Telegram introduces a new parameter before the library updates, you can pass it immediately as a named parameter or via variadic `$extra`:
+---
+
+## ⚡ Adaptive Execution Environments
+
+When `$app->run()` is invoked, it intelligently detects the execution context:
+
+| Environment | Trigger | Behavior |
+| :--- | :--- | :--- |
+| **CLI / Terminal** | `php index.php` | Runs interactive Long-Polling or CLI helper commands (`webhook:set`, etc.). |
+| **HTTP POST** | Incoming Telegram Webhook | Verifies `secret_token`, executes update handlers/flows, and returns `200 OK`. |
+| **HTTP GET** | Opened in Web Browser | Launches the **Royal Web Dashboard** or **First-Time Setup Wizard**. |
+
+---
+
+## 🌐 Web Setup Wizard & Management Console
+
+Opening `index.php` in a web browser activates the **Royal Web Dashboard**:
+
+### 1. First-Time Setup Wizard (When Token is Empty)
+If no bot token is configured in `config.php`:
+- Displays a setup form to enter your **Bot Token** (from `@BotFather`).
+- Automatically detects your public webhook URL (`https://yourdomain.com/index.php`).
+- Includes a button to generate a secure 32-character random `secret_token`.
+- Tests connection with `getMe()` and automatically sets the webhook via `setWebhook()`.
+- Automatically writes credentials into `config.php`.
+
+### 2. Live Management Console (When Configured)
+Once configured, visiting the URL in a browser displays a real-time status console:
+- **Bot Profile:** Name, `@username`, Bot ID, group permissions, and Bot API ping latency.
+- **Webhook Telemetry:** Active webhook URL, pending update queue count, SSL certificate type, max connections, and any recent delivery errors from Telegram servers.
+- **One-Click Actions:**
+  - 🎯 **Set / Update Webhook:** Sets the webhook to the current URL with optional `drop_pending_updates`.
+  - 🗑️ **Delete Webhook:** Removes the webhook from Telegram servers.
+  - 🔄 **Refresh:** Reloads live status from Telegram Bot API.
+- **Storage & Flow Metrics:** Displays active flow session files and storage path.
+
+### Securing the Dashboard
+To protect the web dashboard with a password, specify `setup.password` in your `config.php`:
 
 ```php
-// If Telegram adds 'new_feature_flag' tomorrow:
-$message = $bot->sendMessage(
-    chatId: 12345678,
-    text: "Testing new feature",
-    newFeatureFlag: true // Seamlessly passed to the API
-);
-```
-
-### 4. Passing Complex & Nested Types (Objects or Arrays)
-
-Methods that accept complex structures (such as `reply_markup`, `link_preview_options`, or `reply_parameters`) accept both **strongly-typed Type objects** and **associative arrays**:
-
-#### A. Using Strongly-Typed Type Objects
-```php
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
-use Tueen\Telegram\Types\InlineKeyboardButton;
-use Tueen\Telegram\Types\LinkPreviewOptions;
-
-$bot->sendMessage(
-    chatId: 123456,
-    text: "Check out Tueen:",
-    replyMarkup: new InlineKeyboardMarkup(
-        inlineKeyboard: [
-            [
-                new InlineKeyboardButton(text: '🌐 Website', url: 'https://tueen.dev'),
-                new InlineKeyboardButton(text: '⭐ GitHub', url: 'https://github.com/tueen/telegram'),
-            ]
-        ]
-    ),
-    linkPreviewOptions: new LinkPreviewOptions(isDisabled: true)
-);
-```
-
-#### B. Using Structured Arrays
-You can also pass arrays; the library automatically normalizes, converts nested objects/enums, and serializes them:
-```php
-$bot->sendMessage(
-    chatId: 123456,
-    text: "Choose an option:",
-    replyMarkup: [
-        'inline_keyboard' => [
-            [
-                ['text' => 'Option 1', 'callback_data' => 'opt_1'],
-                ['text' => 'Option 2', 'callback_data' => 'opt_2'],
-            ]
-        ]
-    ]
-);
+return [
+    'token' => '...',
+    'setup' => [
+        'enabled' => true,
+        'password' => 'my-secure-dashboard-password',
+    ],
+];
 ```
 
 ---
 
-## 🎯 Contextual Default Parameter Injection
+## 💾 Automatic Flow State Storage (`storage/flow`)
 
-In bot applications, repetitive parameters like `chat_id`, `business_connection_id`, `message_thread_id`, or `user_id` are already present in the incoming `Update`. `tueen/telegram` features an **intelligent Context Resolver** that automatically extracts and injects these parameters whenever they are omitted or `null`.
+`App` automatically configures persistent conversation flow storage:
 
-### 1. Automatic `chat_id` Injection
-Inside any update handler or flow step, you never have to specify `chat_id` manually:
+- By default, it creates `$basePath . '/storage/flow'` and attaches `FileStateStore`.
+- Protects the directory against direct web browser access with an Apache `.htaccess` (`Deny from all`) and an `index.php` fallback (`403 Forbidden`).
+- Multi-step conversational flows (`$bot->startFlow(...)`) automatically persist state without any external database or Redis setup.
 
-```php
-$bot->onCommand('start', function (Update $update, Telegram $bot) {
-    // chatId is automatically resolved from $update!
-    // Always use named parameters:
-    $bot->sendMessage(text: "Welcome to the Royal Bot!");
-    $bot->sendMessage(
-        text: "How can I assist your Majesty today?",
-        replyMarkup: $inlineKeyboard
-    );
-});
-```
-
-### 2. Supported Contextual Parameters
-The following parameters are automatically inferred from the active update:
-
-| Parameter | Automatically Inferred From |
-| :--- | :--- |
-| `chat_id` | Active chat from message, callback query, business message, channel post, or reaction |
-| `business_connection_id` | Business connection or business message update |
-| `message_thread_id` | Forum topic thread ID from the incoming message |
-| `user_id` | Acting user ID (for `getUserProfilePhotos`, `getUserGifts`, etc.) |
-| `message_id` | Primary message ID (for `deleteMessage`, `pinChatMessage`, etc.) |
-| `inline_message_id` | Inline message ID from callback queries |
-| `callback_query_id` | Query ID for `answerCallbackQuery(text: 'Done!')` |
-| `inline_query_id` | Query ID for `answerInlineQuery(results: [...])` |
-| `shipping_query_id` | Query ID for `answerShippingQuery(ok: true)` |
-| `pre_checkout_query_id` | Query ID for `answerPreCheckoutQuery(ok: true)` |
-
-### 3. Dual Resolution for Message Edits
-Methods that can edit either a chat message or an inline query message (`editMessageText`, `editMessageCaption`, `editMessageReplyMarkup`, etc.) automatically detect whether the update came from an inline callback or a regular message:
+To customize the flow storage path, configure `flow_storage` in `config.php`:
 
 ```php
-$bot->onCallbackQuery('confirm', function (Update $update, Telegram $bot) {
-    // Automatically injects either inline_message_id OR (chat_id + message_id)
-    $bot->editMessageText(text: "Confirmed!");
-});
-```
-
-### 4. Custom Parameter Binding
-You can bind custom default values or dynamic resolvers using `bindDefault`:
-
-```php
-// Always default parse_mode to HTML across all methods
-$bot->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
-
-// Send message without parse_mode parameter; HTML is injected automatically
-$bot->sendMessage(text: "<b>Royal</b> Bot");
+return [
+    'token' => '...',
+    'flow_storage' => '/var/data/telegram_flows',
+];
 ```
 
 ---
 
-## Types & Property Access
+## 💻 CLI Commands
 
-All API responses are automatically deserialized into strongly-typed objects in `Tueen\Telegram\Types`.
+You can run administrative operations directly from your terminal:
 
-### Dual Access: camelCase and snake_case
+```bash
+# Start polling mode with a styled welcome banner
+php index.php
 
-```php
-// CamelCase property access
-echo $message->messageId;
-echo $message->chat->firstName;
+# Set webhook URL
+php index.php webhook:set https://example.com/index.php
 
-// Snake_case property access
-echo $message->message_id;
+# Set webhook and drop pending updates
+php index.php webhook:set https://example.com/index.php --drop
 
-// ArrayAccess with snake_case
-echo $message['message_id'];
-echo $message['chat']['first_name'];
+# Delete active webhook
+php index.php webhook:delete
+
+# Delete webhook and drop all pending updates
+php index.php webhook:delete --drop
+
+# Inspect current webhook status and errors
+php index.php webhook:info
+
+# View bot profile and permissions
+php index.php bot:info
+
+# Run system self-diagnostics
+php index.php doctor
+
+# Show help
+php index.php --help
 ```
 
 ---
 
-## Custom Result Wrapper Types
+## 🔑 Environment Variables (`.env`)
 
-Methods that return primitive types (such as `boolean`, `integer`, or arrays) are wrapped in typed classes inside `Tueen\Telegram\Types\Custom\` so you can always check `$result->ok()`:
+`App` includes a zero-dependency `.env` reader that automatically loads configuration from your project's `.env` file if present:
 
-- **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`)
-  ```php
-  $result = $bot->deleteMessage(chatId: 123, messageId: 456);
-  if ($result->ok() && $result->value) {
-      echo "Deleted successfully";
-  }
-  ```
-- **`IntegerResult`** (e.g. from `getChatMemberCount`)
-  ```php
-  $count = $bot->getChatMemberCount(chatId: -100123);
-  echo "Members: " . $count->value;
-  ```
-- **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`)
-  ```php
-  $link = $bot->exportChatInviteLink(chatId: -100123);
-  echo "Invite link: " . $link->value;
-  ```
-- **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
-  ```php
-  $updates = $bot->getUpdates();
-  foreach ($updates as $update) {
-    echo $update->updateId;
-  }
-  ```
+```ini
+TELEGRAM_BOT_TOKEN="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ"
+TELEGRAM_SECRET_TOKEN="my-secret-token"
+TELEGRAM_WEBHOOK_URL="https://yourdomain.com/index.php"
+```
+
+If these keys are present in `.env`, `App` automatically uses them as default fallback values without requiring hardcoded tokens in `config.php`.
+
+You can also read environment values using `Tueen\Telegram\App\Env::get('KEY', default: null)`.
 
 ---
 
-## Forward Compatibility & Dynamic Fallback
+## 📁 Automatic Controller Discovery
 
-If Telegram adds new fields or entire response types in future API versions, your application will **never crash**:
-
-- The unknown field is preserved in `$extra` storage.
-- You can access it immediately via `$message->newField` or `$message['new_field']`.
-- If Telegram returns an entirely new Type object, it seamlessly falls back to the base `Type` class.
-
-
-# ==============================================================================
-# File: /guide/keyboards
-# Section: Client Features > Fluent Keyboard Builders
-# ==============================================================================
-
-# Fluent Keyboard Builders
-
-`tueen/telegram` provides modern, fluent builders for creating both **Inline Keyboards** (`InlineKeyboardMarkup`) and **Reply Keyboards** (`ReplyKeyboardMarkup` / `ReplyKeyboardRemove`).
-
----
-
-## 1. Inline Keyboards (`InlineKeyboard`)
-
-Inline keyboards appear directly attached to a specific message. Buttons trigger actions such as callback queries, opening URLs, launching Telegram Web Apps, or initiating payments.
-
-### Basic Usage
-
-Use `InlineKeyboard::make()` followed by rows and buttons:
+If your bot project has a `controllers/` directory in its project root, `App` automatically scans all PHP files inside it. Any class decorated with routing attributes (`#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`) is registered automatically with zero boilerplate!
 
 ```php
-use Tueen\Telegram\Keyboards\InlineKeyboard;
+// controllers/StartController.php
+namespace App\Controllers;
 
-$keyboard = InlineKeyboard::make()
-    ->row()
-        ->callback('👍 Like', 'action:like')
-        ->callback('👎 Dislike', 'action:dislike')
-    ->row()
-        ->url('🌐 Visit Website', 'https://tueen.org')
-    ->build();
+use Tueen\Telegram\Routing\Attributes\OnCommand;
+use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Telegram;
 
-$bot->sendMessage(
-    chatId: $chatId,
-    text: 'Please cast your vote:',
-    replyMarkup: $keyboard
-);
-```
-
-### Supported Button Types
-
-`InlineKeyboard` supports all Telegram Bot API 10.3 inline button types:
-
-```php
-$keyboard = InlineKeyboard::make()
-    // Callback data button
-    ->callback('Confirm', 'order:confirm')
-
-    // External URL button
-    ->url('Documentation', 'https://tueen.org/docs')
-
-    // Telegram Mini App (Web App)
-    ->webApp('Open App', 'https://webapp.tueen.org')
-
-    // Seamless Telegram Login URL
-    ->loginUrl('Login with Telegram', 'https://example.com/auth/telegram')
-
-    // Copy text to clipboard on tap (Bot API 7.5+)
-    ->copyText('Copy Promo Code', 'TUEEN-VIP-2026')
-
-    // Telegram Payments Pay button
-    ->pay('💳 Pay Now')
-
-    // Prompt user to select a chat and paste inline query
-    ->switchInlineQuery('Share with friends', 'check out this bot!')
-
-    // Insert inline query into current chat
-    ->switchInlineQueryCurrentChat('Search here', 'query')
-
-    // Prompt user to select a specific type of chat (channel, group, etc.)
-    ->switchInlineQueryChosenChat('Send to Channel', $chosenChatConfig)
-
-    ->build();
-```
-
-### Auto-Chunking Buttons (`chunk`)
-
-Instead of manually breaking rows with `->row()`, you can add all buttons and let `chunk($size)` automatically arrange them into neat rows:
-
-```php
-$builder = InlineKeyboard::make();
-
-for ($i = 1; $i <= 9; $i++) {
-    $builder->callback((string) $i, "num:{$i}");
+class StartController
+{
+    #[OnCommand('start')]
+    public function start(Update $update, Telegram $bot): void
+    {
+        $bot->sendMessage(text: "Hello from auto-discovered controller!");
+    }
 }
-
-// Automatically divides into 3 rows of 3 buttons:
-$grid = $builder->chunk(3)->build();
 ```
 
 ---
 
-## 2. Reply Keyboards (`ReplyKeyboard`)
+## 🩺 System Diagnostics (`doctor`)
 
-Reply keyboards replace the user's regular keyboard with custom option buttons.
+To troubleshoot webhook issues, SSL certificate mismatches, or file permission errors on shared hosting:
 
-### Basic Usage
+- Run `php index.php doctor` in your terminal to see a colored diagnostic status table.
+- Or open your bot in a browser to inspect the **System Diagnostics (Doctor)** card in the Web Dashboard.
 
-```php
-use Tueen\Telegram\Keyboards\ReplyKeyboard;
+It verifies:
+- PHP version compatibility (PHP 8.4+).
+- Required extensions (`curl`, `json`, `mbstring`, `openssl`).
+- Flow storage permissions (`storage/flow` writable).
+- Telegram Bot API server reachability and latency.
+- Webhook URL HTTPS compliance.
 
-$keyboard = ReplyKeyboard::make()
-    ->resize() // Automatically fit buttons neatly
-    ->placeholder('Select an option...')
-    ->row()
-        ->text('📦 My Orders')
-        ->text('⚙️ Settings')
-    ->row()
-        ->requestContact('📱 Share Phone Number')
-        ->requestLocation('📍 Share Location')
-    ->build();
+---
 
-$bot->sendMessage(
-    chatId: $chatId,
-    text: 'Main Menu:',
-    replyMarkup: $keyboard
-);
-```
+## 🛡️ Update Error Handling & Quick Replies
 
-### Supported Features & Button Types
+You can register global exception handlers directly on `$app`:
 
 ```php
-$keyboard = ReplyKeyboard::make()
-    // Keyboard behaviors:
-    ->resize(true)                  // Scale keyboard vertically to button count
-    ->oneTime(true)                 // Hide keyboard after first button press
-    ->persistent(true)              // Keep keyboard visible even when soft keyboard is closed
-    ->selective(true)               // Show only to specific target users (e.g. in groups)
-    ->placeholder('Type message...')// Placeholder text in input bar
+// In routes.php or index.php:
+$app->catch(function (Throwable $e, Update $update, Telegram $bot) {
+    error_log("Update error: " . $e->getMessage());
+    $app->reply('⚠️ An unexpected error occurred. Please try again later.');
+});
 
-    // Button types:
-    ->text('Plain Text')
-    ->requestContact('Send Contact')
-    ->requestLocation('Send Location')
-    ->requestPoll('Create a Quiz', type: 'quiz')
-    ->requestUsers('Select Friends', requestId: 1, userIsBot: false, maxQuantity: 5)
-    ->requestChat('Select Channel', requestId: 2, chatIsChannel: true)
-    ->webApp('Open Mini App', 'https://webapp.tueen.org')
-
-    ->build();
+// Or catch specific exception types:
+$app->catch(DatabaseException::class, function ($e, $update, $bot) use ($app) {
+    $app->reply('Database connection error. Admin notified.');
+});
 ```
 
-### Removing Keyboards (`ReplyKeyboard::remove`)
-
-To hide an active reply keyboard from the user's interface:
-
-```php
-$bot->sendMessage(
-    chatId: $chatId,
-    text: 'Keyboard dismissed.',
-    replyMarkup: ReplyKeyboard::remove()
-);
-```
+The `$app->reply($text, ...)` helper automatically resolves the active chat from context and dispatches `sendMessage` without requiring you to manually resolve chat IDs.
 
 
 # ==============================================================================
-# File: /guide/formatting
-# Section: Client Features > Text Formatting & Escaping
+# File: /guide/pipeline-middleware
+# Section: Application & Production > Pipeline & Middleware
 # ==============================================================================
 
-# Text Formatting & Escaping
+# Pipeline & Middleware
 
-Telegram supports rich text formatting via **HTML**, **MarkdownV2**, and legacy **Markdown**. However, unescaped characters (such as `_`, `*`, `[`, `<`, `>`, `&`) frequently cause Telegram API errors like `400 Bad Request: can't parse entities`.
+## Overview
 
-`tueen/telegram` provides two complementary utilities strictly adhering to the [Telegram Bot API Formatting Options specification](https://core.telegram.org/bots/api#formatting-options):
-1. **`Text` Builder**: A safe, fluent, nesting-capable builder for constructing styled messages.
-2. **`Escape` Helper**: Low-level escaping functions for user-generated strings.
+Every request in `tueen/telegram` passes through an extensible onion pipeline before hitting the HTTP transport.
 
----
+## Native Middlewares Included
 
-## 1. Fluent `Text` Builder
-
-The `Text` builder lets you chain formatting methods while automatically escaping any dynamic or user-supplied variables.
-
-### Direct API Integration
-
-You can pass `Text` instances directly into Telegram methods like `$bot->sendMessage()` or `$bot->sendPhoto(caption: ...)`. Tueen **automatically casts the text to a string** and **auto-sets `parseMode`** to the builder's mode:
-
-```php
-use Tueen\Telegram\Formatting\Text;
-
-// No need to manually cast (string) or specify parseMode:
-$bot->sendMessage(
-    chatId: $chatId,
-    text: Text::html()
-        ->bold('Invoice #100')->line()
-        ->plain('Total: $50.00')
-);
-```
-
-### HTML Formatting (`Text::html`)
+1. **`RetryMiddleware`**:
+   Automatically retries requests upon network drops or Telegram 429 Flood Control with exponential backoff and adherence to `retry_after`.
+2. **`LoggingMiddleware`**:
+   Integrates with any PSR-3 logger (Monolog, etc.) to log endpoint calls, parameters, and execution durations.
+3. **`RateLimitMiddleware`**:
+   Enforces Telegram's official rate limits locally to prevent `429 Too Many Requests` penalties.
+   Features include:
+   - **Global Pacing**: Token-bucket algorithm (default: 30 requests/second globally).
+   - **Per-Chat Pacing**: Enforces minimum interval between messages to the same chat (default: 1.0 second per chat).
+   - **Automatic 429 Retry Backoff**: If Telegram still returns a 429, it automatically sleeps for `retry_after` seconds and replays the request seamlessly.
 
 ```php
-$message = Text::html()
-    ->bold('Order Confirmation')->line()
-    ->line()
-    ->plain('User: ')->userMention($user->name, $user->id)->line()
-    ->plain('Item: ')->bold($item->name)->line()
-    ->plain('Price: ')->code("$" . number_format($item->price, 2))->line()
-    ->line()
-    ->blockquote('Thank you for shopping with us!')
-    ->line()
-    ->link('Track Package', 'https://track.example.com/12345');
-```
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Pipeline\RateLimitMiddleware;
 
-### MarkdownV2 Formatting (`Text::markdownV2`)
+$bot = new Telegram('YOUR_BOT_TOKEN');
 
-You can generate bulletproof MarkdownV2 without manually escaping the 18 reserved Telegram characters:
+// Attach rate limiter with default Telegram limits (30 req/sec, 1 sec/chat):
+$bot->pipe(new RateLimitMiddleware());
 
-```php
-$message = Text::markdownV2()
-    ->bold('System Alert!')->line()
-    ->spoiler('Secret token inside')->line()
-    ->expandableBlockquote("Log line 1: OK\nLog line 2: WARNING\nLog line 3: SUCCESS")
-    ->line()
-    ->pre("<?php\necho 'Hello World!';", language: 'php');
-```
-
----
-
-## 2. Nested Formatting Styles
-
-Telegram allows entities to be nested (e.g. bold italic text or links with bold labels). `Text` supports nesting using **Closures**, sub-`Text` instances, or strings:
-
-```php
-// Bold italic text: <b><i>Bold and Italic</i></b>
-$text = Text::html()->bold(fn(Text $t) => $t->italic('Bold and Italic'));
-
-// Bold spoiler in MarkdownV2: *||Secret||*
-$text = Text::markdownV2()->bold(fn(Text $t) => $t->spoiler('Secret'));
-
-// Hyperlink with bold label
-$link = Text::html()->link(fn(Text $t) => $t->bold('Click Here'), 'https://example.com');
-```
-
----
-
-## 3. Supported Formatting Styles
-
-Both `Text::html()` and `Text::markdownV2()` support the full range of Telegram formatting features:
-
-| Method | HTML Output | MarkdownV2 Output | Description |
-| :--- | :--- | :--- | :--- |
-| `->bold($content)` | `<b>...</b>` | `*...*` | Bold weight text (supports nesting) |
-| `->italic($content)` | `<i>...</i>` | `_..._` | Italicized text (supports nesting) |
-| `->underline($content)` | `<u>...</u>` | `__...__` | Underlined text (supports nesting) |
-| `->strikethrough($content)` | `<s>...</s>` | `~...~` | Strikethrough text (supports nesting) |
-| `->spoiler($content)` | `<tg-spoiler>...</tg-spoiler>` | `\|\|...\|\|` | Hidden spoiler text (supports nesting) |
-| `->blockquote($content)` | `<blockquote>...</blockquote>` | `>...` | Block quotation |
-| `->expandableBlockquote($content)` | `<blockquote expandable>...</blockquote>` | `**>...` | Collapsible block quote |
-| `->code($code)` | `<code>...</code>` | `` `...` `` | Inline monospace code |
-| `->pre($code, $lang)` | `<pre><code class="...">...</code></pre>` | ```` ```lang ... ``` ```` | Pre-formatted code block |
-| `->link($content, $url)` | `<a href="...">...</a>` | `[...] (...)` | Inline hyperlink (supports styled labels) |
-| `->userMention($content, $userId)` | `<a href="tg://user?id=...">...</a>` | `[...] (tg://user?id=...)` | Mention user by Telegram ID |
-| `->customEmoji($emoji, $id)` | `<tg-emoji emoji-id="...">...</tg-emoji>` | `![emoji](tg://emoji?id=...)` | Custom animated Telegram emoji |
-| `->plain($text)` | Escaped text | Escaped text | Regular text, automatically escaped |
-| `->raw($string)` | Unescaped string | Unescaped string | Raw text without escaping |
-
----
-
-## 4. Entity Helpers & Dividers
-
-```php
-$text = Text::html()
-    ->mention('@my_bot')                     // Adds @my_bot
-    ->space()
-    ->hashtag('#tueen')                      // Adds #tueen
-    ->space()
-    ->cashtag('$TON')                        // Adds $TON
-    ->space()
-    ->botCommand('/help')                    // Adds /help
-    ->line()
-    ->email('support@tueen.org')             // Creates mailto: link
-    ->line()
-    ->phone('+1234567890')                   // Creates tel: link
-    ->br(2)                                  // Appends 2 blank lines
-    ->hr(25);                                // Appends a horizontal divider (—————————)
-```
-
----
-
-## 5. Length & Character Limit Utilities
-
-Telegram enforces strict character limits (e.g. 4096 characters for messages, 1024 characters for media captions):
-
-```php
-$text = Text::html()->bold('Very long text...');
-
-echo $text->length();                       // UTF-8 character count
-$text->isEmpty();                           // bool
-$text->isNotEmpty();                        // bool
-$text->isWithinLimit(4096);                 // true if <= 4096 characters
-
-// Safely truncate to a maximum length with suffix:
-$text->truncate(4096, '... [read more]');
-```
-
----
-
-## 6. Low-Level `Escape` Utility
-
-When assembling strings manually or using existing templates, use `Escape` to sanitize user input:
-
-```php
-use Tueen\Telegram\Formatting\Escape;
-
-// HTML escaping: replaces <, >, &, and " with &lt;, &gt;, &amp;, &quot;
-$safeUserName = Escape::html($userInput);
-
-// MarkdownV2 escaping: escapes all 18 Telegram special characters:
-// _, *, [, ], (, ), ~, `, >, #, +, -, =, |, {, }, ., !
-$safeComment = Escape::markdownV2($userInput);
-
-// Code and Pre escaping: inside code blocks, only ` and \ need escaping
-$safeCode = Escape::markdownV2Code($rawCode);
-
-// Inline link URL escaping: inside link URLs, only ) and \ need escaping
-$safeUrl = Escape::markdownV2Link($userUrl);
-
-// Custom Emoji escaping: inside [...] only ] and \ need escaping
-$safeEmoji = Escape::markdownV2CustomEmoji($rawEmoji);
-
-// Legacy Markdown escaping
-$safeLegacy = Escape::markdown($userInput);
+// Or customize limits:
+$bot->pipe(new RateLimitMiddleware(
+    maxRequestsPerSecond: 25.0,
+    chatIntervalSeconds: 1.2,
+    autoRetryOn429: true
+));
 ```
 
 
-# ==============================================================================
-# File: /guide/file-upload-download
-# Section: Client Features > File Upload & Download
-# ==============================================================================
+## Registering Custom Middleware
 
-# File Upload & Download
-
-`tueen/telegram` makes file transfers seamless using the `InputFile` wrapper, streaming HTTP transports, and real-time upload/download progress callbacks.
-
----
-
-## 1. File Uploads with `InputFile`
-
-`InputFile` can wrap local files, streams, raw strings, or PSR-7 streams:
-
-### From Local File Path
-```php
-use Tueen\Telegram\Types\Custom\InputFile;
-
-$photo = InputFile::fromPath('/path/to/cat.jpg');
-
-$bot->sendPhoto(
-    chatId: 123456,
-    photo: $photo,
-    caption: 'My cute cat!'
-);
-```
-
-### From Stream Resource
-```php
-$fp = fopen('https://example.com/audio.mp3', 'rb');
-$audio = InputFile::fromResource($fp, 'audio.mp3');
-
-$bot->sendAudio(
-    chatId: 123456,
-    audio: $audio
-);
-```
-
-### From Raw In-Memory String
-```php
-$csv = InputFile::fromString("id,name\n1,Alice\n2,Bob", 'report.csv', 'text/csv');
-
-$bot->sendDocument(
-    chatId: 123456,
-    document: $csv
-);
-```
-
----
-
-## 2. Sending Media Groups (Albums)
-
-To send multiple photos or videos as an album in a single message:
+Create a class implementing `Tueen\Telegram\Pipeline\MiddlewareInterface`:
 
 ```php
-$bot->sendMediaGroup(
-    chatId: 123456,
-    media: [
-        [
-            'type' => 'photo',
-            'media' => 'https://example.com/photo1.jpg',
-            'caption' => 'Holiday album'
-        ],
-        [
-            'type' => 'photo',
-            'media' => 'https://example.com/photo2.jpg',
-        ]
-    ]
-);
-```
+use Tueen\Telegram\Client\Request;
+use Tueen\Telegram\Client\Response;
+use Tueen\Telegram\Config;
+use Tueen\Telegram\Pipeline\MiddlewareInterface;
 
----
+class CustomHeaderMiddleware implements MiddlewareInterface
+{
+    public function handle(Request $request, Config $config, callable $next): Response
+    {
+        // Pre-request logic
+        $startTime = hrtime(true);
 
-## 3. Real-Time Upload Progress
+        $response = $next($request, $config);
 
-You can track upload progress per-request:
-
-```php
-use Tueen\Telegram\Methods\SendDocument;
-use Tueen\Telegram\Types\Custom\InputFile;
-
-$bot->send(
-    new SendDocument(
-        chatId: 123456,
-        document: InputFile::fromPath('/path/to/large_video.mp4')
-    ),
-    uploadProgress: function (int $bytesUploaded, int $totalBytes, float $percentage) {
-        printf("Upload: %d / %d bytes (%.2f%%)\r", $bytesUploaded, $totalBytes, $percentage);
+        // Post-response logic
+        $durationMs = (hrtime(true) - $startTime) / 1e6;
+        
+        return $response;
     }
-);
+}
 ```
 
----
-
-## 4. Streaming File Downloads with Progress
-
-Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
-
-`$bot->downloadFile` downloads directly to a local file or stream without loading the entire payload into RAM:
+Attach it to your client:
 
 ```php
-$bot->downloadFile(
-    file: 'photos/file_0.jpg', // or File object / file_id
-    destination: '/local/path/saved.jpg',
-    progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {
-        printf("Download: %.2f%%\r", $percentage);
-    }
-);
+$bot = new Telegram('TOKEN');
+$bot->pipe(new CustomHeaderMiddleware());
 ```
 
 
 # ==============================================================================
 # File: /guide/error-handling-and-hooks
-# Section: Client Features > Error Handling & Lifecycle Hooks
+# Section: Application & Production > Error Handling & Lifecycle Hooks
 # ==============================================================================
 
 # Error Handling & Lifecycle Hooks
@@ -3837,85 +4575,8 @@ $bot->reply(
 
 
 # ==============================================================================
-# File: /guide/pipeline-middleware
-# Section: Client Features > Pipeline & Middleware
-# ==============================================================================
-
-# Pipeline & Middleware
-
-## Overview
-
-Every request in `tueen/telegram` passes through an extensible onion pipeline before hitting the HTTP transport.
-
-## Native Middlewares Included
-
-1. **`RetryMiddleware`**:
-   Automatically retries requests upon network drops or Telegram 429 Flood Control with exponential backoff and adherence to `retry_after`.
-2. **`LoggingMiddleware`**:
-   Integrates with any PSR-3 logger (Monolog, etc.) to log endpoint calls, parameters, and execution durations.
-3. **`RateLimitMiddleware`**:
-   Enforces Telegram's official rate limits locally to prevent `429 Too Many Requests` penalties.
-   Features include:
-   - **Global Pacing**: Token-bucket algorithm (default: 30 requests/second globally).
-   - **Per-Chat Pacing**: Enforces minimum interval between messages to the same chat (default: 1.0 second per chat).
-   - **Automatic 429 Retry Backoff**: If Telegram still returns a 429, it automatically sleeps for `retry_after` seconds and replays the request seamlessly.
-
-```php
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Pipeline\RateLimitMiddleware;
-
-$bot = new Telegram('YOUR_BOT_TOKEN');
-
-// Attach rate limiter with default Telegram limits (30 req/sec, 1 sec/chat):
-$bot->pipe(new RateLimitMiddleware());
-
-// Or customize limits:
-$bot->pipe(new RateLimitMiddleware(
-    maxRequestsPerSecond: 25.0,
-    chatIntervalSeconds: 1.2,
-    autoRetryOn429: true
-));
-```
-
-
-## Registering Custom Middleware
-
-Create a class implementing `Tueen\Telegram\Pipeline\MiddlewareInterface`:
-
-```php
-use Tueen\Telegram\Client\Request;
-use Tueen\Telegram\Client\Response;
-use Tueen\Telegram\Config;
-use Tueen\Telegram\Pipeline\MiddlewareInterface;
-
-class CustomHeaderMiddleware implements MiddlewareInterface
-{
-    public function handle(Request $request, Config $config, callable $next): Response
-    {
-        // Pre-request logic
-        $startTime = hrtime(true);
-
-        $response = $next($request, $config);
-
-        // Post-response logic
-        $durationMs = (hrtime(true) - $startTime) / 1e6;
-        
-        return $response;
-    }
-}
-```
-
-Attach it to your client:
-
-```php
-$bot = new Telegram('TOKEN');
-$bot->pipe(new CustomHeaderMiddleware());
-```
-
-
-# ==============================================================================
 # File: /guide/testing
-# Section: Client Features > Testing & Fakes
+# Section: Application & Production > Testing & Fakes
 # ==============================================================================
 
 # Testing & Fakes
@@ -4065,7 +4726,7 @@ print_r($lastRequest->params);
 
 # ==============================================================================
 # File: /guide/enums
-# Section: Client Features > Enums Reference
+# Section: Application & Production > Enums Reference
 # ==============================================================================
 
 # Enums Reference

@@ -97,6 +97,7 @@ Detailed operational guidelines, code examples, and conventions are encapsulated
 | **`vitepress-interactive-mermaid`** | [`.agents/skills/vitepress-interactive-mermaid/`](./.agents/skills/vitepress-interactive-mermaid/) | Production-grade interactive Mermaid diagrams in VitePress with zoom, pan, fullscreen modal, and SSR safety. |
 | **`vitepress-llm-integration`** | [`.agents/skills/vitepress-llm-integration/`](./.agents/skills/vitepress-llm-integration/) | Automated LLM documentation hub, `llms.txt`, consolidated context, interactive skill copy, and HMR sync. |
 | **`vitepress-api-catalog`** | [`.agents/skills/vitepress-api-catalog/`](./.agents/skills/vitepress-api-catalog/) | Production-grade API catalog and class documentation system with syntax-highlighted PHP signatures, property hooks, and status badges. |
+| **`tueen-documentation-standards`** | [`.agents/skills/tueen-documentation-standards/`](./.agents/skills/tueen-documentation-standards/) | Quality standards, human-centric tone, information architecture, and VitePress structural hygiene for documentation. |
 
 ---
 

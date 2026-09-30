@@ -22,13 +22,13 @@ $message = $bot->sendMessage(
 );
 ```
 
-::: tip MANDATORY BEST PRACTICE: ALWAYS USE NAMED PARAMETERS
+::: tip Recommended: Use PHP Named Arguments
 In `tueen/telegram`, **always invoke API methods using PHP named arguments** (`paramName: $value`).
 
 ```php
-// ✅ RECOMMENDED: Clean, explicit, order-independent
+// ✅ RECOMMENDED: Explicit, readable, and order-independent
 $bot->sendMessage(
-    text: "Welcome to the Royal Bot!",
+    text: "Welcome to our bot!",
     parseMode: ParseMode::HTML
 );
 
@@ -36,11 +36,11 @@ $bot->sendMessage(
 $bot->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
 ```
 
-#### Why Named Parameters Are Essential:
-1. **Contextual Auto-Injection:** Because parameters like `chatId`, `businessConnectionId`, `messageThreadId`, and query IDs are automatically inferred from the active update, named arguments allow you to supply only what you care about (e.g. `text: "..."`) without caring about parameter order.
-2. **No Trailing Null Placeholders:** Telegram Bot API methods often accept 15 to 25+ parameters. Positional calls force you to pass dozens of `null` values just to set an option near the end.
-3. **Forward-Compatibility:** When Telegram adds new parameters to Bot API methods in future updates, named arguments protect your code from signature changes or argument shifts.
-4. **Self-Documenting & Clean:** Code is immediately readable and understandable in code reviews without needing to look up parameter order.
+#### Why Named Arguments Are Recommended:
+1. **Contextual Auto-Injection:** Because parameters like `chatId`, `businessConnectionId`, and query IDs are automatically inferred from the active update, named arguments allow you to supply only the parameters you need (e.g. `text: "..."`) without worrying about parameter position.
+2. **No Trailing Nulls:** Telegram Bot API methods accept dozens of optional parameters. Named arguments eliminate the need for long lists of `null` placeholders.
+3. **Forward-Compatibility:** When Telegram adds new parameters to Bot API methods, named arguments prevent positional shift bugs.
+4. **Self-Documenting:** Code is clear and easy to read during code review.
 :::
 
 Full IDE autocompletion and parameter docblocks are provided via the `@mixin TelegramMethods` contract.
@@ -128,9 +128,9 @@ Inside any update handler or flow step, you never have to specify `chat_id` manu
 $bot->onCommand('start', function (Update $update, Telegram $bot) {
     // chatId is automatically resolved from $update!
     // Always use named parameters:
-    $bot->sendMessage(text: "Welcome to the Royal Bot!");
+    $bot->sendMessage(text: "Welcome to our bot!");
     $bot->sendMessage(
-        text: "How can I assist your Majesty today?",
+        text: "Please select an option from the menu below:",
         replyMarkup: $inlineKeyboard
     );
 });
@@ -170,7 +170,7 @@ You can bind custom default values or dynamic resolvers using `bindDefault`:
 $bot->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
 
 // Send message without parse_mode parameter; HTML is injected automatically
-$bot->sendMessage(text: "<b>Royal</b> Bot");
+$bot->sendMessage(text: "<b>Order</b> confirmed successfully.");
 ```
 
 ---

@@ -6,6 +6,8 @@
 
 ## Introduction
 
+> *The Royal Telegram Bot SDK for Modern PHP*
+
 `tueen/telegram` is a modern Telegram Bot API client for PHP. It provides strict typing, full IDE autocompletion, and forward compatibility with the Telegram Bot API specification.
 
 ---
@@ -54,6 +56,10 @@ $config = Telegram::create('YOUR_BOT_TOKEN')
 
 $bot = new Telegram($config);
 ```
+
+::: tip Building a Standalone Bot with a Web Dashboard?
+If you're building a standalone bot from scratch, `tueen/telegram` also includes **`App`** — a zero-config application orchestrator featuring a 3-file project template, automated session storage, CLI tools, and a real-time **Web Setup & Management Dashboard**. See the [Zero-Config App & Web Dashboard Guide](./app).
+:::
 
 ---
 
@@ -124,4 +130,14 @@ $bot->run(function (Update $update, Telegram $bot) {
 });
 ```
 
-Learn more about execution strategies, invokable handler classes, and multi-process polling in the [Running Modes Guide](./running-modes).
+---
+
+## Next Steps
+
+Now that your bot is running, explore the core essentials:
+
+- 💬 **[Calling Methods & Types](./methods-and-types):** Learn how to invoke Bot API methods with named arguments and contextual auto-injection.
+- ⌨️ **[Interactive Keyboards](./keyboards):** Build Inline and Reply keyboards with fluent builders.
+- 📝 **[Text Formatting & Escaping](./formatting):** Format messages safely using HTML and MarkdownV2 without entity parsing errors.
+- 🧭 **[Update Routing & Attributes](./routing):** Organize commands, regex patterns, and callback queries with attributes and controllers.
+- 🔄 **[Running Modes](./running-modes):** Dive deeper into Webhook, Polling, and AutoMode configurations.

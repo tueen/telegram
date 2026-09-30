@@ -1,4 +1,4 @@
-# App Orchestrator
+# Zero-Config App & Web Dashboard
 
 `tueen/telegram` provides the **`App`** orchestrator, a high-level application layer designed for effortless zero-config bot development, instant deployment on shared hosting or CLI, automated conversation flow session storage, and an interactive **Web Setup & Management Dashboard**.
 
@@ -47,7 +47,7 @@ use Tueen\Telegram\Types\Update;
 
 return function (Telegram $bot): void {
     $bot->onCommand('start', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "👑 Welcome to my royal Telegram Bot!");
+        $bot->sendMessage(text: "👋 Welcome! Send /help to see available commands.");
     });
 
     $bot->onMessage('ping', function (Update $update, Telegram $bot) {

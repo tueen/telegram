@@ -56,15 +56,29 @@ const docSections = [
     category: 'Getting Started',
     files: [
       { file: 'getting-started.md', relLink: 'guide/getting-started' },
+      { file: 'telegram-client.md', relLink: 'guide/telegram-client' },
       { file: 'configuration.md', relLink: 'guide/configuration' },
-      { file: 'running-modes.md', relLink: 'guide/running-modes' },
-      { file: 'update-and-message-helpers.md', relLink: 'guide/update-and-message-helpers' },
-      { file: 'routing.md', relLink: 'guide/routing' },
-      { file: 'app.md', relLink: 'guide/app' },
     ]
   },
   {
-    category: 'Flow Ecosystem',
+    category: 'Core Essentials',
+    files: [
+      { file: 'methods-and-types.md', relLink: 'guide/methods-and-types' },
+      { file: 'keyboards.md', relLink: 'guide/keyboards' },
+      { file: 'formatting.md', relLink: 'guide/formatting' },
+      { file: 'file-upload-download.md', relLink: 'guide/file-upload-download' },
+    ]
+  },
+  {
+    category: 'Updates & Routing',
+    files: [
+      { file: 'running-modes.md', relLink: 'guide/running-modes' },
+      { file: 'routing.md', relLink: 'guide/routing' },
+      { file: 'update-and-message-helpers.md', relLink: 'guide/update-and-message-helpers' },
+    ]
+  },
+  {
+    category: 'Conversational Flows',
     files: [
       { file: 'flow/index.md', relLink: 'guide/flow/' },
       { file: 'flow/conversational-flows.md', relLink: 'guide/flow/conversational-flows' },
@@ -76,14 +90,11 @@ const docSections = [
     ]
   },
   {
-    category: 'Client Features',
+    category: 'Application & Production',
     files: [
-      { file: 'methods-and-types.md', relLink: 'guide/methods-and-types' },
-      { file: 'keyboards.md', relLink: 'guide/keyboards' },
-      { file: 'formatting.md', relLink: 'guide/formatting' },
-      { file: 'file-upload-download.md', relLink: 'guide/file-upload-download' },
-      { file: 'error-handling-and-hooks.md', relLink: 'guide/error-handling-and-hooks' },
+      { file: 'app.md', relLink: 'guide/app' },
       { file: 'pipeline-middleware.md', relLink: 'guide/pipeline-middleware' },
+      { file: 'error-handling-and-hooks.md', relLink: 'guide/error-handling-and-hooks' },
       { file: 'testing.md', relLink: 'guide/testing' },
       { file: 'enums.md', relLink: 'guide/enums' },
     ]

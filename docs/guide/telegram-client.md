@@ -1,16 +1,120 @@
-# The Telegram Client ($bot)
+# The Telegram Client
 
-The `Tueen\Telegram\Telegram` class (instantiated as `$bot`) is the central entry point and primary client of the `tueen/telegram` library. Designed around a **modular composition architecture**, it brings together all underlying subsystems — pure Bot API network requests, update dispatching, conversational state machines, attribute routing, and contextual parameter resolution — into an intuitive, fluent, and strictly typed interface.
+The `Tueen\Telegram\Telegram` class (conventionally instantiated as `$bot`) is the primary entry point and client facade of the `tueen/telegram` library. It provides a unified, strictly typed interface for sending Bot API requests, listening for updates, managing multi-step flows, and resolving contextual parameters.
 
 ---
 
-## 🏛️ 1. Architecture: Modular Composition
+## 🚀 1. Instantiation
 
-Rather than functioning as a monolithic "God Object", the `Telegram` class acts as the central client orchestrator. It holds references to specialized, single-responsibility components and delegates operations to them:
+You can initialize the client either directly with your bot token or via a pre-built `Config` object:
+
+### Basic Instantiation
+```php
+use Tueen\Telegram\Telegram;
+
+$bot = new Telegram('YOUR_BOT_TOKEN');
+```
+
+### Advanced Instantiation with `ConfigBuilder`
+For production environments requiring custom timeouts, proxy connections, retry policies, or test servers:
+```php
+use Tueen\Telegram\Telegram;
+
+$config = Telegram::create('YOUR_BOT_TOKEN')
+    ->withTimeout(30.0)
+    ->withRetryCount(3)
+    ->build();
+
+$bot = new Telegram($config);
+```
+> For a full list of networking and runtime settings, see the [Configuration Reference](./configuration).
+
+---
+
+## ⚡ 2. The Three Primary Roles of `$bot`
+
+In your application, the `$bot` instance serves three essential purposes:
+
+### 1. Direct Bot API Client
+You can invoke all 185 Telegram Bot API methods dynamically with full IDE autocompletion and named arguments:
+```php
+$bot->sendMessage(
+    chatId: 123456789,
+    text: 'Hello from tueen/telegram!'
+);
+```
+> Learn more in [Calling Methods & Types](./methods-and-types).
+
+### 2. Update Router & Dispatcher
+The client listens for incoming updates and dispatches them to closures, classes, or attribute controllers:
+```php
+// Register a command route:
+$bot->onCommand('start', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(text: 'Welcome! How can I assist you today?');
+});
+
+// Run the bot via Webhook, Polling, or AutoMode:
+$bot->run();
+```
+> Learn more in [Update Routing & Attributes](./routing) and [Running Modes](./running-modes).
+
+### 3. Contextual Entity Resolver
+During update processing, `$bot` automatically tracks the active update and provides instant shortcuts to chat, user, and message identifiers:
+```php
+$chatId  = $bot->chatId();  // e.g. 123456789
+$userId  = $bot->userId();  // e.g. 987654321
+$message = $bot->message(); // Current ?Message instance
+```
+> Learn more in [Update & Message Helpers](./update-and-message-helpers).
+
+---
+
+## 💡 3. Client Best Practices
+
+Here are the recommended patterns to keep in mind when working with the `$bot` instance:
+
+### 1. Always Use PHP Named Arguments
+Telegram Bot API methods accept many optional parameters. Named arguments protect your code against parameter order changes and enable **Contextual Auto-Injection** (where repetitive parameters like `chatId` are automatically resolved from the active update):
+
+```php
+// ✅ RECOMMENDED: Order-independent, self-documenting, auto-injects chatId:
+$bot->sendMessage(
+    text: 'Order confirmed successfully.',
+    parseMode: ParseMode::HTML
+);
+
+// ❌ AVOID: Fragile positional arguments with trailing nulls:
+$bot->sendMessage(123456, 'Order confirmed successfully.', null, null, null, null, 'HTML');
+```
+
+### 2. Reusing a Single Client Instance
+`Telegram` is lightweight and designed to be created once. In modern frameworks (such as Laravel, Symfony, or Slim), register `$bot` as a singleton in your dependency injection container:
+
+```php
+// Example: Registering as a singleton in a PSR-11 container:
+$container->singleton(Telegram::class, function () {
+    return new Telegram(getenv('TELEGRAM_BOT_TOKEN'));
+});
+```
+
+### 3. Organizing Complex Bots with Controllers
+For simple bots, defining routes with closures directly in your script is quick and convenient. As your application grows, organize your commands and actions into dedicated Controller classes:
+
+```php
+// Register a dedicated controller class decorated with routing attributes:
+$bot->registerController(OrderController::class);
+```
+> See [Attribute-Driven Controllers](./routing#3-attribute-driven-controllers) for examples of using `#[OnCommand]` and `#[OnCallbackQuery]`.
+
+---
+
+## 🏛️ 4. Architecture & Decoupled Subsystems
+
+Under the hood, `Telegram` is not a monolithic class holding all bot logic. Instead, it uses a **modular composition architecture** that delegates work to single-responsibility components:
 
 ```mermaid
 flowchart TD
-    UserCode["User Application Code"] --> Bot["The Bot Client ($bot)"]
+    UserCode["User Application Code"] --> Bot["Telegram Client ($bot)"]
     
     subgraph Core Subsystems
         Bot --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
@@ -24,50 +128,31 @@ flowchart TD
     Dispatcher --> Handlers["Handlers & Middlewares"]
 ```
 
-### Why this design matters:
-* **Separation of Concerns (SRP):** Each subsystem is completely decoupled, individually testable, and reusable in isolation (e.g. using `TelegramClient` directly in pure HTTP microservices or worker jobs).
-* **Zero Concurrency Hazards:** State is scoped cleanly; the client uses `ContextResolver` to ensure updates and contextual parameters never leak across concurrent requests or asynchronous event loops.
-* **Ergonomic Developer Experience (DX):** You interact with a single intuitive `$bot` object without having to wire up five disparate classes manually.
-
----
-
-## 🔌 2. Accessing Underlying Subsystems
-
-If you need advanced control or want to interact directly with internal subsystems without going through the main `$bot` instance:
+### When to Access Subsystems Directly:
+Most of the time, you interact exclusively with the `$bot` facade. However, you can access underlying subsystems when building low-level extensions, worker queues, or custom integrations:
 
 ```php
 use Tueen\Telegram\Telegram;
 
 $bot = new Telegram('YOUR_BOT_TOKEN');
 
-// 1. Pure Bot API HTTP client (bypasses update processing):
+// 1. Pure HTTP client (useful for worker queue jobs that only call API methods without processing updates):
 $client = $bot->getClient();
 $me = $client->getMe();
 
-// 2. Raw Update Dispatcher:
-$dispatcher = $bot->getDispatcher();
-
-// 3. Update Router:
+// 2. Underlying router instance:
 $router = $bot->router();
 
-// 4. Flow State Orchestrator:
+// 3. Flow state manager (for custom state stores or manual session manipulation):
 $flowManager = $bot->flowManager();
 
-// 5. Context Parameter Resolver:
+// 4. Context parameter resolver:
 $context = $bot->context();
 ```
 
 ---
 
-## 💡 3. Recommended Best Practices
-
-* **Always use named arguments:** When calling Bot API methods through the `$bot` instance (e.g. `$bot->sendMessage(text: '...')`), named arguments enable automatic contextual injection of `chatId`.
-* **Inject `$bot` or `$context` into handlers:** Inside route closures or controller actions, type-hint `Telegram $bot` and `Update $update` for instant access to helper methods.
-* **Keep Controllers Thin:** Use the client to route requests to dedicated controller classes (`$bot->registerController(OrderController::class)`) rather than packing entire bots into a single file.
-
----
-
-## 🧭 4. Complete Method & Property Catalog
+## 🧭 5. Complete Method & Property Reference
 
 Below is the comprehensive catalog of all constants, properties, and methods provided on the `Telegram` class, grouped by architectural responsibility. Every item features syntax-highlighted signatures, parameter types, default values, and status badges.
 
@@ -503,7 +588,7 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     sig="$bot->sendMessage(mixed ...$args)"
     returns="mixed"
     badge="Dynamic"
-    desc="All 185 Telegram Bot API methods are callable dynamically with full named argument support and automatic contextual parameter injection."
+    desc="All Telegram Bot API methods are callable dynamically with full named argument support and automatic contextual parameter injection."
   />
   <ApiCard
     sig="send(Method $method, ?Closure $uploadProgress = null, ?Closure $downloadProgress = null, ?RequestOptions $options = null)"
