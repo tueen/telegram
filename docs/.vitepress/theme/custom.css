@@ -1,61 +1,324 @@
-/* Configuration Options Cards */
+/* ==========================================================================
+   API Catalog & Method Cards Styling System (Tueen Telegram)
+   ========================================================================== */
+
+:root {
+  /* Semantic Syntax Highlighting Tokens (Light Theme) */
+  --api-token-fn: #6f42c1;
+  --api-token-type: #0550ae;
+  --api-token-var: #b35900;
+  --api-token-val: #116329;
+  --api-token-punct: #57606a;
+  --api-token-ret: #0969da;
+  --api-token-keyword: #cf222e;
+  --api-token-class: #0550ae;
+  --api-token-const: #8250df;
+
+  /* Card Surfaces */
+  --api-card-bg: var(--vp-c-bg-soft);
+  --api-card-border: var(--vp-c-border);
+  --api-sig-bg: var(--vp-c-bg);
+  --api-sig-border: var(--vp-c-gutter);
+}
+
+.dark {
+  /* Semantic Syntax Highlighting Tokens (Dark Theme) */
+  --api-token-fn: #d2a8ff;
+  --api-token-type: #79c0ff;
+  --api-token-var: #ffa657;
+  --api-token-val: #7ee787;
+  --api-token-punct: #8b949e;
+  --api-token-ret: #58a6ff;
+  --api-token-keyword: #ff7b72;
+  --api-token-class: #79c0ff;
+  --api-token-const: #d2a8ff;
+
+  /* Card Surfaces (Dark) */
+  --api-card-bg: rgba(22, 27, 34, 0.65);
+  --api-card-border: rgba(48, 54, 61, 0.75);
+  --api-sig-bg: #0d1117;
+  --api-sig-border: #30363d;
+}
+
+/* --------------------------------------------------------------------------
+   API Group Container
+   -------------------------------------------------------------------------- */
+.api-group {
+  margin: 1.5rem 0 2.5rem;
+}
+
+.api-group-header {
+  margin-bottom: 0.9rem;
+}
+
+.api-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin: 0 0 0.3rem !0;
+  color: var(--vp-c-text-1);
+}
+
+.api-group-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+}
+
+.api-group-desc {
+  font-size: 0.9rem;
+  color: var(--vp-c-text-2);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.api-group-list,
 .config-group {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  margin: 1.2rem 0 2rem;
 }
 
+/* --------------------------------------------------------------------------
+   API Card Item
+   -------------------------------------------------------------------------- */
+.api-card,
 .config-card {
-  border: 1px solid var(--vp-c-border);
-  border-radius: 8px;
-  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--api-card-border);
+  border-radius: 10px;
+  background-color: var(--api-card-bg);
   padding: 1rem 1.15rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s, transform 0.15s;
 }
 
+.api-card:hover,
 .config-card:hover {
   border-color: var(--vp-c-brand-1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
+.dark .api-card:hover,
+.dark .config-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.api-card.is-deprecated {
+  opacity: 0.75;
+  border-style: dashed;
+}
+
+/* Header & Signature Wrapper */
+.api-card-header,
 .config-card-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.45rem;
+  gap: 0.6rem;
+  margin-bottom: 0.55rem;
 }
 
+.api-signature,
 .config-card-header code.method-name {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--vp-font-family-mono);
   font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--vp-c-brand-1);
-  background-color: var(--vp-c-bg);
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  border: 1px solid var(--vp-c-gutter);
+  line-height: 1.55;
+  background-color: var(--api-sig-bg);
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--api-sig-border);
   word-break: break-word;
+  white-space: pre-wrap;
+  transition: border-color 0.2s;
 }
 
+/* --------------------------------------------------------------------------
+   Syntax Highlighting Tokens
+   -------------------------------------------------------------------------- */
+.token-fn {
+  color: var(--api-token-fn);
+  font-weight: 600;
+}
+
+.token-type {
+  color: var(--api-token-type);
+  font-weight: 500;
+}
+
+.token-var {
+  color: var(--api-token-var);
+  font-weight: 600;
+}
+
+.token-val {
+  color: var(--api-token-val);
+  font-weight: 500;
+}
+
+.token-punct {
+  color: var(--api-token-punct);
+  font-weight: 400;
+}
+
+.token-keyword {
+  color: var(--api-token-keyword);
+  font-weight: 600;
+}
+
+.token-class {
+  color: var(--api-token-class);
+  font-weight: 600;
+}
+
+.token-ret {
+  color: var(--api-token-ret);
+  font-weight: 600;
+}
+
+.token-const {
+  color: var(--api-token-const);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Badges (Return types, Canonical, Alias, Hook, etc.)
+   -------------------------------------------------------------------------- */
+.api-card-badges,
 .config-card-badges {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
+.api-badge,
 .config-badge {
   display: inline-flex;
   align-items: center;
-  font-size: 0.75rem;
-  line-height: 1.3;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
   font-family: var(--vp-font-family-mono);
+  letter-spacing: 0.01em;
+  transition: background-color 0.2s, border-color 0.2s;
 }
 
+/* Return Type Badge */
+.api-badge.return {
+  background: var(--vp-c-default-soft);
+  color: var(--api-token-ret);
+  border: 1px solid var(--vp-c-gutter);
+}
+
+.api-badge.return .badge-arrow {
+  margin-right: 0.3rem;
+  color: var(--vp-c-text-3);
+  font-weight: 700;
+}
+
+.api-badge.return code {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  font-weight: 600;
+}
+
+/* Canonical Badge */
+.api-badge.badge-canonical {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+/* Alias Badge */
+.api-badge.badge-alias {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.dark .api-badge.badge-alias {
+  color: #fbbf24;
+}
+
+/* Hook Badge */
+.api-badge.badge-hook {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+/* Factory Badge */
+.api-badge.badge-factory {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+.dark .api-badge.badge-factory {
+  color: #34d399;
+}
+
+/* Internal Badge */
+.api-badge.badge-internal {
+  background: rgba(107, 114, 128, 0.12);
+  color: var(--vp-c-text-2);
+  border: 1px solid var(--vp-c-gutter);
+}
+
+/* Context / Shortcut Badge */
+.api-badge.badge-context {
+  background: rgba(6, 182, 212, 0.12);
+  color: #0891b2;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+.dark .api-badge.badge-context {
+  color: #22d3ee;
+}
+
+/* Property / Visibility Badge */
+.api-badge.badge-prop {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+/* Constant Badge */
+.api-badge.badge-const {
+  background: rgba(236, 72, 153, 0.12);
+  color: #db2777;
+  border: 1px solid rgba(236, 72, 153, 0.35);
+}
+.dark .api-badge.badge-const {
+  color: #f472b6;
+}
+
+/* Dynamic Badge */
+.api-badge.badge-dynamic {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+}
+
+/* Deprecated Badge */
+.api-badge.badge-deprecated {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+/* Legacy config-badge support */
 .config-badge.type {
   background: var(--vp-c-default-soft);
   color: var(--vp-c-text-2);
@@ -67,9 +330,77 @@
   color: var(--vp-c-brand-1);
 }
 
+/* --------------------------------------------------------------------------
+   Alias Callout Banner
+   -------------------------------------------------------------------------- */
+.api-alias-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.7rem;
+  margin: 0.35rem 0 0.55rem;
+  border-radius: 6px;
+  background-color: rgba(245, 158, 11, 0.08);
+  border-left: 3px solid #f59e0b;
+  color: var(--vp-c-text-1);
+}
+
+.api-alias-banner code {
+  font-size: 0.8rem;
+  background-color: var(--vp-c-bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid var(--vp-c-gutter);
+}
+
+/* --------------------------------------------------------------------------
+   Description & Examples
+   -------------------------------------------------------------------------- */
+.api-card-desc,
 .config-card-desc {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--vp-c-text-1);
   margin: 0;
-  line-height: 1.55;
+  line-height: 1.58;
+}
+
+.api-card-desc code,
+.config-card-desc code {
+  font-size: 0.83rem;
+  padding: 0.15rem 0.38rem;
+  background-color: var(--vp-c-bg-alt);
+  border: 1px solid var(--vp-c-gutter);
+  border-radius: 4px;
+}
+
+.api-card-desc p {
+  margin: 0.3rem 0;
+}
+
+.api-card-example {
+  margin-top: 0.65rem;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--api-sig-bg);
+  border: 1px solid var(--api-sig-border);
+}
+
+.api-card-example .example-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
+  background-color: var(--vp-c-bg-mute);
+  color: var(--vp-c-text-2);
+  border-bottom: 1px solid var(--api-sig-border);
+}
+
+.api-card-example .example-code {
+  margin: 0;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.84rem;
+  font-family: var(--vp-font-family-mono);
+  overflow-x: auto;
 }

@@ -188,129 +188,84 @@ Below is the exhaustive catalog of all configuration options available on `Confi
 
 ### 🌐 Server & Credentials
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withToken(string $token)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">string</span>
-        <span class="config-badge default">default: ''</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Your Telegram Bot API token obtained from <a href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>.</p>
-  </div>
+### 🌐 Server & Credentials
 
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withApiServer(string $url)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">string</span>
-        <span class="config-badge default">default: 'https://api.telegram.org'</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Custom or self-hosted Telegram Bot API server base URL. Essential for transferring files up to 2GB, higher throughput, or internal networks.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withTestEnvironment(bool $enabled = true)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">bool</span>
-        <span class="config-badge default">default: false</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Switches the target endpoint to Telegram's dedicated Test Server Environment (<code>/test</code>) for sandbox testing.</p>
-  </div>
-</div>
+<ApiGroup description="Endpoints, bot tokens, and sandbox testing server flags.">
+  <ApiCard
+    sig="withToken(string $token)"
+    returns="static"
+    badge="default: ''"
+    desc="Your Telegram Bot API token obtained from @BotFather."
+  />
+  <ApiCard
+    sig="withApiServer(string $url)"
+    returns="static"
+    badge="default: 'https://api.telegram.org'"
+    desc="Custom or self-hosted Telegram Bot API server base URL. Essential for transferring files up to 2GB, higher throughput, or internal networks."
+  />
+  <ApiCard
+    sig="withTestEnvironment(bool $enabled = true)"
+    returns="static"
+    badge="default: false"
+    desc="Switches the target endpoint to Telegram's dedicated Test Server Environment (/test) for sandbox testing."
+  />
+</ApiGroup>
 
 ---
 
 ### ⚡ HTTP Client, Networking & Transport
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withTimeout(float $seconds)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">float</span>
-        <span class="config-badge default">default: 30.0</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Maximum execution timeout for HTTP requests in seconds. For long-polling or large video uploads, consider increasing to <code>60.0</code> or higher.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withConnectTimeout(float $seconds)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">float</span>
-        <span class="config-badge default">default: 10.0</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Connection timeout for opening TCP/TLS sockets to the Telegram API in seconds.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withProxy(?string $proxy)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?string</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">HTTP, HTTPS, or SOCKS5 proxy URL (e.g. <code>socks5h://127.0.0.1:9050</code> or <code>http://proxy.corp.internal:8080</code>).</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withHttpClient(?HttpClientInterface $client)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?HttpClientInterface</span>
-        <span class="config-badge default">default: GuzzleHttpClient</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Custom HTTP client implementation implementing <code>HttpClientInterface</code>.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withCurlClient(bool $persistent = true)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">bool</span>
-        <span class="config-badge default">default: true</span>
-      </div>
-    </div>
-    <p class="config-card-desc">High-performance native PHP 8.5 client utilizing persistent cURL share handles (<code>curl_share_init_persistent()</code>). Eliminates repetitive TLS handshakes and DNS lookups.</p>
-  </div>
-</div>
+<ApiGroup description="Timeouts, proxies, custom HTTP clients, and persistent connection pooling.">
+  <ApiCard
+    sig="withTimeout(float $seconds)"
+    returns="static"
+    badge="default: 30.0"
+    desc="Maximum execution timeout for HTTP requests in seconds. For long-polling or large video uploads, consider increasing to 60.0 or higher."
+  />
+  <ApiCard
+    sig="withConnectTimeout(float $seconds)"
+    returns="static"
+    badge="default: 10.0"
+    desc="Connection timeout for opening TCP/TLS sockets to the Telegram API in seconds."
+  />
+  <ApiCard
+    sig="withProxy(?string $proxy)"
+    returns="static"
+    badge="default: null"
+    desc="HTTP, HTTPS, or SOCKS5 proxy URL (e.g. socks5h://127.0.0.1:9050 or http://proxy.corp.internal:8080)."
+  />
+  <ApiCard
+    sig="withHttpClient(?HttpClientInterface $client)"
+    returns="static"
+    badge="default: GuzzleHttpClient"
+    desc="Custom HTTP client implementation implementing HttpClientInterface."
+  />
+  <ApiCard
+    sig="withCurlClient(bool $persistent = true)"
+    returns="static"
+    badge="default: true"
+    desc="High-performance native PHP 8.5 client utilizing persistent cURL share handles (curl_share_init_persistent()). Eliminates repetitive TLS handshakes and DNS lookups."
+  />
+</ApiGroup>
 
 ---
 
 ### 📊 Progress Tracking Callbacks
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withUploadProgress(?Closure $callback)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?Closure</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Event callback invoked during file uploads (e.g. sending videos, documents, or photo albums).</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withDownloadProgress(?Closure $callback)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?Closure</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Event callback invoked during file downloads via <code>$bot->downloadFile()</code>.</p>
-  </div>
-</div>
+<ApiGroup description="Granular upload and download event listeners for media and documents.">
+  <ApiCard
+    sig="withUploadProgress(?Closure $callback)"
+    returns="static"
+    badge="default: null"
+    desc="Event callback invoked during file uploads (e.g. sending videos, documents, or photo albums)."
+  />
+  <ApiCard
+    sig="withDownloadProgress(?Closure $callback)"
+    returns="static"
+    badge="default: null"
+    desc="Event callback invoked during file downloads via $bot->downloadFile()."
+  />
+</ApiGroup>
 
 #### Progress Callback Signature
 Both progress callbacks receive three informative parameters:
@@ -330,196 +285,147 @@ $config = Telegram::create('YOUR_TOKEN')
 
 ### 🛡️ Error Handling Strategy
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withErrorHandlingMode(ErrorHandlingMode $mode)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">ErrorHandlingMode</span>
-        <span class="config-badge default">default: EXCEPTION</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Switches between traditional exception throwing (<code>EXCEPTION</code>) and typed <code>Error</code> object returns (<code>ERROR_OBJECT</code>).</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withErrorObjectMode(array $catchExceptions = [ApiException::class])</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">array</span>
-        <span class="config-badge default">default: [ApiException::class]</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Activates error object mode and specifies which exception classes should be converted into returned <code>Error</code> objects.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withExceptionMode()</code>
-      <div class="config-card-badges">
-        <span class="config-badge default">mode: exception</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Restores the default exception-throwing behavior for all errors.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withCatchAllErrors()</code>
-      <div class="config-card-badges">
-        <span class="config-badge default">mode: catch-all</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Catches all <code>\Throwable</code> instances (including connection resets, DNS failures, and timeout exceptions) as <code>Error</code> objects.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withConvertExceptions(array $classes)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">list&lt;class-string&lt;Throwable&gt;&gt;</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Defines the specific list of exception classes to catch and convert to <code>Error</code> objects.</p>
-  </div>
-</div>
+<ApiGroup description="Dual error modes: traditional exceptions vs. typed Error objects.">
+  <ApiCard
+    sig="withErrorHandlingMode(ErrorHandlingMode $mode)"
+    returns="static"
+    badge="default: EXCEPTION"
+    desc="Switches between traditional exception throwing (EXCEPTION) and typed Error object returns (ERROR_OBJECT)."
+  />
+  <ApiCard
+    sig="withErrorObjectMode(array $catchExceptions = [ApiException::class])"
+    returns="static"
+    badge="default: [ApiException::class]"
+    desc="Activates error object mode and specifies which exception classes should be converted into returned Error objects."
+  />
+  <ApiCard
+    sig="withExceptionMode()"
+    returns="static"
+    badge="mode: exception"
+    desc="Restores the default exception-throwing behavior for all errors."
+  />
+  <ApiCard
+    sig="withCatchAllErrors()"
+    returns="static"
+    badge="mode: catch-all"
+    desc="Catches all \Throwable instances (including connection resets, DNS failures, and timeout exceptions) as Error objects."
+  />
+  <ApiCard
+    sig="withConvertExceptions(array $classes)"
+    returns="static"
+    badge="list<class-string<Throwable>>"
+    desc="Defines the specific list of exception classes to catch and convert to Error objects."
+  />
+</ApiGroup>
 
 ---
 
 ### 🚀 Running Modes & Resiliency
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withRunningMode(?RunningModeInterface $mode)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?RunningModeInterface</span>
-        <span class="config-badge default">default: WebhookMode</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Configures the default bot execution runner: <code>new WebhookMode(...)</code>, <code>new PollingMode(...)</code>, or <code>new AutoMode(...)</code>.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withPollingMode(PollingMode $mode)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">PollingMode</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Convenience shortcut to configure long-polling mode with custom batch limits, timeout, backoff, and process concurrency.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withWebhookMode(WebhookMode $mode)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">WebhookMode</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Convenience shortcut to configure webhook mode with secret token verification and non-blocking safe responses.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withAutoMode(?PollingMode $polling, ?WebhookMode $webhook, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">AutoMode</span>
-        <span class="config-badge default">default: Polling in CLI / Webhook in HTTP</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Configures adaptive <code>AutoMode</code> to seamlessly switch between CLI Polling and HTTP Webhook execution with optional webhook cleanup and custom environment detection.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withRetryCount(int $count)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">int</span>
-        <span class="config-badge default">default: 3</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Number of automatic retries on rate limits (<code>429 Too Many Requests</code> with <code>retry_after</code>) or transient network dropouts.</p>
-  </div>
-</div>
+<ApiGroup description="Default bot runner selection, long-polling parameters, webhook security, and retry policies.">
+  <ApiCard
+    sig="withRunningMode(?RunningModeInterface $mode)"
+    returns="static"
+    badge="default: WebhookMode"
+    desc="Configures the default bot execution runner: new WebhookMode(...), new PollingMode(...), or new AutoMode(...)."
+  />
+  <ApiCard
+    sig="withPollingMode(PollingMode $mode)"
+    returns="static"
+    badge="PollingMode"
+    desc="Convenience shortcut to configure long-polling mode with custom batch limits, timeout, backoff, and process concurrency."
+  />
+  <ApiCard
+    sig="withWebhookMode(WebhookMode $mode)"
+    returns="static"
+    badge="WebhookMode"
+    desc="Convenience shortcut to configure webhook mode with secret token verification and non-blocking safe responses."
+  />
+  <ApiCard
+    sig="withAutoMode(?PollingMode $polling = null, ?WebhookMode $webhook = null, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)"
+    returns="static"
+    badge="AutoMode"
+    desc="Configures adaptive AutoMode to seamlessly switch between CLI Polling and HTTP Webhook execution with optional webhook cleanup and custom environment detection."
+  />
+  <ApiCard
+    sig="withRetryCount(int $count)"
+    returns="static"
+    badge="default: 3"
+    desc="Number of automatic retries on rate limits (429 Too Many Requests with retry_after) or transient network dropouts."
+  />
+</ApiGroup>
 
 ---
 
 ### 🔄 Conversation Flow & Orchestration
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withRootFlow(?string $flowClass) / withDefaultFlow(?string $flowClass)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?class-string&lt;Flow&gt;</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Specifies the root/home Flow class. Automatically redirected to on <code>/start</code>, home navigation actions, or as a graceful recovery fallback when an orphaned Flow class was deleted.</p>
-  </div>
-
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withFlowAllowedUpdates(array $types)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">list&lt;string|UpdateType&gt;</span>
-        <span class="config-badge default">default: [] (all updates)</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Sets the global default allowed update types for conversation flows. An empty array permits all updates. Disallowed updates bypass the flow and fall through to regular bot routes.</p>
-  </div>
-</div>
+<ApiGroup description="Root/home flow defaults and update filtering for multi-step flows.">
+  <ApiCard
+    sig="withRootFlow(?string $flowClass)"
+    returns="static"
+    badge="?class-string<Flow>"
+    desc="Specifies the root/home Flow class. Automatically redirected to on /start, home navigation actions, or as a graceful recovery fallback."
+  />
+  <ApiCard
+    sig="withDefaultFlow(?string $flowClass)"
+    returns="static"
+    badge="Alias"
+    aliasFor="withRootFlow()"
+    desc="Shorthand alias for withRootFlow()."
+  />
+  <ApiCard
+    sig="withFlowAllowedUpdates(array $types)"
+    returns="static"
+    badge="default: [] (all updates)"
+    desc="Sets the global default allowed update types for conversation flows. An empty array permits all updates. Disallowed updates bypass the flow."
+  />
+</ApiGroup>
 
 ---
 
 ### 📋 Logging & Observability
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withLogger(?LoggerInterface $logger)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">?LoggerInterface</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">PSR-3 compliant logger (e.g. Monolog) for logging outbound API requests, response payloads, rate limits, and retries.</p>
-  </div>
-</div>
+<ApiGroup description="PSR-3 logger integration for HTTP diagnostics, telemetry, and debugging.">
+  <ApiCard
+    sig="withLogger(?LoggerInterface $logger)"
+    returns="static"
+    badge="default: null"
+    desc="PSR-3 compliant logger (e.g. Monolog) for logging outbound API requests, response payloads, rate limits, and retries."
+  />
+</ApiGroup>
 
 ---
 
 ### 💉 Dependency Injection & Container
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">withContainer(mixed $container)</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">mixed (PSR-11 / callable)</span>
-        <span class="config-badge default">default: null</span>
-      </div>
-    </div>
-    <p class="config-card-desc">PSR-11 container (or callable resolver) used to instantiate controller classes, handler classes in <code>$bot->run(...)</code>, and multi-step <code>Flow</code> classes.</p>
-  </div>
-</div>
+<ApiGroup description="PSR-11 container integration for automatic dependency injection.">
+  <ApiCard
+    sig="withContainer(mixed $container)"
+    returns="static"
+    badge="PSR-11 / callable"
+    desc="PSR-11 container (or callable resolver) used to instantiate controller classes, handler classes in $bot->run(...), and multi-step Flow classes."
+  />
+</ApiGroup>
 
 ---
 
 ### ⚡ Client Instantiation Shortcuts
 
-<div class="config-group">
-  <div class="config-card">
-    <div class="config-card-header">
-      <code class="method-name">client() / make()</code>
-      <div class="config-card-badges">
-        <span class="config-badge type">Telegram</span>
-      </div>
-    </div>
-    <p class="config-card-desc">Directly constructs and returns an initialized <code>Telegram</code> client instance without having to manually call <code>new Telegram($builder->build())</code>.</p>
-  </div>
-</div>
+<ApiGroup description="Direct construction shortcuts from the builder.">
+  <ApiCard
+    sig="client()"
+    returns="Telegram"
+    badge="Factory"
+    desc="Directly constructs and returns an initialized Telegram client instance without having to manually call new Telegram($builder->build())."
+  />
+  <ApiCard
+    sig="make()"
+    returns="Telegram"
+    badge="Alias"
+    aliasFor="client()"
+    desc="Shorthand alias for client()."
+  />
+</ApiGroup>
 
 ---
 

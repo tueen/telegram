@@ -39,6 +39,7 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [Direct Instantiation of `Config`](/guide/configuration#direct-instantiation-of-config)
   - [🧭 2. Detailed Configuration Reference](/guide/configuration#2-detailed-configuration-reference)
     * [🌐 Server & Credentials](/guide/configuration#server-credentials)
+    * [🌐 Server & Credentials](/guide/configuration#server-credentials)
     * [⚡ HTTP Client, Networking & Transport](/guide/configuration#http-client-networking-transport)
     * [📊 Progress Tracking Callbacks](/guide/configuration#progress-tracking-callbacks)
     * [🛡️ Error Handling Strategy](/guide/configuration#error-handling-strategy)
