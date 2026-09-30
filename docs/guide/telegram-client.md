@@ -36,7 +36,7 @@ $bot = new Telegram($config);
 In your application, the `$bot` instance serves three essential purposes:
 
 ### 1. Direct Bot API Client
-You can invoke all 185 Telegram Bot API methods dynamically with full IDE autocompletion and named arguments:
+You can invoke all Telegram Bot API methods dynamically with full IDE autocompletion and named arguments:
 ```php
 $bot->sendMessage(
     chatId: 123456789,

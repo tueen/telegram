@@ -11,7 +11,7 @@ This file serves as the **Master Architectural Reference and Sitemap** for AI ag
 - **Package Name:** `tueen/telegram`
 - **Slogan:** *The Royal Telegram Bot SDK for Modern PHP*
 - **Target Runtime:** PHP 8.4+ (strict types, property hooks, asymmetric visibility, modern pipeline pattern, compatible with PHP 8.5+ enhancements).
-- **Coverage:** Complete Telegram Bot API 10.3 (all 185 methods, 400 types, and property enums).
+- **Coverage:** Complete Telegram Bot API 10.3 (all methods, types, and property enums).
 - **Bot API Version Constant:** `Telegram::BOT_API_VERSION` (alias `Telegram::API_VERSION`).
 
 ---
@@ -24,7 +24,7 @@ tueen/telegram/
 │   ├── Telegram.php                   # Main client facade entry point (@mixin TelegramMethods)
 │   ├── App.php                        # High-level zero-config application orchestrator
 │   ├── App/                           # App components (WebDashboard, CliHandler)
-│   ├── Contracts/                     # Method signatures mixin (all 185 Bot API methods for IDE)
+│   ├── Contracts/                     # Method signatures mixin (all Bot API methods for IDE)
 │   ├── Context/                       # Contextual parameter resolution (chat_id, user_id, business_id)
 │   │   └── ContextResolver.php        # Auto-injects default values from active Update
 │   ├── Config.php                     # Immutable client configuration
@@ -57,7 +57,7 @@ tueen/telegram/
 │   │   ├── Error.php                  # Typed error object for non-throwing error handling
 │   │   ├── Concerns/                  # Property hooks & helper traits (HasUpdateHelpers, HasMessageHelpers)
 │   │   └── Custom/InputFile.php       # Multipart file wrapper (fromPath, fromResource, fromString, fromStream)
-│   ├── Methods/                       # All Telegram Bot API methods (185 methods)
+│   ├── Methods/                       # All Telegram Bot API methods
 │   │   └── Method.php                 # Base Method class with multipart & serialization
 │   ├── Enums/                         # Standard Backed Enums (ParseMode, ChatType, UpdateType, etc.)
 │   ├── Client/                        # HTTP client abstraction (PSR-18 / Guzzle 7)

@@ -20,7 +20,7 @@ The generator transforms the machine-readable Telegram Bot API JSON schema into 
 - **Target Folders:**
   - `src/Types/` (all Telegram Bot API types, response models, and polymorphic unions)
   - `src/Methods/` (all Telegram Bot API method classes)
-  - `src/Contracts/TelegramMethods.php` (complete 185-method mixin contract for IDE autocompletion)
+  - `src/Contracts/TelegramMethods.php` (complete mixin contract for IDE autocompletion)
 - **Runner Script:** `bin/generate.php`
 - **Compiler Class:** `Tueen\Telegram\Generator\CodeGenerator` (`tools/generator/CodeGenerator.php`)
 

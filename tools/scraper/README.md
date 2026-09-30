@@ -2,7 +2,7 @@
 
 This tool scrapes the official Telegram Bot API documentation from [https://core.telegram.org/bots/api](https://core.telegram.org/bots/api) and compiles it into a structured, machine-readable JSON specification (`resources/api.json`).
 
-The generated specification is used by `bin/generate.php` to generate all 185 Methods, 400 Types, and Mixin contracts for `tueen/telegram`.
+The generated specification is used by `bin/generate.php` to generate all Methods, Types, and Mixin contracts for `tueen/telegram`.
 
 ---
 

@@ -26,7 +26,7 @@
 ## ⚡ Highlights
 
 - 🚀 **Zero-Config App & Web Dashboard:** Instant boot with `App::run()`, CLI toolkit, and a live web UI for webhook inspection and bot health.
-- 👑 **Complete Coverage:** All 185 Bot API methods and 400+ Types with 100% strict typing.
+- 👑 **Complete Coverage:** All Telegram Bot API methods and types with 100% strict typing.
 - 💎 **Modern PHP Architecture:** Property hooks, asymmetric visibility (`private(set)`), pipe operator support, and typed enums.
 - 🧭 **Attribute Routing:** Declarative update routing with `#[OnCommand]`, `#[OnCallbackQuery]`, regex matchers, and controllers.
 - 💬 **Conversation Flows:** Stateful multi-step user dialogues (`to()`, `stay()`, `back()`, `finish()`) with pluggable state stores.

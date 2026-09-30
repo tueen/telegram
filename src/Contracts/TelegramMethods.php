@@ -120,7 +120,7 @@ use Tueen\Telegram\Types\WebhookInfo;
 /**
  * Dynamic Telegram Bot API 10.3 Methods Mixin.
  *
- * This contract defines all 185 Telegram Bot API method signatures for IDE autocompletion,
+ * This contract defines all Telegram Bot API method signatures for IDE autocompletion,
  * parameter hints, and type safety, keeping the core Telegram client facade lightweight.
  *
  * @method ArrayResult<Update>|Error getUpdates(?int $offset = null, ?int $limit = null, ?int $timeout = null, ?array $allowedUpdates = null, RequestOptions|array|null $_ = null, mixed ...$extra)

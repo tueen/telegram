@@ -54,7 +54,7 @@ class CodeGenerator
         echo "Generating Methods...\n";
         $this->generateMethods();
 
-        echo "Updating Telegram facade docblocks with all 185 methods...\n";
+        echo "Updating Telegram facade docblocks with all methods...\n";
         $this->generateTelegramDocblock();
 
         echo "Done generating code.\n";
@@ -791,7 +791,7 @@ namespace Tueen\Telegram\Contracts;
 /**
  * Dynamic Telegram Bot API {$apiVersion} Methods Mixin.
  *
- * This contract defines all 185 Telegram Bot API method signatures for IDE autocompletion,
+ * This contract defines all Telegram Bot API method signatures for IDE autocompletion,
  * parameter hints, and type safety, keeping the core Telegram client facade lightweight.
  *
 {$docblockContent}

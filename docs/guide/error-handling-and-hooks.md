@@ -186,7 +186,7 @@ $expectedErrors = $method->getExpectedErrors();
 // [TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::MessageTooLong, ...]
 ```
 
-In IDEs (PhpStorm, VSCode), all 185 methods in `TelegramMethods` and individual method classes contain `@throws` annotations for IDE autocompletion and inspection.
+In IDEs (PhpStorm, VSCode), all methods in `TelegramMethods` and individual method classes contain `@throws` annotations for IDE autocompletion and inspection.
 
 ---
 
