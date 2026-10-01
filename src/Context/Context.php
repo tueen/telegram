@@ -25,79 +25,154 @@ class Context
         public readonly ?Telegram $bot = null
     ) {}
 
+    public ?int $chatId {
+        get => $this->update->findChatId();
+    }
+
+    public ?int $userId {
+        get => $this->update->findUserId();
+    }
+
+    public ?int $messageId {
+        get => $this->update->findMessageId();
+    }
+
+    public ?string $businessConnectionId {
+        get => $this->update->findBusinessConnectionId();
+    }
+
+    public ?int $messageThreadId {
+        get => $this->update->findMessageThreadId();
+    }
+
+    public ?string $inlineMessageId {
+        get => $this->update->findInlineMessageId();
+    }
+
+    public ?string $callbackQueryId {
+        get => $this->update->findCallbackQueryId();
+    }
+
+    public ?string $inlineQueryId {
+        get => $this->update->findInlineQueryId();
+    }
+
+    public ?string $shippingQueryId {
+        get => $this->update->findShippingQueryId();
+    }
+
+    public ?string $preCheckoutQueryId {
+        get => $this->update->findPreCheckoutQueryId();
+    }
+
+    public ?int $directMessagesTopicId {
+        get => $this->update->findDirectMessagesTopicId();
+    }
+
+    public ?string $guestQueryId {
+        get => $this->update->findGuestQueryId();
+    }
+
+    public ?User $user {
+        get => $this->update->findUser();
+    }
+
+    public ?Chat $chat {
+        get => $this->update->findChat();
+    }
+
+    public ?Message $message {
+        get => $this->update->findMessage();
+    }
+
+    #[\Deprecated(message: 'Use property $context->chatId instead', since: '1.0.0')]
     public function chatId(): ?int
     {
-        return $this->update->findChatId();
+        return $this->chatId;
     }
 
+    #[\Deprecated(message: 'Use property $context->userId instead', since: '1.0.0')]
     public function userId(): ?int
     {
-        return $this->update->findUserId();
+        return $this->userId;
     }
 
+    #[\Deprecated(message: 'Use property $context->messageId instead', since: '1.0.0')]
     public function messageId(): ?int
     {
-        return $this->update->findMessageId();
+        return $this->messageId;
     }
 
+    #[\Deprecated(message: 'Use property $context->businessConnectionId instead', since: '1.0.0')]
     public function businessConnectionId(): ?string
     {
-        return $this->update->findBusinessConnectionId();
+        return $this->businessConnectionId;
     }
 
+    #[\Deprecated(message: 'Use property $context->messageThreadId instead', since: '1.0.0')]
     public function messageThreadId(): ?int
     {
-        return $this->update->findMessageThreadId();
+        return $this->messageThreadId;
     }
 
+    #[\Deprecated(message: 'Use property $context->inlineMessageId instead', since: '1.0.0')]
     public function inlineMessageId(): ?string
     {
-        return $this->update->findInlineMessageId();
+        return $this->inlineMessageId;
     }
 
+    #[\Deprecated(message: 'Use property $context->callbackQueryId instead', since: '1.0.0')]
     public function callbackQueryId(): ?string
     {
-        return $this->update->findCallbackQueryId();
+        return $this->callbackQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $context->inlineQueryId instead', since: '1.0.0')]
     public function inlineQueryId(): ?string
     {
-        return $this->update->findInlineQueryId();
+        return $this->inlineQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $context->shippingQueryId instead', since: '1.0.0')]
     public function shippingQueryId(): ?string
     {
-        return $this->update->findShippingQueryId();
+        return $this->shippingQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $context->preCheckoutQueryId instead', since: '1.0.0')]
     public function preCheckoutQueryId(): ?string
     {
-        return $this->update->findPreCheckoutQueryId();
+        return $this->preCheckoutQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $context->directMessagesTopicId instead', since: '1.0.0')]
     public function directMessagesTopicId(): ?int
     {
-        return $this->update->findDirectMessagesTopicId();
+        return $this->directMessagesTopicId;
     }
 
+    #[\Deprecated(message: 'Use property $context->guestQueryId instead', since: '1.0.0')]
     public function guestQueryId(): ?string
     {
-        return $this->update->findGuestQueryId();
+        return $this->guestQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $context->user instead', since: '1.0.0')]
     public function user(): ?User
     {
-        return $this->update->findUser();
+        return $this->user;
     }
 
+    #[\Deprecated(message: 'Use property $context->chat instead', since: '1.0.0')]
     public function chat(): ?Chat
     {
-        return $this->update->findChat();
+        return $this->chat;
     }
 
+    #[\Deprecated(message: 'Use property $context->message instead', since: '1.0.0')]
     public function message(): ?Message
     {
-        return $this->update->findMessage();
+        return $this->message;
     }
 
     /**
@@ -105,14 +180,14 @@ class Context
      */
     public function reply(string|Text $text, mixed ...$args): mixed
     {
-        $chatId = $this->chatId();
+        $chatId = $this->chatId;
         if ($chatId === null) {
             throw new \Tueen\Telegram\Exceptions\TelegramException("Cannot reply: unable to determine chat_id from current context.");
         }
 
         $params = ['chatId' => $chatId, 'text' => $text];
 
-        $threadId = $this->messageThreadId();
+        $threadId = $this->messageThreadId;
         if ($threadId !== null) {
             $params['messageThreadId'] = $threadId;
         }
@@ -138,7 +213,7 @@ class Context
     public function flow(): FlowSession
     {
         if ($this->bot !== null) {
-            return $this->bot->flow($this->chatId(), $this->userId(), $this->update);
+            return $this->bot->flow($this->chatId, $this->userId, $this->update);
         }
 
         throw new \Tueen\Telegram\Exceptions\TelegramException("Flow session requires active Telegram bot instance.");
@@ -147,7 +222,7 @@ class Context
     public function flowBack(?string $replyMessage = null): bool
     {
         if ($this->bot !== null) {
-            return $this->bot->flowBack($this->chatId(), $this->userId(), $replyMessage, $this->update);
+            return $this->bot->flowBack($this->chatId, $this->userId, $replyMessage, $this->update);
         }
 
         return false;
@@ -156,7 +231,7 @@ class Context
     public function cancelFlow(?string $replyMessage = 'Operation cancelled.'): bool
     {
         if ($this->bot !== null) {
-            return $this->bot->cancelFlow($this->chatId(), $this->userId(), $replyMessage, $this->update);
+            return $this->bot->cancelFlow($this->chatId, $this->userId, $replyMessage, $this->update);
         }
 
         return false;
@@ -165,7 +240,7 @@ class Context
     public function finishFlow(): bool
     {
         if ($this->bot !== null) {
-            return $this->bot->finishFlow($this->chatId(), $this->userId(), $this->update);
+            return $this->bot->finishFlow($this->chatId, $this->userId, $this->update);
         }
 
         return false;

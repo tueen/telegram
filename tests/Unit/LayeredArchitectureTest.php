@@ -79,11 +79,11 @@ class LayeredArchitectureTest extends TestCase
 
         $context = new Context($update, $bot->getClient(), $bot);
 
-        $this->assertSame(555, $context->chatId());
-        $this->assertSame(777, $context->userId());
-        $this->assertSame(42, $context->messageId());
-        $this->assertSame('Alice', $context->user()?->firstName);
-        $this->assertSame('Hello', $context->message()?->text);
+        $this->assertSame(555, $context->chatId);
+        $this->assertSame(777, $context->userId);
+        $this->assertSame(42, $context->messageId);
+        $this->assertSame('Alice', $context->user?->firstName);
+        $this->assertSame('Hello', $context->message?->text);
 
         // Reply through context
         $reply = $context->reply('Echo');
@@ -100,7 +100,7 @@ class LayeredArchitectureTest extends TestCase
 
         // 1. Handler accepting Context
         $dispatcher->addHandler(function (Context $ctx) use (&$trace) {
-            $trace[] = 'context:' . $ctx->chatId();
+            $trace[] = 'context:' . $ctx->chatId;
         });
 
         // 2. Legacy handler accepting ($update, $bot)

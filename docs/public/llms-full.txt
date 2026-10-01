@@ -209,14 +209,14 @@ $bot->run();
 ```
 > Learn more in [Update Routing & Attributes](./routing) and [Running Modes](./running-modes).
 
-### 3. Contextual Entity Resolver
-During update processing, `$bot` automatically tracks the active update and provides instant shortcuts to chat, user, and message identifiers:
+### 3. Contextual Entity Resolver (PHP 8.4 Property Hooks)
+During update processing, `$bot` automatically tracks the active update and provides instant shortcuts to chat, user, and message identifiers via modern PHP 8.4 Property Hooks:
 ```php
-$chatId  = $bot->chatId();  // e.g. 123456789
-$userId  = $bot->userId();  // e.g. 987654321
-$message = $bot->message(); // Current ?Message instance
+$chatId  = $bot->chatId;  // e.g. 123456789
+$userId  = $bot->userId;  // e.g. 987654321
+$message = $bot->message; // Current ?Message instance
 ```
-> Learn more in [Update & Message Helpers](./update-and-message-helpers).
+> **Tip:** Legacy method calls such as `$bot->chatId()` continue to work with a deprecation notice for full backward compatibility. Learn more in [Update & Message Helpers](./update-and-message-helpers).
 
 ---
 
@@ -624,97 +624,112 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 ---
 
-### G. Contextual Accessors & Shortcuts
+### G. Contextual Accessors & Property Hooks
 
-<ApiGroup description="Automatic resolution of active chat, user, thread, and message entities from the incoming update.">
+<ApiGroup description="Automatic resolution of active chat, user, thread, and message entities from the incoming update via PHP 8.4 Property Hooks.">
   <ApiCard
-    sig="$bot->chatId()"
+    type="property"
+    sig="$bot->chatId"
     returns="?int"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active chat ID (extracted from message->chat->id, callback_query->message->chat->id, etc.)."
   />
   <ApiCard
-    sig="$bot->userId()"
+    type="property"
+    sig="$bot->userId"
     returns="?int"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active user ID from the current update (from->id)."
   />
   <ApiCard
-    sig="$bot->messageId()"
+    type="property"
+    sig="$bot->messageId"
     returns="?int"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active message ID from the current update (message->message_id)."
   />
   <ApiCard
-    sig="$bot->businessConnectionId()"
+    type="property"
+    sig="$bot->businessConnectionId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active Telegram Business connection ID for enterprise bots."
   />
   <ApiCard
-    sig="$bot->messageThreadId()"
+    type="property"
+    sig="$bot->messageThreadId"
     returns="?int"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active forum topic thread ID for supergroups."
   />
   <ApiCard
-    sig="$bot->inlineMessageId()"
+    type="property"
+    sig="$bot->inlineMessageId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the inline message identifier for updates initiated via inline queries."
   />
   <ApiCard
-    sig="$bot->callbackQueryId()"
+    type="property"
+    sig="$bot->callbackQueryId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active callback query ID from an inline button interaction."
   />
   <ApiCard
-    sig="$bot->inlineQueryId()"
+    type="property"
+    sig="$bot->inlineQueryId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active inline query ID."
   />
   <ApiCard
-    sig="$bot->shippingQueryId()"
+    type="property"
+    sig="$bot->shippingQueryId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active shipping query ID for e-commerce checkout flows."
   />
   <ApiCard
-    sig="$bot->preCheckoutQueryId()"
+    type="property"
+    sig="$bot->preCheckoutQueryId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the active pre-checkout query ID before payment finalization."
   />
   <ApiCard
-    sig="$bot->directMessagesTopicId()"
+    type="property"
+    sig="$bot->directMessagesTopicId"
     returns="?int"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the direct messages forum topic ID in Telegram Business."
   />
   <ApiCard
-    sig="$bot->guestQueryId()"
+    type="property"
+    sig="$bot->guestQueryId"
     returns="?string"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Resolves the guest query ID for anonymous web interactions."
   />
   <ApiCard
-    sig="$bot->chat()"
+    type="property"
+    sig="$bot->chat"
     returns="?Chat"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Extracts and returns the primary Chat type object from the current update."
   />
   <ApiCard
-    sig="$bot->user()"
+    type="property"
+    sig="$bot->user"
     returns="?User"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Extracts and returns the primary User type object from the current update."
   />
   <ApiCard
-    sig="$bot->message()"
+    type="property"
+    sig="$bot->message"
     returns="?Message"
-    badge="Contextual"
+    badge="Property Hook"
     desc="Extracts and returns the primary Message type object from the current update."
   />
   <ApiCard
@@ -2717,22 +2732,23 @@ $inlineId  = $update->inlineMessageId;
 
 ---
 
-## 2. Client-Level Contextual Shortcuts (`Telegram`)
+## 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
 
-The `Telegram` client facade exposes direct helper methods that proxy the active update:
+The `Telegram` client facade and `Context` instance expose modern PHP 8.4 Property Hooks that proxy the active update without empty parentheses:
 
 ```php
-// Active ID getters
-$chatId = $bot->chatId();
-$userId = $bot->userId();
-$msgId  = $bot->messageId();
-$bizId  = $bot->businessConnectionId();
+// Active Contextual ID Properties
+$chatId = $bot->chatId;
+$userId = $bot->userId;
+$msgId  = $bot->messageId;
+$bizId  = $bot->businessConnectionId;
 
 // Model objects
-$user    = $bot->user();    // ?User
-$chat    = $bot->chat();    // ?Chat
-$message = $bot->message(); // ?Message
+$user    = $bot->user;    // ?User
+$chat    = $bot->chat;    // ?Chat
+$message = $bot->message; // ?Message
 ```
+> **Tip:** Legacy method calls (e.g. `$bot->chatId()`) remain supported for backward compatibility with a `#[\Deprecated]` notice.
 
 ---
 

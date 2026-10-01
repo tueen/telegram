@@ -208,9 +208,9 @@ final class ContextResolverTest extends TestCase
 
         $bot->setUpdate($update);
 
-        $this->assertSame('biz_conn_standalone_123', $bot->businessConnectionId());
-        $this->assertSame(777777, $bot->chatId());
-        $this->assertSame(777777, $bot->userId());
+        $this->assertSame('biz_conn_standalone_123', $bot->businessConnectionId);
+        $this->assertSame(777777, $bot->chatId);
+        $this->assertSame(777777, $bot->userId);
 
         $bot->sendMessage(text: 'Hello Business Partner');
 
@@ -228,7 +228,7 @@ final class ContextResolverTest extends TestCase
 
         $bot->setUpdate($this->createMessageUpdate(chatId: 123456, threadId: 88));
 
-        $this->assertSame(88, $bot->messageThreadId());
+        $this->assertSame(88, $bot->messageThreadId);
 
         $bot->sendMessage(text: 'Replying to topic');
 
@@ -273,8 +273,8 @@ final class ContextResolverTest extends TestCase
 
         $bot->setUpdate($update);
 
-        $this->assertSame('inline_msg_abc123', $bot->inlineMessageId());
-        $this->assertSame('cb_query_inline_1', $bot->callbackQueryId());
+        $this->assertSame('inline_msg_abc123', $bot->inlineMessageId);
+        $this->assertSame('cb_query_inline_1', $bot->callbackQueryId);
 
         $bot->editMessageText(text: 'Updated inline text');
 
@@ -330,7 +330,7 @@ final class ContextResolverTest extends TestCase
 
         $bot->setUpdate($update);
 
-        $this->assertSame('iq_987654321', $bot->inlineQueryId());
+        $this->assertSame('iq_987654321', $bot->inlineQueryId);
 
         $bot->answerInlineQuery(results: []);
 
@@ -348,7 +348,7 @@ final class ContextResolverTest extends TestCase
 
         $bot->setUpdate($this->createMessageUpdate(userId: 789012));
 
-        $this->assertSame(789012, $bot->userId());
+        $this->assertSame(789012, $bot->userId);
 
         $bot->getUserProfilePhotos();
 
@@ -399,22 +399,22 @@ final class ContextResolverTest extends TestCase
             threadId: 99
         ));
 
-        $this->assertSame(123456, $bot->chatId());
-        $this->assertSame(789012, $bot->userId());
-        $this->assertSame(42, $bot->messageId());
-        $this->assertSame(99, $bot->messageThreadId());
+        $this->assertSame(123456, $bot->chatId);
+        $this->assertSame(789012, $bot->userId);
+        $this->assertSame(42, $bot->messageId);
+        $this->assertSame(99, $bot->messageThreadId);
 
-        $user = $bot->user();
+        $user = $bot->user;
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame(789012, $user->id);
         $this->assertSame('Royal', $user->firstName);
 
-        $chat = $bot->chat();
+        $chat = $bot->chat;
         $this->assertInstanceOf(Chat::class, $chat);
         $this->assertSame(123456, $chat->id);
         $this->assertSame('Test Group', $chat->title);
 
-        $msg = $bot->message();
+        $msg = $bot->message;
         $this->assertInstanceOf(Message::class, $msg);
         $this->assertSame(42, $msg->messageId);
     }
@@ -469,5 +469,34 @@ final class ContextResolverTest extends TestCase
             return $req->parameters['chat_id'] === 123456
                 && $req->parameters['text'] === '987654';
         });
+    }
+
+    public function testDeprecatedContextMethodsFallbackToPropertyHooks(): void
+    {
+        $bot = Telegram::fake();
+        $bot->setUpdate($this->createMessageUpdate(
+            chatId: 123456,
+            userId: 789012,
+            messageId: 42,
+            threadId: 99
+        ));
+
+        // Deprecated method calls continue to work seamlessly via property hooks
+        $this->assertSame(123456, @$bot->chatId());
+        $this->assertSame(789012, @$bot->userId());
+        $this->assertSame(42, @$bot->messageId());
+        $this->assertSame(99, @$bot->messageThreadId());
+        $this->assertInstanceOf(User::class, @$bot->user());
+        $this->assertInstanceOf(Chat::class, @$bot->chat());
+        $this->assertInstanceOf(Message::class, @$bot->message());
+
+        $context = new \Tueen\Telegram\Context\Context($bot->update, $bot->getClient(), $bot);
+        $this->assertSame(123456, @$context->chatId());
+        $this->assertSame(789012, @$context->userId());
+        $this->assertSame(42, @$context->messageId());
+        $this->assertSame(99, @$context->messageThreadId());
+        $this->assertInstanceOf(User::class, @$context->user());
+        $this->assertInstanceOf(Chat::class, @$context->chat());
+        $this->assertInstanceOf(Message::class, @$context->message());
     }
 }

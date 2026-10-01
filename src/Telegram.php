@@ -296,79 +296,154 @@ class Telegram
         return $this;
     }
 
+    public ?int $chatId {
+        get => $this->context->resolveChatId();
+    }
+
+    public ?int $userId {
+        get => $this->context->resolveUserId();
+    }
+
+    public ?int $messageId {
+        get => $this->context->resolveMessageId();
+    }
+
+    public ?string $businessConnectionId {
+        get => $this->context->resolveBusinessConnectionId();
+    }
+
+    public ?int $messageThreadId {
+        get => $this->context->resolveMessageThreadId();
+    }
+
+    public ?string $inlineMessageId {
+        get => $this->context->resolveInlineMessageId();
+    }
+
+    public ?string $callbackQueryId {
+        get => $this->context->resolveCallbackQueryId();
+    }
+
+    public ?string $inlineQueryId {
+        get => $this->context->resolveInlineQueryId();
+    }
+
+    public ?string $shippingQueryId {
+        get => $this->context->resolveShippingQueryId();
+    }
+
+    public ?string $preCheckoutQueryId {
+        get => $this->context->resolvePreCheckoutQueryId();
+    }
+
+    public ?int $directMessagesTopicId {
+        get => $this->context->resolveDirectMessagesTopicId();
+    }
+
+    public ?string $guestQueryId {
+        get => $this->context->resolveGuestQueryId();
+    }
+
+    public ?User $user {
+        get => $this->update?->findUser();
+    }
+
+    public ?Chat $chat {
+        get => $this->update?->findChat();
+    }
+
+    public ?Message $message {
+        get => $this->update?->findMessage();
+    }
+
+    #[\Deprecated(message: 'Use property $bot->chatId instead', since: '1.0.0')]
     public function chatId(): ?int
     {
-        return $this->context->resolveChatId();
+        return $this->chatId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->userId instead', since: '1.0.0')]
     public function userId(): ?int
     {
-        return $this->context->resolveUserId();
+        return $this->userId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->messageId instead', since: '1.0.0')]
     public function messageId(): ?int
     {
-        return $this->context->resolveMessageId();
+        return $this->messageId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->businessConnectionId instead', since: '1.0.0')]
     public function businessConnectionId(): ?string
     {
-        return $this->context->resolveBusinessConnectionId();
+        return $this->businessConnectionId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->messageThreadId instead', since: '1.0.0')]
     public function messageThreadId(): ?int
     {
-        return $this->context->resolveMessageThreadId();
+        return $this->messageThreadId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->inlineMessageId instead', since: '1.0.0')]
     public function inlineMessageId(): ?string
     {
-        return $this->context->resolveInlineMessageId();
+        return $this->inlineMessageId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->callbackQueryId instead', since: '1.0.0')]
     public function callbackQueryId(): ?string
     {
-        return $this->context->resolveCallbackQueryId();
+        return $this->callbackQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->inlineQueryId instead', since: '1.0.0')]
     public function inlineQueryId(): ?string
     {
-        return $this->context->resolveInlineQueryId();
+        return $this->inlineQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->shippingQueryId instead', since: '1.0.0')]
     public function shippingQueryId(): ?string
     {
-        return $this->context->resolveShippingQueryId();
+        return $this->shippingQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->preCheckoutQueryId instead', since: '1.0.0')]
     public function preCheckoutQueryId(): ?string
     {
-        return $this->context->resolvePreCheckoutQueryId();
+        return $this->preCheckoutQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->directMessagesTopicId instead', since: '1.0.0')]
     public function directMessagesTopicId(): ?int
     {
-        return $this->context->resolveDirectMessagesTopicId();
+        return $this->directMessagesTopicId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->guestQueryId instead', since: '1.0.0')]
     public function guestQueryId(): ?string
     {
-        return $this->context->resolveGuestQueryId();
+        return $this->guestQueryId;
     }
 
+    #[\Deprecated(message: 'Use property $bot->user instead', since: '1.0.0')]
     public function user(): ?User
     {
-        return $this->update?->findUser();
+        return $this->user;
     }
 
+    #[\Deprecated(message: 'Use property $bot->chat instead', since: '1.0.0')]
     public function chat(): ?Chat
     {
-        return $this->update?->findChat();
+        return $this->chat;
     }
 
+    #[\Deprecated(message: 'Use property $bot->message instead', since: '1.0.0')]
     public function message(): ?Message
     {
-        return $this->update?->findMessage();
+        return $this->message;
     }
 
     /**

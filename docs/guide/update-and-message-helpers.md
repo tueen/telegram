@@ -72,22 +72,23 @@ $inlineId  = $update->inlineMessageId;
 
 ---
 
-## 2. Client-Level Contextual Shortcuts (`Telegram`)
+## 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
 
-The `Telegram` client facade exposes direct helper methods that proxy the active update:
+The `Telegram` client facade and `Context` instance expose modern PHP 8.4 Property Hooks that proxy the active update without empty parentheses:
 
 ```php
-// Active ID getters
-$chatId = $bot->chatId();
-$userId = $bot->userId();
-$msgId  = $bot->messageId();
-$bizId  = $bot->businessConnectionId();
+// Active Contextual ID Properties
+$chatId = $bot->chatId;
+$userId = $bot->userId;
+$msgId  = $bot->messageId;
+$bizId  = $bot->businessConnectionId;
 
 // Model objects
-$user    = $bot->user();    // ?User
-$chat    = $bot->chat();    // ?Chat
-$message = $bot->message(); // ?Message
+$user    = $bot->user;    // ?User
+$chat    = $bot->chat;    // ?Chat
+$message = $bot->message; // ?Message
 ```
+> **Tip:** Legacy method calls (e.g. `$bot->chatId()`) remain supported for backward compatibility with a `#[\Deprecated]` notice.
 
 ---
 
