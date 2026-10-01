@@ -9,9 +9,11 @@
     "docs:llms": "node scripts/generate-llms.mjs",
     "docs:preview": "vitepress preview --host 127.0.0.1",
     "docs:archive": "node scripts/archive-version.mjs",
-    "docs:version": "node scripts/archive-version.mjs --set-current"
+    "docs:version": "node scripts/archive-version.mjs --set-current",
+    "docs:mermaid": "node scripts/validate-mermaid.mjs"
   },
   "devDependencies": {
+    "jsdom": "^30.1.1",
     "jszip": "^3.10.2",
     "mermaid": "^12.0.0",
     "vitepress": "^1.6.4"

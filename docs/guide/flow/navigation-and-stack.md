@@ -3,16 +3,24 @@
 `InteractiveFlow` features a hierarchical navigation stack that models menus and multi-layered screens just like modern UI frameworks.
 
 ```mermaid
-graph TD
-    MainMenu["MainMenuFlow (root)"]
-    Settings["SettingsFlow"]
-    Notifications["NotificationsFlow"]
+flowchart TD
+    subgraph StackRepresentation ["🥞 Navigation Stack Hierarchy ($state->flowStack)"]
+        direction TB
+        TopScreen["🔔 NotificationsFlow<br/><b>[Active Screen]</b><br/><i>Rendered on message_id: 420</i>"]
+        MidScreen["⚙️ SettingsFlow<br/><b>[Suspended Frame 1]</b><br/><i>Saved state & step memory</i>"]
+        RootScreen["🏠 MainMenuFlow<br/><b>[Root Frame 0]</b><br/><i>Application Entry Point</i>"]
+        
+        TopScreen -->|"$this->pop('result')"| MidScreen
+        MidScreen -->|"$this->pop()"| RootScreen
+        TopScreen -.->|"Click 🏠 Home (Stack Reset)"| RootScreen
+    end
 
-    MainMenu -->|"$this->push(SettingsFlow::class)"| Settings
-    Settings -->|"$this->push(NotificationsFlow::class)"| Notifications
-    Notifications -->|"$this->pop()"| Settings
-    Settings -->|"$this->pop()"| MainMenu
-    Notifications -->|"Click 🏠 Home"| MainMenu
+    subgraph Transitions ["Navigation Operations"]
+        direction LR
+        PushOp["<b>push(Child::class, data)</b><br/>• Suspends current flow<br/>• Pushes state to stack<br/>• Reuses same message_id"]
+        PopOp["<b>pop(result)</b><br/>• Drops top frame<br/>• Resumes parent flow<br/>• Calls onResume(result)"]
+        HomeOp["<b>home() / 🏠</b><br/>• Purges entire stack<br/>• Restores rootFlow<br/>• Clean state slate"]
+    end
 ```
 
 ---
@@ -139,22 +147,35 @@ In long-running or distributed systems, code deployments may remove, rename, or 
 `tueen/telegram` features an intelligent, multi-layered resilience algorithm to ensure your bot never crashes or leaves users stranded:
 
 ```mermaid
-graph TD
-    Update["Incoming User Update"] --> CheckClass{"Flow Class Exists?"}
-    CheckClass -->|Yes| CheckStep{"Step Method Exists?"}
-    CheckStep -->|Yes| Execute["Execute Flow Step"]
-    CheckStep -->|No| MissingStep["Trigger onMissingStep()"]
-    MissingStep --> BackHist{"Step History Available?"}
-    BackHist -->|Yes| NavigateBack["$this->back()"]
-    BackHist -->|No| CheckStart{"start() Exists?"}
-    CheckStart -->|Yes| GoStart["$this->start($update)"]
-    CheckStart -->|No| CheckRoot1{"rootFlow Available?"}
+flowchart TD
+    Update(["Incoming User Update"]) --> ValidateClass{"Flow Class Exists<br/>in Codebase?"}
 
-    CheckClass -->|No: Class Deleted| CheckStack{"Parent Stack in flowStack?"}
-    CheckStack -->|Yes| UnwindStack["Pop & Resume Nearest Valid Parent Flow"]
-    CheckStack -->|No| CheckRoot1
-    CheckRoot1 -->|Yes| RedirectRoot["Transition to rootFlow / defaultFlow"]
-    CheckRoot1 -->|No| CleanUp["Purge Orphaned State & Fallthrough to Bot Router"]
+    subgraph HappyPath ["Normal Execution"]
+        ValidateClass -->|Yes| ValidateStep{"Step Method<br/>Exists?"}
+        ValidateStep -->|Yes| ExecStep["▶️ Execute Flow Step"]
+    end
+
+    subgraph ClassRecovery ["Class Missing (Deleted / Renamed in Deploy)"]
+        ValidateClass -->|No| HasParent{"Parent Flow<br/>in Stack?"}
+        HasParent -->|Yes| UnwindParent["⏪ Pop & Resume Nearest Valid Parent"]
+        HasParent -->|No| HasRoot1{"rootFlow<br/>Configured?"}
+    end
+
+    subgraph StepRecovery ["Step Missing (Refactored Method)"]
+        ValidateStep -->|No| TriggerHook["🔔 Trigger onMissingStep()"]
+        TriggerHook --> HasHistory{"History Stack<br/>Available?"}
+        HasHistory -->|Yes| StepBack["🔙 Auto Fallback: $this->back()"]
+        HasHistory -->|No| HasStart{"start()<br/>Available?"}
+        HasStart -->|Yes| StepStart["🔄 Reset to: $this->start()"]
+        HasStart -->|No| HasRoot2{"rootFlow<br/>Configured?"}
+    end
+
+    subgraph TerminalFallback ["Root Fallback & Cleanup"]
+        HasRoot1 -->|Yes| JumpRoot["🏠 Reset to rootFlow"]
+        HasRoot2 -->|Yes| JumpRoot
+        HasRoot1 -->|No| PurgeState["🧹 Purge Orphaned State<br/>Pass to Bot Router"]
+        HasRoot2 -->|No| PurgeState
+    end
 ```
 
 ### 1. Unwinding Navigation Stack to Parent Flows

@@ -11,16 +11,21 @@ Unlike other frameworks that repeatedly delete and resend messages—causing vis
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User
-    participant Bot as tueen/telegram
-    participant Telegram as Telegram Bot API
+    actor User as 👤 Telegram User
+    participant App as 📱 Telegram App
+    participant TG as ☁️ Telegram Cloud API
+    participant Bot as 👑 Tueen (InteractiveFlow)
 
-    User->>Bot: Click Option A
-    Bot->>Bot: InteractiveFlow::dispatchAction()
-    Bot->>Telegram: answerCallbackQuery(id)
-    Bot->>Telegram: editMessageText(chatId, messageId: 500, newText, newMarkup)
-    Note over Bot,Telegram: Zero-Flicker: Exact same message updated!
-    Telegram-->>User: Screen instantly refreshed
+    User->>App: Taps Inline Button [💳 Checkout]
+    App->>TG: Send Callback Query (data: "checkout", msg_id: 420)
+    TG->>Bot: Deliver Update via Webhook or Polling
+    
+    Note over Bot: ⚡ Zero-Flicker Transition<br/>Reuses active message ID: 420
+    Bot->>TG: answerCallbackQuery(callback_query_id)
+    Bot->>TG: editMessageText(chat_id, message_id: 420, newScreen)
+
+    TG-->>App: Push Updated Content & Keyboards
+    App-->>User: 🪄 Instant UI Refresh (No flicker, same message)
 ```
 
 ### Automatic Fallback Recovery

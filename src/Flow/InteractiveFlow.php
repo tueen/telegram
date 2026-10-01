@@ -627,7 +627,7 @@ abstract class InteractiveFlow extends Flow
 
         // 4. Trigger onUnhandled hook
         $this->onUnhandled($update);
-        return true;
+        return !$this->isPassedThrough;
     }
 
     /**

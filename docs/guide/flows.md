@@ -5,17 +5,40 @@ When building Telegram bots, multi-step user dialogues (such as user onboarding 
 `tueen/telegram` introduces **`Flow`** — a modern, elegant, class-based state machine engineered specifically for conversational bot architectures.
 
 ```mermaid
-graph TD
-    Entry(["$bot->startFlow(RegistrationFlow::class)"]) --> Start["start($update)"]
-    Start --> AskEmail["askEmail($update)"]
-    AskEmail -->|Validation Fails| Retry["$this->stay('Invalid email')"]
-    Retry --> AskEmail
-    AskEmail -->|User Types /back| Start
-    AskEmail -->|Valid Email| Confirm["confirm($update)"]
-    Confirm -->|Complete| Finished(["$this->finish()"])
-    Confirm -->|User Types /cancel| Cancelled(["$this->cancel()"])
-    Cancelled --> ExitHook["onExit('cancelled')"]
-    Finished --> CompleteHook["onExit('finished')"]
+flowchart TD
+    Trigger["⚡ Start Dialogue: /register or startFlow()"] --> Step1
+
+    subgraph Step1 ["1️⃣ Step: askName"]
+        BotName["🤖 Prompt: 'What is your full name?'"]
+        UserSendsName[/"👤 User sends Name"/]
+        BotName --> UserSendsName
+    end
+
+    Step1 -->|Advance to askEmail| Step2
+
+    subgraph Step2 ["2️⃣ Step: askEmail"]
+        BotEmail["🤖 Prompt: 'Enter your email address:'"]
+        UserSendsEmail[/"👤 User sends Email"/]
+        ValidateEmail{"Valid Email<br/>Format?"}
+        RetryEmail["⚠️ $this.stay()<br/>'Invalid email, try again:'"]
+        
+        BotEmail --> UserSendsEmail --> ValidateEmail
+        ValidateEmail -->|Invalid| RetryEmail
+        RetryEmail -.-> UserSendsEmail
+    end
+
+    Step2 -->|Valid Email to confirm| Step3
+
+    subgraph Step3 ["3️⃣ Step: confirm"]
+        BotConfirm["🤖 Prompt: 'Confirm registration? (yes/no)'"]
+        UserResponse[/"👤 User responds or commands"/]
+        
+        BotConfirm --> UserResponse
+    end
+
+    UserResponse -->|User sends /back| Step2
+    UserResponse -->|User sends /cancel| CancelExit["🚫 $this.cancel()<br/><b>onExit('cancelled')</b>"]
+    UserResponse -->|User confirms yes| FinishExit["✅ $this.finish()<br/><b>onExit('finished')</b>"]
 ```
 
 ---
@@ -351,20 +374,43 @@ $bot->onCallbackQuery('buy_vip', function (Update $update, Telegram $bot) {
 
 ---
 
-### Automatic Flow Priority in `$bot->run()`
+### Automatic Flow Priority & Router Fallthrough
 
-When incoming updates arrive at `$bot->run()`, Tueen executes in the following order:
+When incoming updates arrive at `$bot->run()`, Tueen balances **conversational immersion** with **global control flexibility**:
+
+1. **High-Priority Routes (`priority: true`):** If a route is registered with `priority: true` (e.g. `#[OnCommand('emergency', priority: true)]`), Tueen evaluates it first. If an active Flow is running, Tueen consults `$flow->allowsPriorityRoute($route, $update)`. If allowed, `$flow->onPriorityRoute($route, $update)` executes and the priority route runs.
+2. **Active Flow Immersion:** Otherwise, the active Flow executes its current step method, preventing unintentional global command collisions.
+3. **Intentional Fallthrough (`$this->passThrough()`):** If a flow step does not wish to handle an update (e.g. wanting global commands or regex routes to take over), it can call `$this->passThrough()` or return `false`. The update seamlessly falls through to the Router without aborting the flow session.
 
 ```mermaid
-graph TD
-    Update["Incoming Update"] --> CheckFlow{"Active Flow in Store?"}
-    CheckFlow -->|Yes| CheckExit{"Matches Exit Command?"}
-    CheckExit -->|Yes| CancelFlow["$flow->cancel() &amp; onExit('cancelled')"]
-    CheckExit -->|No| ExecStep["Execute Current Step Method"]
-    CheckFlow -->|No| Handlers["Run Middlewares &amp; Attribute Router"]
+flowchart TD
+    Update["📥 Incoming Update arrives at $bot.run()"] --> PriorityCheck{"1. Matches Priority Route?<br/><i>priority: true</i>"}
+
+    subgraph PriorityLayer ["🚨 High-Priority Routes Layer"]
+        direction TB
+        PriorityCheck -->|Priority Match| ConsultFlow{"Active Flow<br/>Permits Route?<br/><i>allowsPriorityRoute()</i>"}
+        ConsultFlow -->|Allowed| RunPriority["🚀 Execute Priority Handler<br/><i>triggers $flow.onPriorityRoute</i>"]
+    end
+
+    subgraph FlowLayer ["🧠 Conversational Flow Session"]
+        direction TB
+        PriorityCheck -->|No Priority Match| HasActiveFlow{"Active Flow in Store?"}
+        ConsultFlow -->|Vetoed by Flow| HasActiveFlow
+        
+        HasActiveFlow -->|Yes| ExecStep["▶️ Execute Current Step Method"]
+        ExecStep --> StepDecision{"Step Outcome"}
+        StepDecision -->|Handled| SaveState["✅ Session State Saved"]
+        StepDecision -->|Pass Through or False| GlobalRoutes
+    end
+
+    subgraph GlobalLayer ["🧭 Standard Routing & Handlers"]
+        direction TB
+        HasActiveFlow -->|No| GlobalRoutes["Standard Router & Controllers<br/><i>OnCommand, OnMessage, etc.</i>"]
+        GlobalRoutes --> Fallback["⚡ Default / Fallback Handlers"]
+    end
 ```
 
-Because active flows take precedence, your users remain immersed in their multi-step flow without accidental interference from global commands.
+Because active flows take precedence while allowing explicit priority overrides and passthroughs, your users remain immersed without locking out emergency administrative control.
 
 ---
 

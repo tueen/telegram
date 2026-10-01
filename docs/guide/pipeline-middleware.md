@@ -2,6 +2,37 @@
 
 Every outbound API request in `tueen/telegram` passes through an extensible onion middleware pipeline before reaching the underlying HTTP transport. This allows you to transparently handle retries, rate limits, request logging, tracing, and metric collection.
 
+```mermaid
+flowchart LR
+    subgraph ClientExecution ["Client Invocation"]
+        Req["💻 Developer Calls<br/><code>$bot->sendMessage(...)</code>"]
+    end
+
+    subgraph PipelineLayers ["🧅 Extensible Middleware Onion Pipeline"]
+        direction LR
+        L1["📝 1. LoggingMiddleware<br/><i>Records start time, method & payload</i>"]
+        L2["⏱️ 2. RateLimitMiddleware<br/><i>Token bucket check (30 req/s, 1s/chat)</i>"]
+        L3["🔁 3. RetryMiddleware<br/><i>Catches 429 & network drops, auto-retries</i>"]
+        
+        L1 -->|Pass next| L2
+        L2 -->|Pass next| L3
+    end
+
+    subgraph TransportLayer ["🌐 HTTP Transport & Cloud"]
+        Transport["Client Transport<br/>(Guzzle / cURL / PSR-18)"]
+        TelegramCloud[("☁️ Telegram Bot API Server")]
+        
+        Transport -->|HTTPS POST| TelegramCloud
+    end
+
+    Req --> L1
+    L3 -->|Final dispatch| Transport
+    TelegramCloud -.->|Response / Status 200| L3
+    L3 -.->|Bubble response| L2
+    L2 -.->|Bubble response| L1
+    L1 -.->|Final Typed Result| Ret["📦 Typed Response: Message"]
+```
+
 ---
 
 ## ⚡ 1. Native Built-In Middlewares

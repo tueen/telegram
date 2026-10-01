@@ -395,6 +395,11 @@ class Telegram
         return $this;
     }
 
+    public function getContainer(): mixed
+    {
+        return $this->container;
+    }
+
     public function setFlowManager(FlowManager $manager): static
     {
         $this->flowManager = $manager;
@@ -544,11 +549,12 @@ class Telegram
      *
      * @param string $command Command name with or without leading slash
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function onCommand(string $command, mixed $handler): static
+    public function onCommand(string $command, mixed $handler, bool $priority = false): static
     {
-        $this->router->onCommand($command, $handler);
+        $this->router->onCommand($command, $handler, $priority);
         return $this;
     }
 
@@ -557,11 +563,12 @@ class Telegram
      *
      * @param string|null $pattern Regex pattern to match against callback_data, or null for any
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function onCallbackQuery(?string $pattern, mixed $handler): static
+    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static
     {
-        $this->router->onCallbackQuery($pattern, $handler);
+        $this->router->onCallbackQuery($pattern, $handler, $priority);
         return $this;
     }
 
@@ -570,11 +577,12 @@ class Telegram
      *
      * @param string|null $pattern Regex pattern to match against text, or null for any message
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function onMessage(?string $pattern, mixed $handler): static
+    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): static
     {
-        $this->router->onMessage($pattern, $handler);
+        $this->router->onMessage($pattern, $handler, $priority);
         return $this;
     }
 
@@ -583,11 +591,12 @@ class Telegram
      *
      * @param string|null $pattern Regex pattern to match against query text, or null for any
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function onInlineQuery(?string $pattern, mixed $handler): static
+    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static
     {
-        $this->router->onInlineQuery($pattern, $handler);
+        $this->router->onInlineQuery($pattern, $handler, $priority);
         return $this;
     }
 
@@ -596,11 +605,12 @@ class Telegram
      *
      * @param UpdateType|string $type Telegram update type enum or string (e.g. 'message', 'chat_member')
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function on(UpdateType|string $type, mixed $handler): static
+    public function on(UpdateType|string $type, mixed $handler, bool $priority = false): static
     {
-        $this->router->on($type, $handler);
+        $this->router->on($type, $handler, $priority);
         return $this;
     }
 

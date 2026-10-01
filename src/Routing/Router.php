@@ -28,66 +28,76 @@ class Router
 
     /**
      * Registers a bot command route (e.g. 'start', '/help').
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onCommand(string $command, mixed $handler): static
+    public function onCommand(string $command, mixed $handler, bool $priority = false): static
     {
         $this->routes[] = new Route(
             type: UpdateType::MESSAGE,
             pattern: ltrim($command, '/'),
             handler: $handler,
-            isCommand: true
+            isCommand: true,
+            isPriority: $priority
         );
         return $this;
     }
 
     /**
      * Registers a callback query route by exact match, placeholder ('item:{id}'), or regex.
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onCallbackQuery(?string $pattern, mixed $handler): static
+    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static
     {
         $this->routes[] = new Route(
             type: UpdateType::CALLBACK_QUERY,
             pattern: $pattern,
-            handler: $handler
+            handler: $handler,
+            isPriority: $priority
         );
         return $this;
     }
 
     /**
      * Registers a message text route by regex or substring.
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onMessage(?string $pattern, mixed $handler): static
+    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): static
     {
         $this->routes[] = new Route(
             type: UpdateType::MESSAGE,
             pattern: $pattern,
-            handler: $handler
+            handler: $handler,
+            isPriority: $priority
         );
         return $this;
     }
 
     /**
      * Registers an inline query route.
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onInlineQuery(?string $pattern, mixed $handler): static
+    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static
     {
         $this->routes[] = new Route(
             type: UpdateType::INLINE_QUERY,
             pattern: $pattern,
-            handler: $handler
+            handler: $handler,
+            isPriority: $priority
         );
         return $this;
     }
 
     /**
      * Registers a route for any specific UpdateType.
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function on(UpdateType|string $type, mixed $handler): static
+    public function on(UpdateType|string $type, mixed $handler, bool $priority = false): static
     {
         $this->routes[] = new Route(
             type: $type,
             pattern: null,
-            handler: $handler
+            handler: $handler,
+            isPriority: $priority
         );
         return $this;
     }
@@ -123,35 +133,35 @@ class Router
             foreach ($method->getAttributes(OnCommand::class) as $attr) {
                 /** @var OnCommand $instance */
                 $instance = $attr->newInstance();
-                $this->onCommand($instance->command, $methodHandler);
+                $this->onCommand($instance->command, $methodHandler, $instance->priority);
             }
 
             // 2. #[OnCallbackQuery]
             foreach ($method->getAttributes(OnCallbackQuery::class) as $attr) {
                 /** @var OnCallbackQuery $instance */
                 $instance = $attr->newInstance();
-                $this->onCallbackQuery($instance->pattern, $methodHandler);
+                $this->onCallbackQuery($instance->pattern, $methodHandler, $instance->priority);
             }
 
             // 3. #[OnMessage]
             foreach ($method->getAttributes(OnMessage::class) as $attr) {
                 /** @var OnMessage $instance */
                 $instance = $attr->newInstance();
-                $this->onMessage($instance->pattern, $methodHandler);
+                $this->onMessage($instance->pattern, $methodHandler, $instance->priority);
             }
 
             // 4. #[OnInlineQuery]
             foreach ($method->getAttributes(OnInlineQuery::class) as $attr) {
                 /** @var OnInlineQuery $instance */
                 $instance = $attr->newInstance();
-                $this->onInlineQuery($instance->pattern, $methodHandler);
+                $this->onInlineQuery($instance->pattern, $methodHandler, $instance->priority);
             }
 
             // 5. #[OnUpdate]
             foreach ($method->getAttributes(OnUpdate::class) as $attr) {
                 /** @var OnUpdate $instance */
                 $instance = $attr->newInstance();
-                $this->on($instance->type, $methodHandler);
+                $this->on($instance->type, $methodHandler, $instance->priority);
             }
         }
 
@@ -164,12 +174,46 @@ class Router
     }
 
     /**
+     * Finds the first matching route. If $priorityOnly is true, only returns routes marked with priority.
+     *
+     * @param array<string, string> $parameters Output named parameters extracted from route pattern
+     */
+    public function findMatchingRoute(
+        Update $update,
+        Telegram $bot,
+        bool $priorityOnly = false,
+        array &$parameters = []
+    ): ?Route {
+        foreach ($this->routes as $route) {
+            if ($priorityOnly && !$route->isPriority) {
+                continue;
+            }
+
+            $params = [];
+            if ($route->matches($update, $bot, $params)) {
+                $parameters = $params;
+                return $route;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Dispatches a single matching route directly.
+     */
+    public function dispatchRoute(Route $route, Update $update, Telegram $bot, array $parameters = []): mixed
+    {
+        return $this->invokeHandler($route->handler, $update, $bot, $parameters);
+    }
+
+    /**
      * Dispatches the update through the registered routes.
      */
-    public function dispatch(Update $update, Telegram $bot): mixed
+    public function dispatch(Update $update, Telegram $bot, bool $checkFlow = true): mixed
     {
         // 1. If user is in an active Flow, dispatch to Flow first!
-        if ($bot->flowManager->handle($update, $bot)) {
+        if ($checkFlow && $bot->flowManager->handle($update, $bot)) {
             return true;
         }
 
@@ -195,7 +239,7 @@ class Router
         return $this->dispatch($update, $bot);
     }
 
-    private function invokeHandler(mixed $handler, Update $update, Telegram $bot, array $parameters): mixed
+    public function invokeHandler(mixed $handler, Update $update, Telegram $bot, array $parameters): mixed
     {
         // If it's a [class/object, method] callable
         if (is_array($handler) && count($handler) === 2) {

@@ -6,6 +6,7 @@ namespace Tueen\Telegram\Flow;
 
 use Tueen\Telegram\Keyboards\InlineKeyboard;
 use Tueen\Telegram\Keyboards\ReplyKeyboard;
+use Tueen\Telegram\Routing\Route;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
@@ -86,6 +87,38 @@ abstract class Flow
      * Internal flag indicating whether the flow has finished or moved.
      */
     protected(set) bool $isTerminated = false;
+
+    /**
+     * Internal flag indicating whether the flow intentionally delegated the update to the Router.
+     */
+    protected(set) bool $isPassedThrough = false;
+
+    /**
+     * Signals that the flow intentionally delegates this update to the Router or subsequent handlers.
+     */
+    public function passThrough(): static
+    {
+        $this->isPassedThrough = true;
+        return $this;
+    }
+
+    /**
+     * Determines whether a high-priority route is allowed to execute while this Flow is active.
+     * Override to return false to prevent priority routes from interrupting this flow.
+     */
+    public function allowsPriorityRoute(Route $route, Update $update): bool
+    {
+        return true;
+    }
+
+    /**
+     * Hook called immediately before a high-priority route executes while this Flow is active.
+     * Override to perform custom pause logic, state saving, or screen cleanup.
+     */
+    public function onPriorityRoute(Route $route, Update $update): void
+    {
+        // Default no-op
+    }
 
     /**
      * Initializes the Flow instance with runtime context.

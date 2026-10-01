@@ -11,6 +11,7 @@ use Tueen\Telegram\Enums\UpdateType;
 final class OnUpdate
 {
     public function __construct(
-        public readonly UpdateType|string $type
+        public readonly UpdateType|string $type,
+        public readonly bool $priority = false
     ) {}
 }

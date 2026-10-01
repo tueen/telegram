@@ -113,19 +113,44 @@ $bot->registerController(OrderController::class);
 Under the hood, `Telegram` is not a monolithic class holding all bot logic. Instead, it uses a **modular composition architecture** that delegates work to single-responsibility components:
 
 ```mermaid
-flowchart TD
-    UserCode["User Application Code"] --> Bot["Telegram Client ($bot)"]
-    
-    subgraph Core Subsystems
-        Bot --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
-        Bot --> Dispatcher["UpdateDispatcher<br/>(Pipeline, Middleware, Exception Catching)"]
-        Bot --> Context["ContextResolver<br/>(chat_id, user_id, message_id Auto-Injection)"]
-        Bot --> Router["Router<br/>(Commands, Patterns, Attribute Controllers)"]
-        Bot --> Flows["FlowManager<br/>(State Machine, Multi-step Flows, Storage)"]
+flowchart LR
+    subgraph InboundTrack ["Inbound Pipeline (Receiving Updates)"]
+        direction TB
+        TelegramIn[("Telegram Bot API")] -->|Webhook or Polling| Runner["RunningMode"]
+        Runner --> Dispatcher["UpdateDispatcher"]
+        Dispatcher --> UpdatePipes["Update Middlewares"]
+        
+        UpdatePipes --> PriorityCheck{"Priority Route?"}
+        PriorityCheck -->|Yes| ConsultFlow{"Flow Allows?"}
+        ConsultFlow -->|Allowed| PriorityHandler["Priority Handler"]
+        
+        PriorityCheck -->|No| FlowCheck{"Active Flow?"}
+        ConsultFlow -->|Vetoed| FlowCheck
+        
+        FlowCheck -->|Yes| FlowStep["Execute Flow Step"]
+        FlowStep --> FlowDecision{"Step Handled?"}
+        FlowDecision -->|Yes| FlowDone["Save Flow State"]
+        FlowDecision -->|Pass Through| StandardRoutes["Router & Controllers"]
+        
+        FlowCheck -->|No| StandardRoutes
+        StandardRoutes -->|Matched| RouteHandlers["Route Handlers"]
+        StandardRoutes -->|Unmatched| Fallback["Fallback Handler"]
     end
 
-    Client --> TelegramAPI[("Telegram Bot API")]
-    Dispatcher --> Handlers["Handlers & Middlewares"]
+    subgraph OutboundTrack ["Outbound Pipeline (Sending Requests)"]
+        direction TB
+        Context["ContextResolver"]
+        Context --> HttpPipes["HTTP Middlewares"]
+        HttpPipes --> Client["TelegramClient (PSR-18)"]
+        Client --> TelegramOut[("Telegram Bot API")]
+    end
+
+    %% Handlers send API requests back through Outbound Pipeline
+    PriorityHandler -->|Reply or Send| Context
+    FlowStep -->|Reply or Send| Context
+    RouteHandlers -->|Reply or Send| Context
+    Fallback -.->|Optional Reply| Context
+    DirectCall["Queue Worker or CLI"] -.-> Context
 ```
 
 ### When to Access Subsystems Directly:

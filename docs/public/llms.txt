@@ -177,6 +177,9 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [Registering Controllers](/guide/routing#registering-controllers)
   - [🧭 4. Routing API Catalog](/guide/routing#4-routing-api-catalog)
     * [🏷️ Routing Attributes (`Tueen\Telegram\Routing\Attributes\`)](/guide/routing#routing-attributes-tueentelegramroutingattributes)
+  - [🚨 4. Priority Routes (Overriding Active Flows)](/guide/routing#4-priority-routes-overriding-active-flows)
+    * [Registering Priority Routes](/guide/routing#registering-priority-routes)
+    * [Flow Customization & Interception](/guide/routing#flow-customization-interception)
     * [🛣️ `Router` Methods (`Tueen\Telegram\Routing\Router`)](/guide/routing#router-methods-tueentelegramroutingrouter)
 - [Update & Message Helpers](/guide/update-and-message-helpers): tueen/telegram provides helper methods and computed properties on Update, Message, Chat, and User objects to simplify event processing and eliminate boilerplate null checks.
   - [⚡ 1. Update Helpers (`Update`)](/guide/update-and-message-helpers#1-update-helpers-update)

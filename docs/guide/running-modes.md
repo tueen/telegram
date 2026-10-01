@@ -4,6 +4,30 @@
 
 You can switch between **Webhook Mode** and **Long-Polling Mode** seamlessly. In all modes, incoming updates are resolved, stored in the `$bot->update` property, and dispatched to your handler(s) with full type-safety.
 
+```mermaid
+flowchart TD
+    subgraph PollingComparison ["🔄 Long-Polling Mode (CLI / Development / Daemons)"]
+        direction TB
+        CLI["💻 PHP CLI Daemon<br/><code>php bot.php</code>"] -->|1. getUpdates timeout 30s| TG1[("☁️ Telegram Bot API")]
+        TG1 -.->|2. Holds HTTP connection until update occurs| CLI
+        CLI -->|3. Dispatches update to handlers & updates offset| CLI
+    end
+
+    subgraph WebhookComparison ["⚡ Webhook Mode (Production / Web Servers)"]
+        direction TB
+        TG2[("☁️ Telegram Bot API")] -->|1. HTTPS POST /webhook<br/><i>Header: X-Telegram-Bot-Api-Secret-Token</i>| WebServer["🌐 Web Server (Nginx / PHP-FPM / Caddy)"]
+        WebServer -->|2. Validates secret & payload| TueenWeb["👑 Tueen WebhookMode"]
+        TueenWeb -->|3. Dispatches Update & returns 200 OK| WebServer
+    end
+
+    subgraph AutoSelection ["🪄 AutoMode (Adaptive Execution)"]
+        direction LR
+        Detect{"Detect Environment"}
+        Detect -->|CLI SAPI detected| PollingComparison
+        Detect -->|Web SAPI detected| WebhookComparison
+    end
+```
+
 ---
 
 ## 🚀 Unified Execution with `$bot->run()`

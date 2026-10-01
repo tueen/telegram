@@ -264,19 +264,44 @@ $bot->registerController(OrderController::class);
 Under the hood, `Telegram` is not a monolithic class holding all bot logic. Instead, it uses a **modular composition architecture** that delegates work to single-responsibility components:
 
 ```mermaid
-flowchart TD
-    UserCode["User Application Code"] --> Bot["Telegram Client ($bot)"]
-    
-    subgraph Core Subsystems
-        Bot --> Client["TelegramClient<br/>(HTTP Transport, Serialization, PSR-18)"]
-        Bot --> Dispatcher["UpdateDispatcher<br/>(Pipeline, Middleware, Exception Catching)"]
-        Bot --> Context["ContextResolver<br/>(chat_id, user_id, message_id Auto-Injection)"]
-        Bot --> Router["Router<br/>(Commands, Patterns, Attribute Controllers)"]
-        Bot --> Flows["FlowManager<br/>(State Machine, Multi-step Flows, Storage)"]
+flowchart LR
+    subgraph InboundTrack ["Inbound Pipeline (Receiving Updates)"]
+        direction TB
+        TelegramIn[("Telegram Bot API")] -->|Webhook or Polling| Runner["RunningMode"]
+        Runner --> Dispatcher["UpdateDispatcher"]
+        Dispatcher --> UpdatePipes["Update Middlewares"]
+        
+        UpdatePipes --> PriorityCheck{"Priority Route?"}
+        PriorityCheck -->|Yes| ConsultFlow{"Flow Allows?"}
+        ConsultFlow -->|Allowed| PriorityHandler["Priority Handler"]
+        
+        PriorityCheck -->|No| FlowCheck{"Active Flow?"}
+        ConsultFlow -->|Vetoed| FlowCheck
+        
+        FlowCheck -->|Yes| FlowStep["Execute Flow Step"]
+        FlowStep --> FlowDecision{"Step Handled?"}
+        FlowDecision -->|Yes| FlowDone["Save Flow State"]
+        FlowDecision -->|Pass Through| StandardRoutes["Router & Controllers"]
+        
+        FlowCheck -->|No| StandardRoutes
+        StandardRoutes -->|Matched| RouteHandlers["Route Handlers"]
+        StandardRoutes -->|Unmatched| Fallback["Fallback Handler"]
     end
 
-    Client --> TelegramAPI[("Telegram Bot API")]
-    Dispatcher --> Handlers["Handlers & Middlewares"]
+    subgraph OutboundTrack ["Outbound Pipeline (Sending Requests)"]
+        direction TB
+        Context["ContextResolver"]
+        Context --> HttpPipes["HTTP Middlewares"]
+        HttpPipes --> Client["TelegramClient (PSR-18)"]
+        Client --> TelegramOut[("Telegram Bot API")]
+    end
+
+    %% Handlers send API requests back through Outbound Pipeline
+    PriorityHandler -->|Reply or Send| Context
+    FlowStep -->|Reply or Send| Context
+    RouteHandlers -->|Reply or Send| Context
+    Fallback -.->|Optional Reply| Context
+    DirectCall["Queue Worker or CLI"] -.-> Context
 ```
 
 ### When to Access Subsystems Directly:
@@ -2510,6 +2535,30 @@ Below is the complete reference of file transfer methods and factory functions.
 
 You can switch between **Webhook Mode** and **Long-Polling Mode** seamlessly. In all modes, incoming updates are resolved, stored in the `$bot->update` property, and dispatched to your handler(s) with full type-safety.
 
+```mermaid
+flowchart TD
+    subgraph PollingComparison ["🔄 Long-Polling Mode (CLI / Development / Daemons)"]
+        direction TB
+        CLI["💻 PHP CLI Daemon<br/><code>php bot.php</code>"] -->|1. getUpdates timeout 30s| TG1[("☁️ Telegram Bot API")]
+        TG1 -.->|2. Holds HTTP connection until update occurs| CLI
+        CLI -->|3. Dispatches update to handlers & updates offset| CLI
+    end
+
+    subgraph WebhookComparison ["⚡ Webhook Mode (Production / Web Servers)"]
+        direction TB
+        TG2[("☁️ Telegram Bot API")] -->|1. HTTPS POST /webhook<br/><i>Header: X-Telegram-Bot-Api-Secret-Token</i>| WebServer["🌐 Web Server (Nginx / PHP-FPM / Caddy)"]
+        WebServer -->|2. Validates secret & payload| TueenWeb["👑 Tueen WebhookMode"]
+        TueenWeb -->|3. Dispatches Update & returns 200 OK| WebServer
+    end
+
+    subgraph AutoSelection ["🪄 AutoMode (Adaptive Execution)"]
+        direction LR
+        Detect{"Detect Environment"}
+        Detect -->|CLI SAPI detected| PollingComparison
+        Detect -->|Web SAPI detected| WebhookComparison
+    end
+```
+
 ---
 
 ## 🚀 Unified Execution with `$bot->run()`
@@ -3097,6 +3146,40 @@ Instead of writing monolithic `switch` or `if/else` ladders inside your update h
 
 The router supports both **Fluent Route Definitions** and **Attribute-Driven Controllers** (via PHP 8 Attributes).
 
+```mermaid
+flowchart TD
+    Update["📥 Incoming Telegram Update"] --> Router["🧭 Tueen Update Router"]
+
+    subgraph MatchPipeline ["Matching Pipeline (Sequential Evaluation)"]
+        direction TB
+        M1{"1. Is Bot Command?<br/><i>/start, /help, etc.</i>"}
+        M2{"2. Is Callback Query?<br/><i>inline button data</i>"}
+        M3{"3. Is Regex / Text Match?<br/><i>custom patterns</i>"}
+        M4{"4. Matches Specific Type?<br/><i>photos, documents, chat joins</i>"}
+        
+        M1 -->|No| M2
+        M2 -->|No| M3
+        M3 -->|No| M4
+    end
+
+    Router --> M1
+
+    subgraph Handlers ["Target Dispatch"]
+        direction TB
+        H1["⚡ Command Route / #[OnCommand]"]
+        H2["🔘 Callback Route / #[OnCallbackQuery]<br/><i>(Extracts parameters like {id})</i>"]
+        H3["💬 Message Route / #[OnMessage]"]
+        H4["📎 Type Route / #[OnUpdate]"]
+        Fallback["🛡️ Fallback Handler / Next Middleware"]
+    end
+
+    M1 -->|Yes| H1
+    M2 -->|Yes| H2
+    M3 -->|Yes| H3
+    M4 -->|Yes| H4
+    M4 -->|No Match| Fallback
+```
+
 ---
 
 ## ⚡ 1. Fluent Routing
@@ -3301,35 +3384,69 @@ Below is the complete reference of routing attributes and router configuration m
 
 ---
 
+## 🚨 4. Priority Routes (Overriding Active Flows)
+
+By default, an active conversational `Flow` session takes precedence over standard routes in `Router` to keep the user immersed in multi-step dialogues.
+
+However, certain commands (such as `/help`, `/support`, `/cancel`, `/emergency`, or admin overrides) need to execute **even when a user is in the middle of a Flow**.
+
+### Registering Priority Routes
+Pass `priority: true` to fluent route methods or routing attributes:
+
+```php
+// 1. Fluent Priority Route:
+$bot->onCommand('help', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(chatId: $bot->chatId, text: 'Need assistance? Contact @support.');
+}, priority: true);
+
+// 2. Attribute-Driven Priority Route:
+class SupportController
+{
+    #[OnCommand('emergency', priority: true)]
+    public function emergency(Update $update, Telegram $bot): void
+    {
+        $bot->sendMessage(chatId: $bot->chatId, text: 'Emergency operator notified!');
+    }
+}
+```
+
+### Flow Customization & Interception
+When a priority route matches, Tueen offers the active Flow complete control through two lifecycle hooks:
+
+1. **`allowsPriorityRoute(Route $route, Update $update): bool`** — Return `false` to intercept and veto the priority route, keeping execution entirely inside the Flow.
+2. **`onPriorityRoute(Route $route, Update $update): void`** — Executed when the priority route is permitted to run, allowing the Flow to pause itself, clean up UI screens, or record that a global command occurred.
+
+---
+
 ### 🛣️ `Router` Methods (`Tueen\Telegram\Routing\Router`)
 
 <ApiGroup description="Methods on the Router instance (also proxied directly on the Telegram client facade).">
   <ApiCard
-    sig="onCommand(string $command, mixed $handler): static"
+    sig="onCommand(string $command, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
-    desc="Registers a route for a bot command name (e.g. 'start', '/help')."
+    desc="Registers a route for a bot command name (e.g. 'start', '/help'). Set priority: true to allow overriding active Flows."
   />
   <ApiCard
-    sig="onCallbackQuery(?string $pattern, mixed $handler): static"
+    sig="onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for callback queries matching an optional pattern or regex."
   />
   <ApiCard
-    sig="onMessage(?string $pattern, mixed $handler): static"
+    sig="onMessage(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for messages matching an optional pattern or regex."
   />
   <ApiCard
-    sig="onInlineQuery(?string $pattern, mixed $handler): static"
+    sig="onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for inline queries matching an optional pattern."
   />
   <ApiCard
-    sig="on(UpdateType|string $type, mixed $handler): static"
+    sig="on(UpdateType|string $type, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route targeting a specific UpdateType enum or string."
@@ -3870,14 +3987,35 @@ class DashboardFlow extends InteractiveFlow
 The base `Tueen\Telegram\Flow\Flow` class provides a linear state machine for multi-step textual dialogues, surveys, registration forms, and multi-prompt wizards.
 
 ```mermaid
-graph TD
-    Start(["$bot->startFlow(RegistrationFlow::class)"]) --> StepStart["start($update)"]
-    StepStart --> AskEmail["askEmail($update)"]
-    AskEmail -->|Validation Fails| Retry["$this->stay('Invalid email')"]
-    Retry --> AskEmail
-    AskEmail -->|Valid Email| Confirm["confirm($update)"]
-    Confirm -->|Complete| Finished(["$this->finish()"])
-    Confirm -->|User Types /cancel| Cancelled(["$this->cancel()"])
+flowchart TD
+    Trigger(["User triggers /register or $bot->startFlow()"]) --> StepStart
+
+    subgraph StepStart ["Step 1: start()"]
+        PromptName["🤖 Bot: 'Welcome! What is your full name?'"]
+    end
+
+    StepStart --> UserEntersName[/"👤 User sends Name"/] --> StepEmail
+
+    subgraph StepEmail ["Step 2: askEmail()"]
+        CheckName{"Name length >= 2?"}
+        CheckName -->|No| RepromptName["⚠️ $this->stay()<br/>'Name too short, please re-enter'"]
+        RepromptName -.-> UserEntersName
+        CheckName -->|Yes| PromptEmail["🤖 Bot: 'Great! What is your email address?'"]
+    end
+
+    StepEmail --> UserEntersEmail[/"👤 User sends Email"/] --> StepConfirm
+
+    subgraph StepConfirm ["Step 3: confirm()"]
+        CheckEmail{"Valid Email Regex?"}
+        CheckEmail -->|No| RepromptEmail["⚠️ $this->stay()<br/>'Invalid email format, try again'"]
+        RepromptEmail -.-> UserEntersEmail
+        CheckEmail -->|Yes| PromptConfirm["🤖 Bot: 'Confirm details? (yes/no)'"]
+        
+        Decision{"User Response"}
+        PromptConfirm --> Decision
+        Decision -->|User sends /cancel| CancelFlow["🚫 $this->cancel()<br/><i>Triggers onExit('cancelled')</i>"]
+        Decision -->|User sends 'yes'| FinishFlow["✅ $this->finish()<br/><i>Persists record & finishes</i>"]
+    end
 ```
 
 ---
@@ -4091,16 +4229,21 @@ Unlike other frameworks that repeatedly delete and resend messages—causing vis
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User
-    participant Bot as tueen/telegram
-    participant Telegram as Telegram Bot API
+    actor User as 👤 Telegram User
+    participant App as 📱 Telegram App
+    participant TG as ☁️ Telegram Cloud API
+    participant Bot as 👑 Tueen (InteractiveFlow)
 
-    User->>Bot: Click Option A
-    Bot->>Bot: InteractiveFlow::dispatchAction()
-    Bot->>Telegram: answerCallbackQuery(id)
-    Bot->>Telegram: editMessageText(chatId, messageId: 500, newText, newMarkup)
-    Note over Bot,Telegram: Zero-Flicker: Exact same message updated!
-    Telegram-->>User: Screen instantly refreshed
+    User->>App: Taps Inline Button [💳 Checkout]
+    App->>TG: Send Callback Query (data: "checkout", msg_id: 420)
+    TG->>Bot: Deliver Update via Webhook or Polling
+    
+    Note over Bot: ⚡ Zero-Flicker Transition<br/>Reuses active message ID: 420
+    Bot->>TG: answerCallbackQuery(callback_query_id)
+    Bot->>TG: editMessageText(chat_id, message_id: 420, newScreen)
+
+    TG-->>App: Push Updated Content & Keyboards
+    App-->>User: 🪄 Instant UI Refresh (No flicker, same message)
 ```
 
 ### Automatic Fallback Recovery
@@ -4369,21 +4512,27 @@ Please enter your shipping address:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> onCreate: Flow instance created
-    onCreate --> onStart: Start step executed
-    onStart --> beforeRender: Screen prepared
-    beforeRender --> afterRender: Message sent or edited
-    afterRender --> AwaitingUserAction: Waiting for update
-    
-    AwaitingUserAction --> onPause: Child flow pushed
-    onPause --> [*]
-    
-    AwaitingUserAction --> onResume: Returned from child flow
-    onResume --> beforeRender
-    
-    AwaitingUserAction --> onExit: Flow finished or cancelled
-    AwaitingUserAction --> onUnhandled: Unmatched update
-    onUnhandled --> beforeRender: Screen refreshed
+    direction TB
+
+    [*] --> Initializing
+    Initializing --> RenderingScreen: onCreate() ➔ onStart()
+
+    state RenderingScreen {
+        [*] --> PrepareScreen: beforeRender()
+        PrepareScreen --> CommitTelegram: editMessageText / sendMessage
+        CommitTelegram --> ScreenMounted: afterRender()
+    }
+
+    RenderingScreen --> AwaitingUserInput: Screen presented to user
+
+    AwaitingUserInput --> SuspendedInStack: push(ChildFlow) [triggers onPause]
+    SuspendedInStack --> RenderingScreen: pop(result) [triggers onResume]
+
+    AwaitingUserInput --> RenderingScreen: Valid User Action [to / stay]
+    AwaitingUserInput --> RenderingScreen: Unmatched Update [triggers onUnhandled]
+
+    AwaitingUserInput --> Terminated: finish() / cancel() [triggers onExit]
+    Terminated --> [*]
 ```
 
 ---
@@ -4638,16 +4787,24 @@ public function claimDailyBonus(): void
 `InteractiveFlow` features a hierarchical navigation stack that models menus and multi-layered screens just like modern UI frameworks.
 
 ```mermaid
-graph TD
-    MainMenu["MainMenuFlow (root)"]
-    Settings["SettingsFlow"]
-    Notifications["NotificationsFlow"]
+flowchart TD
+    subgraph StackRepresentation ["🥞 Navigation Stack Hierarchy ($state->flowStack)"]
+        direction TB
+        TopScreen["🔔 NotificationsFlow<br/><b>[Active Screen]</b><br/><i>Rendered on message_id: 420</i>"]
+        MidScreen["⚙️ SettingsFlow<br/><b>[Suspended Frame 1]</b><br/><i>Saved state & step memory</i>"]
+        RootScreen["🏠 MainMenuFlow<br/><b>[Root Frame 0]</b><br/><i>Application Entry Point</i>"]
+        
+        TopScreen -->|"$this->pop('result')"| MidScreen
+        MidScreen -->|"$this->pop()"| RootScreen
+        TopScreen -.->|"Click 🏠 Home (Stack Reset)"| RootScreen
+    end
 
-    MainMenu -->|"$this->push(SettingsFlow::class)"| Settings
-    Settings -->|"$this->push(NotificationsFlow::class)"| Notifications
-    Notifications -->|"$this->pop()"| Settings
-    Settings -->|"$this->pop()"| MainMenu
-    Notifications -->|"Click 🏠 Home"| MainMenu
+    subgraph Transitions ["Navigation Operations"]
+        direction LR
+        PushOp["<b>push(Child::class, data)</b><br/>• Suspends current flow<br/>• Pushes state to stack<br/>• Reuses same message_id"]
+        PopOp["<b>pop(result)</b><br/>• Drops top frame<br/>• Resumes parent flow<br/>• Calls onResume(result)"]
+        HomeOp["<b>home() / 🏠</b><br/>• Purges entire stack<br/>• Restores rootFlow<br/>• Clean state slate"]
+    end
 ```
 
 ---
@@ -4774,22 +4931,35 @@ In long-running or distributed systems, code deployments may remove, rename, or 
 `tueen/telegram` features an intelligent, multi-layered resilience algorithm to ensure your bot never crashes or leaves users stranded:
 
 ```mermaid
-graph TD
-    Update["Incoming User Update"] --> CheckClass{"Flow Class Exists?"}
-    CheckClass -->|Yes| CheckStep{"Step Method Exists?"}
-    CheckStep -->|Yes| Execute["Execute Flow Step"]
-    CheckStep -->|No| MissingStep["Trigger onMissingStep()"]
-    MissingStep --> BackHist{"Step History Available?"}
-    BackHist -->|Yes| NavigateBack["$this->back()"]
-    BackHist -->|No| CheckStart{"start() Exists?"}
-    CheckStart -->|Yes| GoStart["$this->start($update)"]
-    CheckStart -->|No| CheckRoot1{"rootFlow Available?"}
+flowchart TD
+    Update(["Incoming User Update"]) --> ValidateClass{"Flow Class Exists<br/>in Codebase?"}
 
-    CheckClass -->|No: Class Deleted| CheckStack{"Parent Stack in flowStack?"}
-    CheckStack -->|Yes| UnwindStack["Pop & Resume Nearest Valid Parent Flow"]
-    CheckStack -->|No| CheckRoot1
-    CheckRoot1 -->|Yes| RedirectRoot["Transition to rootFlow / defaultFlow"]
-    CheckRoot1 -->|No| CleanUp["Purge Orphaned State & Fallthrough to Bot Router"]
+    subgraph HappyPath ["Normal Execution"]
+        ValidateClass -->|Yes| ValidateStep{"Step Method<br/>Exists?"}
+        ValidateStep -->|Yes| ExecStep["▶️ Execute Flow Step"]
+    end
+
+    subgraph ClassRecovery ["Class Missing (Deleted / Renamed in Deploy)"]
+        ValidateClass -->|No| HasParent{"Parent Flow<br/>in Stack?"}
+        HasParent -->|Yes| UnwindParent["⏪ Pop & Resume Nearest Valid Parent"]
+        HasParent -->|No| HasRoot1{"rootFlow<br/>Configured?"}
+    end
+
+    subgraph StepRecovery ["Step Missing (Refactored Method)"]
+        ValidateStep -->|No| TriggerHook["🔔 Trigger onMissingStep()"]
+        TriggerHook --> HasHistory{"History Stack<br/>Available?"}
+        HasHistory -->|Yes| StepBack["🔙 Auto Fallback: $this->back()"]
+        HasHistory -->|No| HasStart{"start()<br/>Available?"}
+        HasStart -->|Yes| StepStart["🔄 Reset to: $this->start()"]
+        HasStart -->|No| HasRoot2{"rootFlow<br/>Configured?"}
+    end
+
+    subgraph TerminalFallback ["Root Fallback & Cleanup"]
+        HasRoot1 -->|Yes| JumpRoot["🏠 Reset to rootFlow"]
+        HasRoot2 -->|Yes| JumpRoot
+        HasRoot1 -->|No| PurgeState["🧹 Purge Orphaned State<br/>Pass to Bot Router"]
+        HasRoot2 -->|No| PurgeState
+    end
 ```
 
 ### 1. Unwinding Navigation Stack to Parent Flows
@@ -4845,12 +5015,26 @@ If no parent flows, root flows, or step recovery paths are available, `FlowManag
 Flow sessions and interactive screen states are persisted between updates using pluggable state storage drivers.
 
 ```mermaid
-graph LR
-    FlowManager --> StateStoreInterface
-    StateStoreInterface --> MemoryStateStore["MemoryStateStore (CLI / Long-polling)"]
-    StateStoreInterface --> FileStateStore["FileStateStore (Webhooks / Zero-Config)"]
-    StateStoreInterface --> RedisStateStore["RedisStateStore (Production Clusters)"]
-    StateStoreInterface --> Psr16StateStore["Psr16StateStore (Laravel / Symfony / PSR-16)"]
+flowchart TD
+    subgraph RequestCycle ["Stateful Execution in Stateless PHP"]
+        direction TB
+        Update["📥 Incoming Telegram Update<br/><i>(chat_id: 100, user_id: 200)</i>"] --> Resolve["🔑 Session Key Resolution<br/><code>100:200</code>"]
+        Resolve --> LoadState["📖 1. Load Session<br/><code>$store->get(key)</code>"]
+        LoadState --> Hydrate["🧠 Hydrate Flow Instance<br/><i>Restores current step, data & message_id</i>"]
+        Hydrate --> Exec["⚙️ 2. Execute Step Method<br/><i>User mutation / step transition</i>"]
+        Exec --> SaveState["💾 3. Persist Updated State<br/><code>$store->set(key, state, ttl)</code>"]
+    end
+
+    subgraph Drivers ["Pluggable Storage Drivers (StateStoreInterface)"]
+        direction TB
+        File["📁 FileStateStore<br/><b>Zero-config for Webhooks / FPM</b><br/><i>Atomic file locking (LOCK_EX)</i>"]
+        Redis["⚡ RedisStateStore<br/><b>Distributed & Clustered</b><br/><i>High-concurrency microservices</i>"]
+        Psr16["🔌 Psr16StateStore<br/><b>Framework Adapters</b><br/><i>Laravel Cache, Symfony, PSR-16</i>"]
+        Memory["🧠 MemoryStateStore<br/><b>CLI & Testing</b><br/><i>Ephemeral in-process memory</i>"]
+    end
+
+    LoadState <-.-> Drivers
+    SaveState -.-> Drivers
 ```
 
 ---
@@ -5185,6 +5369,37 @@ Below is the complete reference of methods and properties available on `Tueen\Te
 # Pipeline & Middlewares
 
 Every outbound API request in `tueen/telegram` passes through an extensible onion middleware pipeline before reaching the underlying HTTP transport. This allows you to transparently handle retries, rate limits, request logging, tracing, and metric collection.
+
+```mermaid
+flowchart LR
+    subgraph ClientExecution ["Client Invocation"]
+        Req["💻 Developer Calls<br/><code>$bot->sendMessage(...)</code>"]
+    end
+
+    subgraph PipelineLayers ["🧅 Extensible Middleware Onion Pipeline"]
+        direction LR
+        L1["📝 1. LoggingMiddleware<br/><i>Records start time, method & payload</i>"]
+        L2["⏱️ 2. RateLimitMiddleware<br/><i>Token bucket check (30 req/s, 1s/chat)</i>"]
+        L3["🔁 3. RetryMiddleware<br/><i>Catches 429 & network drops, auto-retries</i>"]
+        
+        L1 -->|Pass next| L2
+        L2 -->|Pass next| L3
+    end
+
+    subgraph TransportLayer ["🌐 HTTP Transport & Cloud"]
+        Transport["Client Transport<br/>(Guzzle / cURL / PSR-18)"]
+        TelegramCloud[("☁️ Telegram Bot API Server")]
+        
+        Transport -->|HTTPS POST| TelegramCloud
+    end
+
+    Req --> L1
+    L3 -->|Final dispatch| Transport
+    TelegramCloud -.->|Response / Status 200| L3
+    L3 -.->|Bubble response| L2
+    L2 -.->|Bubble response| L1
+    L1 -.->|Final Typed Result| Ret["📦 Typed Response: Message"]
+```
 
 ---
 

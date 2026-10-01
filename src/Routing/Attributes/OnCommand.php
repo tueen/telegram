@@ -11,6 +11,7 @@ final class OnCommand
 {
     public function __construct(
         public readonly string $command,
-        public readonly ?string $description = null
+        public readonly ?string $description = null,
+        public readonly bool $priority = false
     ) {}
 }

@@ -3,12 +3,26 @@
 Flow sessions and interactive screen states are persisted between updates using pluggable state storage drivers.
 
 ```mermaid
-graph LR
-    FlowManager --> StateStoreInterface
-    StateStoreInterface --> MemoryStateStore["MemoryStateStore (CLI / Long-polling)"]
-    StateStoreInterface --> FileStateStore["FileStateStore (Webhooks / Zero-Config)"]
-    StateStoreInterface --> RedisStateStore["RedisStateStore (Production Clusters)"]
-    StateStoreInterface --> Psr16StateStore["Psr16StateStore (Laravel / Symfony / PSR-16)"]
+flowchart TD
+    subgraph RequestCycle ["Stateful Execution in Stateless PHP"]
+        direction TB
+        Update["📥 Incoming Telegram Update<br/><i>(chat_id: 100, user_id: 200)</i>"] --> Resolve["🔑 Session Key Resolution<br/><code>100:200</code>"]
+        Resolve --> LoadState["📖 1. Load Session<br/><code>$store->get(key)</code>"]
+        LoadState --> Hydrate["🧠 Hydrate Flow Instance<br/><i>Restores current step, data & message_id</i>"]
+        Hydrate --> Exec["⚙️ 2. Execute Step Method<br/><i>User mutation / step transition</i>"]
+        Exec --> SaveState["💾 3. Persist Updated State<br/><code>$store->set(key, state, ttl)</code>"]
+    end
+
+    subgraph Drivers ["Pluggable Storage Drivers (StateStoreInterface)"]
+        direction TB
+        File["📁 FileStateStore<br/><b>Zero-config for Webhooks / FPM</b><br/><i>Atomic file locking (LOCK_EX)</i>"]
+        Redis["⚡ RedisStateStore<br/><b>Distributed & Clustered</b><br/><i>High-concurrency microservices</i>"]
+        Psr16["🔌 Psr16StateStore<br/><b>Framework Adapters</b><br/><i>Laravel Cache, Symfony, PSR-16</i>"]
+        Memory["🧠 MemoryStateStore<br/><b>CLI & Testing</b><br/><i>Ephemeral in-process memory</i>"]
+    end
+
+    LoadState <-.-> Drivers
+    SaveState -.-> Drivers
 ```
 
 ---

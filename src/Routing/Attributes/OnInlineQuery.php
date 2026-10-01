@@ -10,6 +10,7 @@ use Attribute;
 final class OnInlineQuery
 {
     public function __construct(
-        public readonly ?string $pattern = null
+        public readonly ?string $pattern = null,
+        public readonly bool $priority = false
     ) {}
 }

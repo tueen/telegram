@@ -20,10 +20,21 @@ class Route
         UpdateType|string $type,
         public readonly ?string $pattern,
         public readonly mixed $handler,
-        bool $isCommand = false
+        bool $isCommand = false,
+        public readonly bool $isPriority = false
     ) {
         $this->typeString = $type instanceof UpdateType ? $type->value : $type;
         $this->isCommand = $isCommand;
+    }
+
+    public function isCommand(): bool
+    {
+        return $this->isCommand;
+    }
+
+    public function isPriority(): bool
+    {
+        return $this->isPriority;
     }
 
     /**

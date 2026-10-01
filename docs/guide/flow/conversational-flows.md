@@ -3,14 +3,35 @@
 The base `Tueen\Telegram\Flow\Flow` class provides a linear state machine for multi-step textual dialogues, surveys, registration forms, and multi-prompt wizards.
 
 ```mermaid
-graph TD
-    Start(["$bot->startFlow(RegistrationFlow::class)"]) --> StepStart["start($update)"]
-    StepStart --> AskEmail["askEmail($update)"]
-    AskEmail -->|Validation Fails| Retry["$this->stay('Invalid email')"]
-    Retry --> AskEmail
-    AskEmail -->|Valid Email| Confirm["confirm($update)"]
-    Confirm -->|Complete| Finished(["$this->finish()"])
-    Confirm -->|User Types /cancel| Cancelled(["$this->cancel()"])
+flowchart TD
+    Trigger(["User triggers /register or $bot->startFlow()"]) --> StepStart
+
+    subgraph StepStart ["Step 1: start()"]
+        PromptName["🤖 Bot: 'Welcome! What is your full name?'"]
+    end
+
+    StepStart --> UserEntersName[/"👤 User sends Name"/] --> StepEmail
+
+    subgraph StepEmail ["Step 2: askEmail()"]
+        CheckName{"Name length >= 2?"}
+        CheckName -->|No| RepromptName["⚠️ $this->stay()<br/>'Name too short, please re-enter'"]
+        RepromptName -.-> UserEntersName
+        CheckName -->|Yes| PromptEmail["🤖 Bot: 'Great! What is your email address?'"]
+    end
+
+    StepEmail --> UserEntersEmail[/"👤 User sends Email"/] --> StepConfirm
+
+    subgraph StepConfirm ["Step 3: confirm()"]
+        CheckEmail{"Valid Email Regex?"}
+        CheckEmail -->|No| RepromptEmail["⚠️ $this->stay()<br/>'Invalid email format, try again'"]
+        RepromptEmail -.-> UserEntersEmail
+        CheckEmail -->|Yes| PromptConfirm["🤖 Bot: 'Confirm details? (yes/no)'"]
+        
+        Decision{"User Response"}
+        PromptConfirm --> Decision
+        Decision -->|User sends /cancel| CancelFlow["🚫 $this->cancel()<br/><i>Triggers onExit('cancelled')</i>"]
+        Decision -->|User sends 'yes'| FinishFlow["✅ $this->finish()<br/><i>Persists record & finishes</i>"]
+    end
 ```
 
 ---

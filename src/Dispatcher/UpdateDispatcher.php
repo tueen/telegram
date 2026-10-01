@@ -120,14 +120,40 @@ class UpdateDispatcher
             $allHandlers[] = $router;
         }
 
-        $coreDispatcher = function (Update $up, Telegram $b, Context $ctx) use ($allHandlers, $flowManager): mixed {
+        $coreDispatcher = function (Update $up, Telegram $b, Context $ctx) use ($allHandlers, $router, $flowManager): mixed {
             $b->setUpdate($up);
 
-            // 1. Prioritize active conversation Flow if running
+            // 1. High-priority routes evaluation (runs BEFORE active conversation flow)
+            if ($router !== null && $router->hasRoutes()) {
+                $parameters = [];
+                $priorityRoute = $router->findMatchingRoute($up, $b, priorityOnly: true, parameters: $parameters);
+
+                if ($priorityRoute !== null) {
+                    $shouldExecute = true;
+
+                    // If user is inside an active flow, allow the flow to inspect, customize, or veto
+                    if ($flowManager !== null) {
+                        $activeFlow = $flowManager->getActiveFlow($up, $b);
+                        if ($activeFlow !== null) {
+                            $shouldExecute = $activeFlow->allowsPriorityRoute($priorityRoute, $up);
+                            if ($shouldExecute) {
+                                $activeFlow->onPriorityRoute($priorityRoute, $up);
+                            }
+                        }
+                    }
+
+                    if ($shouldExecute) {
+                        return $router->dispatchRoute($priorityRoute, $up, $b, $parameters);
+                    }
+                }
+            }
+
+            // 2. Active conversation Flow takes precedence over standard routes
             if ($flowManager !== null && $flowManager->handle($up, $b)) {
                 return true;
             }
 
+            // 3. Fallthrough to regular handlers & routes
             $result = null;
 
             foreach ($allHandlers as $handler) {
@@ -168,6 +194,10 @@ class UpdateDispatcher
     public function invokeHandler(mixed $handler, Update $update, Telegram $bot, ?Context $context = null): mixed
     {
         $context ??= new Context($update, $bot->client, $bot);
+
+        if ($handler instanceof Router) {
+            return $handler->dispatch($update, $bot, checkFlow: false);
+        }
 
         if (is_string($handler) && class_exists($handler)) {
             $instance = $this->resolveHandlerInstance($handler, $bot);

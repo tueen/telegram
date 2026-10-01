@@ -4,21 +4,27 @@
 
 ```mermaid
 stateDiagram-v2
-    [*] --> onCreate: Flow instance created
-    onCreate --> onStart: Start step executed
-    onStart --> beforeRender: Screen prepared
-    beforeRender --> afterRender: Message sent or edited
-    afterRender --> AwaitingUserAction: Waiting for update
-    
-    AwaitingUserAction --> onPause: Child flow pushed
-    onPause --> [*]
-    
-    AwaitingUserAction --> onResume: Returned from child flow
-    onResume --> beforeRender
-    
-    AwaitingUserAction --> onExit: Flow finished or cancelled
-    AwaitingUserAction --> onUnhandled: Unmatched update
-    onUnhandled --> beforeRender: Screen refreshed
+    direction TB
+
+    [*] --> Initializing
+    Initializing --> RenderingScreen: onCreate() ➔ onStart()
+
+    state RenderingScreen {
+        [*] --> PrepareScreen: beforeRender()
+        PrepareScreen --> CommitTelegram: editMessageText / sendMessage
+        CommitTelegram --> ScreenMounted: afterRender()
+    }
+
+    RenderingScreen --> AwaitingUserInput: Screen presented to user
+
+    AwaitingUserInput --> SuspendedInStack: push(ChildFlow) [triggers onPause]
+    SuspendedInStack --> RenderingScreen: pop(result) [triggers onResume]
+
+    AwaitingUserInput --> RenderingScreen: Valid User Action [to / stay]
+    AwaitingUserInput --> RenderingScreen: Unmatched Update [triggers onUnhandled]
+
+    AwaitingUserInput --> Terminated: finish() / cancel() [triggers onExit]
+    Terminated --> [*]
 ```
 
 ---

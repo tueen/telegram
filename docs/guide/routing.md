@@ -4,6 +4,40 @@ Instead of writing monolithic `switch` or `if/else` ladders inside your update h
 
 The router supports both **Fluent Route Definitions** and **Attribute-Driven Controllers** (via PHP 8 Attributes).
 
+```mermaid
+flowchart TD
+    Update["📥 Incoming Telegram Update"] --> Router["🧭 Tueen Update Router"]
+
+    subgraph MatchPipeline ["Matching Pipeline (Sequential Evaluation)"]
+        direction TB
+        M1{"1. Is Bot Command?<br/><i>/start, /help, etc.</i>"}
+        M2{"2. Is Callback Query?<br/><i>inline button data</i>"}
+        M3{"3. Is Regex / Text Match?<br/><i>custom patterns</i>"}
+        M4{"4. Matches Specific Type?<br/><i>photos, documents, chat joins</i>"}
+        
+        M1 -->|No| M2
+        M2 -->|No| M3
+        M3 -->|No| M4
+    end
+
+    Router --> M1
+
+    subgraph Handlers ["Target Dispatch"]
+        direction TB
+        H1["⚡ Command Route / #[OnCommand]"]
+        H2["🔘 Callback Route / #[OnCallbackQuery]<br/><i>(Extracts parameters like {id})</i>"]
+        H3["💬 Message Route / #[OnMessage]"]
+        H4["📎 Type Route / #[OnUpdate]"]
+        Fallback["🛡️ Fallback Handler / Next Middleware"]
+    end
+
+    M1 -->|Yes| H1
+    M2 -->|Yes| H2
+    M3 -->|Yes| H3
+    M4 -->|Yes| H4
+    M4 -->|No Match| Fallback
+```
+
 ---
 
 ## ⚡ 1. Fluent Routing
@@ -208,35 +242,69 @@ Below is the complete reference of routing attributes and router configuration m
 
 ---
 
+## 🚨 4. Priority Routes (Overriding Active Flows)
+
+By default, an active conversational `Flow` session takes precedence over standard routes in `Router` to keep the user immersed in multi-step dialogues.
+
+However, certain commands (such as `/help`, `/support`, `/cancel`, `/emergency`, or admin overrides) need to execute **even when a user is in the middle of a Flow**.
+
+### Registering Priority Routes
+Pass `priority: true` to fluent route methods or routing attributes:
+
+```php
+// 1. Fluent Priority Route:
+$bot->onCommand('help', function (Update $update, Telegram $bot) {
+    $bot->sendMessage(chatId: $bot->chatId, text: 'Need assistance? Contact @support.');
+}, priority: true);
+
+// 2. Attribute-Driven Priority Route:
+class SupportController
+{
+    #[OnCommand('emergency', priority: true)]
+    public function emergency(Update $update, Telegram $bot): void
+    {
+        $bot->sendMessage(chatId: $bot->chatId, text: 'Emergency operator notified!');
+    }
+}
+```
+
+### Flow Customization & Interception
+When a priority route matches, Tueen offers the active Flow complete control through two lifecycle hooks:
+
+1. **`allowsPriorityRoute(Route $route, Update $update): bool`** — Return `false` to intercept and veto the priority route, keeping execution entirely inside the Flow.
+2. **`onPriorityRoute(Route $route, Update $update): void`** — Executed when the priority route is permitted to run, allowing the Flow to pause itself, clean up UI screens, or record that a global command occurred.
+
+---
+
 ### 🛣️ `Router` Methods (`Tueen\Telegram\Routing\Router`)
 
 <ApiGroup description="Methods on the Router instance (also proxied directly on the Telegram client facade).">
   <ApiCard
-    sig="onCommand(string $command, mixed $handler): static"
+    sig="onCommand(string $command, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
-    desc="Registers a route for a bot command name (e.g. 'start', '/help')."
+    desc="Registers a route for a bot command name (e.g. 'start', '/help'). Set priority: true to allow overriding active Flows."
   />
   <ApiCard
-    sig="onCallbackQuery(?string $pattern, mixed $handler): static"
+    sig="onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for callback queries matching an optional pattern or regex."
   />
   <ApiCard
-    sig="onMessage(?string $pattern, mixed $handler): static"
+    sig="onMessage(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for messages matching an optional pattern or regex."
   />
   <ApiCard
-    sig="onInlineQuery(?string $pattern, mixed $handler): static"
+    sig="onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route for inline queries matching an optional pattern."
   />
   <ApiCard
-    sig="on(UpdateType|string $type, mixed $handler): static"
+    sig="on(UpdateType|string $type, mixed $handler, bool $priority = false): static"
     returns="static"
     badge="Registration"
     desc="Registers a route targeting a specific UpdateType enum or string."

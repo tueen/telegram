@@ -10,6 +10,7 @@ use Attribute;
 final class OnCallbackQuery
 {
     public function __construct(
-        public readonly string $pattern
+        public readonly string $pattern,
+        public readonly bool $priority = false
     ) {}
 }

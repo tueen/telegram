@@ -93,6 +93,37 @@ class FlowManager
     }
 
     /**
+     * Resolves the active Flow instance for the given update, or null if no flow is currently active.
+     */
+    public function getActiveFlow(Update $update, Telegram $bot): ?Flow
+    {
+        $chat = $update->findChat();
+        if ($chat === null) {
+            return null;
+        }
+
+        $user = $update->findUser();
+        $chatId = $chat->id;
+        $userId = $user?->id;
+        $sessionKey = self::resolveSessionKey($chatId, $userId);
+
+        $state = $this->store->get($sessionKey);
+        if ($state === null || $state->isExpired()) {
+            return null;
+        }
+
+        $flowClass = $state->flowClass;
+        if (!class_exists($flowClass) || !is_subclass_of($flowClass, Flow::class)) {
+            return null;
+        }
+
+        $flow = $this->createFlowInstance($flowClass, $bot);
+        $flow->init($bot, $update, $chatId, $userId, $state, $this);
+
+        return $flow;
+    }
+
+    /**
      * Initiates a new Flow for the user associated with the update.
      *
      * @param class-string<Flow> $flowClass
@@ -210,7 +241,13 @@ class FlowManager
         }
 
         if ($flow instanceof InteractiveFlow) {
-            $flow->handleUpdate($update);
+            $handled = $flow->handleUpdate($update);
+            if ($flow->isPassedThrough || !$handled) {
+                if (!$flow->isTerminated) {
+                    $this->saveState($sessionKey, $flow->state, $flow->ttl);
+                }
+                return false;
+            }
             if (!$flow->isTerminated) {
                 $this->saveState($sessionKey, $flow->state, $flow->ttl);
             }
@@ -220,13 +257,26 @@ class FlowManager
         $step = $state->currentStep;
         if (!method_exists($flow, $step)) {
             $flow->onMissingStep($step, $update);
+            if ($flow->isPassedThrough) {
+                if (!$flow->isTerminated) {
+                    $this->saveState($sessionKey, $flow->state, $flow->ttl);
+                }
+                return false;
+            }
             if (!$flow->isTerminated) {
                 $this->saveState($sessionKey, $flow->state, $flow->ttl);
             }
             return true;
         }
 
-        $flow->$step($update);
+        $result = $flow->$step($update);
+        if ($result === false || $flow->isPassedThrough) {
+            if (!$flow->isTerminated) {
+                $this->saveState($sessionKey, $flow->state, $flow->ttl);
+            }
+            return false;
+        }
+
         if (!$flow->isTerminated) {
             $this->saveState($sessionKey, $flow->state, $flow->ttl);
         }
@@ -306,7 +356,7 @@ class FlowManager
 
     public function createFlowInstance(string $flowClass, Telegram $bot): Flow
     {
-        $container = $bot->getContainer();
+        $container = $bot->container;
 
         if ($container !== null) {
             if (is_object($container) && method_exists($container, 'get') && method_exists($container, 'has')) {
