@@ -132,14 +132,6 @@ trait HasUpdateHelpers
     }
 
     /**
-     * Returns the update type.
-     */
-    public function getType(): UpdateType
-    {
-        return $this->type;
-    }
-
-    /**
      * Checks if this update matches any of the given update types.
      */
     public function isType(UpdateType|string ...$types): bool
@@ -374,30 +366,6 @@ trait HasUpdateHelpers
     }
 
     /**
-     * @deprecated Use findUserId() instead.
-     */
-    public function getUserId(): ?int
-    {
-        return $this->findUserId();
-    }
-
-    /**
-     * @deprecated Use findChatId() instead.
-     */
-    public function getChatId(): ?int
-    {
-        return $this->findChatId();
-    }
-
-    /**
-     * @deprecated Use findMessageId() instead.
-     */
-    public function getMessageId(): ?int
-    {
-        return $this->findMessageId();
-    }
-
-    /**
      * Finds the primary file_id from the contained message, if available.
      */
     public function findFileId(): ?string
@@ -414,37 +382,5 @@ trait HasUpdateHelpers
             ?? $this->callbackQuery?->data
             ?? $this->inlineQuery?->query
             ?? null;
-    }
-
-    /**
-     * Alias for findFileId().
-     */
-    public function getFileId(): ?string
-    {
-        return $this->findFileId();
-    }
-
-    /**
-     * @deprecated Use findMessage() instead.
-     */
-    public function getMessage(): ?Message
-    {
-        return $this->findMessage();
-    }
-
-    /**
-     * @deprecated Use findUser() instead.
-     */
-    public function getUser(): ?User
-    {
-        return $this->findUser();
-    }
-
-    /**
-     * @deprecated Use findChat() instead.
-     */
-    public function getChat(): ?Chat
-    {
-        return $this->findChat();
     }
 }

@@ -19,7 +19,14 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     /**
      * Raw array data provided from Telegram API.
      */
-    protected array $raw = [];
+    protected(set) array $raw = [];
+
+    /**
+     * Raw data as originally received.
+     */
+    public array $rawData {
+        get => $this->raw;
+    }
 
     /**
      * Additional dynamic fields not defined on the concrete class.
@@ -374,21 +381,25 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     }
 
     // ArrayAccess implementation (supports snake_case and camelCase indexing)
+    #[\Override]
     public function offsetExists(mixed $offset): bool
     {
         return $this->__isset((string)$offset);
     }
 
+    #[\Override]
     public function offsetGet(mixed $offset): mixed
     {
         return $this->__get((string)$offset);
     }
 
+    #[\Override]
     public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->__set((string)$offset, $value);
     }
 
+    #[\Override]
     public function offsetUnset(mixed $offset): void
     {
         $this->__unset((string)$offset);
@@ -414,17 +425,20 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
     }
 
     // IteratorAggregate
+    #[\Override]
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->toArray());
     }
 
     // JsonSerializable
+    #[\Override]
     public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return (string)json_encode($this->toArray(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -482,14 +496,6 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
             return $out;
         }
         return $value;
-    }
-
-    /**
-     * Get raw data as originally received.
-     */
-    public function getRawData(): array
-    {
-        return $this->raw;
     }
 
     public static function toSnakeCase(string $input): string

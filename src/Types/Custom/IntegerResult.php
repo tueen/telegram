@@ -13,6 +13,20 @@ class IntegerResult extends Type
 {
     private(set) int $value;
 
+    /**
+     * Whether the integer value is strictly positive (> 0).
+     */
+    public bool $isPositive {
+        get => $this->value > 0;
+    }
+
+    /**
+     * Whether the integer value is zero (== 0).
+     */
+    public bool $isZero {
+        get => $this->value === 0;
+    }
+
     public function __construct(int|array $data = 0)
     {
         if (is_int($data)) {
@@ -24,36 +38,24 @@ class IntegerResult extends Type
         }
     }
 
-    public function getValue(): int
-    {
-        return $this->value;
-    }
-
     public function toInt(): int
     {
         return $this->value;
     }
 
-    public function isPositive(): bool
-    {
-        return $this->value > 0;
-    }
-
-    public function isZero(): bool
-    {
-        return $this->value === 0;
-    }
-
+    #[\Override]
     public function toArray(): array
     {
         return ['value' => $this->value];
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return (string)$this->value;
     }
 
+    #[\Override]
     public function jsonSerialize(): int
     {
         return $this->value;

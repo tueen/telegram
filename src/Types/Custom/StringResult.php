@@ -13,6 +13,27 @@ class StringResult extends Type
 {
     private(set) string $value;
 
+    /**
+     * Character length of the string.
+     */
+    public int $length {
+        get => mb_strlen($this->value);
+    }
+
+    /**
+     * Whether the string is empty.
+     */
+    public bool $isEmpty {
+        get => $this->value === '';
+    }
+
+    /**
+     * Whether the string is not empty.
+     */
+    public bool $isNotEmpty {
+        get => $this->value !== '';
+    }
+
     public function __construct(string|array $data = '')
     {
         if (is_string($data)) {
@@ -24,29 +45,9 @@ class StringResult extends Type
         }
     }
 
-    public function getValue(): string
-    {
-        return $this->value;
-    }
-
     public function toString(): string
     {
         return $this->value;
-    }
-
-    public function length(): int
-    {
-        return mb_strlen($this->value);
-    }
-
-    public function isEmpty(): bool
-    {
-        return $this->value === '';
-    }
-
-    public function isNotEmpty(): bool
-    {
-        return $this->value !== '';
     }
 
     public function contains(string $needle): bool
@@ -64,16 +65,19 @@ class StringResult extends Type
         return str_ends_with($this->value, $suffix);
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return ['value' => $this->value];
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->value;
     }
 
+    #[\Override]
     public function jsonSerialize(): string
     {
         return $this->value;

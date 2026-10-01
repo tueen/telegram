@@ -29,9 +29,10 @@ class CurlHttpClient implements HttpClientInterface
         }
     }
 
+    #[\Override]
     public function send(Config $config, Request $request): Response
     {
-        $url = $config->getBaseApiUrl() . '/' . $request->endpoint;
+        $url = $config->baseApiUrl . '/' . $request->endpoint;
         $ch = curl_init($url);
 
         if ($ch === false) {
@@ -80,14 +81,14 @@ class CurlHttpClient implements HttpClientInterface
 
         if ($request->httpMethod === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
-            if ($request->isMultipart()) {
+            if ($request->isMultipart) {
                 $postData = [];
                 foreach ($request->parameters as $name => $contents) {
                     $postData[(string)$name] = is_scalar($contents) ? (string)$contents : json_encode($contents);
                 }
                 foreach ($request->files as $name => $file) {
                     if ($file instanceof InputFile) {
-                        $rawContents = $file->getContents();
+                        $rawContents = $file->contents;
                         if (is_resource($rawContents)) {
                             $stringData = stream_get_contents($rawContents);
                         } elseif ($rawContents instanceof StreamInterface) {
@@ -97,8 +98,8 @@ class CurlHttpClient implements HttpClientInterface
                         }
                         $postData[(string)$name] = new \CURLStringFile(
                             $stringData,
-                            $file->getFilename(),
-                            $file->getContentType() ?? 'application/octet-stream'
+                            $file->filename,
+                            $file->contentType ?? 'application/octet-stream'
                         );
                     }
                 }
@@ -143,10 +144,11 @@ class CurlHttpClient implements HttpClientInterface
         );
     }
 
+    #[\Override]
     public function download(Config $config, string $fileUrl, mixed $destination, ?callable $progress = null): bool
     {
         if (!str_starts_with($fileUrl, 'http://') && !str_starts_with($fileUrl, 'https://')) {
-            $url = $config->getBaseFileUrl() . '/' . ltrim($fileUrl, '/');
+            $url = $config->baseFileUrl . '/' . ltrim($fileUrl, '/');
         } else {
             $url = $fileUrl;
         }

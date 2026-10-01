@@ -20,9 +20,8 @@ class CustomResultTypesTest extends TestCase
     {
         $trueRes = new BooleanResult(true);
         $this->assertTrue($trueRes->value);
-        $this->assertTrue($trueRes->isTrue());
-        $this->assertFalse($trueRes->isFalse());
-        $this->assertTrue($trueRes->getValue());
+        $this->assertTrue($trueRes->isTrue);
+        $this->assertFalse($trueRes->isFalse);
         $this->assertTrue($trueRes->toBool());
         $this->assertSame('true', (string)$trueRes);
         $this->assertSame(['value' => true], $trueRes->toArray());
@@ -31,8 +30,8 @@ class CustomResultTypesTest extends TestCase
 
         $falseRes = new BooleanResult(false);
         $this->assertFalse($falseRes->value);
-        $this->assertFalse($falseRes->isTrue());
-        $this->assertTrue($falseRes->isFalse());
+        $this->assertFalse($falseRes->isTrue);
+        $this->assertTrue($falseRes->isFalse);
         $this->assertFalse($falseRes->toBool());
         $this->assertSame('false', (string)$falseRes);
     }
@@ -41,30 +40,28 @@ class CustomResultTypesTest extends TestCase
     {
         $intRes = new IntegerResult(42);
         $this->assertSame(42, $intRes->value);
-        $this->assertSame(42, $intRes->getValue());
         $this->assertSame(42, $intRes->toInt());
-        $this->assertTrue($intRes->isPositive());
-        $this->assertFalse($intRes->isZero());
+        $this->assertTrue($intRes->isPositive);
+        $this->assertFalse($intRes->isZero);
         $this->assertSame('42', (string)$intRes);
         $this->assertSame(42, $intRes->jsonSerialize());
         $this->assertSame(['value' => 42], $intRes->toArray());
         $this->assertSame(42, $intRes['value']);
 
         $zeroRes = new IntegerResult(0);
-        $this->assertTrue($zeroRes->isZero());
-        $this->assertFalse($zeroRes->isPositive());
+        $this->assertTrue($zeroRes->isZero);
+        $this->assertFalse($zeroRes->isPositive);
     }
 
     public function testStringResult(): void
     {
         $strRes = new StringResult('https://t.me/+AbCdEf');
         $this->assertSame('https://t.me/+AbCdEf', $strRes->value);
-        $this->assertSame('https://t.me/+AbCdEf', $strRes->getValue());
         $this->assertSame('https://t.me/+AbCdEf', $strRes->toString());
         $this->assertSame('https://t.me/+AbCdEf', (string)$strRes);
-        $this->assertSame(20, $strRes->length());
-        $this->assertFalse($strRes->isEmpty());
-        $this->assertTrue($strRes->isNotEmpty());
+        $this->assertSame(20, $strRes->length);
+        $this->assertFalse($strRes->isEmpty);
+        $this->assertTrue($strRes->isNotEmpty);
         $this->assertTrue($strRes->contains('+AbCdEf'));
         $this->assertTrue($strRes->startsWith('https://'));
         $this->assertTrue($strRes->endsWith('AbCdEf'));
@@ -84,10 +81,11 @@ class CustomResultTypesTest extends TestCase
         $arrResult = new ArrayResult($items);
 
         $this->assertCount(3, $arrResult);
-        $this->assertFalse($arrResult->isEmpty());
-        $this->assertTrue($arrResult->isNotEmpty());
-        $this->assertSame(101, $arrResult->first()->updateId);
-        $this->assertSame(103, $arrResult->last()->updateId);
+        $this->assertSame(3, $arrResult->count);
+        $this->assertFalse($arrResult->isEmpty);
+        $this->assertTrue($arrResult->isNotEmpty);
+        $this->assertSame(101, $arrResult->first->updateId);
+        $this->assertSame(103, $arrResult->last->updateId);
         $this->assertSame(102, $arrResult->get(1)->updateId);
         $this->assertSame(101, $arrResult[0]->updateId);
 
@@ -104,12 +102,13 @@ class CustomResultTypesTest extends TestCase
         // Map
         $mapped = $arrResult->map(fn(Update $u) => $u->updateId * 2);
         $this->assertInstanceOf(ArrayResult::class, $mapped);
-        $this->assertSame([202, 204, 206], $mapped->all());
+        $this->assertSame([202, 204, 206], $mapped->items);
 
         // Filter
         $filtered = $arrResult->filter(fn(Update $u) => $u->updateId > 101);
         $this->assertCount(2, $filtered);
-        $this->assertSame(102, $filtered->first()->updateId);
+        $this->assertSame(2, $filtered->count);
+        $this->assertSame(102, $filtered->first->updateId);
     }
 
     public function testTelegramMethodsReturnCustomResultObjects(): void
@@ -133,7 +132,7 @@ class CustomResultTypesTest extends TestCase
         // 1. Boolean return
         $delResult = $bot->deleteWebhook();
         $this->assertInstanceOf(BooleanResult::class, $delResult);
-        $this->assertTrue($delResult->isTrue());
+        $this->assertTrue($delResult->isTrue);
 
         // 2. Integer return
         $countResult = $bot->getChatMemberCount(chatId: 12345);

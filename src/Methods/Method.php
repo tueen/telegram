@@ -19,9 +19,9 @@ use Tueen\Telegram\Types\Type;
 abstract class Method implements JsonSerializable
 {
     /**
-     * Parameters stored for this method call.
+     * Custom parameters stored for this method call.
      */
-    protected array $parameters = [];
+    protected array $customParameters = [];
 
     /**
      * Files attached for multipart upload.
@@ -40,6 +40,72 @@ abstract class Method implements JsonSerializable
      * @var array<class-string, array<string, mixed>>
      */
     private static array $methodMetaCache = [];
+
+    public string $endpoint {
+        get {
+            $class = static::class;
+            $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+            return $meta['endpoint'];
+        }
+    }
+
+    public string $httpMethod {
+        get {
+            $class = static::class;
+            $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+            return $meta['httpMethod'];
+        }
+    }
+
+    public ?ReturnType $returnTypeInfo {
+        get {
+            $class = static::class;
+            $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+            return $meta['returnType'];
+        }
+    }
+
+    /**
+     * Returns expected TelegramErrorCode items declared via #[ApiErrors].
+     *
+     * @return list<TelegramErrorCode>
+     */
+    public array $expectedErrors {
+        get {
+            $class = static::class;
+            $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+            return $meta['apiErrors'] ?? [];
+        }
+    }
+
+    public bool $requiresMultipart {
+        get {
+            $class = static::class;
+            $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
+            if ($meta['requiresUpload']) {
+                return true;
+            }
+
+            return !empty($this->multipartFiles);
+        }
+    }
+
+    public array $parameters {
+        get {
+            [$params] = $this->buildRequestData();
+            return $params;
+        }
+    }
+
+    /**
+     * @return array<string, InputFile>
+     */
+    public array $multipartFiles {
+        get {
+            [, $files] = $this->buildRequestData();
+            return $files;
+        }
+    }
 
     private static function resolveMethodMeta(string $class): array
     {
@@ -73,8 +139,12 @@ abstract class Method implements JsonSerializable
 
         $cached = [];
         foreach ($properties as $prop) {
+            if ($prop->isVirtual()) {
+                continue;
+            }
+
             $name = $prop->getName();
-            if ($name === 'parameters' || $name === 'files') {
+            if ($name === 'parameters' || $name === 'files' || $name === 'customParameters') {
                 continue;
             }
 
@@ -91,50 +161,6 @@ abstract class Method implements JsonSerializable
         }
 
         return $cached;
-    }
-
-    public function getEndpoint(): string
-    {
-        $class = static::class;
-        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
-        return $meta['endpoint'];
-    }
-
-    public function getHttpMethod(): string
-    {
-        $class = static::class;
-        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
-        return $meta['httpMethod'];
-    }
-
-    public function getReturnTypeInfo(): ?ReturnType
-    {
-        $class = static::class;
-        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
-        return $meta['returnType'];
-    }
-
-    /**
-     * Returns expected TelegramErrorCode items declared via #[ApiErrors].
-     *
-     * @return list<TelegramErrorCode>
-     */
-    public function getExpectedErrors(): array
-    {
-        $class = static::class;
-        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
-        return $meta['apiErrors'] ?? [];
-    }
-
-    public function requiresMultipart(): bool
-    {
-        $class = static::class;
-        $meta = self::$methodMetaCache[$class] ??= self::resolveMethodMeta($class);
-        if ($meta['requiresUpload']) {
-            return true;
-        }
-
-        return !empty($this->getMultipartFiles());
     }
 
     /**
@@ -204,7 +230,7 @@ abstract class Method implements JsonSerializable
         }
 
         // Merge manual parameters & files
-        foreach ($this->parameters as $k => $v) {
+        foreach ($this->customParameters as $k => $v) {
             if ($v instanceof InputFile) {
                 $files[$k] = $v;
             } elseif ($v !== null) {
@@ -224,21 +250,6 @@ abstract class Method implements JsonSerializable
         return [$params, $files];
     }
 
-    public function getParameters(): array
-    {
-        [$params] = $this->buildRequestData();
-        return $params;
-    }
-
-    /**
-     * @return array<string, InputFile>
-     */
-    public function getMultipartFiles(): array
-    {
-        [, $files] = $this->buildRequestData();
-        return $files;
-    }
-
     /**
      * Helper to attach an InputFile.
      */
@@ -253,7 +264,7 @@ abstract class Method implements JsonSerializable
      */
     public function setParameter(string $name, mixed $value): static
     {
-        $this->parameters[$name] = $value;
+        $this->customParameters[$name] = $value;
         return $this;
     }
 
@@ -317,8 +328,9 @@ abstract class Method implements JsonSerializable
         return $out;
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
-        return $this->getParameters();
+        return $this->parameters;
     }
 }

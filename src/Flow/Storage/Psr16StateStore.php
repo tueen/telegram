@@ -22,6 +22,7 @@ class Psr16StateStore implements StateStoreInterface
         private readonly string $prefix = 'tueen:flow:'
     ) {}
 
+    #[\Override]
     public function get(string $key): ?FlowState
     {
         $prefixedKey = $this->prefix . $key;
@@ -45,7 +46,7 @@ class Psr16StateStore implements StateStoreInterface
             return null;
         }
 
-        if ($state->isExpired()) {
+        if ($state->isExpired) {
             $this->delete($key);
             return null;
         }
@@ -53,6 +54,7 @@ class Psr16StateStore implements StateStoreInterface
         return $state;
     }
 
+    #[\Override]
     public function set(string $key, FlowState $state, ?int $ttl = null): void
     {
         $prefixedKey = $this->prefix . $key;
@@ -65,12 +67,14 @@ class Psr16StateStore implements StateStoreInterface
         $this->cache->set($prefixedKey, $state->toArray(), $ttl);
     }
 
+    #[\Override]
     public function delete(string $key): void
     {
         $prefixedKey = $this->prefix . $key;
         $this->cache->delete($prefixedKey);
     }
 
+    #[\Override]
     public function clear(): void
     {
         if (method_exists($this->cache, 'clear')) {

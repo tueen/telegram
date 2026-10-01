@@ -80,7 +80,7 @@ class WebDashboard
             $drop = !empty($_REQUEST['drop_pending']);
 
             try {
-                $res = $this->app->bot()->setWebhook(
+                $res = $this->app->bot->setWebhook(
                     url: $url,
                     secretToken: $secret,
                     dropPendingUpdates: $drop
@@ -97,7 +97,7 @@ class WebDashboard
         } elseif ($action === 'delete_webhook') {
             $drop = !empty($_REQUEST['drop_pending']);
             try {
-                $res = $this->app->bot()->deleteWebhook(dropPendingUpdates: $drop);
+                $res = $this->app->bot->deleteWebhook(dropPendingUpdates: $drop);
                 if ($res instanceof Error || !$res->ok()) {
                     $error = 'Failed to delete webhook: ' . ($res instanceof Error ? $res->description : 'API Error');
                 } else {
@@ -244,9 +244,9 @@ PHP;
         if ($isConfigured) {
             try {
                 $start = microtime(true);
-                $botInfo = $this->app->bot()->getMe();
+                $botInfo = $this->app->bot->getMe();
                 $pingMs = round((microtime(true) - $start) * 1000, 1);
-                $webhookInfo = $this->app->bot()->getWebhookInfo();
+                $webhookInfo = $this->app->bot->getWebhookInfo();
             } catch (Throwable $e) {
                 $error ??= 'API Connection Error: ' . $e->getMessage();
             }

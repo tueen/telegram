@@ -13,6 +13,20 @@ class BooleanResult extends Type
 {
     private(set) bool $value;
 
+    /**
+     * Whether the boolean result is strictly true.
+     */
+    public bool $isTrue {
+        get => $this->value === true;
+    }
+
+    /**
+     * Whether the boolean result is strictly false.
+     */
+    public bool $isFalse {
+        get => $this->value === false;
+    }
+
     public function __construct(bool|array $data = true)
     {
         if (is_bool($data)) {
@@ -24,36 +38,24 @@ class BooleanResult extends Type
         }
     }
 
-    public function isTrue(): bool
-    {
-        return $this->value === true;
-    }
-
-    public function isFalse(): bool
-    {
-        return $this->value === false;
-    }
-
-    public function getValue(): bool
-    {
-        return $this->value;
-    }
-
     public function toBool(): bool
     {
         return $this->value;
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return ['value' => $this->value];
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->value ? 'true' : 'false';
     }
 
+    #[\Override]
     public function jsonSerialize(): bool
     {
         return $this->value;

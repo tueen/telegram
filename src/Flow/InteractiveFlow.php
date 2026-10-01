@@ -39,6 +39,24 @@ abstract class InteractiveFlow extends Flow
     }
 
     /**
+     * Resolves the human-readable breadcrumb label for this flow.
+     */
+    public string $breadcrumbTitle {
+        get {
+            $reflection = new ReflectionClass($this);
+            $attributes = $reflection->getAttributes(Breadcrumb::class);
+            if (!empty($attributes)) {
+                /** @var Breadcrumb $bc */
+                $bc = $attributes[0]->newInstance();
+                return $bc->title;
+            }
+
+            $shortName = $reflection->getShortName();
+            return preg_replace('/Flow$/', '', $shortName) ?: $shortName;
+        }
+    }
+
+    /**
      * Shows a modal alert dialog on the user's screen in response to a button click.
      */
     public function alert(string $text, ?string $url = null, ?int $cacheTime = null): static
@@ -101,23 +119,6 @@ abstract class InteractiveFlow extends Flow
             ->withNavigation(back: false, home: false);
 
         $this->renderScreen($screen);
-    }
-
-    /**
-     * Resolves the human-readable breadcrumb label for this flow.
-     */
-    public function getBreadcrumbTitle(): string
-    {
-        $reflection = new ReflectionClass($this);
-        $attributes = $reflection->getAttributes(Breadcrumb::class);
-        if (!empty($attributes)) {
-            /** @var Breadcrumb $bc */
-            $bc = $attributes[0]->newInstance();
-            return $bc->title;
-        }
-
-        $shortName = $reflection->getShortName();
-        return preg_replace('/Flow$/', '', $shortName) ?: $shortName;
     }
 
     /**
@@ -188,6 +189,7 @@ abstract class InteractiveFlow extends Flow
     /**
      * Default entry point for interactive flows.
      */
+    #[\Override]
     public function start(Update $update): void
     {
         $this->onCreate();
@@ -277,33 +279,33 @@ abstract class InteractiveFlow extends Flow
         $screen ??= $this->render();
         $this->beforeRender($screen);
 
-        if ($screen->isBreadcrumbsEnabled()) {
+        if ($screen->enableBreadcrumbs) {
             $crumbs = [];
             foreach ($this->state->flowStack as $parent) {
                 if (!empty($parent['breadcrumb'])) {
                     $crumbs[] = (string) $parent['breadcrumb'];
                 }
             }
-            $crumbs[] = $this->getBreadcrumbTitle();
-            $header = implode($screen->getBreadcrumbsSeparator(), $crumbs);
-            $screen->text($header . "\n\n" . $screen->getText());
+            $crumbs[] = $this->breadcrumbTitle;
+            $header = implode($screen->breadcrumbsSeparator, $crumbs);
+            $screen->text($header . "\n\n" . $screen->text);
         }
 
         $builtKeyboard = $screen->buildKeyboard();
         $isInlineMarkup = $builtKeyboard === null || $builtKeyboard instanceof InlineKeyboardMarkup;
 
-        $mediaType = $screen->getMediaType();
-        $mediaSource = $screen->getMediaSource();
+        $mediaType = $screen->mediaType;
+        $mediaSource = $screen->mediaSource;
 
         // 1. Media screen rendering (photo, video, animation)
         if ($mediaType !== null) {
-            if ($this->messageId !== null && $screen->shouldEditIfPossible() && $isInlineMarkup) {
+            if ($this->messageId !== null && $screen->editIfPossible && $isInlineMarkup) {
                 try {
                     $response = $this->bot->editMessageCaption(
                         chatId: $this->chatId,
                         messageId: $this->messageId,
-                        caption: $screen->getText(),
-                        parseMode: $screen->getParseMode(),
+                        caption: $screen->text,
+                        parseMode: $screen->parseMode,
                         replyMarkup: $builtKeyboard,
                     );
                     $this->afterRender($response);
@@ -317,11 +319,11 @@ abstract class InteractiveFlow extends Flow
 
             $params = [
                 'chatId' => $this->chatId,
-                'caption' => $screen->getText(),
+                'caption' => $screen->text,
             ];
 
-            if ($screen->getParseMode() !== null) {
-                $params['parseMode'] = $screen->getParseMode();
+            if ($screen->parseMode !== null) {
+                $params['parseMode'] = $screen->parseMode;
             }
 
             if ($builtKeyboard !== null) {
@@ -336,7 +338,7 @@ abstract class InteractiveFlow extends Flow
 
             if ($response instanceof Message && $response->messageId !== null) {
                 $this->messageId = $response->messageId;
-                $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+                $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
             }
 
             $this->afterRender($response);
@@ -344,13 +346,13 @@ abstract class InteractiveFlow extends Flow
         }
 
         // 2. Text screen in-place edit attempt
-        if ($this->messageId !== null && $screen->shouldEditIfPossible() && $isInlineMarkup) {
+        if ($this->messageId !== null && $screen->editIfPossible && $isInlineMarkup) {
             try {
                 $response = $this->bot->editMessageText(
                     chatId: $this->chatId,
                     messageId: $this->messageId,
-                    text: $screen->getText(),
-                    parseMode: $screen->getParseMode(),
+                    text: $screen->text,
+                    parseMode: $screen->parseMode,
                     replyMarkup: $builtKeyboard,
                 );
 
@@ -368,11 +370,11 @@ abstract class InteractiveFlow extends Flow
         // 3. Fallback or initial message dispatch
         $params = [
             'chatId' => $this->chatId,
-            'text' => $screen->getText(),
+            'text' => $screen->text,
         ];
 
-        if ($screen->getParseMode() !== null) {
-            $params['parseMode'] = $screen->getParseMode();
+        if ($screen->parseMode !== null) {
+            $params['parseMode'] = $screen->parseMode;
         }
 
         if ($builtKeyboard !== null) {
@@ -383,7 +385,7 @@ abstract class InteractiveFlow extends Flow
 
         if ($response instanceof Message && $response->messageId !== null) {
             $this->messageId = $response->messageId;
-            $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+            $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         }
 
         $this->afterRender($response);
@@ -414,7 +416,7 @@ abstract class InteractiveFlow extends Flow
             'currentStep' => $this->state->currentStep,
             'data' => $this->state->data,
             'messageId' => $this->state->messageId,
-            'breadcrumb' => $this->getBreadcrumbTitle(),
+            'breadcrumb' => $this->breadcrumbTitle,
         ];
 
         $this->state->flowClass = $flowClass;
@@ -423,7 +425,7 @@ abstract class InteractiveFlow extends Flow
             $this->state->data = array_merge($this->state->data, $data);
         }
 
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
 
         // Instantiate and start child flow
         $child = $this->manager->createFlowInstance($flowClass, $this->bot);
@@ -452,7 +454,7 @@ abstract class InteractiveFlow extends Flow
             $this->state->data = $parentSnapshot['data'];
             // Retain active messageId for zero-flicker resume
 
-            $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+            $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
 
             $parentFlow = $this->manager->createFlowInstance($parentSnapshot['flowClass'], $this->bot);
             $parentFlow->init($this->bot, $this->update, $this->chatId, $this->userId, $this->state, $this->manager);
@@ -481,7 +483,7 @@ abstract class InteractiveFlow extends Flow
     {
         $this->state->flowStack = [];
 
-        $rootFlow = $this->manager->getRootFlow();
+        $rootFlow = $this->manager->rootFlow;
         if ($rootFlow !== null && $rootFlow !== static::class) {
             $this->jumpTo($rootFlow);
             return;
@@ -498,6 +500,7 @@ abstract class InteractiveFlow extends Flow
      * @param array<string, mixed> $initialData
      * @param array<string, mixed> $data
      */
+    #[\Override]
     public function jumpTo(
         string $flowClass,
         string $initialStep = 'start',
@@ -513,7 +516,7 @@ abstract class InteractiveFlow extends Flow
         $this->state->currentStep = $initialStep;
         $this->state->data = $mergedData;
 
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
 
         $nextFlow = $this->manager->createFlowInstance($flowClass, $this->bot);
         $nextFlow->init($this->bot, $this->update, $this->chatId, $this->userId, $this->state, $this->manager);

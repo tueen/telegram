@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Enums;
 
 use Tueen\Telegram\Exceptions\ApiException;
-use Tueen\Telegram\Exceptions\BadRequestException;
 use Tueen\Telegram\Exceptions\BotBlockedException;
 use Tueen\Telegram\Exceptions\BotCantInitiateConversationException;
 use Tueen\Telegram\Exceptions\BotKickedException;
@@ -21,7 +20,6 @@ use Tueen\Telegram\Exceptions\CommandTooLongException;
 use Tueen\Telegram\Exceptions\DateInPastException;
 use Tueen\Telegram\Exceptions\DateTooFarException;
 use Tueen\Telegram\Exceptions\FileTooLargeException;
-use Tueen\Telegram\Exceptions\ForbiddenException;
 use Tueen\Telegram\Exceptions\InvalidLanguageCodeException;
 use Tueen\Telegram\Exceptions\MediaEmptyException;
 use Tueen\Telegram\Exceptions\MessageCantBeDeletedException;

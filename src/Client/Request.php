@@ -8,6 +8,18 @@ use Tueen\Telegram\Types\Custom\InputFile;
 
 class Request
 {
+    public array $params {
+        get => $this->parameters;
+    }
+
+    public string $method {
+        get => $this->endpoint;
+    }
+
+    public bool $isMultipart {
+        get => !empty($this->files);
+    }
+
     /**
      * @param string $endpoint The Telegram API method name (e.g. sendMessage)
      * @param array $parameters Scalar / JSON parameters
@@ -24,19 +36,6 @@ class Request
         public readonly ?float $timeout = null,
         public readonly ?float $connectTimeout = null
     ) {}
-
-    public array $params {
-        get => $this->parameters;
-    }
-
-    public string $method {
-        get => $this->endpoint;
-    }
-
-    public function isMultipart(): bool
-    {
-        return !empty($this->files);
-    }
 
     private function copyWith(array $overrides): self
     {

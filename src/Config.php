@@ -19,6 +19,52 @@ use Uri\Rfc3986\Uri;
 
 class Config
 {
+    public ?string $defaultFlow {
+        get => $this->rootFlow;
+    }
+
+    public string $baseApiUrl {
+        get {
+            $server = rtrim($this->apiServer, '/');
+            $test = $this->testEnvironment ? '/test' : '';
+            return "{$server}/bot{$this->botToken}{$test}";
+        }
+    }
+
+    public string $baseFileUrl {
+        get {
+            $server = rtrim($this->apiServer, '/');
+            $test = $this->testEnvironment ? '/test' : '';
+            return "{$server}/file/bot{$this->botToken}{$test}";
+        }
+    }
+
+    /**
+     * Resolves the API base URI as a standards-compliant Uri instance.
+     * @throws InvalidUriException
+     */
+    public mixed $apiUri {
+        get {
+            if (class_exists(Uri::class)) {
+                return new Uri($this->baseApiUrl);
+            }
+            return $this->baseApiUrl;
+        }
+    }
+
+    /**
+     * Resolves the File base URI as a standards-compliant Uri instance.
+     * @throws InvalidUriException
+     */
+    public mixed $fileUri {
+        get {
+            if (class_exists(Uri::class)) {
+                return new Uri($this->baseFileUrl);
+            }
+            return $this->baseFileUrl;
+        }
+    }
+
     public function __construct(
         public readonly string $botToken,
         public readonly string $apiServer = 'https://api.telegram.org',
@@ -40,10 +86,6 @@ class Config
         /** @var list<string|\Tueen\Telegram\Enums\UpdateType> */
         public readonly array $flowAllowedUpdates = []
     ) {}
-
-    public ?string $defaultFlow {
-        get => $this->rootFlow;
-    }
 
     #[\NoDiscard]
     public static function builder(string $botToken = ''): ConfigBuilder
@@ -215,45 +257,5 @@ class Config
     public function withContainer(mixed $container): self
     {
         return $this->copyWith(['container' => $container]);
-    }
-
-    public function getBaseApiUrl(): string
-    {
-        $server = rtrim($this->apiServer, '/');
-        $test = $this->testEnvironment ? '/test' : '';
-        return "{$server}/bot{$this->botToken}{$test}";
-    }
-
-    public function getBaseFileUrl(): string
-    {
-        $server = rtrim($this->apiServer, '/');
-        $test = $this->testEnvironment ? '/test' : '';
-        return "{$server}/file/bot{$this->botToken}{$test}";
-    }
-
-    /**
-     * Resolves the API base URI as a standards-compliant Uri instance.
-     * @throws InvalidUriException
-     */
-    #[\NoDiscard]
-    public function getApiUri(): mixed
-    {
-        if (class_exists(Uri::class)) {
-            return new Uri($this->getBaseApiUrl());
-        }
-        return $this->getBaseApiUrl();
-    }
-
-    /**
-     * Resolves the File base URI as a standards-compliant Uri instance.
-     * @throws InvalidUriException
-     */
-    #[\NoDiscard]
-    public function getFileUri(): mixed
-    {
-        if (class_exists(Uri::class)) {
-            return new Uri($this->getBaseFileUrl());
-        }
-        return $this->getBaseFileUrl();
     }
 }

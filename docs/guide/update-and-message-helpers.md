@@ -43,7 +43,6 @@ echo "User: {$user?->fullName} (@{$user?->username})\n";
 $chat = $update->findChat();
 echo "Chat: {$chat?->fullName} (ID: {$chat?->id})\n";
 ```
-*(Note: `getMessage()`, `getUser()`, and `getChat()` are also supported as backward-compatible aliases).*
 
 ### ID & File Shortcut Finders
 Quickly extract IDs directly from the update without chaining null-safe calls:
@@ -88,7 +87,6 @@ $user    = $bot->user;    // ?User
 $chat    = $bot->chat;    // ?Chat
 $message = $bot->message; // ?Message
 ```
-> **Tip:** Legacy method calls (e.g. `$bot->chatId()`) remain supported for backward compatibility with a `#[\Deprecated]` notice.
 
 ---
 
@@ -148,7 +146,6 @@ Use `$message->findAnyText()` (or `$message->findText()`) to retrieve whatever t
 // Returns text, caption, or recursively extracted text from rich message blocks (or null)
 $text = $message->findAnyText();
 ```
-*(Note: `$message->getText()` is also supported as a backward-compatible alias).*
 
 ### Media & File ID Extraction (`findFileId` & `findLargestPhoto`)
 Telegram media messages attach files across different properties (`photo`, `video`, `document`, `audio`, `voice`, `animation`, `sticker`, `paidMedia`, etc.).
@@ -164,23 +161,23 @@ if ($message->isType(MessageType::PHOTO)) {
     $largeFileId = $message->findFileId();
     
     // You can also retrieve the largest PhotoSize object directly:
-    $largestPhoto = $message->findLargestPhoto();
+    $largestPhoto = $message->findLargestPhoto(); // or $message->largestPhoto
     echo "Dimensions: {$largestPhoto->width}x{$largestPhoto->height}\n";
 }
 ```
 
 ### Bot Command Parsing
-Extract commands and their arguments with built-in parsers:
+Extract commands and their arguments with built-in property hooks:
 
 ```php
 if ($message->isCommand()) {
-    // Extract clean command name (strips slash and @botusername)
+    // Extract clean command name (strips slash and @botusername) via property hook
     // E.g. '/ban@my_bot 123 spam' -> 'ban'
-    $command = $message->getCommand();
+    $command = $message->command;
 
-    // Extract command arguments as array of strings
+    // Extract command arguments as array of strings via property hook
     // E.g. ['123', 'spam']
-    $args = $message->getArgs();
+    $args = $message->args;
 
     switch ($command) {
         case 'start':

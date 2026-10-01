@@ -153,10 +153,10 @@ Call `$bot->flow()` (which automatically resolves `chatId` and `userId` from the
 $bot->onCommand('status', function (Update $update, Telegram $bot) {
     $session = $bot->flow();
 
-    if ($session->isActive()) {
-        $flowClass = $session->getClass(); // e.g. App\Flows\OrderFlow
-        $step = $session->getStep();       // e.g. 'askQuantity'
-        $data = $session->getData();       // ['item_id' => 42]
+    if ($session->isActive) {
+        $flowClass = $session->class; // e.g. App\Flows\OrderFlow
+        $step = $session->step;       // e.g. 'askQuantity'
+        $data = $session->data;       // ['item_id' => 42]
 
         $bot->sendMessage(
             chatId: $update->chat->id,

@@ -6,10 +6,8 @@ namespace Tueen\Telegram\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Tueen\Telegram\Flow\Flow;
-use Tueen\Telegram\Flow\FlowManager;
 use Tueen\Telegram\Flow\FlowState;
 use Tueen\Telegram\Flow\Storage\FileStateStore;
-use Tueen\Telegram\Flow\Storage\MemoryStateStore;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
@@ -99,30 +97,30 @@ class FlowTest extends TestCase
         $bot->startFlow(TestRegistrationFlow::class, $startUpdate);
 
         $bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Please enter your name:');
-        $this->assertTrue($bot->flowManager()->hasActiveFlow(12345));
+        $this->assertTrue($bot->flowManager->hasActiveFlow(12345));
 
         // 2. Step 2: send name
         $nameUpdate = $this->createUpdate('Alice', 12345, 12345, 2);
-        $handled = $bot->flowManager()->handle($nameUpdate, $bot);
+        $handled = $bot->flowManager->handle($nameUpdate, $bot);
 
         $this->assertTrue($handled);
         $bot->assertSent('sendMessage', fn(array $params) => str_contains($params['text'], 'Thanks, Alice!'));
 
         // Check active state
-        $state = $bot->flowManager()->getActiveState(12345);
+        $state = $bot->flowManager->getActiveState(12345);
         $this->assertNotNull($state);
         $this->assertSame('confirm', $state->currentStep);
         $this->assertSame('Alice', $state->data['name']);
 
         // 3. Step 3: send email to finish
         $emailUpdate = $this->createUpdate('alice@example.com', 12345, 12345, 3);
-        $handled = $bot->flowManager()->handle($emailUpdate, $bot);
+        $handled = $bot->flowManager->handle($emailUpdate, $bot);
 
         $this->assertTrue($handled);
         $bot->assertSent('sendMessage', fn(array $params) => str_contains($params['text'], 'All done for Alice with alice@example.com!'));
 
         // Verify flow is finished and deleted
-        $this->assertFalse($bot->flowManager()->hasActiveFlow(12345));
+        $this->assertFalse($bot->flowManager->hasActiveFlow(12345));
     }
 
     public function testFlowStayOnValidationFailure(): void
@@ -134,12 +132,12 @@ class FlowTest extends TestCase
 
         // Send invalid name
         $invalidUpdate = $this->createUpdate('invalid');
-        $bot->flowManager()->handle($invalidUpdate, $bot);
+        $bot->flowManager->handle($invalidUpdate, $bot);
 
         $bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Invalid name, try again:');
 
         // Still on askEmail step
-        $state = $bot->flowManager()->getActiveState(12345);
+        $state = $bot->flowManager->getActiveState(12345);
         $this->assertSame('askEmail', $state->currentStep);
     }
 
@@ -148,17 +146,17 @@ class FlowTest extends TestCase
         $bot = Telegram::fake();
 
         $bot->startFlow(TestRegistrationFlow::class, $this->createUpdate('/register'));
-        $bot->flowManager()->handle($this->createUpdate('Bob'), $bot);
+        $bot->flowManager->handle($this->createUpdate('Bob'), $bot);
 
-        $state = $bot->flowManager()->getActiveState(12345);
+        $state = $bot->flowManager->getActiveState(12345);
         $this->assertSame('confirm', $state->currentStep);
 
         // Send 'back' keyword
-        $bot->flowManager()->handle($this->createUpdate('back'), $bot);
+        $bot->flowManager->handle($this->createUpdate('back'), $bot);
 
         $bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Going back to name step...');
 
-        $state = $bot->flowManager()->getActiveState(12345);
+        $state = $bot->flowManager->getActiveState(12345);
         $this->assertSame('askEmail', $state->currentStep);
     }
 
@@ -167,14 +165,14 @@ class FlowTest extends TestCase
         $bot = Telegram::fake();
 
         $bot->startFlow(TestRegistrationFlow::class, $this->createUpdate('/register'));
-        $bot->flowManager()->handle($this->createUpdate('Charlie'), $bot);
+        $bot->flowManager->handle($this->createUpdate('Charlie'), $bot);
 
         // In confirm step, send 'jump' to switch to FeedbackFlow
-        $bot->flowManager()->handle($this->createUpdate('jump'), $bot);
+        $bot->flowManager->handle($this->createUpdate('jump'), $bot);
 
         $bot->assertSent('sendMessage', fn(array $params) => str_contains($params['text'], 'Feedback form (ref: registration)'));
 
-        $state = $bot->flowManager()->getActiveState(12345);
+        $state = $bot->flowManager->getActiveState(12345);
         $this->assertSame(TestFeedbackFlow::class, $state->flowClass);
         $this->assertSame('receiveComment', $state->currentStep);
     }
@@ -184,14 +182,14 @@ class FlowTest extends TestCase
         $bot = Telegram::fake();
 
         $bot->startFlow(TestRegistrationFlow::class, $this->createUpdate('/register'));
-        $this->assertTrue($bot->flowManager()->hasActiveFlow(12345));
+        $this->assertTrue($bot->flowManager->hasActiveFlow(12345));
 
         // Send /cancel
-        $handled = $bot->flowManager()->handle($this->createUpdate('/cancel@my_bot'), $bot);
+        $handled = $bot->flowManager->handle($this->createUpdate('/cancel@my_bot'), $bot);
 
         $this->assertTrue($handled);
         $bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Operation cancelled.');
-        $this->assertFalse($bot->flowManager()->hasActiveFlow(12345));
+        $this->assertFalse($bot->flowManager->hasActiveFlow(12345));
     }
 
     public function testFlowIntegrationWithRouter(): void
@@ -207,11 +205,11 @@ class FlowTest extends TestCase
         });
 
         // 1. Send /register -> starts flow
-        $bot->router()->dispatch($this->createUpdate('/register'), $bot);
+        $bot->router->dispatch($this->createUpdate('/register'), $bot);
         $bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Please enter your name:');
 
         // 2. Send 'hello' while in flow -> should be intercepted by Flow, NOT by the /hello/ route!
-        $bot->router()->dispatch($this->createUpdate('hello'), $bot);
+        $bot->router->dispatch($this->createUpdate('hello'), $bot);
         $bot->assertSent('sendMessage', fn(array $params) => str_contains($params['text'], 'Thanks, hello!'));
         $bot->assertNotSent('sendMessage', fn(array $params) => $params['text'] === 'Hello World!');
     }

@@ -16,11 +16,33 @@ use Tueen\Telegram\Types\Update;
  */
 class AutoMode implements RunningModeInterface
 {
-    private PollingMode $pollingMode;
-    private WebhookMode $webhookMode;
-    private bool $autoDeleteWebhook;
-    private bool $dropPendingUpdatesOnDelete;
-    private ?Closure $detector = null;
+    public PollingMode $pollingMode {
+        get => $this->pollingMode;
+        set {
+            $this->pollingMode = $value;
+            $this->resolvedMode = null;
+        }
+    }
+
+    public WebhookMode $webhookMode {
+        get => $this->webhookMode;
+        set {
+            $this->webhookMode = $value;
+            $this->resolvedMode = null;
+        }
+    }
+
+    public bool $autoDeleteWebhook;
+    public bool $dropPendingUpdatesOnDelete;
+
+    public ?Closure $detector = null {
+        get => $this->detector;
+        set {
+            $this->detector = $value;
+            $this->resolvedMode = null;
+        }
+    }
+
     private ?bool $forcedCli = null;
     private ?RunningModeInterface $resolvedMode = null;
 
@@ -67,25 +89,13 @@ class AutoMode implements RunningModeInterface
     public function setPollingMode(PollingMode $mode): static
     {
         $this->pollingMode = $mode;
-        $this->resolvedMode = null;
         return $this;
-    }
-
-    public function getPollingMode(): PollingMode
-    {
-        return $this->pollingMode;
     }
 
     public function setWebhookMode(WebhookMode $mode): static
     {
         $this->webhookMode = $mode;
-        $this->resolvedMode = null;
         return $this;
-    }
-
-    public function getWebhookMode(): WebhookMode
-    {
-        return $this->webhookMode;
     }
 
     public function setAutoDeleteWebhook(bool $autoDelete = true, bool $dropPendingUpdates = false): static
@@ -93,11 +103,6 @@ class AutoMode implements RunningModeInterface
         $this->autoDeleteWebhook = $autoDelete;
         $this->dropPendingUpdatesOnDelete = $dropPendingUpdates;
         return $this;
-    }
-
-    public function isAutoDeleteWebhook(): bool
-    {
-        return $this->autoDeleteWebhook;
     }
 
     public function setDetector(?callable $detector): static
@@ -192,7 +197,7 @@ class AutoMode implements RunningModeInterface
 
         $this->resolvedMode = $isCli ? $this->pollingMode : $this->webhookMode;
 
-        $logger = $bot->getConfig()->logger;
+        $logger = $bot->config->logger;
         if ($logger !== null) {
             $logger->info("AutoMode: Resolved active running mode to [{$modeName}] (PHP_SAPI: " . PHP_SAPI . ").");
         }
@@ -207,6 +212,7 @@ class AutoMode implements RunningModeInterface
     /**
      * Executes update processing via the dynamically resolved active mode.
      */
+    #[\Override]
     public function processUpdate(Telegram $bot, ?callable $handler = null): mixed
     {
         $activeMode = $this->resolveActiveMode($bot);
@@ -216,9 +222,9 @@ class AutoMode implements RunningModeInterface
         if ($activeMode instanceof PollingMode && $this->autoDeleteWebhook) {
             try {
                 $bot->deleteWebhook(dropPendingUpdates: $this->dropPendingUpdatesOnDelete);
-                $bot->getConfig()->logger?->info("AutoMode: Automatically deleted webhook before starting polling.");
+                $bot->config->logger?->info("AutoMode: Automatically deleted webhook before starting polling.");
             } catch (\Throwable $e) {
-                $bot->getConfig()->logger?->warning("AutoMode: Could not delete webhook before polling: " . $e->getMessage());
+                $bot->config->logger?->warning("AutoMode: Could not delete webhook before polling: " . $e->getMessage());
             }
         }
 

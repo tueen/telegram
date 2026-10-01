@@ -126,9 +126,9 @@ Telegram enforces strict character limits (e.g. 4096 characters for messages, 10
 ```php
 $text = Text::html()->bold('Very long text...');
 
-echo $text->length();                       // UTF-8 character count
-$text->isEmpty();                           // bool
-$text->isNotEmpty();                        // bool
+echo $text->length;                         // UTF-8 character count
+$text->isEmpty;                             // bool
+$text->isNotEmpty;                          // bool
 $text->isWithinLimit(4096);                 // true if <= 4096 characters
 
 // Safely truncate to a maximum length with suffix:

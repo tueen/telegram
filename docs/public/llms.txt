@@ -74,7 +74,7 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [💉 Dependency Injection & Container](/guide/configuration#dependency-injection-container)
     * [⚡ Client Instantiation Shortcuts](/guide/configuration#client-instantiation-shortcuts)
   - [🧬 3. Immutability & Modern PHP 8.5 Patterns](/guide/configuration#3-immutability-modern-php-85-patterns)
-  - [🌐 4. Standard URI & URL Resolution Methods](/guide/configuration#4-standard-uri-url-resolution-methods)
+  - [🌐 4. Standard URI & URL Resolution Properties](/guide/configuration#4-standard-uri-url-resolution-properties)
   - [💡 5. Real-World Configuration Recipes](/guide/configuration#5-real-world-configuration-recipes)
     * [Recipe 1: Production Webhook with Persistent cURL & Monolog](/guide/configuration#recipe-1-production-webhook-with-persistent-curl-monolog)
     * [Recipe 2: High-Volume CLI Long-Polling Worker](/guide/configuration#recipe-2-high-volume-cli-long-polling-worker)

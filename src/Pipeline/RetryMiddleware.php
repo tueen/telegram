@@ -16,6 +16,7 @@ class RetryMiddleware implements MiddlewareInterface
         private readonly int $maxRetryWaitSeconds = 60
     ) {}
 
+    #[\Override]
     public function handle(Request $request, Config $config, callable $next): Response
     {
         $attempts = 0;
@@ -27,8 +28,8 @@ class RetryMiddleware implements MiddlewareInterface
                 $response = $next($request, $config);
 
                 // Check for 429 Too Many Requests
-                if (($response->getErrorCode() === 429 || $response->statusCode === 429) && $attempts < $max) {
-                    $retryAfter = (int)($response->getParameters()['retry_after'] ?? 1);
+                if (($response->errorCode === 429 || $response->statusCode === 429) && $attempts < $max) {
+                    $retryAfter = (int)($response->parameters['retry_after'] ?? 1);
                     sleep(min($retryAfter, $this->maxRetryWaitSeconds));
                     continue;
                 }

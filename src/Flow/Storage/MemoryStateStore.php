@@ -14,6 +14,7 @@ class MemoryStateStore implements StateStoreInterface
     /** @var array<string, FlowState> */
     protected array $states = [];
 
+    #[\Override]
     public function get(string $key): ?FlowState
     {
         if (!isset($this->states[$key])) {
@@ -21,7 +22,7 @@ class MemoryStateStore implements StateStoreInterface
         }
 
         $state = $this->states[$key];
-        if ($state->isExpired()) {
+        if ($state->isExpired) {
             unset($this->states[$key]);
             return null;
         }
@@ -29,6 +30,7 @@ class MemoryStateStore implements StateStoreInterface
         return $state;
     }
 
+    #[\Override]
     public function set(string $key, FlowState $state, ?int $ttl = null): void
     {
         if ($ttl !== null && $ttl > 0) {
@@ -38,11 +40,13 @@ class MemoryStateStore implements StateStoreInterface
         $this->states[$key] = $state;
     }
 
+    #[\Override]
     public function delete(string $key): void
     {
         unset($this->states[$key]);
     }
 
+    #[\Override]
     public function clear(): void
     {
         $this->states = [];

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Flow\Storage;
 
-use Tueen\Telegram\Exceptions\TelegramException;
 use Tueen\Telegram\Flow\FlowState;
 
 /**
@@ -23,6 +22,7 @@ class RedisStateStore implements StateStoreInterface
         private readonly string $prefix = 'tueen:flow:'
     ) {}
 
+    #[\Override]
     public function get(string $key): ?FlowState
     {
         $prefixedKey = $this->prefix . $key;
@@ -38,7 +38,7 @@ class RedisStateStore implements StateStoreInterface
         }
 
         $state = FlowState::fromArray($decoded);
-        if ($state->isExpired()) {
+        if ($state->isExpired) {
             $this->delete($key);
             return null;
         }
@@ -46,6 +46,7 @@ class RedisStateStore implements StateStoreInterface
         return $state;
     }
 
+    #[\Override]
     public function set(string $key, FlowState $state, ?int $ttl = null): void
     {
         $prefixedKey = $this->prefix . $key;
@@ -68,6 +69,7 @@ class RedisStateStore implements StateStoreInterface
         }
     }
 
+    #[\Override]
     public function delete(string $key): void
     {
         $prefixedKey = $this->prefix . $key;
@@ -78,6 +80,7 @@ class RedisStateStore implements StateStoreInterface
         }
     }
 
+    #[\Override]
     public function clear(): void
     {
         // Find and delete all keys matching the prefix

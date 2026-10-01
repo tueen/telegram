@@ -35,6 +35,29 @@ trait HasMessageHelpers
     }
 
     /**
+     * Resolves the largest PhotoSize from the message's photos, or null.
+     */
+    public ?PhotoSize $largestPhoto {
+        get => $this->findLargestPhoto();
+    }
+
+    /**
+     * Extracts the clean command name without slash or @botusername, or null.
+     */
+    public ?string $command {
+        get => $this->resolveCommand();
+    }
+
+    /**
+     * Extracts command arguments as an array.
+     *
+     * @return list<string>
+     */
+    public array $args {
+        get => $this->resolveArgs();
+    }
+
+    /**
      * Resolves the MessageType enum for this message.
      */
     public function resolveMessageType(): MessageType
@@ -123,14 +146,6 @@ trait HasMessageHelpers
     }
 
     /**
-     * Returns the message type.
-     */
-    public function getType(): MessageType
-    {
-        return $this->type;
-    }
-
-    /**
      * Checks if this message matches any of the given message types.
      */
     public function isType(MessageType|string ...$types): bool
@@ -209,14 +224,6 @@ trait HasMessageHelpers
     }
 
     /**
-     * Returns the text or caption of the message (backward-compatible alias).
-     */
-    public function getText(): ?string
-    {
-        return $this->findAnyText();
-    }
-
-    /**
      * Recursively extracts plain text from rich message blocks and rich text nodes.
      */
     private function extractPlainTextFromRich(mixed $node, bool $isBlockLevel = false): ?string
@@ -288,16 +295,6 @@ trait HasMessageHelpers
     }
 
     /**
-     * Alias for findLargestPhoto().
-     *
-     * @param PhotoSize[]|null $photos
-     */
-    public function getLargestPhoto(?array $photos = null): ?PhotoSize
-    {
-        return $this->findLargestPhoto($photos);
-    }
-
-    /**
      * Finds the primary file_id from any media attached to this message.
      * For photos, always resolves the file_id of the largest resolution photo.
      */
@@ -361,14 +358,6 @@ trait HasMessageHelpers
     }
 
     /**
-     * Alias for findFileId().
-     */
-    public function getFileId(): ?string
-    {
-        return $this->findFileId();
-    }
-
-    /**
      * Checks whether this message is a bot command (e.g. starts with '/').
      */
     public function isCommand(): bool
@@ -396,7 +385,7 @@ trait HasMessageHelpers
      * Extracts the clean command name without slash or @botusername.
      * E.g. '/start@my_bot 123' -> 'start'
      */
-    public function getCommand(): ?string
+    public function resolveCommand(): ?string
     {
         if (!$this->isCommand()) {
             return null;
@@ -420,7 +409,7 @@ trait HasMessageHelpers
      *
      * @return list<string>
      */
-    public function getArgs(): array
+    public function resolveArgs(): array
     {
         if (!$this->isCommand()) {
             return [];

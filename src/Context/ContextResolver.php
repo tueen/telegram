@@ -4,16 +4,8 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Context;
 
-use Closure;
 use ReflectionClass;
-use ReflectionParameter;
-use Tueen\Telegram\Enums\ChatAction;
-use Tueen\Telegram\Exceptions\TelegramException;
-use Tueen\Telegram\Formatting\Text;
-use Tueen\Telegram\Keyboards\InlineKeyboard;
-use Tueen\Telegram\Keyboards\ReplyKeyboard;
 use Tueen\Telegram\Methods\Method;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\Type;
 use Tueen\Telegram\Types\Update;
 
@@ -29,7 +21,7 @@ class ContextResolver
     /**
      * Active Telegram Update instance.
      */
-    private ?Update $update = null;
+    public ?Update $update = null;
 
     /**
      * Custom parameter resolver callbacks.
@@ -98,14 +90,6 @@ class ContextResolver
     {
         $this->update = $update;
         return $this;
-    }
-
-    /**
-     * Gets the current active Update instance.
-     */
-    public function getUpdate(): ?Update
-    {
-        return $this->update;
     }
 
     /**
@@ -328,7 +312,7 @@ class ContextResolver
             return $method;
         }
 
-        $endpoint = $method->getEndpoint();
+        $endpoint = $method->endpoint;
         $reflection = new ReflectionClass($method);
 
         // Special handling for edit methods

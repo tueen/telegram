@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram;
 
-use Closure;
 use Tueen\Telegram\App\CliHandler;
 use Tueen\Telegram\App\ControllerDiscovery;
 use Tueen\Telegram\App\Doctor;
@@ -12,7 +11,6 @@ use Tueen\Telegram\App\Env;
 use Tueen\Telegram\App\WebDashboard;
 use Tueen\Telegram\Flow\FlowManager;
 use Tueen\Telegram\Flow\Storage\FileStateStore;
-use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Running\AutoMode;
 use Tueen\Telegram\Running\PollingMode;
@@ -42,6 +40,14 @@ class App
 
     /** Directory path for conversation flow state persistence. */
     private(set) string $flowStoragePath;
+
+    public Router $router {
+        get => $this->bot->router;
+    }
+
+    public FlowManager $flowManager {
+        get => $this->bot->flowManager;
+    }
 
     /**
      * Initializes the App instance with the given project base path.
@@ -345,40 +351,6 @@ class App
         $script = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '/index.php';
 
         return "{$scheme}://{$host}{$script}";
-    }
-
-    /**
-     * Returns underlying Telegram client instance.
-     */
-    public function bot(): Telegram
-    {
-        return $this->bot;
-    }
-
-    /**
-     * Shorthand alias for {@see bot()}.
-     *
-     * @see bot()
-     */
-    public function getBot(): Telegram
-    {
-        return $this->bot;
-    }
-
-    /**
-     * Returns the update Router instance.
-     */
-    public function router(): Router
-    {
-        return $this->bot->router();
-    }
-
-    /**
-     * Returns the conversation FlowManager instance.
-     */
-    public function flowManager(): FlowManager
-    {
-        return $this->bot->flowManager();
     }
 
     /**

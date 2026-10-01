@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Throwable;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Request;
@@ -78,7 +77,7 @@ class LifecycleHooksTest extends TestCase
         $this->assertInstanceOf(Config::class, $capturedBefore[1]);
 
         $this->assertInstanceOf(Response::class, $capturedAfter[0]);
-        $this->assertTrue($capturedAfter[0]->isOk());
+        $this->assertTrue($capturedAfter[0]->isOk);
 
         $this->assertInstanceOf(User::class, $capturedResponse[0]);
         $this->assertSame($botUser, $capturedResponse[0]);

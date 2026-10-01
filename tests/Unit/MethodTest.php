@@ -21,11 +21,11 @@ class MethodTest extends TestCase
             disableNotification: true
         );
 
-        $this->assertSame('sendMessage', $send->getEndpoint());
-        $this->assertSame('POST', $send->getHttpMethod());
-        $this->assertFalse($send->requiresMultipart());
+        $this->assertSame('sendMessage', $send->endpoint);
+        $this->assertSame('POST', $send->httpMethod);
+        $this->assertFalse($send->requiresMultipart);
 
-        $params = $send->getParameters();
+        $params = $send->parameters;
         $this->assertSame(123456789, $params['chat_id']);
         $this->assertSame('Hello Tueen!', $params['text']);
         $this->assertSame('HTML', $params['parse_mode']);
@@ -42,8 +42,8 @@ class MethodTest extends TestCase
             caption: 'Queen photo'
         );
 
-        $this->assertSame('sendPhoto', $sendPhoto->getEndpoint());
-        $this->assertTrue($sendPhoto->requiresMultipart());
+        $this->assertSame('sendPhoto', $sendPhoto->endpoint);
+        $this->assertTrue($sendPhoto->requiresMultipart);
 
         [$params, $files] = $sendPhoto->buildRequestData();
 
@@ -75,7 +75,7 @@ class MethodTest extends TestCase
             another_snake_param: 42
         );
 
-        $params = $method->getParameters();
+        $params = $method->parameters;
         $this->assertSame('future_value', $params['future_telegram_param']);
         $this->assertSame(42, $params['another_snake_param']);
     }
@@ -104,7 +104,7 @@ class MethodTest extends TestCase
             ]
         );
 
-        $this->assertTrue($sendMediaGroup->requiresMultipart());
+        $this->assertTrue($sendMediaGroup->requiresMultipart);
         [$params, $files] = $sendMediaGroup->buildRequestData();
 
         $this->assertCount(2, $files);

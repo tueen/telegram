@@ -13,11 +13,16 @@ use Tueen\Telegram\Types\Update;
 
 class PollingMode implements RunningModeInterface
 {
-    private int $offset = 0;
+    public int $offset = 0;
     private bool $stopped = false;
-    private ?\Closure $processDispatcher = null;
+    public ?\Closure $processDispatcher = null;
     /** @var array<int, bool> */
     private array $childPids = [];
+
+    public int $maxForkWorkers {
+        get => $this->maxForkWorkers;
+        set => max(1, $value);
+    }
 
     public function __construct(
         private int $timeout = 30,
@@ -26,9 +31,10 @@ class PollingMode implements RunningModeInterface
         private int $errorBackoffSeconds = 2,
         private bool $forkProcess = false,
         ?callable $processDispatcher = null,
-        private int $maxForkWorkers = 16,
+        int $maxForkWorkers = 16,
         private bool $stopOnError = false
     ) {
+        $this->maxForkWorkers = max(1, $maxForkWorkers);
         if ($processDispatcher !== null) {
             $this->processDispatcher = $processDispatcher(...);
         }
@@ -56,11 +62,6 @@ class PollingMode implements RunningModeInterface
     {
         $this->offset = $offset;
         return $this;
-    }
-
-    public function getOffset(): int
-    {
-        return $this->offset;
     }
 
     public function stop(): void
@@ -96,11 +97,6 @@ class PollingMode implements RunningModeInterface
         return $this;
     }
 
-    public function getProcessDispatcher(): ?\Closure
-    {
-        return $this->processDispatcher;
-    }
-
     public function setStopOnError(bool $stopOnError): static
     {
         $this->stopOnError = $stopOnError;
@@ -124,9 +120,7 @@ class PollingMode implements RunningModeInterface
     #[\NoDiscard]
     public function getFirstUpdate(array $updates): ?Update
     {
-        $first = function_exists('array_first')
-            ? array_first($updates)
-            : (!empty($updates) ? $updates[array_key_first($updates)] : null);
+        $first = array_first($updates);
         return $first instanceof Update ? $first : null;
     }
 
@@ -136,15 +130,14 @@ class PollingMode implements RunningModeInterface
     #[\NoDiscard]
     public function getLastUpdate(array $updates): ?Update
     {
-        $last = function_exists('array_last')
-            ? array_last($updates)
-            : (!empty($updates) ? $updates[array_key_last($updates)] : null);
+        $last = array_last($updates);
         return $last instanceof Update ? $last : null;
     }
 
     /**
      * Runs continuous long-polling loop, dispatching updates to the handler.
      */
+    #[\Override]
     public function processUpdate(Telegram $bot, ?callable $handler = null): mixed
     {
         $this->stopped = false;
@@ -178,7 +171,7 @@ class PollingMode implements RunningModeInterface
                     continue;
                 }
 
-                $updates = $response instanceof ArrayResult ? $response->all() : (array)$response;
+                $updates = $response instanceof ArrayResult ? $response->items : (array)$response;
 
                 foreach ($updates as $update) {
                     if (!$update instanceof Update) {
@@ -200,8 +193,8 @@ class PollingMode implements RunningModeInterface
                             throw $e;
                         }
 
-                        if ($bot->getConfig()->logger !== null) {
-                            $bot->getConfig()->logger->error("Polling update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
+                        if ($bot->config->logger !== null) {
+                            $bot->config->logger->error("Polling update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
                         }
                     }
 
@@ -214,8 +207,8 @@ class PollingMode implements RunningModeInterface
                     throw $e;
                 }
 
-                if ($bot->getConfig()->logger !== null) {
-                    $bot->getConfig()->logger->error("Polling request failed: " . $e->getMessage(), ['exception' => $e]);
+                if ($bot->config->logger !== null) {
+                    $bot->config->logger->error("Polling request failed: " . $e->getMessage(), ['exception' => $e]);
                 }
 
                 if ($this->errorBackoffSeconds > 0) {
@@ -245,11 +238,6 @@ class PollingMode implements RunningModeInterface
     public function maxForkWorkers(int $maxForkWorkers): static
     {
         return $this->setMaxForkWorkers($maxForkWorkers);
-    }
-
-    public function getMaxForkWorkers(): int
-    {
-        return $this->maxForkWorkers;
     }
 
     private function forkAndDispatch(Telegram $bot, Update $update, ?callable $handler): void
@@ -287,8 +275,8 @@ class PollingMode implements RunningModeInterface
             try {
                 $this->dispatchUpdate($bot, $update, $handler);
             } catch (\Throwable $e) {
-                if ($bot->getConfig()->logger !== null) {
-                    $bot->getConfig()->logger->error("Error handling update in child process: " . $e->getMessage(), ['exception' => $e]);
+                if ($bot->config->logger !== null) {
+                    $bot->config->logger->error("Error handling update in child process: " . $e->getMessage(), ['exception' => $e]);
                 }
             } finally {
                 if (function_exists('posix__exit')) {
@@ -339,7 +327,7 @@ class PollingMode implements RunningModeInterface
                     continue;
                 }
 
-                $updates = $response instanceof ArrayResult ? $response->all() : (array)$response;
+                $updates = $response instanceof ArrayResult ? $response->items : (array)$response;
 
                 foreach ($updates as $update) {
                     if ($update instanceof Update) {

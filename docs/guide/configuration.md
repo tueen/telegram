@@ -312,24 +312,24 @@ $fastConfig = $baseConfig
 
 ---
 
-## 🌐 4. Standard URI & URL Resolution Methods
+## 🌐 4. Standard URI & URL Resolution Properties
 
-`Config` provides convenient methods to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
+`Config` provides convenient properties powered by PHP 8.4 property hooks to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
 
-| Method | Return Type | Output Example |
+| Property | Return Type | Output Example |
 | :--- | :--- | :--- |
-| **`getBaseApiUrl()`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
-| **`getBaseFileUrl()`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
-| **`getApiUri()`** | `Uri\|string` | RFC 3986 URI instance for the API base |
-| **`getFileUri()`** | `Uri\|string` | RFC 3986 URI instance for the File base |
+| **`$config->baseApiUrl`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
+| **`$config->baseFileUrl`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
+| **`$config->apiUri`** | `Uri\|string` | RFC 3986 URI instance for the API base |
+| **`$config->fileUri`** | `Uri\|string` | RFC 3986 URI instance for the File base |
 
 ```php
 $config = Telegram::create('123456:ABC')->build();
 
-echo $config->getBaseApiUrl();
+echo $config->baseApiUrl;
 // "https://api.telegram.org/bot123456:ABC"
 
-$uri = $config->getApiUri();
+$uri = $config->apiUri;
 echo $uri->getHost(); // "api.telegram.org"
 echo $uri->getPath(); // "/bot123456:ABC"
 ```

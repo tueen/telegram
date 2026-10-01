@@ -288,17 +288,17 @@ use Tueen\Telegram\Telegram;
 $bot = new Telegram('YOUR_BOT_TOKEN');
 
 // 1. Pure HTTP client (useful for worker queue jobs that only call API methods without processing updates):
-$client = $bot->getClient();
+$client = $bot->client;
 $me = $client->getMe();
 
 // 2. Underlying router instance:
-$router = $bot->router();
+$router = $bot->router;
 
 // 3. Flow state manager (for custom state stores or manual session manipulation):
-$flowManager = $bot->flowManager();
+$flowManager = $bot->flowManager;
 
 // 4. Context parameter resolver:
-$context = $bot->context();
+$context = $bot->context;
 ```
 
 ---
@@ -309,7 +309,7 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 ### 🏛️ Class Constants & Public Properties
 
-<ApiGroup description="Core version identifiers and read-only subsystem properties protected by PHP 8.4 asymmetric visibility.">
+<ApiGroup description="Core version identifiers and subsystem properties protected by PHP 8.4 asymmetric visibility and property hooks.">
   <ApiCard
     type="constant"
     sig="public const string BOT_API_VERSION = '10.3'"
@@ -327,31 +327,66 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
   />
   <ApiCard
     type="property"
-    sig="public private(set) ?Update $update = null"
+    sig="public ?Update $update = null"
     returns="?Update"
-    badge="Asymmetric Visibility"
+    badge="Property Hook"
     desc="Current resolved Update instance for the active request lifecycle. Defaults to null until resolved by WebhookMode or PollingMode."
   />
   <ApiCard
     type="property"
-    sig="public private(set) ContextResolver $context"
+    sig="private(set) ContextResolver $context"
     returns="ContextResolver"
     badge="Asymmetric Visibility"
     desc="Contextual parameter resolver instance automatically bound to $update for argument auto-injection."
   />
   <ApiCard
     type="property"
-    sig="public private(set) TelegramClient $client"
+    sig="private(set) TelegramClient $client"
     returns="TelegramClient"
     badge="Asymmetric Visibility"
     desc="Underlying pure HTTP transport client handling serialization, multipart uploads, and PSR-18 communication."
   />
   <ApiCard
     type="property"
-    sig="public private(set) UpdateDispatcher $dispatcher"
+    sig="private(set) UpdateDispatcher $dispatcher"
     returns="UpdateDispatcher"
     badge="Asymmetric Visibility"
     desc="Incoming update dispatcher managing the middleware pipeline, route execution, and exception catchers."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) Config $config"
+    returns="Config"
+    badge="Asymmetric Visibility"
+    desc="Immutable client configuration driving timeouts, tokens, and networking."
+  />
+  <ApiCard
+    type="property"
+    sig="public RunningModeInterface $runningMode"
+    returns="RunningModeInterface"
+    badge="Property Hook"
+    desc="Active running mode instance (e.g. WebhookMode, PollingMode, or AutoMode)."
+  />
+  <ApiCard
+    type="property"
+    sig="public mixed $container"
+    returns="mixed"
+    badge="Property Hook"
+    desc="Configured PSR-11 dependency injection container or callable resolver."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowManager $flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Multi-step conversational flow manager and state orchestrator."
+  />
+  <ApiCard
+    type="property"
+    sig="public Router $router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Incoming update router and controller registry."
   />
 </ApiGroup>
 
@@ -377,11 +412,6 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     returns="Telegram"
     badge="Constructor"
     desc="Instantiates the primary Telegram client directly using either a plain bot token string or a pre-built immutable Config object."
-  />
-  <ApiCard
-    sig="getConfig()"
-    returns="Config"
-    desc="Retrieves the immutable Config instance currently driving this client."
   />
 </ApiGroup>
 
@@ -411,11 +441,6 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     sig="setRunningMode(RunningModeInterface $mode)"
     returns="static"
     desc="Sets an explicit running mode instance (e.g. custom WebhookMode, PollingMode, or user-defined runner)."
-  />
-  <ApiCard
-    sig="getRunningMode()"
-    returns="RunningModeInterface"
-    desc="Returns the active running mode instance (defaults to WebhookMode if unspecified)."
   />
   <ApiCard
     sig="poll(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null)"
@@ -777,20 +802,26 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 ### I. Underlying Subsystems & Dependency Injection
 
-<ApiGroup description="Direct access to decoupled client subsystems and PSR-11 container integration.">
+<ApiGroup description="Direct access to decoupled client subsystems and PSR-11 container integration via PHP 8.4 property hooks.">
   <ApiCard
-    sig="getClient()"
+    type="property"
+    sig="$bot->client"
     returns="TelegramClient"
+    badge="Property"
     desc="Returns the pure TelegramClient instance to execute Bot API requests directly, bypassing update processing."
   />
   <ApiCard
-    sig="getDispatcher()"
+    type="property"
+    sig="$bot->dispatcher"
     returns="UpdateDispatcher"
+    badge="Property"
     desc="Returns the underlying UpdateDispatcher instance managing handlers and catchers."
   />
   <ApiCard
-    sig="context()"
+    type="property"
+    sig="$bot->context"
     returns="ContextResolver"
+    badge="Property"
     desc="Returns the ContextResolver instance for registering or inspecting contextual defaults."
   />
   <ApiCard
@@ -799,9 +830,25 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     desc="Configures a PSR-11 container or callable resolver used for dependency injection in controllers, handlers, and flows."
   />
   <ApiCard
-    sig="getContainer()"
+    type="property"
+    sig="$bot->container"
     returns="mixed"
-    desc="Returns the configured PSR-11 dependency injection container."
+    badge="Property Hook"
+    desc="Returns the configured PSR-11 dependency injection container or container resolver."
+  />
+  <ApiCard
+    type="property"
+    sig="$bot->flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Returns the underlying FlowManager state orchestrator managing storage drivers and transition hooks."
+  />
+  <ApiCard
+    type="property"
+    sig="$bot->router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Returns the underlying Router instance for custom route group manipulation."
   />
 </ApiGroup>
 
@@ -1125,24 +1172,24 @@ $fastConfig = $baseConfig
 
 ---
 
-## 🌐 4. Standard URI & URL Resolution Methods
+## 🌐 4. Standard URI & URL Resolution Properties
 
-`Config` provides convenient methods to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
+`Config` provides convenient properties powered by PHP 8.4 property hooks to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
 
-| Method | Return Type | Output Example |
+| Property | Return Type | Output Example |
 | :--- | :--- | :--- |
-| **`getBaseApiUrl()`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
-| **`getBaseFileUrl()`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
-| **`getApiUri()`** | `Uri\|string` | RFC 3986 URI instance for the API base |
-| **`getFileUri()`** | `Uri\|string` | RFC 3986 URI instance for the File base |
+| **`$config->baseApiUrl`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
+| **`$config->baseFileUrl`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
+| **`$config->apiUri`** | `Uri\|string` | RFC 3986 URI instance for the API base |
+| **`$config->fileUri`** | `Uri\|string` | RFC 3986 URI instance for the File base |
 
 ```php
 $config = Telegram::create('123456:ABC')->build();
 
-echo $config->getBaseApiUrl();
+echo $config->baseApiUrl;
 // "https://api.telegram.org/bot123456:ABC"
 
-$uri = $config->getApiUri();
+$uri = $config->apiUri;
 echo $uri->getHost(); // "api.telegram.org"
 echo $uri->getPath(); // "/bot123456:ABC"
 ```
@@ -1803,9 +1850,9 @@ Telegram enforces strict character limits (e.g. 4096 characters for messages, 10
 ```php
 $text = Text::html()->bold('Very long text...');
 
-echo $text->length();                       // UTF-8 character count
-$text->isEmpty();                           // bool
-$text->isNotEmpty();                        // bool
+echo $text->length;                         // UTF-8 character count
+$text->isEmpty;                             // bool
+$text->isNotEmpty;                          // bool
 $text->isWithinLimit(4096);                 // true if <= 4096 characters
 
 // Safely truncate to a maximum length with suffix:
@@ -2006,7 +2053,7 @@ class CommandHandler
     public function __invoke(Update $update, Telegram $bot): void
     {
         $message = $update->findMessage();
-        if ($message?->isCommand && $message->getCommand() === 'start') {
+        if ($message?->isCommand && $message->command === 'start') {
             $bot->sendMessage(
                 chatId: $update->findChat()->id,
                 text: 'Welcome to Tueen!'
@@ -2235,7 +2282,7 @@ The official Telegram Bot API method to fetch updates is `getUpdates` (plural). 
 $updatesResult = $bot->getUpdates(offset: 0, limit: 10);
 
 if ($updatesResult->ok()) {
-    foreach ($updatesResult->all() as $update) {
+    foreach ($updatesResult->items as $update) {
         echo "Update ID: {$update->updateId}\n";
     }
 }
@@ -2379,7 +2426,7 @@ class TelegramWebhookController
             })
             // Step 3: Prioritize active conversation flows
             |> (function (Update $update) use ($bot): ?Update {
-                if ($bot->flowManager()->handle($update, $bot)) {
+                if ($bot->flowManager->handle($update, $bot)) {
                     return null; // Flow consumed the update, halt pipeline
                 }
                 return $update;
@@ -2387,7 +2434,7 @@ class TelegramWebhookController
             // Step 4: Dispatch to attribute router if not consumed by a flow
             |> (function (?Update $update) use ($bot): void {
                 if ($update !== null) {
-                    $bot->router()->dispatch($update);
+                    $bot->router->dispatch($update);
                 }
             });
     }
@@ -2703,7 +2750,6 @@ echo "User: {$user?->fullName} (@{$user?->username})\n";
 $chat = $update->findChat();
 echo "Chat: {$chat?->fullName} (ID: {$chat?->id})\n";
 ```
-*(Note: `getMessage()`, `getUser()`, and `getChat()` are also supported as backward-compatible aliases).*
 
 ### ID & File Shortcut Finders
 Quickly extract IDs directly from the update without chaining null-safe calls:
@@ -2748,7 +2794,6 @@ $user    = $bot->user;    // ?User
 $chat    = $bot->chat;    // ?Chat
 $message = $bot->message; // ?Message
 ```
-> **Tip:** Legacy method calls (e.g. `$bot->chatId()`) remain supported for backward compatibility with a `#[\Deprecated]` notice.
 
 ---
 
@@ -2808,7 +2853,6 @@ Use `$message->findAnyText()` (or `$message->findText()`) to retrieve whatever t
 // Returns text, caption, or recursively extracted text from rich message blocks (or null)
 $text = $message->findAnyText();
 ```
-*(Note: `$message->getText()` is also supported as a backward-compatible alias).*
 
 ### Media & File ID Extraction (`findFileId` & `findLargestPhoto`)
 Telegram media messages attach files across different properties (`photo`, `video`, `document`, `audio`, `voice`, `animation`, `sticker`, `paidMedia`, etc.).
@@ -2824,23 +2868,23 @@ if ($message->isType(MessageType::PHOTO)) {
     $largeFileId = $message->findFileId();
     
     // You can also retrieve the largest PhotoSize object directly:
-    $largestPhoto = $message->findLargestPhoto();
+    $largestPhoto = $message->findLargestPhoto(); // or $message->largestPhoto
     echo "Dimensions: {$largestPhoto->width}x{$largestPhoto->height}\n";
 }
 ```
 
 ### Bot Command Parsing
-Extract commands and their arguments with built-in parsers:
+Extract commands and their arguments with built-in property hooks:
 
 ```php
 if ($message->isCommand()) {
-    // Extract clean command name (strips slash and @botusername)
+    // Extract clean command name (strips slash and @botusername) via property hook
     // E.g. '/ban@my_bot 123 spam' -> 'ban'
-    $command = $message->getCommand();
+    $command = $message->command;
 
-    // Extract command arguments as array of strings
+    // Extract command arguments as array of strings via property hook
     // E.g. ['123', 'spam']
-    $args = $message->getArgs();
+    $args = $message->args;
 
     switch ($command) {
         case 'start':
@@ -3114,10 +3158,10 @@ Call `$bot->flow()` (which automatically resolves `chatId` and `userId` from the
 $bot->onCommand('status', function (Update $update, Telegram $bot) {
     $session = $bot->flow();
 
-    if ($session->isActive()) {
-        $flowClass = $session->getClass(); // e.g. App\Flows\OrderFlow
-        $step = $session->getStep();       // e.g. 'askQuantity'
-        $data = $session->getData();       // ['item_id' => 42]
+    if ($session->isActive) {
+        $flowClass = $session->class; // e.g. App\Flows\OrderFlow
+        $step = $session->step;       // e.g. 'askQuantity'
+        $data = $session->data;       // ['item_id' => 42]
 
         $bot->sendMessage(
             chatId: $update->chat->id,
@@ -3816,10 +3860,11 @@ Catalog » Electronics » Headphones
 Sony WH-1000XM5 Specs...
 ```
 
+You can also customize the breadcrumb label dynamically via PHP 8.4 property hook:
+
 ```php
-public function getBreadcrumbTitle(): string
-{
-    return $this->get('product_name', 'Item');
+public string $breadcrumbTitle {
+    get => $this->get('product_name', 'Item');
 }
 ```
 
@@ -4396,7 +4441,7 @@ try {
     $bot->sendMessage(chatId: $userId, text: strip_tags($markdownText));
 } catch (RateLimitException $e) {
     // Flood wait: inspect retryAfter duration
-    sleep($e->getRetryAfter());
+    sleep($e->retryAfter);
 } catch (BadRequestException $e) {
     // Catch-all for any other 400 Bad Request
 } catch (ApiException $e) {
@@ -4417,7 +4462,7 @@ use Tueen\Telegram\Enums\TelegramErrorCode;
 match ($error->reason) {
     TelegramErrorCode::BotBlocked => $user->markBlocked(),
     TelegramErrorCode::ChatNotFound => $user->delete(),
-    TelegramErrorCode::FloodWait => sleep($error->getRetryAfter()),
+    TelegramErrorCode::FloodWait => sleep($error->retryAfter),
     TelegramErrorCode::CantParseEntities => $bot->sendMessage(chatId: $chatId, text: $plain),
     default => $logger->error($error->description),
 };
@@ -4451,7 +4496,7 @@ if (!$res->ok()) {
     if ($res->isChatNotFound()) { ... }
     if ($res->isBotBlocked()) { ... }
     if ($res->isRateLimit()) {
-        $seconds = $res->getRetryAfter();
+        $seconds = $res->retryAfter;
     }
 
     // 3. Convert to exception on demand
@@ -4494,7 +4539,7 @@ use Tueen\Telegram\Methods\SendMessage;
 $method = new SendMessage(chatId: 12345, text: 'Hello');
 
 // Inspect expected errors programmatically
-$expectedErrors = $method->getExpectedErrors();
+$expectedErrors = $method->expectedErrors;
 // [TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::MessageTooLong, ...]
 ```
 
@@ -4635,7 +4680,7 @@ class WelcomeBotTest extends TestCase
             );
         });
 
-        $bot->router()->dispatch($update, $bot);
+        $bot->router->dispatch($update, $bot);
 
         // 4. Assert that sendMessage was called with expected parameters
         $bot->assertSent('sendMessage', function (array $params) {

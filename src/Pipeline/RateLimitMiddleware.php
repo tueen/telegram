@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Pipeline;
 
-use Closure;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\Response;
 use Tueen\Telegram\Config;
@@ -27,6 +26,10 @@ class RateLimitMiddleware implements MiddlewareInterface
     /** @var (callable(float): void)|null */
     private mixed $sleeper = null;
 
+    /** @var array<string|int, float> */
+    private array $lastChatRequestTimes = [];
+    private int $requestCounter = 0;
+
     public function __construct(
         int $maxRequestsPerSecond = 30,
         private float $minPerChatInterval = 1.0,
@@ -40,6 +43,7 @@ class RateLimitMiddleware implements MiddlewareInterface
         $this->sleeper = $sleeper;
     }
 
+    #[\Override]
     public function handle(Request $request, Config $config, callable $next): Response
     {
         $attempts = 0;
@@ -88,10 +92,6 @@ class RateLimitMiddleware implements MiddlewareInterface
 
         usleep((int)($seconds * 1_000_000));
     }
-
-    /** @var array<string|int, float> */
-    private array $lastChatRequestTimes = [];
-    private int $requestCounter = 0;
 
     private function pruneChatTimes(float $now): void
     {

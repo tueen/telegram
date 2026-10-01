@@ -14,10 +14,10 @@ use Tueen\Telegram\Types\Update;
 class WebhookMode implements RunningModeInterface
 {
     public function __construct(
-        private ?string $secretToken = null,
-        private ?string $rawInput = null,
-        private ?array $headers = null,
-        private bool $safeExceptions = true
+        public ?string $secretToken = null,
+        public ?string $rawInput = null,
+        public ?array $headers = null,
+        public bool $safeExceptions = true
     ) {}
 
     /**
@@ -90,16 +90,9 @@ class WebhookMode implements RunningModeInterface
     }
 
     /**
-     * Alias for resolveUpdate().
-     */
-    public function getUpdate(Telegram $bot): Update
-    {
-        return $this->resolveUpdate($bot);
-    }
-
-    /**
      * Process the update, executing handler if provided, and returning the Update.
      */
+    #[\Override]
     public function processUpdate(Telegram $bot, ?callable $handler = null): Update
     {
         $update = $this->resolveUpdate($bot);
@@ -111,8 +104,8 @@ class WebhookMode implements RunningModeInterface
             } catch (\Throwable $e) {
                 if ($this->safeExceptions) {
                     $this->safeResponse();
-                    if ($bot->getConfig()->logger !== null) {
-                        $bot->getConfig()->logger->error("Webhook update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
+                    if ($bot->config->logger !== null) {
+                        $bot->config->logger->error("Webhook update {$update->updateId} failed: " . $e->getMessage(), ['exception' => $e]);
                     }
                     return $update;
                 }
@@ -177,8 +170,8 @@ class WebhookMode implements RunningModeInterface
             $bot->run(...$handlers);
         } catch (\Throwable $e) {
             if ($this->safeExceptions) {
-                if ($bot->getConfig()->logger !== null) {
-                    $bot->getConfig()->logger->error("Webhook PSR-7 update failed: " . $e->getMessage(), ['exception' => $e]);
+                if ($bot->config->logger !== null) {
+                    $bot->config->logger->error("Webhook PSR-7 update failed: " . $e->getMessage(), ['exception' => $e]);
                 }
             } else {
                 throw $e;

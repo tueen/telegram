@@ -18,9 +18,4 @@ class RateLimitException extends ApiException
     ) {
         parent::__construct($message, $errorCode, $parameters, $previous, TelegramErrorCode::FloodWait);
     }
-
-    public function getRetryAfter(): int
-    {
-        return $this->retryAfter;
-    }
 }

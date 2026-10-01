@@ -33,6 +33,30 @@ class Error extends Type
         get => ErrorMatcher::matchCode($this->errorCode, $this->description);
     }
 
+    /**
+     * Returns retry_after value if present (typically from 429 flood wait).
+     */
+    public ?int $retryAfter {
+        get {
+            if (isset($this->parameters['retry_after'])) {
+                return (int)$this->parameters['retry_after'];
+            }
+
+            if (preg_match('/retry after (\d+)/i', $this->description, $m)) {
+                return (int)$m[1];
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Returns migrate_to_chat_id value if present (group migrated to supergroup).
+     */
+    public ?int $migrateToChatId {
+        get => isset($this->parameters['migrate_to_chat_id']) ? (int)$this->parameters['migrate_to_chat_id'] : null;
+    }
+
     public function __construct(
         string $description,
         int|string $errorCode = 0,
@@ -55,6 +79,7 @@ class Error extends Type
     /**
      * Always returns false for Error objects.
      */
+    #[\Override]
     #[\NoDiscard]
     public function ok(): bool
     {
@@ -64,6 +89,7 @@ class Error extends Type
     /**
      * Alias for ok().
      */
+    #[\Override]
     #[\NoDiscard]
     public function isOk(): bool
     {
@@ -156,33 +182,7 @@ class Error extends Type
         );
     }
 
-    /**
-     * Returns retry_after value if present (typically from 429 flood wait).
-     */
-    public function getRetryAfter(): ?int
-    {
-        if (isset($this->parameters['retry_after'])) {
-            return (int)$this->parameters['retry_after'];
-        }
-
-        if (preg_match('/retry after (\d+)/i', $this->description, $m)) {
-            return (int)$m[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns migrate_to_chat_id value if present (group migrated to supergroup).
-     */
-    public function getMigrateToChatId(): ?int
-    {
-        if (isset($this->parameters['migrate_to_chat_id'])) {
-            return (int)$this->parameters['migrate_to_chat_id'];
-        }
-        return null;
-    }
-
+    #[\Override]
     public function toArray(): array
     {
         return [
@@ -193,6 +193,7 @@ class Error extends Type
         ];
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return "[Error {$this->errorCode}] {$this->description}";

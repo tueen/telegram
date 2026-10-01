@@ -15,6 +15,7 @@ class LoggingMiddleware implements MiddlewareInterface
         private readonly ?LoggerInterface $logger = null
     ) {}
 
+    #[\Override]
     public function handle(Request $request, Config $config, callable $next): Response
     {
         $logger = $this->logger ?? $config->logger;
@@ -33,8 +34,8 @@ class LoggingMiddleware implements MiddlewareInterface
         if ($logger !== null) {
             $logger->info("Telegram Response: {$request->endpoint} ({$elapsed}ms)", [
                 'status' => $response->statusCode,
-                'ok' => $response->isOk(),
-                'error_code' => $response->getErrorCode(),
+                'ok' => $response->ok,
+                'error_code' => $response->errorCode,
             ]);
         }
 

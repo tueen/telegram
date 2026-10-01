@@ -12,6 +12,61 @@ use Tueen\Telegram\Types\Update;
  */
 class FlowSession
 {
+    /**
+     * Unique session key for this chat and user combination.
+     */
+    public string $sessionKey {
+        get => FlowManager::resolveSessionKey($this->chatId, $this->userId);
+    }
+
+    /**
+     * Checks if there is an active conversation Flow for this session.
+     */
+    public bool $isActive {
+        get => $this->manager->hasActiveFlow($this->chatId, $this->userId);
+    }
+
+    /**
+     * Retrieves the serialized FlowState for this session, or null if no flow is active.
+     */
+    public ?FlowState $state {
+        get => $this->manager->getActiveState($this->chatId, $this->userId);
+    }
+
+    /**
+     * Retrieves the active Flow class name (e.g. App\Flows\OrderFlow), or null if none active.
+     *
+     * @return class-string<Flow>|null
+     */
+    public ?string $class {
+        get => $this->state?->flowClass;
+    }
+
+    /**
+     * Retrieves the current step name in the active Flow, or null if none active.
+     */
+    public ?string $step {
+        get => $this->state?->currentStep;
+    }
+
+    /**
+     * Retrieves the step navigation history stack.
+     *
+     * @return list<string>
+     */
+    public array $history {
+        get => $this->state?->history ?? [];
+    }
+
+    /**
+     * Retrieves all stored state data array.
+     *
+     * @return array<string, mixed>
+     */
+    public array $data {
+        get => $this->state?->data ?? [];
+    }
+
     public function __construct(
         public readonly int|string $chatId,
         public readonly ?int $userId,
@@ -21,73 +76,11 @@ class FlowSession
     ) {}
 
     /**
-     * Unique session key for this chat and user combination.
-     */
-    public function sessionKey(): string
-    {
-        return FlowManager::resolveSessionKey($this->chatId, $this->userId);
-    }
-
-    /**
-     * Checks if there is an active conversation Flow for this session.
-     */
-    public function isActive(): bool
-    {
-        return $this->manager->hasActiveFlow($this->chatId, $this->userId);
-    }
-
-    /**
-     * Retrieves the serialized FlowState for this session, or null if no flow is active.
-     */
-    public function getState(): ?FlowState
-    {
-        return $this->manager->getActiveState($this->chatId, $this->userId);
-    }
-
-    /**
-     * Retrieves the active Flow class name (e.g. App\Flows\OrderFlow), or null if none active.
-     *
-     * @return class-string<Flow>|null
-     */
-    public function getClass(): ?string
-    {
-        return $this->getState()?->flowClass;
-    }
-
-    /**
-     * Retrieves the current step name in the active Flow, or null if none active.
-     */
-    public function getStep(): ?string
-    {
-        return $this->getState()?->currentStep;
-    }
-
-    /**
-     * Retrieves the step navigation history stack.
-     *
-     * @return list<string>
-     */
-    public function getHistory(): array
-    {
-        return $this->getState()?->history ?? [];
-    }
-
-    /**
-     * Retrieves all stored state data array.
-     *
-     * @return array<string, mixed>
-     */
-    public function getData(): array
-    {
-        return $this->getState()?->data ?? [];
-    }
-
-    /**
      * Retrieves a specific value from the flow state data.
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        $state = $this->getState();
+        $state = $this->state;
         return $state !== null && array_key_exists($key, $state->data) ? $state->data[$key] : $default;
     }
 
@@ -96,10 +89,10 @@ class FlowSession
      */
     public function set(string $key, mixed $value): static
     {
-        $state = $this->getState();
+        $state = $this->state;
         if ($state !== null) {
             $state->data[$key] = $value;
-            $this->manager->saveState($this->sessionKey(), $state);
+            $this->manager->saveState($this->sessionKey, $state);
         }
         return $this;
     }
@@ -109,7 +102,7 @@ class FlowSession
      */
     public function has(string $key): bool
     {
-        $state = $this->getState();
+        $state = $this->state;
         return $state !== null && array_key_exists($key, $state->data);
     }
 
@@ -118,10 +111,10 @@ class FlowSession
      */
     public function remove(string $key): static
     {
-        $state = $this->getState();
+        $state = $this->state;
         if ($state !== null && array_key_exists($key, $state->data)) {
             unset($state->data[$key]);
-            $this->manager->saveState($this->sessionKey(), $state);
+            $this->manager->saveState($this->sessionKey, $state);
         }
         return $this;
     }
@@ -154,7 +147,7 @@ class FlowSession
      */
     public function to(string $step, array $data = []): bool
     {
-        $state = $this->getState();
+        $state = $this->state;
         if ($state === null) {
             return false;
         }
@@ -167,7 +160,7 @@ class FlowSession
             $state->data = array_merge($state->data, $data);
         }
 
-        $this->manager->saveState($this->sessionKey(), $state);
+        $this->manager->saveState($this->sessionKey, $state);
         return true;
     }
 
@@ -224,7 +217,7 @@ class FlowSession
      */
     public function reset(): bool
     {
-        $state = $this->getState();
+        $state = $this->state;
         if ($state === null) {
             return false;
         }
@@ -234,7 +227,7 @@ class FlowSession
         $state->data = [];
         $state->flowStack = [];
 
-        $this->manager->saveState($this->sessionKey(), $state);
+        $this->manager->saveState($this->sessionKey, $state);
         return true;
     }
 }

@@ -19,6 +19,34 @@ final class Text implements Stringable
     /** @var list<string> */
     private array $parts = [];
 
+    /**
+     * UTF-8 character length of the rendered text.
+     */
+    public int $length {
+        get => mb_strlen($this->__toString());
+    }
+
+    /**
+     * Whether no content has been appended.
+     */
+    public bool $isEmpty {
+        get => empty($this->parts) || $this->length === 0;
+    }
+
+    /**
+     * Whether content has been appended.
+     */
+    public bool $isNotEmpty {
+        get => !$this->isEmpty;
+    }
+
+    /**
+     * Active ParseMode of this Text builder.
+     */
+    public ParseMode $parseMode {
+        get => $this->mode;
+    }
+
     public function __construct(
         private ParseMode $mode = ParseMode::HTML,
         string $initial = ''
@@ -380,35 +408,11 @@ final class Text implements Stringable
     }
 
     /**
-     * Calculates the UTF-8 character length of the rendered text.
-     */
-    public function length(): int
-    {
-        return mb_strlen($this->__toString());
-    }
-
-    /**
-     * Returns true if no content has been appended.
-     */
-    public function isEmpty(): bool
-    {
-        return empty($this->parts) || $this->length() === 0;
-    }
-
-    /**
-     * Returns true if content has been appended.
-     */
-    public function isNotEmpty(): bool
-    {
-        return !$this->isEmpty();
-    }
-
-    /**
      * Checks if the rendered text is within Telegram's character limits (default: 4096 characters).
      */
     public function isWithinLimit(int $max = 4096): bool
     {
-        return $this->length() <= $max;
+        return $this->length <= $max;
     }
 
     /**
@@ -433,11 +437,6 @@ final class Text implements Stringable
         return $this;
     }
 
-    public function parseMode(): ParseMode
-    {
-        return $this->mode;
-    }
-
     public function toHtml(): string
     {
         return $this->__toString();
@@ -448,6 +447,7 @@ final class Text implements Stringable
         return $this->__toString();
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return implode('', $this->parts);

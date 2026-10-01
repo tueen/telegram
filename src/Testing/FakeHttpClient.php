@@ -37,6 +37,7 @@ class FakeHttpClient implements HttpClientInterface
         return $this;
     }
 
+    #[\Override]
     public function send(Config $config, Request $request): Response
     {
         $this->recordedRequests[] = [
@@ -63,6 +64,7 @@ class FakeHttpClient implements HttpClientInterface
         ]);
     }
 
+    #[\Override]
     public function download(
         Config $config,
         string $filePath,

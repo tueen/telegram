@@ -9,18 +9,14 @@ use Psr\Http\Message\StreamInterface;
 
 class InputFile
 {
-    private mixed $contents;
-    private string $filename;
-    private ?string $contentType;
+    public readonly string $filename;
 
     public function __construct(
-        mixed $contents,
+        public readonly mixed $contents,
         ?string $filename = null,
-        ?string $contentType = null
+        public readonly ?string $contentType = null
     ) {
-        $this->contents = $contents;
         $this->filename = $filename ?? 'file.dat';
-        $this->contentType = $contentType;
     }
 
     public static function fromPath(string $filePath, ?string $filename = null, ?string $contentType = null): self
@@ -55,21 +51,6 @@ class InputFile
     public static function fromStream(StreamInterface $stream, string $filename = 'file.dat', ?string $contentType = null): self
     {
         return new self($stream, $filename, $contentType);
-    }
-
-    public function getContents(): mixed
-    {
-        return $this->contents;
-    }
-
-    public function getFilename(): string
-    {
-        return $this->filename;
-    }
-
-    public function getContentType(): ?string
-    {
-        return $this->contentType;
     }
 
     /**

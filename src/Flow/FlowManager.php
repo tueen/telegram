@@ -16,10 +16,10 @@ use Tueen\Telegram\Types\Update;
  */
 class FlowManager
 {
-    private StateStoreInterface $store;
-    private ?string $rootFlow = null;
+    public StateStoreInterface $store;
+    public ?string $rootFlow = null;
     /** @var list<string|\Tueen\Telegram\Enums\UpdateType> */
-    private array $defaultAllowedUpdates = [];
+    public array $defaultAllowedUpdates = [];
 
     public function __construct(?StateStoreInterface $store = null)
     {
@@ -32,11 +32,6 @@ class FlowManager
         } else {
             $this->store = new MemoryStateStore();
         }
-    }
-
-    public function getStore(): StateStoreInterface
-    {
-        return $this->store;
     }
 
     public function setStore(StateStoreInterface $store): static
@@ -57,14 +52,6 @@ class FlowManager
     }
 
     /**
-     * @return class-string<Flow>|null
-     */
-    public function getRootFlow(): ?string
-    {
-        return $this->rootFlow;
-    }
-
-    /**
      * Sets the default allowed update types for flows that do not specify their own.
      *
      * @param list<string|\Tueen\Telegram\Enums\UpdateType> $types
@@ -73,14 +60,6 @@ class FlowManager
     {
         $this->defaultAllowedUpdates = $types;
         return $this;
-    }
-
-    /**
-     * @return list<string|\Tueen\Telegram\Enums\UpdateType>
-     */
-    public function getDefaultAllowedUpdates(): array
-    {
-        return $this->defaultAllowedUpdates;
     }
 
     /**
@@ -207,8 +186,8 @@ class FlowManager
             if ($flow instanceof InteractiveFlow) {
                 if (!$flow->canInterrupt($update)) {
                     $flow->handleUpdate($update);
-                    if (!$flow->isTerminated()) {
-                        $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+                    if (!$flow->isTerminated) {
+                        $this->saveState($sessionKey, $flow->state, $flow->ttl);
                     }
                     return true;
                 }
@@ -232,8 +211,8 @@ class FlowManager
 
         if ($flow instanceof InteractiveFlow) {
             $flow->handleUpdate($update);
-            if (!$flow->isTerminated()) {
-                $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+            if (!$flow->isTerminated) {
+                $this->saveState($sessionKey, $flow->state, $flow->ttl);
             }
             return true;
         }
@@ -241,15 +220,15 @@ class FlowManager
         $step = $state->currentStep;
         if (!method_exists($flow, $step)) {
             $flow->onMissingStep($step, $update);
-            if (!$flow->isTerminated()) {
-                $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+            if (!$flow->isTerminated) {
+                $this->saveState($sessionKey, $flow->state, $flow->ttl);
             }
             return true;
         }
 
         $flow->$step($update);
-        if (!$flow->isTerminated()) {
-            $this->saveState($sessionKey, $flow->state, $flow->getTtl());
+        if (!$flow->isTerminated) {
+            $this->saveState($sessionKey, $flow->state, $flow->ttl);
         }
         return true;
     }
@@ -294,8 +273,8 @@ class FlowManager
                     }
                 }
 
-                if (!$parentFlow->isTerminated()) {
-                    $this->saveState($sessionKey, $parentFlow->state, $parentFlow->getTtl());
+                if (!$parentFlow->isTerminated) {
+                    $this->saveState($sessionKey, $parentFlow->state, $parentFlow->ttl);
                 }
 
                 return true;

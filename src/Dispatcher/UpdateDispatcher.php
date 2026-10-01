@@ -23,7 +23,7 @@ use Tueen\Telegram\Types\Update;
 class UpdateDispatcher
 {
     /** @var list<mixed> */
-    private array $handlers = [];
+    private(set) array $handlers = [];
 
     /** @var list<callable> */
     private array $middlewares = [];
@@ -32,7 +32,7 @@ class UpdateDispatcher
     private array $exceptionHandlers = [];
 
     public function __construct(
-        private mixed $container = null
+        public mixed $container = null
     ) {}
 
     public function setContainer(mixed $container): static
@@ -41,25 +41,12 @@ class UpdateDispatcher
         return $this;
     }
 
-    public function getContainer(): mixed
-    {
-        return $this->container;
-    }
-
     public function addHandler(mixed ...$handlers): static
     {
         foreach ($this->normalizeHandlers($handlers) as $h) {
             $this->handlers[] = $h;
         }
         return $this;
-    }
-
-    /**
-     * @return list<mixed>
-     */
-    public function getHandlers(): array
-    {
-        return $this->handlers;
     }
 
     public function middleware(callable $middleware): static
@@ -103,8 +90,8 @@ class UpdateDispatcher
             }
         }
 
-        if (!$handled && $bot->getConfig()->logger !== null) {
-            $bot->getConfig()->logger->error("Uncaught update processing exception: " . $e->getMessage(), [
+        if (!$handled && $bot->config->logger !== null) {
+            $bot->config->logger->error("Uncaught update processing exception: " . $e->getMessage(), [
                 'exception' => $e,
                 'update_id' => $update->updateId,
                 'update_type' => $update->type->value,
@@ -125,7 +112,7 @@ class UpdateDispatcher
         ?FlowManager $flowManager = null
     ): mixed {
         $bot->setUpdate($update);
-        $context = new Context($update, $bot->getClient(), $bot);
+        $context = new Context($update, $bot->client, $bot);
 
         $allHandlers = [...$this->handlers, ...$this->normalizeHandlers($extraHandlers)];
 
@@ -180,7 +167,7 @@ class UpdateDispatcher
 
     public function invokeHandler(mixed $handler, Update $update, Telegram $bot, ?Context $context = null): mixed
     {
-        $context ??= new Context($update, $bot->getClient(), $bot);
+        $context ??= new Context($update, $bot->client, $bot);
 
         if (is_string($handler) && class_exists($handler)) {
             $instance = $this->resolveHandlerInstance($handler, $bot);
@@ -224,7 +211,7 @@ class UpdateDispatcher
 
     private function resolveHandlerInstance(string $className, Telegram $bot): object
     {
-        $container = $this->container ?? $bot->getContainer();
+        $container = $this->container ?? $bot->container;
 
         if ($container !== null) {
             if (is_object($container) && method_exists($container, 'get') && method_exists($container, 'has')) {

@@ -38,7 +38,7 @@ class WelcomeBotTest extends TestCase
             );
         });
 
-        $bot->router()->dispatch($update, $bot);
+        $bot->router->dispatch($update, $bot);
 
         // 4. Assert that sendMessage was called with expected parameters
         $bot->assertSent('sendMessage', function (array $params) {

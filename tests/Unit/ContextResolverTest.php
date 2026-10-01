@@ -7,7 +7,6 @@ namespace Tueen\Telegram\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Enums\ChatAction;
-use Tueen\Telegram\Methods\EditMessageText;
 use Tueen\Telegram\Methods\SendMessage;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Chat;
@@ -471,7 +470,7 @@ final class ContextResolverTest extends TestCase
         });
     }
 
-    public function testDeprecatedContextMethodsFallbackToPropertyHooks(): void
+    public function testContextProperties(): void
     {
         $bot = Telegram::fake();
         $bot->setUpdate($this->createMessageUpdate(
@@ -481,22 +480,13 @@ final class ContextResolverTest extends TestCase
             threadId: 99
         ));
 
-        // Deprecated method calls continue to work seamlessly via property hooks
-        $this->assertSame(123456, @$bot->chatId());
-        $this->assertSame(789012, @$bot->userId());
-        $this->assertSame(42, @$bot->messageId());
-        $this->assertSame(99, @$bot->messageThreadId());
-        $this->assertInstanceOf(User::class, @$bot->user());
-        $this->assertInstanceOf(Chat::class, @$bot->chat());
-        $this->assertInstanceOf(Message::class, @$bot->message());
-
-        $context = new \Tueen\Telegram\Context\Context($bot->update, $bot->getClient(), $bot);
-        $this->assertSame(123456, @$context->chatId());
-        $this->assertSame(789012, @$context->userId());
-        $this->assertSame(42, @$context->messageId());
-        $this->assertSame(99, @$context->messageThreadId());
-        $this->assertInstanceOf(User::class, @$context->user());
-        $this->assertInstanceOf(Chat::class, @$context->chat());
-        $this->assertInstanceOf(Message::class, @$context->message());
+        $context = new \Tueen\Telegram\Context\Context($bot->update, $bot->client, $bot);
+        $this->assertSame(123456, $context->chatId);
+        $this->assertSame(789012, $context->userId);
+        $this->assertSame(42, $context->messageId);
+        $this->assertSame(99, $context->messageThreadId);
+        $this->assertInstanceOf(User::class, $context->user);
+        $this->assertInstanceOf(Chat::class, $context->chat);
+        $this->assertInstanceOf(Message::class, $context->message);
     }
 }

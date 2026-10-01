@@ -19,12 +19,6 @@ use Tueen\Telegram\Types\User;
  */
 class Context
 {
-    public function __construct(
-        public readonly Update $update,
-        public readonly TelegramClient $client,
-        public readonly ?Telegram $bot = null
-    ) {}
-
     public ?int $chatId {
         get => $this->update->findChatId();
     }
@@ -85,95 +79,12 @@ class Context
         get => $this->update->findMessage();
     }
 
-    #[\Deprecated(message: 'Use property $context->chatId instead', since: '1.0.0')]
-    public function chatId(): ?int
-    {
-        return $this->chatId;
-    }
+    public function __construct(
+        public readonly Update $update,
+        public readonly TelegramClient $client,
+        public readonly ?Telegram $bot = null
+    ) {}
 
-    #[\Deprecated(message: 'Use property $context->userId instead', since: '1.0.0')]
-    public function userId(): ?int
-    {
-        return $this->userId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->messageId instead', since: '1.0.0')]
-    public function messageId(): ?int
-    {
-        return $this->messageId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->businessConnectionId instead', since: '1.0.0')]
-    public function businessConnectionId(): ?string
-    {
-        return $this->businessConnectionId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->messageThreadId instead', since: '1.0.0')]
-    public function messageThreadId(): ?int
-    {
-        return $this->messageThreadId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->inlineMessageId instead', since: '1.0.0')]
-    public function inlineMessageId(): ?string
-    {
-        return $this->inlineMessageId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->callbackQueryId instead', since: '1.0.0')]
-    public function callbackQueryId(): ?string
-    {
-        return $this->callbackQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->inlineQueryId instead', since: '1.0.0')]
-    public function inlineQueryId(): ?string
-    {
-        return $this->inlineQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->shippingQueryId instead', since: '1.0.0')]
-    public function shippingQueryId(): ?string
-    {
-        return $this->shippingQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->preCheckoutQueryId instead', since: '1.0.0')]
-    public function preCheckoutQueryId(): ?string
-    {
-        return $this->preCheckoutQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->directMessagesTopicId instead', since: '1.0.0')]
-    public function directMessagesTopicId(): ?int
-    {
-        return $this->directMessagesTopicId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->guestQueryId instead', since: '1.0.0')]
-    public function guestQueryId(): ?string
-    {
-        return $this->guestQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $context->user instead', since: '1.0.0')]
-    public function user(): ?User
-    {
-        return $this->user;
-    }
-
-    #[\Deprecated(message: 'Use property $context->chat instead', since: '1.0.0')]
-    public function chat(): ?Chat
-    {
-        return $this->chat;
-    }
-
-    #[\Deprecated(message: 'Use property $context->message instead', since: '1.0.0')]
-    public function message(): ?Message
-    {
-        return $this->message;
-    }
 
     /**
      * Replies directly to the current chat (and active message thread if applicable).

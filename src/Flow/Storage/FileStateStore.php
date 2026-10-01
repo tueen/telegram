@@ -29,6 +29,7 @@ class FileStateStore implements StateStoreInterface
         return "{$this->directory}/flow_{$safeName}_{$hash}.json";
     }
 
+    #[\Override]
     public function get(string $key): ?FlowState
     {
         $path = $this->getFilePath($key);
@@ -47,7 +48,7 @@ class FileStateStore implements StateStoreInterface
         }
 
         $state = FlowState::fromArray($data);
-        if ($state->isExpired()) {
+        if ($state->isExpired) {
             @unlink($path);
             return null;
         }
@@ -55,6 +56,7 @@ class FileStateStore implements StateStoreInterface
         return $state;
     }
 
+    #[\Override]
     public function set(string $key, FlowState $state, ?int $ttl = null): void
     {
         if ($ttl !== null && $ttl > 0) {
@@ -73,6 +75,7 @@ class FileStateStore implements StateStoreInterface
         }
     }
 
+    #[\Override]
     public function delete(string $key): void
     {
         $path = $this->getFilePath($key);
@@ -81,6 +84,7 @@ class FileStateStore implements StateStoreInterface
         }
     }
 
+    #[\Override]
     public function clear(): void
     {
         $files = glob("{$this->directory}/flow_*.json");

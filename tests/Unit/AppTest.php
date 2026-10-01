@@ -88,8 +88,8 @@ PHP;
         $this->assertSame('123456:TEST_TOKEN_APP', $app->config['token']);
         $this->assertSame('my-secret-token', $app->config['secret_token']);
         $this->assertSame('https://bot.example.com/index.php', $app->config['webhook_url']);
-        $this->assertInstanceOf(Telegram::class, $app->bot());
-        $this->assertSame('123456:TEST_TOKEN_APP', $app->bot()->getConfig()->botToken);
+        $this->assertInstanceOf(Telegram::class, $app->bot);
+        $this->assertSame('123456:TEST_TOKEN_APP', $app->bot->config->botToken);
     }
 
     public function testDefaultStorageAndFlowConfiguration(): void
@@ -111,7 +111,7 @@ PHP;
         $this->assertStringContainsString('Deny from all', (string)file_get_contents($expectedStorage . '/.htaccess'));
 
         // Verify flow store was set on FlowManager
-        $flowManager = $app->flowManager();
+        $flowManager = $app->flowManager;
         $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $flowManager);
     }
 
@@ -133,7 +133,7 @@ PHP;
         file_put_contents($this->tempDir . '/routes.php', $routesContent);
 
         $app = App::create($this->tempDir, ['token' => 'TEST_TOKEN']);
-        $router = $app->router();
+        $router = $app->router;
 
         $this->assertTrue($router->hasRoutes());
 
@@ -149,7 +149,7 @@ PHP;
             ],
         ]);
 
-        $res = $router->dispatch($startUpdate, $app->bot());
+        $res = $router->dispatch($startUpdate, $app->bot);
         $this->assertSame('START_COMMAND_CALLED', $res);
 
         // Test route dispatch for /help
@@ -164,7 +164,7 @@ PHP;
             ],
         ]);
 
-        $res2 = $router->dispatch($helpUpdate, $app->bot());
+        $res2 = $router->dispatch($helpUpdate, $app->bot);
         $this->assertSame('HELP_COMMAND_CALLED', $res2);
     }
 
@@ -201,11 +201,11 @@ PHP;
             ->onCallbackQuery('btn', fn() => 'clicked');
 
         $this->assertSame($app, $chained);
-        $this->assertTrue($app->router()->hasRoutes());
+        $this->assertTrue($app->router->hasRoutes());
 
-        $this->assertInstanceOf(\Tueen\Telegram\Routing\Router::class, $app->router());
-        $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $app->flowManager());
-        $this->assertInstanceOf(Telegram::class, $app->getBot());
+        $this->assertInstanceOf(\Tueen\Telegram\Routing\Router::class, $app->router);
+        $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $app->flowManager);
+        $this->assertInstanceOf(Telegram::class, $app->bot);
     }
 
     public function testRoutesWithBotOnlyParameter(): void
@@ -223,7 +223,7 @@ PHP;
         file_put_contents($routesPath, $routesCode);
 
         $app = App::create($this->tempDir, ['token' => 'TEST_TOKEN']);
-        $this->assertTrue($app->router()->hasRoutes());
+        $this->assertTrue($app->router->hasRoutes());
 
         $update = new Update([
             'update_id' => 300,
@@ -236,7 +236,7 @@ PHP;
             ],
         ]);
 
-        $res = $app->router()->dispatch($update, $app->bot());
+        $res = $app->router->dispatch($update, $app->bot);
         $this->assertSame('BOT_ONLY_SUCCESS', $res);
     }
 
@@ -270,7 +270,7 @@ PHP;
             ],
         ]);
 
-        $res = $app->router()->dispatch($update, $app->bot());
+        $res = $app->router->dispatch($update, $app->bot);
         $this->assertSame('BASE:' . basename($this->tempDir), $res);
     }
 
@@ -387,7 +387,7 @@ PHP;
             ],
         ]);
 
-        $res = $app->router()->dispatch($update, $app->bot());
+        $res = $app->router->dispatch($update, $app->bot);
         $this->assertSame('PONG_FROM_CONTROLLER', $res);
     }
 }

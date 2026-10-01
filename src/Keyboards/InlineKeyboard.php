@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Keyboards;
 
-use Tueen\Telegram\Types\CopyTextButton;
 use Tueen\Telegram\Types\InlineKeyboardButton;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\LoginUrl;
 use Tueen\Telegram\Types\SwitchInlineQueryChosenChat;
-use Tueen\Telegram\Types\WebAppInfo;
 
 /**
  * Fluent builder for Telegram InlineKeyboardMarkup.
@@ -238,6 +236,7 @@ class InlineKeyboard extends InlineKeyboardMarkup
     /**
      * Returns the array representation for API requests.
      */
+    #[\Override]
     public function toArray(): array
     {
         if (!empty($this->rows)) {

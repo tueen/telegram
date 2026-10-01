@@ -17,7 +17,6 @@ use Tueen\Telegram\Types\Custom\BooleanResult;
 use Tueen\Telegram\Types\Error;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Types\User;
 
 class ErrorHandlingTest extends TestCase
 {
@@ -65,8 +64,8 @@ class ErrorHandlingTest extends TestCase
         $this->assertFalse($error->ok());
         $this->assertSame(429, $error->errorCode);
         $this->assertSame('Too Many Requests: retry after 42', $error->description);
-        $this->assertSame(42, $error->getRetryAfter());
-        $this->assertSame(-100123456789, $error->getMigrateToChatId());
+        $this->assertSame(42, $error->retryAfter);
+        $this->assertSame(-100123456789, $error->migrateToChatId);
         $this->assertSame($apiPayload['parameters'], $error->parameters);
         $this->assertArrayHasKey('error_code', $error);
         $this->assertSame(429, $error['error_code']);
@@ -175,7 +174,7 @@ class ErrorHandlingTest extends TestCase
         $this->assertInstanceOf(Error::class, $result);
         $this->assertFalse($result->ok());
         $this->assertSame(429, $result->errorCode);
-        $this->assertSame(15, $result->getRetryAfter());
+        $this->assertSame(15, $result->retryAfter);
         $this->assertInstanceOf(RateLimitException::class, $result->exception);
     }
 

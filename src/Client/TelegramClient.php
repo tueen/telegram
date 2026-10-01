@@ -36,10 +36,10 @@ use Tueen\Telegram\Types\Type;
  */
 class TelegramClient
 {
-    private Config $config;
-    private HttpClientInterface $httpClient;
-    private Pipeline $pipeline;
-    private ?ContextResolver $contextResolver = null;
+    private(set) Config $config;
+    private(set) HttpClientInterface $httpClient;
+    private(set) Pipeline $pipeline;
+    public ?ContextResolver $contextResolver = null;
 
     /** @var list<callable> */
     private array $beforeRequestHooks = [];
@@ -65,32 +65,6 @@ class TelegramClient
         if ($this->config->logger !== null) {
             $this->pipeline->pipe(new LoggingMiddleware($this->config->logger));
         }
-    }
-
-    public function getConfig(): Config
-    {
-        return $this->config;
-    }
-
-    public function getHttpClient(): HttpClientInterface
-    {
-        return $this->httpClient;
-    }
-
-    public function getPipeline(): Pipeline
-    {
-        return $this->pipeline;
-    }
-
-    public function setContextResolver(?ContextResolver $resolver): static
-    {
-        $this->contextResolver = $resolver;
-        return $this;
-    }
-
-    public function getContextResolver(): ?ContextResolver
-    {
-        return $this->contextResolver;
     }
 
     /**
@@ -161,7 +135,7 @@ class TelegramClient
 
         [$params, $files] = $method->buildRequestData();
 
-        $endpoint = $method->getEndpoint();
+        $endpoint = $method->endpoint;
         $requestTimeout = null;
 
         // Long-polling: ensure HTTP client timeout exceeds Telegram server wait timeout
@@ -180,7 +154,7 @@ class TelegramClient
             endpoint: $endpoint,
             parameters: $params,
             files: $files,
-            httpMethod: $method->getHttpMethod(),
+            httpMethod: $method->httpMethod,
             uploadProgress: $uploadProgress ?? $options?->uploadProgress ?? $this->config->uploadProgress,
             downloadProgress: $downloadProgress ?? $options?->downloadProgress ?? $this->config->downloadProgress,
             timeout: $requestTimeout,
@@ -198,12 +172,12 @@ class TelegramClient
 
             $this->triggerAfterRequest($response, $request);
 
-            if (!$response->isOk()) {
+            if (!$response->ok) {
                 throw ApiException::fromResponse($response->data);
             }
 
-            $result = $response->getResult();
-            $returnInfo = $method->getReturnTypeInfo();
+            $result = $response->result;
+            $returnInfo = $method->returnTypeInfo;
             $unwrapped = $this->unwrapResult($result, $returnInfo?->type, $returnInfo?->isArray ?? false);
 
             if ($unwrapped instanceof Type) {
@@ -291,22 +265,21 @@ class TelegramClient
         }
 
         $dynamicMethod = new class($name, $arguments) extends Method {
+            public string $endpoint {
+                get => $this->endpointName;
+            }
+
             public function __construct(
                 private readonly string $endpointName,
                 array $args
             ) {
                 if (count($args) === 1 && isset($args[0]) && is_array($args[0])) {
-                    $this->parameters = $args[0];
+                    $this->customParameters = $args[0];
                 } else {
                     foreach ($args as $k => $v) {
-                        $this->parameters[Type::toSnakeCase((string)$k)] = $v;
+                        $this->customParameters[Type::toSnakeCase((string)$k)] = $v;
                     }
                 }
-            }
-
-            public function getEndpoint(): string
-            {
-                return $this->endpointName;
             }
         };
 
@@ -366,7 +339,7 @@ class TelegramClient
                 if ($val instanceof Text) {
                     $passedArgs[$pName] = (string) $val;
                     if (!isset($arguments['parse_mode']) && !isset($arguments['parseMode']) && !isset($passedArgs['parseMode'])) {
-                        $passedArgs['parseMode'] = $val->parseMode();
+                        $passedArgs['parseMode'] = $val->parseMode;
                     }
                 } elseif ($val instanceof InlineKeyboard || $val instanceof ReplyKeyboard) {
                     $passedArgs[$pName] = $val->build();

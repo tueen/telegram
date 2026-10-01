@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Flow;
 
-use Closure;
 use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Keyboards\InlineKeyboard;
 use Tueen\Telegram\Keyboards\ReplyKeyboard;
 use Tueen\Telegram\Types\ForceReply;
-use Tueen\Telegram\Types\InlineKeyboardMarkup;
-use Tueen\Telegram\Types\ReplyKeyboardMarkup;
-use Tueen\Telegram\Types\ReplyKeyboardRemove;
 
 /**
  * Screen encapsulates the visual representation of an InteractiveFlow step.
@@ -20,23 +16,30 @@ use Tueen\Telegram\Types\ReplyKeyboardRemove;
  */
 class Screen
 {
-    private string $text = '';
-    private ParseMode|string|null $parseMode = null;
-    private mixed $keyboard = null;
-    private mixed $media = null;
-    private ?string $mediaType = null;
-    private mixed $mediaSource = null;
-    private ?array $pagination = null;
-    private ?array $checklist = null;
-    private ?array $stepper = null;
-    private bool $enableBreadcrumbs = false;
-    private string $breadcrumbsSeparator = ' › ';
-    private ?Navigation $navigation = null;
-    private bool $editIfPossible = true;
+    private string $rawText = '';
+    private(set) ParseMode|string|null $parseMode = null;
+    private(set) mixed $keyboard = null;
+    private(set) mixed $media = null;
+    private(set) ?string $mediaType = null;
+    private(set) mixed $mediaSource = null;
+    private(set) ?array $pagination = null;
+    private(set) ?array $checklist = null;
+    private(set) ?array $stepper = null;
+    private(set) bool $enableBreadcrumbs = false;
+    private(set) string $breadcrumbsSeparator = ' › ';
+    private(set) ?Navigation $navigation = null;
+    private(set) bool $editIfPossible = true;
+
+    /**
+     * Resolves the compiled screen text, including stepper indicators if configured.
+     */
+    public string $text {
+        get => $this->resolveCompiledText();
+    }
 
     public function __construct(string $text = '')
     {
-        $this->text = $text;
+        $this->rawText = $text;
     }
 
     #[\NoDiscard]
@@ -47,7 +50,7 @@ class Screen
 
     public function text(string $text): self
     {
-        $this->text = $text;
+        $this->rawText = $text;
         return $this;
     }
 
@@ -145,7 +148,7 @@ class Screen
         $this->mediaType = 'photo';
         $this->mediaSource = $photo;
         if ($caption !== null) {
-            $this->text = $caption;
+            $this->rawText = $caption;
         }
         return $this;
     }
@@ -155,7 +158,7 @@ class Screen
         $this->mediaType = 'video';
         $this->mediaSource = $video;
         if ($caption !== null) {
-            $this->text = $caption;
+            $this->rawText = $caption;
         }
         return $this;
     }
@@ -165,7 +168,7 @@ class Screen
         $this->mediaType = 'animation';
         $this->mediaSource = $animation;
         if ($caption !== null) {
-            $this->text = $caption;
+            $this->rawText = $caption;
         }
         return $this;
     }
@@ -254,25 +257,15 @@ class Screen
         return $this;
     }
 
-    public function isBreadcrumbsEnabled(): bool
-    {
-        return $this->enableBreadcrumbs;
-    }
-
-    public function getBreadcrumbsSeparator(): string
-    {
-        return $this->breadcrumbsSeparator;
-    }
-
     public function editIfPossible(bool $edit = true): self
     {
         $this->editIfPossible = $edit;
         return $this;
     }
 
-    public function getText(): string
+    public function resolveCompiledText(): string
     {
-        $content = $this->text;
+        $content = $this->rawText;
 
         if ($this->stepper !== null) {
             $cur = $this->stepper['currentStep'];
@@ -303,41 +296,6 @@ class Screen
         }
 
         return $content;
-    }
-
-    public function getParseMode(): ParseMode|string|null
-    {
-        return $this->parseMode;
-    }
-
-    public function getKeyboard(): mixed
-    {
-        return $this->keyboard;
-    }
-
-    public function getMedia(): mixed
-    {
-        return $this->media;
-    }
-
-    public function getMediaType(): ?string
-    {
-        return $this->mediaType;
-    }
-
-    public function getMediaSource(): mixed
-    {
-        return $this->mediaSource;
-    }
-
-    public function getNavigation(): ?Navigation
-    {
-        return $this->navigation;
-    }
-
-    public function shouldEditIfPossible(): bool
-    {
-        return $this->editIfPossible;
     }
 
     /**

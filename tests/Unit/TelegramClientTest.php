@@ -37,7 +37,7 @@ class TelegramClientTest extends TestCase
         $this->assertSame(45.0, $config->timeout);
         $this->assertSame('http://127.0.0.1:10809', $config->proxy);
         $this->assertSame(5, $config->retryCount);
-        $this->assertSame('https://api.telegram.org/botTEST_TOKEN_123', $config->getBaseApiUrl());
+        $this->assertSame('https://api.telegram.org/botTEST_TOKEN_123', $config->baseApiUrl);
     }
 
     public function testDynamicMethodDispatchAndDeserialization(): void

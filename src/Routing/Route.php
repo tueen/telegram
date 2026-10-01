@@ -18,17 +18,12 @@ class Route
 
     public function __construct(
         UpdateType|string $type,
-        private readonly ?string $pattern,
-        private readonly mixed $handler,
+        public readonly ?string $pattern,
+        public readonly mixed $handler,
         bool $isCommand = false
     ) {
         $this->typeString = $type instanceof UpdateType ? $type->value : $type;
         $this->isCommand = $isCommand;
-    }
-
-    public function getHandler(): mixed
-    {
-        return $this->handler;
     }
 
     /**
@@ -48,7 +43,7 @@ class Route
                 return false;
             }
 
-            $command = $msg->getCommand();
+            $command = $msg->command;
             $target = ltrim($this->pattern ?? '', '/');
 
             // Handle bot username mentions in command (e.g. /start@MyBot)

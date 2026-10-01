@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Types\Custom;
 
 use ArrayIterator;
-use Countable;
-use Traversable;
 use Tueen\Telegram\Types\Type;
 
 /**
@@ -15,12 +13,47 @@ use Tueen\Telegram\Types\Type;
  *
  * @template T
  */
-class ArrayResult extends Type implements Countable
+class ArrayResult extends Type
 {
     /**
      * @var array<int|string, mixed>
      */
     private(set) array $items = [];
+
+    /**
+     * First element of the items collection, or null if empty.
+     */
+    public mixed $first {
+        get => array_first($this->items);
+    }
+
+    /**
+     * Last element of the items collection, or null if empty.
+     */
+    public mixed $last {
+        get => array_last($this->items);
+    }
+
+    /**
+     * Number of items in the collection.
+     */
+    public int $count {
+        get => count($this->items);
+    }
+
+    /**
+     * Whether the collection contains no items.
+     */
+    public bool $isEmpty {
+        get => empty($this->items);
+    }
+
+    /**
+     * Whether the collection contains at least one item.
+     */
+    public bool $isNotEmpty {
+        get => !empty($this->items);
+    }
 
     /**
      * @param array<int|string, mixed> $items
@@ -36,51 +69,9 @@ class ArrayResult extends Type implements Countable
         }
     }
 
-    /**
-     * @return array<int|string, mixed>
-     */
-    #[\NoDiscard]
-    public function all(): array
-    {
-        return $this->items;
-    }
-
-    /**
-     * @return mixed
-     */
-    #[\NoDiscard]
-    public function first(): mixed
-    {
-        return array_first($this->items);
-    }
-
-    /**
-     * @return mixed
-     */
-    #[\NoDiscard]
-    public function last(): mixed
-    {
-        return array_last($this->items);
-    }
-
     public function get(int|string $key, mixed $default = null): mixed
     {
         return $this->items[$key] ?? $default;
-    }
-
-    public function count(): int
-    {
-        return count($this->items);
-    }
-
-    public function isEmpty(): bool
-    {
-        return empty($this->items);
-    }
-
-    public function isNotEmpty(): bool
-    {
-        return !empty($this->items);
     }
 
     /**
@@ -119,21 +110,25 @@ class ArrayResult extends Type implements Countable
         return $values;
     }
 
+    #[\Override]
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->items);
     }
 
+    #[\Override]
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->items[$offset]);
     }
 
+    #[\Override]
     public function offsetGet(mixed $offset): mixed
     {
         return $this->items[$offset] ?? null;
     }
 
+    #[\Override]
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($offset === null) {
@@ -143,11 +138,13 @@ class ArrayResult extends Type implements Countable
         }
     }
 
+    #[\Override]
     public function offsetUnset(mixed $offset): void
     {
         unset($this->items[$offset]);
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
         return array_map(function ($item) {
@@ -158,11 +155,13 @@ class ArrayResult extends Type implements Countable
         }, $this->items);
     }
 
+    #[\Override]
     public function toArray(): array
     {
         return $this->jsonSerialize();
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return json_encode($this->jsonSerialize(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ?: '[]';

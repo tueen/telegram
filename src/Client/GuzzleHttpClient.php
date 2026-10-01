@@ -41,10 +41,11 @@ class GuzzleHttpClient implements HttpClientInterface
         return $this->guzzle = new GuzzleClient($options);
     }
 
+    #[\Override]
     public function send(Config $config, Request $request): Response
     {
         $client = $this->getClient($config);
-        $url = $config->getBaseApiUrl() . '/' . $request->endpoint;
+        $url = $config->baseApiUrl . '/' . $request->endpoint;
 
         $options = [];
 
@@ -78,7 +79,7 @@ class GuzzleHttpClient implements HttpClientInterface
             };
         }
 
-        if ($request->isMultipart()) {
+        if ($request->isMultipart) {
             $multipart = [];
             foreach ($request->parameters as $name => $contents) {
                 if (is_bool($contents)) {
@@ -119,13 +120,14 @@ class GuzzleHttpClient implements HttpClientInterface
         }
     }
 
+    #[\Override]
     public function download(Config $config, string $fileUrl, mixed $destination, ?callable $progress = null): bool
     {
         $client = $this->getClient($config);
 
         // If fileUrl is relative (e.g. photos/file_1.jpg), prepend base file url
         if (!str_starts_with($fileUrl, 'http://') && !str_starts_with($fileUrl, 'https://')) {
-            $url = $config->getBaseFileUrl() . '/' . ltrim($fileUrl, '/');
+            $url = $config->baseFileUrl . '/' . ltrim($fileUrl, '/');
         } else {
             $url = $fileUrl;
         }

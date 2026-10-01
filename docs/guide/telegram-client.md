@@ -137,17 +137,17 @@ use Tueen\Telegram\Telegram;
 $bot = new Telegram('YOUR_BOT_TOKEN');
 
 // 1. Pure HTTP client (useful for worker queue jobs that only call API methods without processing updates):
-$client = $bot->getClient();
+$client = $bot->client;
 $me = $client->getMe();
 
 // 2. Underlying router instance:
-$router = $bot->router();
+$router = $bot->router;
 
 // 3. Flow state manager (for custom state stores or manual session manipulation):
-$flowManager = $bot->flowManager();
+$flowManager = $bot->flowManager;
 
 // 4. Context parameter resolver:
-$context = $bot->context();
+$context = $bot->context;
 ```
 
 ---
@@ -158,7 +158,7 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 ### 🏛️ Class Constants & Public Properties
 
-<ApiGroup description="Core version identifiers and read-only subsystem properties protected by PHP 8.4 asymmetric visibility.">
+<ApiGroup description="Core version identifiers and subsystem properties protected by PHP 8.4 asymmetric visibility and property hooks.">
   <ApiCard
     type="constant"
     sig="public const string BOT_API_VERSION = '10.3'"
@@ -176,31 +176,66 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
   />
   <ApiCard
     type="property"
-    sig="public private(set) ?Update $update = null"
+    sig="public ?Update $update = null"
     returns="?Update"
-    badge="Asymmetric Visibility"
+    badge="Property Hook"
     desc="Current resolved Update instance for the active request lifecycle. Defaults to null until resolved by WebhookMode or PollingMode."
   />
   <ApiCard
     type="property"
-    sig="public private(set) ContextResolver $context"
+    sig="private(set) ContextResolver $context"
     returns="ContextResolver"
     badge="Asymmetric Visibility"
     desc="Contextual parameter resolver instance automatically bound to $update for argument auto-injection."
   />
   <ApiCard
     type="property"
-    sig="public private(set) TelegramClient $client"
+    sig="private(set) TelegramClient $client"
     returns="TelegramClient"
     badge="Asymmetric Visibility"
     desc="Underlying pure HTTP transport client handling serialization, multipart uploads, and PSR-18 communication."
   />
   <ApiCard
     type="property"
-    sig="public private(set) UpdateDispatcher $dispatcher"
+    sig="private(set) UpdateDispatcher $dispatcher"
     returns="UpdateDispatcher"
     badge="Asymmetric Visibility"
     desc="Incoming update dispatcher managing the middleware pipeline, route execution, and exception catchers."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) Config $config"
+    returns="Config"
+    badge="Asymmetric Visibility"
+    desc="Immutable client configuration driving timeouts, tokens, and networking."
+  />
+  <ApiCard
+    type="property"
+    sig="public RunningModeInterface $runningMode"
+    returns="RunningModeInterface"
+    badge="Property Hook"
+    desc="Active running mode instance (e.g. WebhookMode, PollingMode, or AutoMode)."
+  />
+  <ApiCard
+    type="property"
+    sig="public mixed $container"
+    returns="mixed"
+    badge="Property Hook"
+    desc="Configured PSR-11 dependency injection container or callable resolver."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowManager $flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Multi-step conversational flow manager and state orchestrator."
+  />
+  <ApiCard
+    type="property"
+    sig="public Router $router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Incoming update router and controller registry."
   />
 </ApiGroup>
 
@@ -226,11 +261,6 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     returns="Telegram"
     badge="Constructor"
     desc="Instantiates the primary Telegram client directly using either a plain bot token string or a pre-built immutable Config object."
-  />
-  <ApiCard
-    sig="getConfig()"
-    returns="Config"
-    desc="Retrieves the immutable Config instance currently driving this client."
   />
 </ApiGroup>
 
@@ -260,11 +290,6 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     sig="setRunningMode(RunningModeInterface $mode)"
     returns="static"
     desc="Sets an explicit running mode instance (e.g. custom WebhookMode, PollingMode, or user-defined runner)."
-  />
-  <ApiCard
-    sig="getRunningMode()"
-    returns="RunningModeInterface"
-    desc="Returns the active running mode instance (defaults to WebhookMode if unspecified)."
   />
   <ApiCard
     sig="poll(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null)"
@@ -626,20 +651,26 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 ### I. Underlying Subsystems & Dependency Injection
 
-<ApiGroup description="Direct access to decoupled client subsystems and PSR-11 container integration.">
+<ApiGroup description="Direct access to decoupled client subsystems and PSR-11 container integration via PHP 8.4 property hooks.">
   <ApiCard
-    sig="getClient()"
+    type="property"
+    sig="$bot->client"
     returns="TelegramClient"
+    badge="Property"
     desc="Returns the pure TelegramClient instance to execute Bot API requests directly, bypassing update processing."
   />
   <ApiCard
-    sig="getDispatcher()"
+    type="property"
+    sig="$bot->dispatcher"
     returns="UpdateDispatcher"
+    badge="Property"
     desc="Returns the underlying UpdateDispatcher instance managing handlers and catchers."
   />
   <ApiCard
-    sig="context()"
+    type="property"
+    sig="$bot->context"
     returns="ContextResolver"
+    badge="Property"
     desc="Returns the ContextResolver instance for registering or inspecting contextual defaults."
   />
   <ApiCard
@@ -648,8 +679,24 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     desc="Configures a PSR-11 container or callable resolver used for dependency injection in controllers, handlers, and flows."
   />
   <ApiCard
-    sig="getContainer()"
+    type="property"
+    sig="$bot->container"
     returns="mixed"
-    desc="Returns the configured PSR-11 dependency injection container."
+    badge="Property Hook"
+    desc="Returns the configured PSR-11 dependency injection container or container resolver."
+  />
+  <ApiCard
+    type="property"
+    sig="$bot->flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Returns the underlying FlowManager state orchestrator managing storage drivers and transition hooks."
+  />
+  <ApiCard
+    type="property"
+    sig="$bot->router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Returns the underlying Router instance for custom route group manipulation."
   />
 </ApiGroup>

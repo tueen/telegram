@@ -84,7 +84,7 @@ try {
     $bot->sendMessage(chatId: $userId, text: strip_tags($markdownText));
 } catch (RateLimitException $e) {
     // Flood wait: inspect retryAfter duration
-    sleep($e->getRetryAfter());
+    sleep($e->retryAfter);
 } catch (BadRequestException $e) {
     // Catch-all for any other 400 Bad Request
 } catch (ApiException $e) {
@@ -105,7 +105,7 @@ use Tueen\Telegram\Enums\TelegramErrorCode;
 match ($error->reason) {
     TelegramErrorCode::BotBlocked => $user->markBlocked(),
     TelegramErrorCode::ChatNotFound => $user->delete(),
-    TelegramErrorCode::FloodWait => sleep($error->getRetryAfter()),
+    TelegramErrorCode::FloodWait => sleep($error->retryAfter),
     TelegramErrorCode::CantParseEntities => $bot->sendMessage(chatId: $chatId, text: $plain),
     default => $logger->error($error->description),
 };
@@ -139,7 +139,7 @@ if (!$res->ok()) {
     if ($res->isChatNotFound()) { ... }
     if ($res->isBotBlocked()) { ... }
     if ($res->isRateLimit()) {
-        $seconds = $res->getRetryAfter();
+        $seconds = $res->retryAfter;
     }
 
     // 3. Convert to exception on demand
@@ -182,7 +182,7 @@ use Tueen\Telegram\Methods\SendMessage;
 $method = new SendMessage(chatId: 12345, text: 'Hello');
 
 // Inspect expected errors programmatically
-$expectedErrors = $method->getExpectedErrors();
+$expectedErrors = $method->expectedErrors;
 // [TelegramErrorCode::ChatNotFound, TelegramErrorCode::BotBlocked, TelegramErrorCode::MessageTooLong, ...]
 ```
 

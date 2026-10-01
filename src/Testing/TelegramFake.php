@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Testing;
 
-use Closure;
 use PHPUnit\Framework\Assert;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Config;
@@ -24,7 +23,7 @@ use Tueen\Telegram\Types\Update;
  */
 class TelegramFake extends Telegram
 {
-    private FakeHttpClient $fakeClient;
+    private(set) FakeHttpClient $fakeClient;
 
     public function __construct(
         string|Config $tokenOrConfig = 'FAKE_BOT_TOKEN',
@@ -41,11 +40,6 @@ class TelegramFake extends Telegram
         }
 
         parent::__construct($config);
-    }
-
-    public function getFakeClient(): FakeHttpClient
-    {
-        return $this->fakeClient;
     }
 
     /**

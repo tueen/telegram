@@ -169,14 +169,14 @@ class Router
     public function dispatch(Update $update, Telegram $bot): mixed
     {
         // 1. If user is in an active Flow, dispatch to Flow first!
-        if ($bot->flowManager()->handle($update, $bot)) {
+        if ($bot->flowManager->handle($update, $bot)) {
             return true;
         }
 
         foreach ($this->routes as $route) {
             $parameters = [];
             if ($route->matches($update, $bot, $parameters)) {
-                return $this->invokeHandler($route->getHandler(), $update, $bot, $parameters);
+                return $this->invokeHandler($route->handler, $update, $bot, $parameters);
             }
         }
 
@@ -224,7 +224,7 @@ class Router
     private function instantiateController(string $class, Telegram $bot): object
     {
         // Container resolution if available
-        $container = $bot->getConfig()->container;
+        $container = $bot->config->container;
         if ($container !== null) {
             if (is_object($container) && method_exists($container, 'has') && method_exists($container, 'get')) {
                 if ($container->has($class)) {

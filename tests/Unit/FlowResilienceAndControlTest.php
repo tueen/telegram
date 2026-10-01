@@ -10,7 +10,6 @@ use Tueen\Telegram\Enums\UpdateType;
 use Tueen\Telegram\Flow\Attributes\AllowedUpdates;
 use Tueen\Telegram\Flow\Flow;
 use Tueen\Telegram\Flow\FlowManager;
-use Tueen\Telegram\Flow\FlowSession;
 use Tueen\Telegram\Flow\FlowState;
 use Tueen\Telegram\Flow\InteractiveFlow;
 use Tueen\Telegram\Telegram;
@@ -129,7 +128,7 @@ class FlowResilienceAndControlTest extends TestCase
     public function testMissingFlowClassUnwindsStackToParentFlow(): void
     {
         $bot = Telegram::fake();
-        $manager = $bot->flowManager();
+        $manager = $bot->flowManager;
 
         $sessionKey = FlowManager::resolveSessionKey(12345, 12345);
 
@@ -162,7 +161,7 @@ class FlowResilienceAndControlTest extends TestCase
     public function testMissingFlowClassFallsBackToRootFlowWhenStackEmpty(): void
     {
         $bot = Telegram::fake();
-        $manager = $bot->flowManager();
+        $manager = $bot->flowManager;
         $manager->setRootFlow(ResilienceRootFlow::class);
 
         $sessionKey = FlowManager::resolveSessionKey(12345, 12345);
@@ -188,7 +187,7 @@ class FlowResilienceAndControlTest extends TestCase
     public function testMissingFlowClassCleansUpWhenNoParentAndNoRootFlow(): void
     {
         $bot = Telegram::fake();
-        $manager = $bot->flowManager();
+        $manager = $bot->flowManager;
 
         $sessionKey = FlowManager::resolveSessionKey(12345, 12345);
 
@@ -209,7 +208,7 @@ class FlowResilienceAndControlTest extends TestCase
     public function testMissingStepFallsBackToPreviousStepOrStart(): void
     {
         $bot = Telegram::fake();
-        $manager = $bot->flowManager();
+        $manager = $bot->flowManager;
 
         $sessionKey = FlowManager::resolveSessionKey(12345, 12345);
 
@@ -240,14 +239,14 @@ class FlowResilienceAndControlTest extends TestCase
         $this->assertTrue($bot->hasActiveFlow(12345, 12345));
 
         // Sending a callback_query should be disallowed and NOT captured by flow
-        $handledCb = $bot->flowManager()->handle($updateCb, $bot);
+        $handledCb = $bot->flowManager->handle($updateCb, $bot);
         $this->assertFalse($handledCb);
 
         // State remains active for subsequent allowed messages
         $this->assertTrue($bot->hasActiveFlow(12345, 12345));
 
         // Sending another message is allowed and handled
-        $handledMsg = $bot->flowManager()->handle($updateMsg, $bot);
+        $handledMsg = $bot->flowManager->handle($updateMsg, $bot);
         $this->assertTrue($handledMsg);
     }
 
@@ -261,11 +260,11 @@ class FlowResilienceAndControlTest extends TestCase
         $this->assertTrue($bot->hasActiveFlow(12345, 12345));
 
         // Sending message should be rejected by flow
-        $handledMsg = $bot->flowManager()->handle($updateMsg, $bot);
+        $handledMsg = $bot->flowManager->handle($updateMsg, $bot);
         $this->assertFalse($handledMsg);
 
         // Sending callback_query is handled
-        $handledCb = $bot->flowManager()->handle($updateCb, $bot);
+        $handledCb = $bot->flowManager->handle($updateCb, $bot);
         $this->assertTrue($handledCb);
     }
 
@@ -279,10 +278,10 @@ class FlowResilienceAndControlTest extends TestCase
 
         // 1. External inspection via $bot->flow()
         $session = $bot->flow(12345, 12345);
-        $this->assertTrue($session->isActive());
-        $this->assertSame(ExternalControlFlow::class, $session->getClass());
-        $this->assertSame('askName', $session->getStep());
-        $this->assertSame('chat:12345', $session->sessionKey());
+        $this->assertTrue($session->isActive);
+        $this->assertSame(ExternalControlFlow::class, $session->class);
+        $this->assertSame('askName', $session->step);
+        $this->assertSame('chat:12345', $session->sessionKey);
 
         // 2. Data manipulation
         $session->set('customKey', 'customValue');
@@ -291,12 +290,12 @@ class FlowResilienceAndControlTest extends TestCase
 
         // 3. Step control via to()
         $session->to('askAge', ['name' => 'Alice']);
-        $this->assertSame('askAge', $session->getStep());
+        $this->assertSame('askAge', $session->step);
         $this->assertSame('Alice', $session->get('name'));
 
         // 4. Navigation back via back()
         $session->back();
-        $this->assertSame('askName', $session->getStep());
+        $this->assertSame('askName', $session->step);
 
         // 5. Direct inspection methods on $bot
         $this->assertTrue($bot->hasActiveFlow(12345, 12345));
@@ -321,7 +320,7 @@ class FlowResilienceAndControlTest extends TestCase
         $this->assertSame(['message', 'callback_query'], $config->flowAllowedUpdates);
 
         $bot = new Telegram($config);
-        $this->assertSame(ResilienceRootFlow::class, $bot->flowManager()->getRootFlow());
-        $this->assertSame(['message', 'callback_query'], $bot->flowManager()->getDefaultAllowedUpdates());
+        $this->assertSame(ResilienceRootFlow::class, $bot->flowManager->rootFlow);
+        $this->assertSame(['message', 'callback_query'], $bot->flowManager->defaultAllowedUpdates);
     }
 }

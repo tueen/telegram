@@ -5,23 +5,16 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Tueen\Telegram\Client\HttpClientInterface;
 use Tueen\Telegram\Client\Response;
-use Tueen\Telegram\Enums\ErrorHandlingMode;
 use Tueen\Telegram\Enums\TelegramErrorCode;
 use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\BadRequestException;
 use Tueen\Telegram\Exceptions\BotBlockedException;
-use Tueen\Telegram\Exceptions\CantParseEntitiesException;
 use Tueen\Telegram\Exceptions\ChatNotFoundException;
-use Tueen\Telegram\Exceptions\ConflictException;
 use Tueen\Telegram\Exceptions\ErrorMatcher;
-use Tueen\Telegram\Exceptions\FileTooLargeException;
 use Tueen\Telegram\Exceptions\ForbiddenException;
-use Tueen\Telegram\Exceptions\MessageTooLongException;
 use Tueen\Telegram\Exceptions\RateLimitException;
-use Tueen\Telegram\Exceptions\UnauthorizedException;
 use Tueen\Telegram\Methods\SendMessage;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Error;
@@ -91,7 +84,7 @@ class TypedErrorsTest extends TestCase
 
         $rateEx = ErrorMatcher::createException('Too Many Requests: retry after 30', 429, ['retry_after' => 30]);
         $this->assertInstanceOf(RateLimitException::class, $rateEx);
-        $this->assertSame(30, $rateEx->getRetryAfter());
+        $this->assertSame(30, $rateEx->retryAfter);
         $this->assertSame(TelegramErrorCode::FloodWait, $rateEx->reason);
         $this->assertTrue($rateEx->isRateLimit());
     }
@@ -169,7 +162,7 @@ class TypedErrorsTest extends TestCase
     public function testMethodDeclaresExpectedErrorsViaAttribute(): void
     {
         $method = new SendMessage(chatId: 123, text: 'Test');
-        $expectedErrors = $method->getExpectedErrors();
+        $expectedErrors = $method->expectedErrors;
 
         $this->assertNotEmpty($expectedErrors);
         $this->assertContains(TelegramErrorCode::ChatNotFound, $expectedErrors);

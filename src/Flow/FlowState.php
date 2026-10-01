@@ -12,6 +12,13 @@ use JsonSerializable;
 final class FlowState implements JsonSerializable
 {
     /**
+     * Checks if the state has expired according to its expiresAt timestamp.
+     */
+    public bool $isExpired {
+        get => $this->expiresAt !== null && time() > $this->expiresAt;
+    }
+
+    /**
      * @param class-string<Flow> $flowClass
      * @param string $currentStep
      * @param list<string> $history
@@ -47,7 +54,7 @@ final class FlowState implements JsonSerializable
      */
     public function isExpired(): bool
     {
-        return $this->expiresAt !== null && time() > $this->expiresAt;
+        return $this->isExpired;
     }
 
     /**
@@ -86,6 +93,7 @@ final class FlowState implements JsonSerializable
         ];
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
         return $this->toArray();

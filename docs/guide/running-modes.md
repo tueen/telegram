@@ -45,7 +45,7 @@ class CommandHandler
     public function __invoke(Update $update, Telegram $bot): void
     {
         $message = $update->findMessage();
-        if ($message?->isCommand && $message->getCommand() === 'start') {
+        if ($message?->isCommand && $message->command === 'start') {
             $bot->sendMessage(
                 chatId: $update->findChat()->id,
                 text: 'Welcome to Tueen!'
@@ -274,7 +274,7 @@ The official Telegram Bot API method to fetch updates is `getUpdates` (plural). 
 $updatesResult = $bot->getUpdates(offset: 0, limit: 10);
 
 if ($updatesResult->ok()) {
-    foreach ($updatesResult->all() as $update) {
+    foreach ($updatesResult->items as $update) {
         echo "Update ID: {$update->updateId}\n";
     }
 }
@@ -418,7 +418,7 @@ class TelegramWebhookController
             })
             // Step 3: Prioritize active conversation flows
             |> (function (Update $update) use ($bot): ?Update {
-                if ($bot->flowManager()->handle($update, $bot)) {
+                if ($bot->flowManager->handle($update, $bot)) {
                     return null; // Flow consumed the update, halt pipeline
                 }
                 return $update;
@@ -426,7 +426,7 @@ class TelegramWebhookController
             // Step 4: Dispatch to attribute router if not consumed by a flow
             |> (function (?Update $update) use ($bot): void {
                 if ($update !== null) {
-                    $bot->router()->dispatch($update);
+                    $bot->router->dispatch($update);
                 }
             });
     }

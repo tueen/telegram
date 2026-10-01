@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Tueen\Telegram\Enums\UpdateType;
 use Tueen\Telegram\Routing\Attributes\OnCallbackQuery;
 use Tueen\Telegram\Routing\Attributes\OnCommand;
-use Tueen\Telegram\Routing\Attributes\OnInlineQuery;
-use Tueen\Telegram\Routing\Attributes\OnMessage;
 use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
@@ -194,7 +191,7 @@ class RoutingTest extends TestCase
             $called = true;
         });
 
-        $bot->router()->dispatch(new Update([
+        $bot->router->dispatch(new Update([
             'update_id' => 50,
             'message' => [
                 'message_id' => 50,

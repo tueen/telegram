@@ -49,6 +49,13 @@ abstract class Flow
     protected(set) FlowManager $manager;
 
     /**
+     * Unique session key for this chat and user combination.
+     */
+    public string $sessionKey {
+        get => FlowManager::resolveSessionKey($this->chatId, $this->userId);
+    }
+
+    /**
      * Commands that immediately cancel and exit the flow (e.g. ['/cancel', '/exit']).
      * @var list<string>
      */
@@ -73,12 +80,12 @@ abstract class Flow
      * Time-to-live for this flow state in seconds (default: 3600 = 1 hour).
      * Set to null for unlimited lifetime.
      */
-    protected ?int $ttl = 3600;
+    protected(set) ?int $ttl = 3600;
 
     /**
      * Internal flag indicating whether the flow has finished or moved.
      */
-    private bool $isTerminated = false;
+    protected(set) bool $isTerminated = false;
 
     /**
      * Initializes the Flow instance with runtime context.
@@ -139,7 +146,7 @@ abstract class Flow
             return $instance->types;
         }
 
-        return $this->manager->getDefaultAllowedUpdates();
+        return $this->manager->defaultAllowedUpdates;
     }
 
     /**
@@ -198,7 +205,7 @@ abstract class Flow
         // 3. Fallback to start() method if current step is not already start
         if ($step !== 'start' && method_exists($this, 'start')) {
             $this->state->currentStep = 'start';
-            $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+            $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
             $this->start($update);
             return;
         }
@@ -211,7 +218,7 @@ abstract class Flow
         }
 
         // 5. Fallback to rootFlow if configured on FlowManager
-        $rootFlow = $this->manager->getRootFlow();
+        $rootFlow = $this->manager->rootFlow;
         if ($rootFlow !== null && $rootFlow !== static::class && class_exists($rootFlow)) {
             $this->jumpTo($rootFlow);
             return;
@@ -255,7 +262,7 @@ abstract class Flow
             $this->state->data = array_merge($this->state->data, $data);
         }
 
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         return $this;
     }
 
@@ -278,7 +285,7 @@ abstract class Flow
             $this->bot->sendMessage(...$params);
         }
 
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         return $this;
     }
 
@@ -292,7 +299,7 @@ abstract class Flow
         if (!empty($this->state->history)) {
             $previousStep = array_pop($this->state->history);
             $this->state->currentStep = $previousStep;
-            $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+            $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
 
             if ($replyMessage !== null && $replyMessage !== '') {
                 $this->bot->sendMessage(chatId: $this->chatId, text: $replyMessage);
@@ -312,7 +319,7 @@ abstract class Flow
     public function finish(): void
     {
         $this->isTerminated = true;
-        $this->manager->deleteState($this->sessionKey());
+        $this->manager->deleteState($this->sessionKey);
         $this->onExit($this->update, 'finished');
     }
 
@@ -322,17 +329,12 @@ abstract class Flow
     public function cancel(?string $replyMessage = 'Operation cancelled.'): void
     {
         $this->isTerminated = true;
-        $this->manager->deleteState($this->sessionKey());
+        $this->manager->deleteState($this->sessionKey);
         $this->onExit($this->update, 'cancelled');
 
         if ($replyMessage !== null && $replyMessage !== '') {
             $this->bot->sendMessage(chatId: $this->chatId, text: $replyMessage);
         }
-    }
-
-    public function getTtl(): ?int
-    {
-        return $this->ttl;
     }
 
     /**
@@ -362,7 +364,7 @@ abstract class Flow
     public function set(string $key, mixed $value): static
     {
         $this->state->data[$key] = $value;
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         return $this;
     }
 
@@ -388,7 +390,7 @@ abstract class Flow
     public function remove(string $key): static
     {
         unset($this->state->data[$key]);
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         return $this;
     }
 
@@ -407,21 +409,8 @@ abstract class Flow
     public function clearData(): static
     {
         $this->state->data = [];
-        $this->manager->saveState($this->sessionKey(), $this->state, $this->ttl);
+        $this->manager->saveState($this->sessionKey, $this->state, $this->ttl);
         return $this;
-    }
-
-    /**
-     * Gets the session identifier key for this user/chat combination.
-     */
-    public function sessionKey(): string
-    {
-        return FlowManager::resolveSessionKey($this->chatId, $this->userId);
-    }
-
-    public function isTerminated(): bool
-    {
-        return $this->isTerminated;
     }
 
     public function __get(string $name): mixed

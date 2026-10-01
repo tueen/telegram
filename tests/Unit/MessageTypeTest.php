@@ -20,14 +20,13 @@ class MessageTypeTest extends TestCase
         ]);
 
         $this->assertSame(MessageType::TEXT, $message->type);
-        $this->assertSame(MessageType::TEXT, $message->getType());
         $this->assertTrue($message->isType(MessageType::TEXT));
         $this->assertFalse($message->isType(MessageType::PHOTO));
 
         $this->assertTrue($message->isCommand());
-        $this->assertSame('start', $message->getCommand());
-        $this->assertSame(['12345', 'hello_world'], $message->getArgs());
-        $this->assertSame('/start 12345 hello_world', $message->getText());
+        $this->assertSame('start', $message->command);
+        $this->assertSame(['12345', 'hello_world'], $message->args);
+        $this->assertSame('/start 12345 hello_world', $message->text);
     }
 
     public function testCommandWithBotUsername(): void
@@ -40,8 +39,8 @@ class MessageTypeTest extends TestCase
         ]);
 
         $this->assertTrue($message->isCommand());
-        $this->assertSame('ban', $message->getCommand());
-        $this->assertSame(['999', 'spamming', 'in', 'chat'], $message->getArgs());
+        $this->assertSame('ban', $message->command);
+        $this->assertSame(['999', 'spamming', 'in', 'chat'], $message->args);
     }
 
     public function testNonCommandTextMessage(): void
@@ -55,8 +54,8 @@ class MessageTypeTest extends TestCase
 
         $this->assertSame(MessageType::TEXT, $message->type);
         $this->assertFalse($message->isCommand());
-        $this->assertNull($message->getCommand());
-        $this->assertSame([], $message->getArgs());
+        $this->assertNull($message->command);
+        $this->assertSame([], $message->args);
     }
 
     public function testPhotoMessage(): void
@@ -84,7 +83,7 @@ class MessageTypeTest extends TestCase
 
         $this->assertSame(MessageType::PHOTO, $message->type);
         $this->assertTrue($message->isType(MessageType::PHOTO));
-        $this->assertSame('Check this photo', $message->getText());
+        $this->assertSame('Check this photo', $message->findAnyText());
         $this->assertFalse($message->isCommand());
     }
 
@@ -255,7 +254,6 @@ class MessageTypeTest extends TestCase
             'title' => 'Vue & PHP Enthusiasts',
         ]);
         $this->assertSame('Vue & PHP Enthusiasts', $groupChat->fullName);
-        $this->assertSame('Vue & PHP Enthusiasts', $groupChat->getFullName());
 
         // 2. Private Chat with First and Last Name
         $privateChat = new \Tueen\Telegram\Types\Chat([
@@ -265,7 +263,6 @@ class MessageTypeTest extends TestCase
             'last_name' => 'Dev',
         ]);
         $this->assertSame('Elsiom Dev', $privateChat->fullName);
-        $this->assertSame('Elsiom Dev', $privateChat->getFullName());
 
         // 3. Private Chat with only First Name
         $singleNameChat = new \Tueen\Telegram\Types\Chat([
@@ -283,7 +280,6 @@ class MessageTypeTest extends TestCase
             'last_name' => 'Doe',
         ]);
         $this->assertSame('Jane Doe', $user->fullName);
-        $this->assertSame('Jane Doe', $user->getFullName());
     }
 
     public function testFindFileIdAndLargestPhoto(): void
@@ -301,8 +297,8 @@ class MessageTypeTest extends TestCase
         ]);
 
         $this->assertSame('huge_id', $photoMessage->findFileId());
-        $this->assertSame('huge_id', $photoMessage->getFileId());
         $this->assertSame('huge_id', $photoMessage->fileId);
+        $this->assertSame('huge_id', $photoMessage->largestPhoto?->fileId);
 
         $largestPhoto = $photoMessage->findLargestPhoto();
         $this->assertNotNull($largestPhoto);

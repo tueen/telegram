@@ -96,7 +96,7 @@ class Doctor
         } else {
             try {
                 $start = microtime(true);
-                $me = $app->bot()->getMe();
+                $me = $app->bot->getMe();
                 $latencyMs = round((microtime(true) - $start) * 1000, 1);
 
                 if ($me instanceof Error || !$me->ok()) {

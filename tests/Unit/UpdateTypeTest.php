@@ -35,24 +35,20 @@ class UpdateTypeTest extends TestCase
         ]);
 
         $this->assertSame(UpdateType::MESSAGE, $update->type);
-        $this->assertSame(UpdateType::MESSAGE, $update->getType());
         $this->assertTrue($update->isType(UpdateType::MESSAGE));
         $this->assertFalse($update->isType(UpdateType::CALLBACK_QUERY));
 
         $msg = $update->findMessage();
         $this->assertInstanceOf(Message::class, $msg);
         $this->assertSame(50, $msg->messageId);
-        $this->assertSame($msg, $update->getMessage());
 
         $user = $update->findUser();
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame(999, $user->id);
-        $this->assertSame($user, $update->getUser());
 
         $chat = $update->findChat();
         $this->assertInstanceOf(Chat::class, $chat);
         $this->assertSame(12345, $chat->id);
-        $this->assertSame($chat, $update->getChat());
 
         // Test ID finders
         $this->assertSame(50, $update->findMessageId());
@@ -94,15 +90,15 @@ class UpdateTypeTest extends TestCase
         $this->assertSame(UpdateType::CALLBACK_QUERY, $update->type);
         $this->assertTrue($update->isType(UpdateType::CALLBACK_QUERY));
 
-        $user = $update->getUser();
+        $user = $update->findUser();
         $this->assertInstanceOf(User::class, $user);
         $this->assertSame(888, $user->id);
 
-        $chat = $update->getChat();
+        $chat = $update->findChat();
         $this->assertInstanceOf(Chat::class, $chat);
         $this->assertSame(-10011223344, $chat->id);
 
-        $msg = $update->getMessage();
+        $msg = $update->findMessage();
         $this->assertInstanceOf(Message::class, $msg);
         $this->assertSame(60, $msg->messageId);
     }
@@ -125,9 +121,9 @@ class UpdateTypeTest extends TestCase
 
         $this->assertSame(UpdateType::INLINE_QUERY, $update->type);
         $this->assertTrue($update->isType(UpdateType::INLINE_QUERY));
-        $this->assertSame(777, $update->getUser()?->id);
-        $this->assertNull($update->getChat());
-        $this->assertNull($update->getMessage());
+        $this->assertSame(777, $update->findUser()?->id);
+        $this->assertNull($update->findChat());
+        $this->assertNull($update->findMessage());
     }
 
     public function testChannelPostUpdateType(): void
@@ -148,8 +144,8 @@ class UpdateTypeTest extends TestCase
 
         $this->assertSame(UpdateType::CHANNEL_POST, $update->type);
         $this->assertTrue($update->isType(UpdateType::CHANNEL_POST));
-        $this->assertSame(-100998877, $update->getChat()?->id);
-        $this->assertSame(70, $update->getMessage()?->messageId);
+        $this->assertSame(-100998877, $update->findChat()?->id);
+        $this->assertSame(70, $update->findMessage()?->messageId);
     }
 
     public function testFindFileIdFromUpdate(): void
@@ -168,7 +164,6 @@ class UpdateTypeTest extends TestCase
         ]);
 
         $this->assertSame('ph_biggest', $update->findFileId());
-        $this->assertSame('ph_biggest', $update->getFileId());
         $this->assertSame('ph_biggest', $update->fileId);
 
         $textUpdate = new Update([

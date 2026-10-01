@@ -11,7 +11,6 @@ use Tueen\Telegram\Keyboards\InlineKeyboard;
 use Tueen\Telegram\Keyboards\ReplyKeyboard;
 use Tueen\Telegram\Methods\GetUpdates;
 use Tueen\Telegram\Methods\SendMessage;
-use Tueen\Telegram\Pipeline\RateLimitMiddleware;
 use Tueen\Telegram\Running\WebhookMode;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;

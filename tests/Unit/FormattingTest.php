@@ -100,7 +100,7 @@ class FormattingTest extends TestCase
 
         $html = (string)$text;
 
-        $this->assertSame(ParseMode::HTML, $text->parseMode());
+        $this->assertSame(ParseMode::HTML, $text->parseMode);
         $this->assertStringContainsString('<b>Welcome &lt;User&gt;!</b>', $html);
         $this->assertStringContainsString('<i>Special Offer &amp; Deals</i>', $html);
         $this->assertStringContainsString('<u>Important</u>', $html);
@@ -144,7 +144,7 @@ class FormattingTest extends TestCase
 
         $md = (string)$text;
 
-        $this->assertSame(ParseMode::MARKDOWN_V2, $text->parseMode());
+        $this->assertSame(ParseMode::MARKDOWN_V2, $text->parseMode);
         $this->assertStringContainsString('*Bold\\!*', $md);
         $this->assertStringContainsString('_Italic\\!_', $md);
         $this->assertStringContainsString('__Underline\\!__', $md);
@@ -203,17 +203,17 @@ class FormattingTest extends TestCase
     {
         $text = Text::html('Hello World');
 
-        $this->assertSame(11, $text->length());
-        $this->assertFalse($text->isEmpty());
-        $this->assertTrue($text->isNotEmpty());
+        $this->assertSame(11, $text->length);
+        $this->assertFalse($text->isEmpty);
+        $this->assertTrue($text->isNotEmpty);
         $this->assertTrue($text->isWithinLimit(4096));
 
         $text->truncate(8, '...');
         $this->assertSame('Hello...', (string)$text);
 
         $text->clear();
-        $this->assertTrue($text->isEmpty());
-        $this->assertSame(0, $text->length());
+        $this->assertTrue($text->isEmpty);
+        $this->assertSame(0, $text->length);
     }
 
     public function testDirectTextAndKeyboardPassingInClient(): void

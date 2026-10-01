@@ -13,7 +13,6 @@ use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\WebhookMode;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Custom\ArrayResult;
-use Tueen\Telegram\Types\Custom\InputFile;
 use Tueen\Telegram\Types\Error;
 use Tueen\Telegram\Types\Update;
 use Uri\Rfc3986\Uri;
@@ -69,13 +68,13 @@ class Php85FeaturesTest extends TestCase
     {
         $config = new Config(botToken: '123456:TEST_TOKEN', testEnvironment: true);
 
-        $apiUri = $config->getApiUri();
+        $apiUri = $config->apiUri;
         $this->assertInstanceOf(Uri::class, $apiUri);
         $this->assertSame('api.telegram.org', $apiUri->getHost());
         $this->assertSame('/bot123456:TEST_TOKEN/test', $apiUri->getPath());
         $this->assertSame('https', $apiUri->getScheme());
 
-        $fileUri = $config->getFileUri();
+        $fileUri = $config->fileUri;
         $this->assertInstanceOf(Uri::class, $fileUri);
         $this->assertSame('/file/bot123456:TEST_TOKEN/test', $fileUri->getPath());
 
@@ -88,27 +87,39 @@ class Php85FeaturesTest extends TestCase
 
     public function testArrayFirstAndArrayLast(): void
     {
+        // 1. Direct function tests (native PHP 8.5 or polyfill on PHP 8.4)
+        $this->assertSame('one', array_first(['one', 'two', 'three']));
+        $this->assertSame('three', array_last(['one', 'two', 'three']));
+        $this->assertNull(array_first([]));
+        $this->assertNull(array_last([]));
+
         $updates = [
             new Update(['update_id' => 10, 'message' => ['message_id' => 1, 'date' => 1, 'chat' => ['id' => 1, 'type' => 'private']]]),
             new Update(['update_id' => 20, 'message' => ['message_id' => 2, 'date' => 2, 'chat' => ['id' => 1, 'type' => 'private']]]),
             new Update(['update_id' => 30, 'message' => ['message_id' => 3, 'date' => 3, 'chat' => ['id' => 1, 'type' => 'private']]]),
         ];
 
-        // Testing in PollingMode
+        // 2. Testing in PollingMode
         $polling = new PollingMode();
         $this->assertSame(10, $polling->getFirstUpdate($updates)?->updateId);
         $this->assertSame(30, $polling->getLastUpdate($updates)?->updateId);
         $this->assertNull($polling->getFirstUpdate([]));
         $this->assertNull($polling->getLastUpdate([]));
 
-        // Testing in ArrayResult
+        // 3. Testing in ArrayResult property hooks
         $arrayResult = new ArrayResult(['alpha', 'beta', 'gamma']);
-        $this->assertSame('alpha', $arrayResult->first());
-        $this->assertSame('gamma', $arrayResult->last());
+        $this->assertSame('alpha', $arrayResult->first);
+        $this->assertSame('gamma', $arrayResult->last);
+        $this->assertSame(3, $arrayResult->count);
+        $this->assertFalse($arrayResult->isEmpty);
+        $this->assertTrue($arrayResult->isNotEmpty);
 
         $emptyResult = new ArrayResult([]);
-        $this->assertNull($emptyResult->first());
-        $this->assertNull($emptyResult->last());
+        $this->assertNull($emptyResult->first);
+        $this->assertNull($emptyResult->last);
+        $this->assertSame(0, $emptyResult->count);
+        $this->assertTrue($emptyResult->isEmpty);
+        $this->assertFalse($emptyResult->isNotEmpty);
     }
 
     public function testPipeOperatorCompatibility(): void
@@ -134,8 +145,8 @@ class Php85FeaturesTest extends TestCase
 
         $this->assertInstanceOf(Update::class, $processedUpdate);
         $this->assertSame(999, $processedUpdate->updateId);
-        $this->assertSame('start', $processedUpdate->message?->getCommand());
-        $this->assertSame(['arg1', 'arg2'], $processedUpdate->message?->getArgs());
+        $this->assertSame('start', $processedUpdate->message?->command);
+        $this->assertSame(['arg1', 'arg2'], $processedUpdate->message?->args);
     }
 
     public function testCurlHttpClientInitialization(): void

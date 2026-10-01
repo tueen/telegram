@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Keyboards;
 
 use Tueen\Telegram\Types\KeyboardButton;
-use Tueen\Telegram\Types\KeyboardButtonPollType;
-use Tueen\Telegram\Types\KeyboardButtonRequestChat;
-use Tueen\Telegram\Types\KeyboardButtonRequestUsers;
 use Tueen\Telegram\Types\ReplyKeyboardMarkup;
 use Tueen\Telegram\Types\ReplyKeyboardRemove;
-use Tueen\Telegram\Types\WebAppInfo;
 
 /**
  * Fluent builder for Telegram ReplyKeyboardMarkup and ReplyKeyboardRemove.
@@ -270,6 +266,7 @@ class ReplyKeyboard extends ReplyKeyboardMarkup
     /**
      * Returns the array representation for API requests.
      */
+    #[\Override]
     public function toArray(): array
     {
         if (!empty($this->rows)) {

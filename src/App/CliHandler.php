@@ -54,7 +54,7 @@ class CliHandler
 
         $this->info("Setting webhook to: {$targetUrl}...");
         try {
-            $res = $this->app->bot()->setWebhook(
+            $res = $this->app->bot->setWebhook(
                 url: $targetUrl,
                 secretToken: $secretToken,
                 dropPendingUpdates: $dropPending
@@ -77,7 +77,7 @@ class CliHandler
     {
         $this->info("Deleting webhook" . ($dropPending ? " (dropping pending updates)..." : "..."));
         try {
-            $res = $this->app->bot()->deleteWebhook(dropPendingUpdates: $dropPending);
+            $res = $this->app->bot->deleteWebhook(dropPendingUpdates: $dropPending);
             if ($res instanceof Error || !$res->ok()) {
                 $this->error("Failed to delete webhook: " . ($res instanceof Error ? $res->description : 'API Error'));
                 return 1;
@@ -95,7 +95,7 @@ class CliHandler
     {
         $this->info("Fetching webhook info from Telegram Bot API...");
         try {
-            $info = $this->app->bot()->getWebhookInfo();
+            $info = $this->app->bot->getWebhookInfo();
             if ($info instanceof Error || !$info->ok()) {
                 $this->error("Failed to get webhook info: " . ($info instanceof Error ? $info->description : 'API Error'));
                 return 1;
@@ -129,7 +129,7 @@ class CliHandler
     {
         $this->info("Fetching bot identity from Telegram Bot API...");
         try {
-            $me = $this->app->bot()->getMe();
+            $me = $this->app->bot->getMe();
             if ($me instanceof Error || !$me->ok()) {
                 $this->error("Failed to fetch bot profile: " . ($me instanceof Error ? $me->description : 'API Error'));
                 return 1;
@@ -172,7 +172,7 @@ class CliHandler
      */
     private function startPolling(array $handlers): mixed
     {
-        $bot = $this->app->bot();
+        $bot = $this->app->bot;
 
         // Print welcome banner
         $this->line("");

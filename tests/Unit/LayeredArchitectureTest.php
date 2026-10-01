@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Tueen\Telegram\Client\CurlHttpClient;
-use Tueen\Telegram\Client\GuzzleHttpClient;
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\TelegramClient;
 use Tueen\Telegram\Config;
 use Tueen\Telegram\Context\Context;
 use Tueen\Telegram\Dispatcher\UpdateDispatcher;
-use Tueen\Telegram\Methods\SendMessage;
 use Tueen\Telegram\Pipeline\RateLimitMiddleware;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Testing\FakeHttpClient;
@@ -77,7 +74,7 @@ class LayeredArchitectureTest extends TestCase
             ],
         ]);
 
-        $context = new Context($update, $bot->getClient(), $bot);
+        $context = new Context($update, $bot->client, $bot);
 
         $this->assertSame(555, $context->chatId);
         $this->assertSame(777, $context->userId);
@@ -156,11 +153,11 @@ class LayeredArchitectureTest extends TestCase
     {
         $bot = Telegram::fake();
 
-        $this->assertInstanceOf(TelegramClient::class, $bot->getClient());
-        $this->assertInstanceOf(UpdateDispatcher::class, $bot->getDispatcher());
-        $this->assertInstanceOf(\Tueen\Telegram\Context\ContextResolver::class, $bot->context());
-        $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $bot->flowManager());
-        $this->assertInstanceOf(\Tueen\Telegram\Routing\Router::class, $bot->router());
+        $this->assertInstanceOf(TelegramClient::class, $bot->client);
+        $this->assertInstanceOf(UpdateDispatcher::class, $bot->dispatcher);
+        $this->assertInstanceOf(\Tueen\Telegram\Context\ContextResolver::class, $bot->context);
+        $this->assertInstanceOf(\Tueen\Telegram\Flow\FlowManager::class, $bot->flowManager);
+        $this->assertInstanceOf(\Tueen\Telegram\Routing\Router::class, $bot->router);
     }
 
     public function testFlowPropertiesProtectedSet(): void

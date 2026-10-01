@@ -122,10 +122,11 @@ Catalog » Electronics » Headphones
 Sony WH-1000XM5 Specs...
 ```
 
+You can also customize the breadcrumb label dynamically via PHP 8.4 property hook:
+
 ```php
-public function getBreadcrumbTitle(): string
-{
-    return $this->get('product_name', 'Item');
+public string $breadcrumbTitle {
+    get => $this->get('product_name', 'Item');
 }
 ```
 

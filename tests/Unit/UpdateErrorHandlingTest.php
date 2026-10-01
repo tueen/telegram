@@ -101,7 +101,7 @@ class UpdateErrorHandlingTest extends TestCase
         try {
             $payload = json_encode(['update_id' => 400]);
             $app = App::create($dir, ['token' => 'TEST_TOKEN', 'mode' => 'webhook']);
-            $app->bot()->setRunningMode(new WebhookMode(rawInput: $payload, safeExceptions: false));
+            $app->bot->setRunningMode(new WebhookMode(rawInput: $payload, safeExceptions: false));
 
             $handled = false;
             $app->catch(function (\Throwable $e, Update $update, Telegram $bot) use (&$handled) {
@@ -165,7 +165,7 @@ class UpdateErrorHandlingTest extends TestCase
         // Update 501 and 503 were processed, 502 threw but was safely caught and logged!
         $this->assertSame([501, 502, 503], $processed);
         // Offset advanced to 504
-        $this->assertSame(504, $polling->getOffset());
+        $this->assertSame(504, $polling->offset);
     }
 
     public function testPollingModeStopOnErrorRethrows(): void

@@ -232,7 +232,7 @@ class RunningModesTest extends TestCase
 
         $this->assertSame([100, 101, 102], $receivedUpdates);
         // Next expected offset should be 103
-        $this->assertSame(103, $polling->getOffset());
+        $this->assertSame(103, $polling->offset);
     }
 
     public function testPollingModeWithCustomProcessDispatcher(): void
@@ -280,7 +280,7 @@ class RunningModesTest extends TestCase
         $this->assertSame($mode, $config->runningMode);
 
         $bot = new Telegram($config);
-        $this->assertSame($mode, $bot->getRunningMode());
+        $this->assertSame($mode, $bot->runningMode);
     }
 }
 

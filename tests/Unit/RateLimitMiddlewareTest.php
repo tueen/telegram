@@ -63,6 +63,6 @@ class RateLimitMiddlewareTest extends TestCase
 
         $this->assertSame(2, $callCount);
         $this->assertSame(200, $response->statusCode);
-        $this->assertTrue($response->isOk());
+        $this->assertTrue($response->isOk);
     }
 }

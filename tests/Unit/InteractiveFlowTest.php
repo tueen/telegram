@@ -9,18 +9,14 @@ use Tueen\Telegram\Enums\ParseMode;
 use Tueen\Telegram\Flow\Attributes\Action;
 use Tueen\Telegram\Flow\Attributes\Breadcrumb;
 use Tueen\Telegram\Flow\Attributes\Debounce;
-use Tueen\Telegram\Flow\Attributes\Input;
 use Tueen\Telegram\Flow\Attributes\RequireMember;
-use Tueen\Telegram\Flow\FlowManager;
 use Tueen\Telegram\Flow\InteractiveFlow;
 use Tueen\Telegram\Flow\Navigation;
 use Tueen\Telegram\Flow\Screen;
 use Tueen\Telegram\Flow\Storage\MemoryStateStore;
 use Tueen\Telegram\Keyboards\InlineKeyboard;
-use Tueen\Telegram\Keyboards\ReplyKeyboard;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Testing\TelegramFake;
-use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Update;
 
 // Test Flow Implementations
@@ -328,9 +324,9 @@ final class InteractiveFlowTest extends TestCase
             )
             ->withNavigation(back: true, home: true);
 
-        $this->assertSame('Hello World', $screen->getText());
-        $this->assertSame(ParseMode::HTML, $screen->getParseMode());
-        $this->assertTrue($screen->shouldEditIfPossible());
+        $this->assertSame('Hello World', $screen->text);
+        $this->assertSame(ParseMode::HTML, $screen->parseMode);
+        $this->assertTrue($screen->editIfPossible);
 
         $keyboard = $screen->buildKeyboard();
         $this->assertNotNull($keyboard);
@@ -401,14 +397,14 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $handled = $bot->flowManager()->handle($callbackUpdate, $bot);
+        $handled = $bot->flowManager->handle($callbackUpdate, $bot);
         $this->assertTrue($handled);
 
         // Callback query answered and message edited in-place
         $bot->assertSent('answerCallbackQuery');
         $bot->assertSent('editMessageText', fn (array $params) => $params['message_id'] === 500);
 
-        $activeState = $bot->flowManager()->getActiveState(12345, 12345);
+        $activeState = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame('A', $activeState->data['choice'] ?? null);
     }
 
@@ -439,7 +435,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($callbackUpdate, $bot);
+        $bot->flowManager->handle($callbackUpdate, $bot);
 
         // Assert editMessageText was called
         $bot->assertSent('editMessageText', fn (array $params) => $params['message_id'] === 500);
@@ -474,9 +470,9 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($pushUpdate, $bot);
+        $bot->flowManager->handle($pushUpdate, $bot);
 
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(TestInteractiveSubFlow::class, $state->flowClass);
         $this->assertCount(1, $state->flowStack);
         $this->assertSame(TestInteractiveMenuFlow::class, $state->flowStack[0]['flowClass']);
@@ -493,10 +489,10 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($popUpdate, $bot);
+        $bot->flowManager->handle($popUpdate, $bot);
 
         // Flow should have returned to TestInteractiveMenuFlow
-        $resumedState = $bot->flowManager()->getActiveState(12345, 12345);
+        $resumedState = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(TestInteractiveMenuFlow::class, $resumedState->flowClass);
         $this->assertEmpty($resumedState->flowStack);
         $this->assertSame(500, $resumedState->messageId);
@@ -531,9 +527,9 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($homeTextUpdate, $bot);
+        $bot->flowManager->handle($homeTextUpdate, $bot);
 
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(TestRootFlow::class, $state->flowClass);
     }
 
@@ -566,11 +562,11 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $handled = $bot->flowManager()->handle($startUpdate, $bot);
+        $handled = $bot->flowManager->handle($startUpdate, $bot);
         $this->assertTrue($handled);
 
         // Flow should still be TestLockedCheckoutFlow, NOT reset to root flow!
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(TestLockedCheckoutFlow::class, $state->flowClass);
     }
 
@@ -601,7 +597,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $handled = $bot->flowManager()->handle($randomUpdate, $bot);
+        $handled = $bot->flowManager->handle($randomUpdate, $bot);
         $this->assertTrue($handled);
 
         // In-place refresh occurred
@@ -637,7 +633,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($alertUpdate, $bot);
+        $bot->flowManager->handle($alertUpdate, $bot);
 
         $bot->assertSent('answerCallbackQuery', fn (array $params) => 
             $params['callback_query_id'] === 'cb_alert_1' &&
@@ -656,7 +652,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($toastUpdate, $bot);
+        $bot->flowManager->handle($toastUpdate, $bot);
 
         $bot->assertSent('answerCallbackQuery', fn (array $params) => 
             $params['callback_query_id'] === 'cb_toast_2' &&
@@ -698,13 +694,13 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($resendUpdate, $bot);
+        $bot->flowManager->handle($resendUpdate, $bot);
 
         // Verify deleteMessage called for old message 500
         $bot->assertSent('deleteMessage', fn (array $params) => $params['message_id'] === 500);
 
         // State messageId updated to 777
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(777, $state->messageId);
     }
 
@@ -763,7 +759,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($confirmUpdate, $bot);
+        $bot->flowManager->handle($confirmUpdate, $bot);
 
         // Assert editMessageText was called with confirm prompt
         $bot->assertSent('editMessageText', fn (array $params) => 
@@ -797,7 +793,7 @@ final class InteractiveFlowTest extends TestCase
             $params['caption'] === 'Photo Caption'
         );
 
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertSame(888, $state->messageId);
 
         // Now trigger caption change
@@ -811,7 +807,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($changeCapUpdate, $bot);
+        $bot->flowManager->handle($changeCapUpdate, $bot);
 
         $bot->assertSent('editMessageCaption', fn (array $params) => 
             $params['message_id'] === 888 &&
@@ -848,9 +844,9 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($toggleUpdate, $bot);
+        $bot->flowManager->handle($toggleUpdate, $bot);
 
-        $state = $bot->flowManager()->getActiveState(12345, 12345);
+        $state = $bot->flowManager->getActiveState(12345, 12345);
         $this->assertContains('sports', $state->data['interests']);
         $this->assertContains('tech', $state->data['interests']);
     }
@@ -886,7 +882,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($click1, $bot);
+        $bot->flowManager->handle($click1, $bot);
 
         // Second click immediately (< 1s)
         $click2 = new Update([
@@ -899,7 +895,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($click2, $bot);
+        $bot->flowManager->handle($click2, $bot);
 
         // Second click should be answered with debounce notice 'Too fast!'
         $bot->assertSent('answerCallbackQuery', fn (array $params) => 
@@ -943,7 +939,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($childUpdate, $bot);
+        $bot->flowManager->handle($childUpdate, $bot);
 
         // Child should have rendered both Parent Title and Child Title in trail
         $bot->assertSent('editMessageText', fn (array $params) => 
@@ -955,13 +951,13 @@ final class InteractiveFlowTest extends TestCase
     public function testStepWizardProgress(): void
     {
         $screenDots = Screen::make('Body')->withStepper(2, 4, 'dots');
-        $this->assertStringContainsString('● ● ○ ○ Step 2 of 4', $screenDots->getText());
+        $this->assertStringContainsString('● ● ○ ○ Step 2 of 4', $screenDots->text);
 
         $screenBar = Screen::make('Body')->withStepper(2, 4, 'bar');
-        $this->assertStringContainsString('[████░░░░] Step 2 of 4', $screenBar->getText());
+        $this->assertStringContainsString('[████░░░░] Step 2 of 4', $screenBar->text);
 
         $screenNumbers = Screen::make('Body')->withStepper(2, 4, 'numbers');
-        $this->assertStringContainsString('(2/4) Step 2 of 4', $screenNumbers->getText());
+        $this->assertStringContainsString('(2/4) Step 2 of 4', $screenNumbers->text);
     }
 
     public function testChannelMembershipGuard(): void
@@ -994,7 +990,7 @@ final class InteractiveFlowTest extends TestCase
             ],
         ]);
 
-        $bot->flowManager()->handle($secretUpdate, $bot);
+        $bot->flowManager->handle($secretUpdate, $bot);
 
         // Join screen was rendered with fallback message
         $bot->assertSent('editMessageText', fn (array $params) => 

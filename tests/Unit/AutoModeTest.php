@@ -6,10 +6,6 @@ namespace Tueen\Telegram\Tests\Unit;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use Tueen\Telegram\Client\HttpClientInterface;
-use Tueen\Telegram\Client\Request;
-use Tueen\Telegram\Client\Response;
-use Tueen\Telegram\Config;
 use Tueen\Telegram\Running\AutoMode;
 use Tueen\Telegram\Running\PollingMode;
 use Tueen\Telegram\Running\WebhookMode;
@@ -29,9 +25,9 @@ class AutoModeTest extends TestCase
     {
         $auto = new AutoMode();
 
-        $this->assertInstanceOf(PollingMode::class, $auto->getPollingMode());
-        $this->assertInstanceOf(WebhookMode::class, $auto->getWebhookMode());
-        $this->assertFalse($auto->isAutoDeleteWebhook());
+        $this->assertInstanceOf(PollingMode::class, $auto->pollingMode);
+        $this->assertInstanceOf(WebhookMode::class, $auto->webhookMode);
+        $this->assertFalse($auto->autoDeleteWebhook);
 
         $newPolling = new PollingMode(timeout: 45);
         $newWebhook = new WebhookMode(secretToken: 'secret_abc');
@@ -40,18 +36,18 @@ class AutoModeTest extends TestCase
         $auto->setWebhookMode($newWebhook);
         $auto->setAutoDeleteWebhook(true, true);
 
-        $this->assertSame($newPolling, $auto->getPollingMode());
-        $this->assertSame($newWebhook, $auto->getWebhookMode());
-        $this->assertTrue($auto->isAutoDeleteWebhook());
+        $this->assertSame($newPolling, $auto->pollingMode);
+        $this->assertSame($newWebhook, $auto->webhookMode);
+        $this->assertTrue($auto->autoDeleteWebhook);
 
         $factoryAuto = AutoMode::create(
             pollingMode: $newPolling,
             webhookMode: $newWebhook,
             autoDeleteWebhook: true
         );
-        $this->assertSame($newPolling, $factoryAuto->getPollingMode());
-        $this->assertSame($newWebhook, $factoryAuto->getWebhookMode());
-        $this->assertTrue($factoryAuto->isAutoDeleteWebhook());
+        $this->assertSame($newPolling, $factoryAuto->pollingMode);
+        $this->assertSame($newWebhook, $factoryAuto->webhookMode);
+        $this->assertTrue($factoryAuto->autoDeleteWebhook);
     }
 
     public function testEnvironmentDetection(): void
@@ -247,11 +243,11 @@ class AutoModeTest extends TestCase
             ->withAutoMode(autoDeleteWebhook: true)
             ->client();
 
-        $runningMode = $client->getRunningMode();
+        $runningMode = $client->runningMode;
         $this->assertInstanceOf(AutoMode::class, $runningMode);
-        $this->assertSame($polling, $runningMode->getPollingMode());
-        $this->assertSame($webhook, $runningMode->getWebhookMode());
-        $this->assertTrue($runningMode->isAutoDeleteWebhook());
+        $this->assertSame($polling, $runningMode->pollingMode);
+        $this->assertSame($webhook, $runningMode->webhookMode);
+        $this->assertTrue($runningMode->autoDeleteWebhook);
     }
 
     public function testTelegramUseAutoModeAndAutoRun(): void
@@ -274,7 +270,7 @@ class AutoModeTest extends TestCase
             detector: fn() => false // Force Webhook
         );
 
-        $this->assertInstanceOf(AutoMode::class, $bot->getRunningMode());
+        $this->assertInstanceOf(AutoMode::class, $bot->runningMode);
 
         $executed = false;
         $bot->autoRun(function (Update $update) use (&$executed) {

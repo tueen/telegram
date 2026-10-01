@@ -10,7 +10,6 @@ use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\RequestOptions;
 use Tueen\Telegram\Client\Response;
 use Tueen\Telegram\Client\TelegramClient;
-use Tueen\Telegram\Context\Context;
 use Tueen\Telegram\Context\ContextResolver;
 use Tueen\Telegram\Dispatcher\UpdateDispatcher;
 use Tueen\Telegram\Enums\UpdateType;
@@ -39,12 +38,6 @@ use Tueen\Telegram\Types\User;
 /**
  * Tueen Telegram Client - The Royal Client for Telegram Bot API.
  *
- * Designed using modern layered composition:
- * - TelegramClient: handles pure Bot API requests, HTTP transport & serialization
- * - UpdateDispatcher: orchestrates middlewares, flows, routers, and handlers
- * - ContextResolver: contextual argument injection
- * - Context: scoped request context per update
- *
  * @mixin \Tueen\Telegram\Contracts\TelegramMethods
  */
 class Telegram
@@ -65,7 +58,14 @@ class Telegram
      * Current resolved Update instance.
      * Defaults to null until resolved by Webhook or Polling runner.
      */
-    private(set) ?Update $update = null;
+    public ?Update $update = null {
+        set {
+            $this->update = $value;
+            if (isset($this->context)) {
+                $this->context->update = $value;
+            }
+        }
+    }
 
     /**
      * Contextual parameter resolver for auto-injecting update values.
@@ -82,11 +82,96 @@ class Telegram
      */
     private(set) UpdateDispatcher $dispatcher;
 
-    private Config $config;
-    private ?RunningModeInterface $runningMode = null;
-    private mixed $container = null;
-    protected ?FlowManager $flowManager = null;
-    protected ?Router $router = null;
+    private(set) Config $config;
+    private ?RunningModeInterface $_runningMode = null;
+    private mixed $_container = null;
+    protected ?FlowManager $_flowManager = null;
+    protected ?Router $_router = null;
+
+    public RunningModeInterface $runningMode {
+        get => $this->_runningMode ??= new WebhookMode();
+        set (RunningModeInterface $mode) => $this->_runningMode = $mode;
+    }
+
+    public mixed $container {
+        get => $this->_container ?? $this->config->container;
+        set {
+            $this->_container = $value;
+            if (isset($this->dispatcher)) {
+                $this->dispatcher->container = $value;
+            }
+        }
+    }
+
+    public FlowManager $flowManager {
+        get => $this->_flowManager ??= new FlowManager();
+        set (FlowManager $manager) => $this->_flowManager = $manager;
+    }
+
+    public Router $router {
+        get => $this->_router ??= new Router();
+        set (Router $router) => $this->_router = $router;
+    }
+
+    public ?int $chatId {
+        get => $this->context->resolveChatId();
+    }
+
+    public ?int $userId {
+        get => $this->context->resolveUserId();
+    }
+
+    public ?int $messageId {
+        get => $this->context->resolveMessageId();
+    }
+
+    public ?string $businessConnectionId {
+        get => $this->context->resolveBusinessConnectionId();
+    }
+
+    public ?int $messageThreadId {
+        get => $this->context->resolveMessageThreadId();
+    }
+
+    public ?string $inlineMessageId {
+        get => $this->context->resolveInlineMessageId();
+    }
+
+    public ?string $callbackQueryId {
+        get => $this->context->resolveCallbackQueryId();
+    }
+
+    public ?string $inlineQueryId {
+        get => $this->context->resolveInlineQueryId();
+    }
+
+    public ?string $shippingQueryId {
+        get => $this->context->resolveShippingQueryId();
+    }
+
+    public ?string $preCheckoutQueryId {
+        get => $this->context->resolvePreCheckoutQueryId();
+    }
+
+    public ?int $directMessagesTopicId {
+        get => $this->context->resolveDirectMessagesTopicId();
+    }
+
+    public ?string $guestQueryId {
+        get => $this->context->resolveGuestQueryId();
+    }
+
+    public ?User $user {
+        get => $this->update?->findUser();
+    }
+
+    public ?Chat $chat {
+        get => $this->update?->findChat();
+    }
+
+    public ?Message $message {
+        get => $this->update?->findMessage();
+    }
 
     public function __construct(string|Config $tokenOrConfig)
     {
@@ -100,13 +185,15 @@ class Telegram
         $this->client = new TelegramClient($this->config, $this->context);
         $this->container = $this->config->container;
         $this->dispatcher = new UpdateDispatcher($this->container);
-        $this->runningMode = $this->config->runningMode;
+        if ($this->config->runningMode !== null) {
+            $this->runningMode = $this->config->runningMode;
+        }
 
         if ($this->config->rootFlow !== null) {
             $this->setRootFlow($this->config->rootFlow);
         }
         if (!empty($this->config->flowAllowedUpdates)) {
-            $this->flowManager()->setDefaultAllowedUpdates($this->config->flowAllowedUpdates);
+            $this->flowManager->setDefaultAllowedUpdates($this->config->flowAllowedUpdates);
         }
     }
 
@@ -126,16 +213,6 @@ class Telegram
     public static function fake(array $responses = [], string $botToken = 'FAKE_BOT_TOKEN'): TelegramFake
     {
         return new TelegramFake($botToken, $responses);
-    }
-
-    public function getClient(): TelegramClient
-    {
-        return $this->client;
-    }
-
-    public function getDispatcher(): UpdateDispatcher
-    {
-        return $this->dispatcher;
     }
 
     /**
@@ -259,14 +336,6 @@ class Telegram
     }
 
     /**
-     * Gets the active running mode, defaulting to WebhookMode.
-     */
-    public function getRunningMode(): RunningModeInterface
-    {
-        return $this->runningMode ??= new WebhookMode();
-    }
-
-    /**
      * Configures the client to use adaptive AutoMode (switches between Polling in CLI and Webhook in HTTP).
      */
     public function useAutoMode(
@@ -292,158 +361,7 @@ class Telegram
     public function setUpdate(?Update $update): static
     {
         $this->update = $update;
-        $this->context->setUpdate($update);
         return $this;
-    }
-
-    public ?int $chatId {
-        get => $this->context->resolveChatId();
-    }
-
-    public ?int $userId {
-        get => $this->context->resolveUserId();
-    }
-
-    public ?int $messageId {
-        get => $this->context->resolveMessageId();
-    }
-
-    public ?string $businessConnectionId {
-        get => $this->context->resolveBusinessConnectionId();
-    }
-
-    public ?int $messageThreadId {
-        get => $this->context->resolveMessageThreadId();
-    }
-
-    public ?string $inlineMessageId {
-        get => $this->context->resolveInlineMessageId();
-    }
-
-    public ?string $callbackQueryId {
-        get => $this->context->resolveCallbackQueryId();
-    }
-
-    public ?string $inlineQueryId {
-        get => $this->context->resolveInlineQueryId();
-    }
-
-    public ?string $shippingQueryId {
-        get => $this->context->resolveShippingQueryId();
-    }
-
-    public ?string $preCheckoutQueryId {
-        get => $this->context->resolvePreCheckoutQueryId();
-    }
-
-    public ?int $directMessagesTopicId {
-        get => $this->context->resolveDirectMessagesTopicId();
-    }
-
-    public ?string $guestQueryId {
-        get => $this->context->resolveGuestQueryId();
-    }
-
-    public ?User $user {
-        get => $this->update?->findUser();
-    }
-
-    public ?Chat $chat {
-        get => $this->update?->findChat();
-    }
-
-    public ?Message $message {
-        get => $this->update?->findMessage();
-    }
-
-    #[\Deprecated(message: 'Use property $bot->chatId instead', since: '1.0.0')]
-    public function chatId(): ?int
-    {
-        return $this->chatId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->userId instead', since: '1.0.0')]
-    public function userId(): ?int
-    {
-        return $this->userId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->messageId instead', since: '1.0.0')]
-    public function messageId(): ?int
-    {
-        return $this->messageId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->businessConnectionId instead', since: '1.0.0')]
-    public function businessConnectionId(): ?string
-    {
-        return $this->businessConnectionId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->messageThreadId instead', since: '1.0.0')]
-    public function messageThreadId(): ?int
-    {
-        return $this->messageThreadId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->inlineMessageId instead', since: '1.0.0')]
-    public function inlineMessageId(): ?string
-    {
-        return $this->inlineMessageId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->callbackQueryId instead', since: '1.0.0')]
-    public function callbackQueryId(): ?string
-    {
-        return $this->callbackQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->inlineQueryId instead', since: '1.0.0')]
-    public function inlineQueryId(): ?string
-    {
-        return $this->inlineQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->shippingQueryId instead', since: '1.0.0')]
-    public function shippingQueryId(): ?string
-    {
-        return $this->shippingQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->preCheckoutQueryId instead', since: '1.0.0')]
-    public function preCheckoutQueryId(): ?string
-    {
-        return $this->preCheckoutQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->directMessagesTopicId instead', since: '1.0.0')]
-    public function directMessagesTopicId(): ?int
-    {
-        return $this->directMessagesTopicId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->guestQueryId instead', since: '1.0.0')]
-    public function guestQueryId(): ?string
-    {
-        return $this->guestQueryId;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->user instead', since: '1.0.0')]
-    public function user(): ?User
-    {
-        return $this->user;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->chat instead', since: '1.0.0')]
-    public function chat(): ?Chat
-    {
-        return $this->chat;
-    }
-
-    #[\Deprecated(message: 'Use property $bot->message instead', since: '1.0.0')]
-    public function message(): ?Message
-    {
-        return $this->message;
     }
 
     /**
@@ -471,26 +389,10 @@ class Telegram
         return $this;
     }
 
-    public function context(): ContextResolver
-    {
-        return $this->context;
-    }
-
     public function setContainer(mixed $container): static
     {
         $this->container = $container;
-        $this->dispatcher->setContainer($container);
         return $this;
-    }
-
-    public function getContainer(): mixed
-    {
-        return $this->container ?? $this->config->container;
-    }
-
-    public function flowManager(): FlowManager
-    {
-        return $this->flowManager ??= new FlowManager();
     }
 
     public function setFlowManager(FlowManager $manager): static
@@ -501,13 +403,13 @@ class Telegram
 
     public function setFlowStore(StateStoreInterface $store): static
     {
-        $this->flowManager()->setStore($store);
+        $this->flowManager->store = $store;
         return $this;
     }
 
     public function setRootFlow(?string $flowClass): static
     {
-        $this->flowManager()->setRootFlow($flowClass);
+        $this->flowManager->rootFlow = $flowClass;
         return $this;
     }
 
@@ -522,7 +424,7 @@ class Telegram
             throw new TelegramException("Cannot start Flow: no active Update found. Pass Update explicitly or run inside an update handler.");
         }
 
-        return $this->flowManager()->startFlow(
+        return $this->flowManager->startFlow(
             flowClass: $flowClass,
             update: $resolvedUpdate,
             bot: $this,
@@ -538,7 +440,7 @@ class Telegram
             throw new TelegramException("Cannot resolve Flow session: no chat ID available.");
         }
 
-        return $this->flowManager()->flowSession($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+        return $this->flowManager->flowSession($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
     public function hasActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
@@ -548,7 +450,7 @@ class Telegram
             return false;
         }
 
-        return $this->flowManager()->hasActiveFlow($resolvedChatId, $resolvedUserId);
+        return $this->flowManager->hasActiveFlow($resolvedChatId, $resolvedUserId);
     }
 
     public function getActiveFlowClass(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?string
@@ -558,7 +460,7 @@ class Telegram
             return null;
         }
 
-        return $this->flowManager()->getActiveFlowClass($resolvedChatId, $resolvedUserId);
+        return $this->flowManager->getActiveFlowClass($resolvedChatId, $resolvedUserId);
     }
 
     public function getActiveFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): ?Flow
@@ -568,7 +470,7 @@ class Telegram
             return null;
         }
 
-        return $this->flowManager()->getActiveFlowInstance($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+        return $this->flowManager->getActiveFlowInstance($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
     public function flowBack(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = null, ?Update $update = null): bool
@@ -578,7 +480,7 @@ class Telegram
             return false;
         }
 
-        return $this->flowManager()->navigateBack($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
+        return $this->flowManager->navigateBack($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
     }
 
     public function cancelFlow(int|string|null $chatId = null, ?int $userId = null, ?string $replyMessage = 'Operation cancelled.', ?Update $update = null): bool
@@ -588,7 +490,7 @@ class Telegram
             return false;
         }
 
-        return $this->flowManager()->cancelFlow($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
+        return $this->flowManager->cancelFlow($resolvedChatId, $resolvedUserId, $this, $replyMessage, $update ?? $this->update);
     }
 
     public function finishFlow(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): bool
@@ -598,7 +500,7 @@ class Telegram
             return false;
         }
 
-        return $this->flowManager()->finishFlow($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
+        return $this->flowManager->finishFlow($resolvedChatId, $resolvedUserId, $this, $update ?? $this->update);
     }
 
     private function resolveSessionChatAndUser(int|string|null $chatId = null, ?int $userId = null, ?Update $update = null): array
@@ -611,8 +513,8 @@ class Telegram
         $chat = $resolvedUpdate?->findChat();
         $user = $resolvedUpdate?->findUser();
 
-        $resolvedChatId = $chat?->id ?? $this->context->getChatId();
-        $resolvedUserId = $userId ?? $user?->id ?? $this->context->getUserId();
+        $resolvedChatId = $chat?->id ?? $this->context->resolveChatId();
+        $resolvedUserId = $userId ?? $user?->id ?? $this->context->resolveUserId();
 
         return [$resolvedChatId, $resolvedUserId];
     }
@@ -638,14 +540,6 @@ class Telegram
     }
 
     /**
-     * Retrieves or initializes the update router.
-     */
-    public function router(): Router
-    {
-        return $this->router ??= new Router();
-    }
-
-    /**
      * Registers a command route handler (e.g. '/start', '/help').
      *
      * @param string $command Command name with or without leading slash
@@ -654,7 +548,7 @@ class Telegram
      */
     public function onCommand(string $command, mixed $handler): static
     {
-        $this->router()->onCommand($command, $handler);
+        $this->router->onCommand($command, $handler);
         return $this;
     }
 
@@ -667,7 +561,7 @@ class Telegram
      */
     public function onCallbackQuery(?string $pattern, mixed $handler): static
     {
-        $this->router()->onCallbackQuery($pattern, $handler);
+        $this->router->onCallbackQuery($pattern, $handler);
         return $this;
     }
 
@@ -680,7 +574,7 @@ class Telegram
      */
     public function onMessage(?string $pattern, mixed $handler): static
     {
-        $this->router()->onMessage($pattern, $handler);
+        $this->router->onMessage($pattern, $handler);
         return $this;
     }
 
@@ -693,7 +587,7 @@ class Telegram
      */
     public function onInlineQuery(?string $pattern, mixed $handler): static
     {
-        $this->router()->onInlineQuery($pattern, $handler);
+        $this->router->onInlineQuery($pattern, $handler);
         return $this;
     }
 
@@ -706,7 +600,7 @@ class Telegram
      */
     public function on(UpdateType|string $type, mixed $handler): static
     {
-        $this->router()->on($type, $handler);
+        $this->router->on($type, $handler);
         return $this;
     }
 
@@ -718,7 +612,7 @@ class Telegram
      */
     public function onFallback(mixed $handler): static
     {
-        $this->router()->onFallback($handler);
+        $this->router->onFallback($handler);
         return $this;
     }
 
@@ -730,7 +624,7 @@ class Telegram
      */
     public function registerController(string|object $controller): static
     {
-        $this->router()->registerController($controller);
+        $this->router->registerController($controller);
         return $this;
     }
 
@@ -766,7 +660,7 @@ class Telegram
      */
     public function run(mixed ...$handlers): mixed
     {
-        $hasHandlers = !empty($this->dispatcher->getHandlers())
+        $hasHandlers = !empty($this->dispatcher->handlers)
             || !empty($handlers)
             || ($this->router !== null && $this->router->hasRoutes());
 
@@ -774,7 +668,7 @@ class Telegram
             ? fn(Update $update) => $this->dispatcher->dispatch($update, $this, $handlers, $this->router, $this->flowManager)
             : null;
 
-        return $this->getRunningMode()->processUpdate($this, $handlerCallback);
+        return $this->runningMode->processUpdate($this, $handlerCallback);
     }
 
     /**
@@ -817,14 +711,5 @@ class Telegram
     {
         $mode = new PollingMode(timeout: $timeout, limit: $limit, allowedUpdates: $allowedUpdates);
         return $mode->getUpdatesGenerator($this);
-    }
-
-    /**
-     * Retrieves the immutable configuration instance.
-     */
-    #[\NoDiscard]
-    public function getConfig(): Config
-    {
-        return $this->config;
     }
 }
