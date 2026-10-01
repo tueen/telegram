@@ -23,6 +23,34 @@ class ContextResolver
      */
     public ?Update $update = null;
 
+    public ?int $chatId {
+        get => $this->resolveChatId();
+    }
+
+    public ?int $userId {
+        get => $this->resolveUserId();
+    }
+
+    public ?int $messageId {
+        get => $this->resolveMessageId();
+    }
+
+    public ?string $businessConnectionId {
+        get => $this->resolveBusinessConnectionId();
+    }
+
+    public ?int $messageThreadId {
+        get => $this->resolveMessageThreadId();
+    }
+
+    public ?string $inlineMessageId {
+        get => $this->resolveInlineMessageId();
+    }
+
+    public ?string $callbackQueryId {
+        get => $this->resolveCallbackQueryId();
+    }
+
     /**
      * Custom parameter resolver callbacks.
      * @var array<string, callable>

@@ -7,38 +7,24 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $errors = [];
 $checked = 0;
 
-$dirs = [
-    __DIR__ . '/../src/Types',
-    __DIR__ . '/../src/Methods',
-    __DIR__ . '/../src/Contracts',
-    __DIR__ . '/../src/Enums',
-    __DIR__ . '/../src/Client',
-    __DIR__ . '/../src/Pipeline',
-    __DIR__ . '/../src/Exceptions',
-    __DIR__ . '/../src/Attributes',
-    __DIR__ . '/../src/Keyboards',
-    __DIR__ . '/../src/Formatting',
-    __DIR__ . '/../src/Routing',
-    __DIR__ . '/../src/Flow',
-    __DIR__ . '/../src/Running',
-    __DIR__ . '/../src/Testing',
-    __DIR__ . '/../src/Context',
-];
+$srcDir = realpath(__DIR__ . '/../src');
+$iterator = new \RecursiveIteratorIterator(
+    new \RecursiveDirectoryIterator($srcDir, \FilesystemIterator::SKIP_DOTS)
+);
 
-foreach ($dirs as $dir) {
-    if (!is_dir($dir)) continue;
-    $files = scandir($dir);
-    foreach ($files as $file) {
-        if (!str_ends_with($file, '.php')) continue;
-        $filePath = $dir . '/' . $file;
-        $code = file_get_contents($filePath);
+foreach ($iterator as $file) {
+    if (!$file->isFile() || $file->getExtension() !== 'php') {
+        continue;
+    }
 
-        try {
-            $tokens = token_get_all($code, TOKEN_PARSE);
-            $checked++;
-        } catch (\ParseError $e) {
-            $errors[] = "$file: " . $e->getMessage();
-        }
+    $filePath = $file->getRealPath();
+    $code = file_get_contents($filePath);
+
+    try {
+        $tokens = token_get_all($code, TOKEN_PARSE);
+        $checked++;
+    } catch (\ParseError $e) {
+        $errors[] = $file->getFilename() . ": " . $e->getMessage();
     }
 }
 

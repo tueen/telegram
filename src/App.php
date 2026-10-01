@@ -371,6 +371,6 @@ class App
     {
         $result = $this->bot->$name(...$arguments);
 
-        return $result === $this->bot ? $this : $result;
+        return ($result === $this->bot || $result instanceof \Tueen\Telegram\Routing\Route) ? $this : $result;
     }
 }

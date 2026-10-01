@@ -125,7 +125,41 @@ When designing or modifying features in this codebase, adhere to these four immu
 
 ---
 
-## 🛠️ 5. Essential Commands
+## ⚡ 5. Advanced Routing, Pipeline & Runtime Architecture
+
+`tueen/telegram` is engineered for both traditional stateless scripts (FPM/CGI) and modern persistent worker runtimes (FrankenPHP, RoadRunner, Swoole, Laravel Octane):
+
+1. **Expressive Update Routing & Route Groups:**
+   - Organize routes using `$bot->group(['prefix' => ..., 'middleware' => ..., 'scope' => ...], function ($bot) { ... })`.
+   - Apply route-level middlewares: `$bot->onCommand('pay', ...)->middleware($authMiddleware)`.
+   - Constrain chat scopes fluently: `->asPrivate()`, `->asGroup()`, `->asSupergroup()`, `->asChannel()`.
+   - Validate named route parameters with regex: `$bot->onText('/order {id}', ...)->where('id', '[0-9]+')`.
+   - Fluent route chaining delegates unknown calls back to the `$bot` instance.
+
+2. **Automatic Dependency Injection (Auto-Wiring):**
+   - Handler parameters are dynamically resolved and cached via reflection.
+   - Type-hinted parameters automatically injected: `Telegram`, `Update`, `User`, `Chat`, `Message`, `ContextResolver`.
+   - Route parameters are automatically cast according to declared parameter types (`int $id`, `string $code`, `bool $flag`).
+   - Unresolved types are delegated to any registered PSR-11 container (`$bot->container`).
+
+3. **Persistent HTTP Connection Pooling:**
+   - `CurlHttpClient` maintains an in-memory pool of open cURL handles across requests, reusing TLS sessions and TCP sockets for near-zero handshake latency.
+   - Handles can be cleanly flushed via `CurlHttpClient::closeAllHandles()`.
+
+4. **Thread-Safe Scoped Execution:**
+   - In persistent worker engines, isolate incoming requests using `$scopedBot = $bot->scoped($update)`.
+   - Clones context and state without contaminating the root singleton client.
+
+5. **Safe Message Chunking:**
+   - Long messages exceeding Telegram's 4096-character limit are split cleanly via `Text::chunk($text, $limit)` without cutting words or losing newlines.
+   - Out-of-the-box convenience methods: `$bot->sendMessageChunked(...)` and `$bot->replyChunked(...)`.
+
+6. **Transparent Keyboard Serialization:**
+   - `InlineKeyboard` and `ReplyKeyboard` implement `JsonSerializable` and provide `toArray()`, serializing directly to Telegram Bot API wire format without requiring explicit `->build()` invocations.
+
+---
+
+## 🛠️ 6. Essential Commands
 
 | Task | Command |
 | :--- | :--- |

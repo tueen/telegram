@@ -58,8 +58,16 @@ class TelegramFake extends Telegram
     {
         $updateInstance = $update instanceof Update ? $update : new Update($update);
         $this->setUpdate($updateInstance);
-        $payload = json_encode($updateInstance->toArray());
+        $scoped = $this->scoped($updateInstance);
 
+        $hasHandlers = !empty($this->dispatcher->handlers)
+            || ($this->router !== null && $this->router->hasRoutes());
+
+        if ($hasHandlers) {
+            return $this->dispatcher->dispatch($updateInstance, $scoped, [], $this->router, $this->flowManager);
+        }
+
+        $payload = json_encode($updateInstance->toArray());
         $this->setRunningMode(new WebhookMode(rawInput: $payload));
         return $this->run();
     }
@@ -185,6 +193,67 @@ class TelegramFake extends Telegram
     public function assertNothingSent(): void
     {
         $this->assertSentCount(0);
+    }
+
+    /**
+     * Asserts that a text message was sent as a reply or message.
+     *
+     * @param string|callable(string): bool $expectedText Expected text or predicate
+     * @param int|string|null $chatId Optional expected chat ID
+     */
+    public function assertReplyText(string|callable $expectedText, int|string|null $chatId = null): void
+    {
+        $recorded = $this->fakeClient->recorded('sendMessage');
+
+        if (empty($recorded)) {
+            $this->failAssertion("Failed asserting that a reply was sent (no sendMessage calls recorded).");
+            return;
+        }
+
+        $matched = false;
+        foreach ($recorded as $entry) {
+            $params = $entry['request']->parameters;
+            $text = $params['text'] ?? null;
+            $entryChatId = $params['chat_id'] ?? null;
+
+            if ($chatId !== null && (string)$entryChatId !== (string)$chatId) {
+                continue;
+            }
+
+            if (is_callable($expectedText)) {
+                $ref = new \ReflectionFunction(\Closure::fromCallable($expectedText));
+                $firstParam = $ref->getParameters()[0] ?? null;
+                $firstType = $firstParam?->getType();
+                $firstTypeName = $firstType instanceof \ReflectionNamedType ? $firstType->getName() : null;
+
+                $matches = ($firstTypeName === Request::class)
+                    ? (bool)$expectedText($entry['request'])
+                    : (bool)$expectedText((string)$text, $entry['request']);
+
+                if ($matches) {
+                    $matched = true;
+                    break;
+                }
+            } elseif ($text === $expectedText || str_contains((string)$text, (string)$expectedText)) {
+                $matched = true;
+                break;
+            }
+        }
+
+        if (!$matched) {
+            $this->failAssertion("Failed asserting that sent message matches expected text.");
+            return;
+        }
+
+        $this->passAssertion();
+    }
+
+    /**
+     * Alias for assertReplyText.
+     */
+    public function assertSentMessage(string|callable $expectedText, int|string|null $chatId = null): void
+    {
+        $this->assertReplyText($expectedText, $chatId);
     }
 
     private function failAssertion(string $message): void

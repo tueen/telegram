@@ -286,6 +286,47 @@ class TelegramClient
         return $this->send($dynamicMethod, options: $options);
     }
 
+    /** @var array<class-string, array{reflection: ReflectionClass, hasConstructor: bool, params: list<array{name: string, snake: string, hasDefault: bool, default: mixed}>}> */
+    private static array $methodConstructorCache = [];
+
+    private static function getMethodConstructorMeta(string $className): array
+    {
+        if (isset(self::$methodConstructorCache[$className])) {
+            return self::$methodConstructorCache[$className];
+        }
+
+        $reflection = new ReflectionClass($className);
+        $constructor = $reflection->getConstructor();
+
+        if ($constructor === null) {
+            return self::$methodConstructorCache[$className] = [
+                'reflection' => $reflection,
+                'hasConstructor' => false,
+                'params' => [],
+            ];
+        }
+
+        $params = [];
+        foreach ($constructor->getParameters() as $param) {
+            if ($param->isVariadic()) {
+                continue;
+            }
+            $pName = $param->getName();
+            $params[] = [
+                'name' => $pName,
+                'snake' => Type::toSnakeCase($pName),
+                'hasDefault' => $param->isDefaultValueAvailable(),
+                'default' => $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
+            ];
+        }
+
+        return self::$methodConstructorCache[$className] = [
+            'reflection' => $reflection,
+            'hasConstructor' => true,
+            'params' => $params,
+        ];
+    }
+
     /**
      * Dynamically instantiates a Method class matching named or positional arguments.
      */
@@ -295,10 +336,10 @@ class TelegramClient
             $arguments = $this->contextResolver->resolveArguments($className, $arguments);
         }
 
-        $reflection = new ReflectionClass($className);
-        $constructor = $reflection->getConstructor();
+        $meta = self::getMethodConstructorMeta($className);
+        $reflection = $meta['reflection'];
 
-        if ($constructor === null || empty($arguments)) {
+        if (!$meta['hasConstructor'] || empty($arguments)) {
             return $reflection->newInstance();
         }
 
@@ -306,17 +347,12 @@ class TelegramClient
             $arguments = $arguments[0];
         }
 
-        $parameters = $constructor->getParameters();
         $passedArgs = [];
         $consumedKeys = [];
 
-        foreach ($parameters as $param) {
-            if ($param->isVariadic()) {
-                continue;
-            }
-
-            $pName = $param->getName();
-            $snake = Type::toSnakeCase($pName);
+        foreach ($meta['params'] as $pInfo) {
+            $pName = $pInfo['name'];
+            $snake = $pInfo['snake'];
 
             $val = null;
             $found = false;
@@ -329,9 +365,9 @@ class TelegramClient
                 $val = $arguments[$snake];
                 $consumedKeys[$snake] = true;
                 $found = true;
-            } elseif ($param->isDefaultValueAvailable()) {
+            } elseif ($pInfo['hasDefault']) {
                 if (!array_key_exists($pName, $passedArgs)) {
-                    $passedArgs[$pName] = $param->getDefaultValue();
+                    $passedArgs[$pName] = $pInfo['default'];
                 }
             }
 

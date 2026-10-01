@@ -447,6 +447,67 @@ final class Text implements Stringable
         return $this->__toString();
     }
 
+    /**
+     * Splits a text string into safe chunks respecting newlines and max length (default: 4096).
+     *
+     * @return list<string>
+     */
+    public static function chunk(string $text, int $limit = 4096): array
+    {
+        if (mb_strlen($text) <= $limit) {
+            return [$text];
+        }
+
+        $chunks = [];
+        $remaining = $text;
+
+        while (mb_strlen($remaining) > $limit) {
+            $slice = mb_substr($remaining, 0, $limit);
+            $splitLen = 0;
+
+            // Try splitting at double newline
+            $splitPos = mb_strrpos($slice, "\n\n");
+            if ($splitPos !== false && $splitPos >= (int)($limit * 0.3)) {
+                $splitLen = 2;
+            } else {
+                // Try splitting at single newline
+                $splitPos = mb_strrpos($slice, "\n");
+                if ($splitPos !== false && $splitPos >= (int)($limit * 0.3)) {
+                    $splitLen = 1;
+                } else {
+                    // Try splitting at period or sentence end
+                    $splitPos = mb_strrpos($slice, '. ');
+                    if ($splitPos !== false && $splitPos >= (int)($limit * 0.3)) {
+                        $splitLen = 2;
+                    } else {
+                        // Try splitting at space
+                        $splitPos = mb_strrpos($slice, ' ');
+                        if ($splitPos !== false && $splitPos >= (int)($limit * 0.3)) {
+                            $splitLen = 1;
+                        } else {
+                            $splitPos = $limit;
+                            $splitLen = 0;
+                        }
+                    }
+                }
+            }
+
+            $cutAt = $splitPos + $splitLen;
+            if ($cutAt <= 0 || $cutAt > $limit) {
+                $cutAt = $limit;
+            }
+
+            $chunks[] = mb_substr($remaining, 0, $cutAt);
+            $remaining = mb_substr($remaining, $cutAt);
+        }
+
+        if ($remaining !== '') {
+            $chunks[] = $remaining;
+        }
+
+        return $chunks;
+    }
+
     #[\Override]
     public function __toString(): string
     {

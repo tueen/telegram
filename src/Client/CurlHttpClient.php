@@ -17,6 +17,9 @@ class CurlHttpClient implements HttpClientInterface
 {
     private static mixed $persistentShareHandle = null;
 
+    /** @var array<string, \CurlHandle> */
+    private static array $handlePool = [];
+
     public function __construct(
         private readonly bool $usePersistentShare = true
     ) {
@@ -29,11 +32,34 @@ class CurlHttpClient implements HttpClientInterface
         }
     }
 
+    /**
+     * Closes and clears all pooled persistent cURL handles.
+     */
+    public static function closeAllHandles(): void
+    {
+        foreach (self::$handlePool as $handle) {
+            if ($handle instanceof \CurlHandle) {
+                curl_close($handle);
+            }
+        }
+        self::$handlePool = [];
+    }
+
     #[\Override]
     public function send(Config $config, Request $request): Response
     {
         $url = $config->baseApiUrl . '/' . $request->endpoint;
-        $ch = curl_init($url);
+        $host = (string)parse_url($url, PHP_URL_HOST);
+
+        $ch = null;
+        if (isset(self::$handlePool[$host])) {
+            $ch = self::$handlePool[$host];
+            unset(self::$handlePool[$host]);
+            curl_reset($ch);
+            curl_setopt($ch, CURLOPT_URL, $url);
+        } else {
+            $ch = curl_init($url);
+        }
 
         if ($ch === false) {
             throw new NetworkException("Failed to initialize cURL handle.");
@@ -129,7 +155,12 @@ class CurlHttpClient implements HttpClientInterface
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        curl_close($ch);
+
+        if (!isset(self::$handlePool[$host]) && count(self::$handlePool) < 16) {
+            self::$handlePool[$host] = $ch;
+        } else {
+            curl_close($ch);
+        }
 
         $rawHeaders = substr((string)$rawResponse, 0, $headerSize);
         $rawBody = substr((string)$rawResponse, $headerSize);
@@ -246,5 +277,13 @@ class CurlHttpClient implements HttpClientInterface
         }
 
         return $headers;
+    }
+
+    /**
+     * Returns the number of cached cURL handles in the connection pool.
+     */
+    public static function getPoolCount(): int
+    {
+        return count(self::$handlePool);
     }
 }

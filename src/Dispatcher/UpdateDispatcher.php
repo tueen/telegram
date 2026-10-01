@@ -14,6 +14,9 @@ use Tueen\Telegram\Exceptions\TelegramException;
 use Tueen\Telegram\Flow\FlowManager;
 use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Chat;
+use Tueen\Telegram\Types\Message;
+use Tueen\Telegram\Types\User;
 use Tueen\Telegram\Types\Update;
 
 /**
@@ -30,6 +33,9 @@ class UpdateDispatcher
 
     /** @var list<array{type: class-string<Throwable>|null, handler: callable}> */
     private array $exceptionHandlers = [];
+
+    /** @var array<string, list<array{name: string, type: ?string, isBuiltin: bool, allowsNull: bool, hasDefault: bool, default: mixed}>> */
+    private static array $callableMetaCache = [];
 
     public function __construct(
         public mixed $container = null
@@ -191,7 +197,7 @@ class UpdateDispatcher
         }
     }
 
-    public function invokeHandler(mixed $handler, Update $update, Telegram $bot, ?Context $context = null): mixed
+    public function invokeHandler(mixed $handler, Update $update, Telegram $bot, ?Context $context = null, array $extraParameters = []): mixed
     {
         $context ??= new Context($update, $bot->client, $bot);
 
@@ -203,40 +209,196 @@ class UpdateDispatcher
             $instance = $this->resolveHandlerInstance($handler, $bot);
 
             if (is_callable($instance)) {
-                return $this->callCallable($instance, $update, $bot, $context);
+                return $this->callCallable($instance, $update, $bot, $context, $extraParameters);
             }
 
             throw new TelegramException("Handler class [{$handler}] must be invokable (missing __invoke method).");
         }
 
         if (is_callable($handler)) {
-            return $this->callCallable($handler, $update, $bot, $context);
+            return $this->callCallable($handler, $update, $bot, $context, $extraParameters);
         }
 
         throw new TelegramException("Invalid update handler provided: expected callable or invokable class name, got " . get_debug_type($handler));
     }
 
-    private function callCallable(callable $callable, Update $update, Telegram $bot, Context $context): mixed
-    {
-        try {
-            $ref = is_array($callable)
-                ? new ReflectionMethod($callable[0], $callable[1])
-                : new ReflectionFunction(Closure::fromCallable($callable));
-
-            $params = $ref->getParameters();
-            if (!empty($params)) {
-                $firstParam = $params[0];
-                $type = $firstParam->getType();
-
-                if ($type instanceof ReflectionNamedType && $type->getName() === Context::class) {
-                    return $callable($context, $bot);
-                }
-            }
-        } catch (Throwable) {
-            // Fallback to standard ($update, $bot) signature
+    private function resolveCallableParameters(
+        callable $callable,
+        Update $update,
+        Telegram $bot,
+        Context $context,
+        array $extraParameters = []
+    ): array {
+        $cacheKey = null;
+        if (is_array($callable) && is_object($callable[0])) {
+            $cacheKey = $callable[0]::class . '::' . $callable[1];
+        } elseif (is_array($callable) && is_string($callable[0])) {
+            $cacheKey = $callable[0] . '::' . $callable[1];
+        } elseif (is_string($callable)) {
+            $cacheKey = $callable;
         }
 
-        return $callable($update, $bot);
+        $meta = null;
+        if ($cacheKey !== null && isset(self::$callableMetaCache[$cacheKey])) {
+            $meta = self::$callableMetaCache[$cacheKey];
+        } else {
+            try {
+                $ref = is_array($callable)
+                    ? new ReflectionMethod($callable[0], $callable[1])
+                    : new ReflectionFunction(Closure::fromCallable($callable));
+
+                $params = $ref->getParameters();
+                $meta = [];
+                foreach ($params as $param) {
+                    $type = $param->getType();
+                    $typeName = null;
+                    $isBuiltin = false;
+                    $allowsNull = $param->allowsNull();
+
+                    if ($type instanceof ReflectionNamedType) {
+                        $typeName = $type->getName();
+                        $isBuiltin = $type->isBuiltin();
+                    }
+
+                    $meta[] = [
+                        'name' => $param->getName(),
+                        'type' => $typeName,
+                        'isBuiltin' => $isBuiltin,
+                        'allowsNull' => $allowsNull,
+                        'hasDefault' => $param->isDefaultValueAvailable(),
+                        'default' => $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
+                    ];
+                }
+
+                if ($cacheKey !== null) {
+                    self::$callableMetaCache[$cacheKey] = $meta;
+                }
+            } catch (Throwable) {
+                return [$update, $bot, ...$extraParameters];
+            }
+        }
+
+        if (empty($meta)) {
+            return [];
+        }
+
+        $container = $this->container ?? $bot->container;
+        $resolved = [];
+        $remainingExtra = $extraParameters;
+
+        foreach ($meta as $info) {
+            $pName = $info['name'];
+            $pType = $info['type'];
+
+            // 1. By type-hint
+            if ($pType !== null) {
+                if ($pType === Context::class || is_subclass_of($pType, Context::class)) {
+                    $resolved[] = $context;
+                    continue;
+                }
+                if ($pType === Update::class || is_subclass_of($pType, Update::class)) {
+                    $resolved[] = $update;
+                    continue;
+                }
+                if ($pType === Telegram::class || is_subclass_of($pType, Telegram::class)) {
+                    $resolved[] = $bot;
+                    continue;
+                }
+                if ($pType === User::class || is_subclass_of($pType, User::class)) {
+                    $resolved[] = $update->findUser();
+                    continue;
+                }
+                if ($pType === Chat::class || is_subclass_of($pType, Chat::class)) {
+                    $resolved[] = $update->findChat();
+                    continue;
+                }
+                if ($pType === Message::class || is_subclass_of($pType, Message::class)) {
+                    $resolved[] = $update->findMessage();
+                    continue;
+                }
+
+                // Check container for custom service classes
+                if (!$info['isBuiltin'] && $container !== null) {
+                    if (is_object($container) && method_exists($container, 'has') && $container->has($pType)) {
+                        $resolved[] = $container->get($pType);
+                        continue;
+                    }
+                    if (is_callable($container)) {
+                        $svc = $container($pType);
+                        if (is_object($svc)) {
+                            $resolved[] = $svc;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // 2. By parameter name in extraParameters (route placeholder values)
+            if (array_key_exists($pName, $remainingExtra)) {
+                $rawVal = $remainingExtra[$pName];
+                unset($remainingExtra[$pName]);
+
+                if ($pType === 'int') {
+                    $resolved[] = (int)$rawVal;
+                } elseif ($pType === 'float') {
+                    $resolved[] = (float)$rawVal;
+                } elseif ($pType === 'bool') {
+                    $resolved[] = filter_var($rawVal, FILTER_VALIDATE_BOOLEAN);
+                } else {
+                    $resolved[] = $rawVal;
+                }
+                continue;
+            }
+
+            // 3. By conventional parameter names
+            if ($pName === 'context' || $pName === 'ctx') {
+                $resolved[] = $context;
+                continue;
+            }
+            if ($pName === 'update' || $pName === 'u') {
+                $resolved[] = $update;
+                continue;
+            }
+            if ($pName === 'bot' || $pName === 'b' || $pName === 'telegram') {
+                $resolved[] = $bot;
+                continue;
+            }
+            if ($pName === 'user') {
+                $resolved[] = $update->findUser();
+                continue;
+            }
+            if ($pName === 'chat') {
+                $resolved[] = $update->findChat();
+                continue;
+            }
+            if ($pName === 'message' || $pName === 'msg') {
+                $resolved[] = $update->findMessage();
+                continue;
+            }
+
+            // 4. Default value
+            if ($info['hasDefault']) {
+                $resolved[] = $info['default'];
+                continue;
+            }
+
+            // 5. Nullable fallback
+            if ($info['allowsNull']) {
+                $resolved[] = null;
+                continue;
+            }
+
+            // Fallback: pass next remaining extra parameter or null
+            $resolved[] = !empty($remainingExtra) ? array_shift($remainingExtra) : null;
+        }
+
+        return $resolved;
+    }
+
+    public function callCallable(callable $callable, Update $update, Telegram $bot, Context $context, array $extraParameters = []): mixed
+    {
+        $args = $this->resolveCallableParameters($callable, $update, $bot, $context, $extraParameters);
+        return $callable(...$args);
     }
 
     private function resolveHandlerInstance(string $className, Telegram $bot): object

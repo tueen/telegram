@@ -498,13 +498,16 @@ class Type implements ArrayAccess, IteratorAggregate, JsonSerializable, Stringab
         return $value;
     }
 
+    private static array $snakeCache = [];
+    private static array $camelCache = [];
+
     public static function toSnakeCase(string $input): string
     {
-        return strtolower((string)preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+        return self::$snakeCache[$input] ??= strtolower((string)preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
     }
 
     public static function toCamelCase(string $input): string
     {
-        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
+        return self::$camelCache[$input] ??= lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $input))));
     }
 }

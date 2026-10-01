@@ -7,3 +7,6 @@ composer.lock
 /docs/.vitepress/dist/
 /docs/.vitepress/cache/
 /scratch/api.json
+.vscode/
+.DS_Store
+Thumbs.db

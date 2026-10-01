@@ -118,7 +118,7 @@ flowchart LR
         direction TB
         TelegramIn[("Telegram Bot API")] -->|Webhook or Polling| Runner["RunningMode"]
         Runner --> Dispatcher["UpdateDispatcher"]
-        Dispatcher --> UpdatePipes["Update Middlewares"]
+        Dispatcher --> UpdatePipes["Global Middlewares"]
         
         UpdatePipes --> PriorityCheck{"Priority Route?"}
         PriorityCheck -->|Yes| ConsultFlow{"Flow Allows?"}
@@ -130,19 +130,22 @@ flowchart LR
         FlowCheck -->|Yes| FlowStep["Execute Flow Step"]
         FlowStep --> FlowDecision{"Step Handled?"}
         FlowDecision -->|Yes| FlowDone["Save Flow State"]
-        FlowDecision -->|Pass Through| StandardRoutes["Router & Controllers"]
+        FlowDecision -->|Pass Through| RouterEngine["Router & Route Groups"]
         
-        FlowCheck -->|No| StandardRoutes
-        StandardRoutes -->|Matched| RouteHandlers["Route Handlers"]
-        StandardRoutes -->|Unmatched| Fallback["Fallback Handler"]
+        FlowCheck -->|No| RouterEngine
+        RouterEngine -->|Matched Route| RoutePipes["Route Middlewares"]
+        RoutePipes --> AutoWire["Auto-Wiring & Type Casting"]
+        AutoWire --> RouteHandlers["Route Handlers"]
+        RouterEngine -->|Unmatched| Fallback["Fallback Handler"]
     end
 
     subgraph OutboundTrack ["Outbound Pipeline (Sending Requests)"]
         direction TB
-        Context["ContextResolver"]
-        Context --> HttpPipes["HTTP Middlewares"]
+        Context["ContextResolver (Auto-Inject)"]
+        Context --> HttpPipes["HTTP Middlewares (Retry, RateLimit)"]
         HttpPipes --> Client["TelegramClient (PSR-18)"]
-        Client --> TelegramOut[("Telegram Bot API")]
+        Client --> Pool["Persistent cURL Connection Pool"]
+        Pool --> TelegramOut[("Telegram Bot API")]
     end
 
     %% Handlers send API requests back through Outbound Pipeline
@@ -150,14 +153,15 @@ flowchart LR
     FlowStep -->|Reply or Send| Context
     RouteHandlers -->|Reply or Send| Context
     Fallback -.->|Optional Reply| Context
-    DirectCall["Queue Worker or CLI"] -.-> Context
+    DirectCall["Queue Worker or Scoped Worker"] -.-> Context
 ```
 
 ### When to Access Subsystems Directly:
-Most of the time, you interact exclusively with the `$bot` facade. However, you can access underlying subsystems when building low-level extensions, worker queues, or custom integrations:
+Most of the time, you interact exclusively with the `$bot` facade. However, you can access underlying subsystems when building low-level extensions, worker queues, persistent daemons, or custom integrations:
 
 ```php
 use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Client\CurlHttpClient;
 
 $bot = new Telegram('YOUR_BOT_TOKEN');
 
@@ -165,14 +169,28 @@ $bot = new Telegram('YOUR_BOT_TOKEN');
 $client = $bot->client;
 $me = $client->getMe();
 
-// 2. Underlying router instance:
+// 2. Underlying router instance (inspect or manipulate route collections directly):
 $router = $bot->router;
 
 // 3. Flow state manager (for custom state stores or manual session manipulation):
 $flowManager = $bot->flowManager;
 
-// 4. Context parameter resolver:
+// 4. Context parameter resolver (manual default binding or contextual entity inspection):
 $context = $bot->context;
+$activeChatId = $context->chatId;
+
+// 5. Scoped Client for Persistent Worker Engines (FrankenPHP, RoadRunner, Swoole, Laravel Octane):
+// Clones the client into a thread-safe, isolated instance with dedicated context per update:
+$scopedBot = $bot->scoped($incomingUpdate);
+
+// 6. PSR-11 Dependency Injection Container:
+// Connect an external DI container (e.g. Laravel Container, PHP-DI, Symfony DI) for controller auto-wiring:
+$bot->container = $myContainer;
+
+// 7. Persistent HTTP Connection Pool Management:
+// Check cached TCP/TLS keep-alive handles or flush them during worker maintenance:
+$poolCount = CurlHttpClient::getPoolCount();
+CurlHttpClient::closeAllHandles();
 ```
 
 ---
@@ -406,29 +424,42 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 
 <ApiGroup description="Declarative command matching, callback query regex routes, and attribute controller registration.">
   <ApiCard
-    sig="onCommand(string $command, mixed $handler)"
+    sig="group(array|callable $attributesOrCallback, ?callable $callback = null)"
     returns="static"
-    desc="Matches bot commands (e.g. 'start', '/help') with automatic command argument parsing passed to handler parameters."
+    badge="Routing"
+    desc="Groups related routes with shared prefixes, middlewares, or chat-type scopes (e.g. $bot->group(['prefix' => 'admin_'], function ($bot) { ... }))."
   />
   <ApiCard
-    sig="onCallbackQuery(?string $pattern, mixed $handler)"
-    returns="static"
-    desc="Matches inline keyboard callback queries against an optional regex pattern with named regex group injection."
+    sig="onCommand(string $command, mixed $handler, bool $priority = false)"
+    returns="Route"
+    desc="Matches bot commands (e.g. 'start', '/help') with automatic command argument parsing. Returns a Route instance supporting ->middleware(), ->asPrivate(), ->where()."
   />
   <ApiCard
-    sig="onMessage(?string $pattern, mixed $handler)"
-    returns="static"
-    desc="Matches text messages against an optional regex pattern or matches all standard text messages if pattern is null."
+    sig="onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false)"
+    returns="Route"
+    desc="Matches inline keyboard callback queries against an optional regex or placeholder pattern ('item:{id}'). Returns a fluent Route instance."
   />
   <ApiCard
-    sig="onInlineQuery(?string $pattern, mixed $handler)"
-    returns="static"
-    desc="Matches inline search queries with optional regex filtering."
+    sig="onMessage(?string $pattern, mixed $handler, bool $priority = false)"
+    returns="Route"
+    desc="Matches text messages against an optional regex pattern or exact match. Returns a fluent Route instance."
   />
   <ApiCard
-    sig="on(UpdateType|string $type, mixed $handler)"
-    returns="static"
-    desc="Matches any Telegram update type (e.g. UpdateType::Message, UpdateType::CallbackQuery, or 'chat_member')."
+    sig="onText(?string $pattern, mixed $handler, bool $priority = false)"
+    returns="Route"
+    badge="Alias"
+    aliasFor="onMessage()"
+    desc="Convenience shorthand alias for onMessage() matching text messages."
+  />
+  <ApiCard
+    sig="onInlineQuery(?string $pattern, mixed $handler, bool $priority = false)"
+    returns="Route"
+    desc="Matches inline search queries with optional regex filtering. Returns a fluent Route instance."
+  />
+  <ApiCard
+    sig="on(UpdateType|string $type, mixed $handler, bool $priority = false)"
+    returns="Route"
+    desc="Matches any Telegram update type (e.g. UpdateType::Message, UpdateType::CallbackQuery, or 'chat_member'). Returns a fluent Route instance."
   />
   <ApiCard
     sig="onFallback(mixed $handler)"
@@ -638,6 +669,18 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     desc="Direct convenience shortcut to send a text message to the active chat in context without specifying chatId manually."
   />
   <ApiCard
+    sig="replyChunked(string|Text $text, int $chunkSize = 4096, mixed ...$args)"
+    returns="list<mixed>"
+    badge="Chunking"
+    desc="Replies with a long text or Text builder instance, splitting messages intelligently at sentence and newline boundaries to respect the 4096 character limit."
+  />
+  <ApiCard
+    sig="sendMessageChunked(string|Text $text, int $chunkSize = 4096, int|string|null $chatId = null, mixed ...$args)"
+    returns="list<mixed>"
+    badge="Chunking"
+    desc="Splits long text into multiple sequential messages sent to the target chat without breaking words or mangling newlines."
+  />
+  <ApiCard
     sig="bindDefault(string $param, callable $resolver)"
     returns="static"
     desc="Binds a custom contextual resolver for any Bot API method parameter (e.g. auto-injecting custom tenant or business connection IDs)."
@@ -723,5 +766,11 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
     returns="Router"
     badge="Property Hook"
     desc="Returns the underlying Router instance for custom route group manipulation."
+  />
+  <ApiCard
+    sig="scoped(?Update $update = null)"
+    returns="static"
+    badge="Concurrency"
+    desc="Spawns an isolated, thread-safe clone of the Telegram bot client with dedicated context for persistent worker engines (FrankenPHP, RoadRunner, Swoole, Octane)."
   />
 </ApiGroup>

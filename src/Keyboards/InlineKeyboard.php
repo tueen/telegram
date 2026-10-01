@@ -244,4 +244,10 @@ class InlineKeyboard extends InlineKeyboardMarkup
         }
         return parent::toArray();
     }
+
+    #[\Override]
+    public function jsonSerialize(): mixed
+    {
+        return $this->toArray();
+    }
 }

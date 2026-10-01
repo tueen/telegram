@@ -66,6 +66,10 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 
 ### 9. Update Routing & Attribute Controllers
 - `Router` & `Route`: Flexible update routing matching commands (auto-stripping `@bot`), parameterized callback queries (`order:{id}`), text patterns/regex, inline queries, and fallbacks.
+- **Route Groups**: Group related routes with shared prefixes, middlewares, and chat-type scopes: `$bot->group(['prefix' => 'admin_', 'middleware' => $adminAuth], function ($bot) { ... })`.
+- **Route-Level Middlewares & Scopes**: Attach middlewares directly to routes: `$route->middleware(...)`, `$route->asPrivate()`, `$route->asGroup()`, `$route->asSupergroup()`, `$route->asChannel()`.
+- **Route Parameter Constraints**: Enforce regex validation on placeholder variables: `$route->where('id', '[0-9]+')`.
+- **Smart Auto-Wiring**: Handlers dynamically receive auto-wired dependencies (`Telegram`, `Update`, `User`, `Chat`, `Message`, `ContextResolver`, typed route parameters, or PSR-11 container services).
 - Declarative PHP 8 Attributes: `#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`.
 - Controller registration via `$bot->registerController(...)` with PSR-11 container dependency injection.
 
@@ -80,10 +84,16 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 - Built-in assertions: `assertSent()`, `assertNotSent()`, `assertSentCount()`, `assertNothingSent()`.
 - Response and error stubbing: `fakeResponse()`, `fakeError()`.
 
-### 11. Rate Limiting Middleware
+### 12. Rate Limiting Middleware
 - `RateLimitMiddleware`: Token bucket pacing (30 req/sec globally), per-chat interval (1.0 sec), and automatic 429 `retry_after` backoff and re-execution.
 
-### 12. Documentation & Knowledge Synchronization (Mandatory Rule)
+### 13. Runtime Resilience, Connection Pooling & Scoped Concurrency
+- `CurlHttpClient`: Connection pooling reuses open cURL handles across requests, keeping TCP/TLS connections hot for high-throughput polling and webhook processing.
+- `scoped($update)`: Thread-safe isolated clone of the client for long-running concurrent worker runtimes (FrankenPHP, RoadRunner, Swoole, Octane).
+- `Text::chunk()` & `$bot->sendMessageChunked()`: Intelligent message splitting along sentence and newline boundaries preserving Telegram limits (4096 chars).
+- `InlineKeyboard` & `ReplyKeyboard`: Direct `JsonSerializable` and `toArray()` support without requiring explicit `->build()` invocations.
+
+### 14. Documentation & Knowledge Synchronization (Mandatory Rule)
 - Whenever any feature, class, enum, or configuration option is added or modified:
   - Immediately update `docs/` (sidebar, guides, code snippets) with comprehensive explanations and examples.
   - Update `AGENTS.md` and this skill file to record any new architectural conventions or rules.
@@ -93,7 +103,7 @@ This skill provides step-by-step procedures and rules for developing, testing, a
   - To archive a released version: `npm run docs:archive <version> [next-version]`.
   - To bump current version: `npm run docs:version <version>`.
 
-### 8. Telegram Bot API Version Constant & Synchronization Rule
+### 15. Telegram Bot API Version Constant & Synchronization Rule
 - The supported Telegram Bot API version is exposed via `Telegram::BOT_API_VERSION` (and `Telegram::API_VERSION`).
 - When a new Telegram Bot API version is released and `resources/api.json` is updated, `Telegram::BOT_API_VERSION` must be updated (automatically handled by `bin/generate.php` and verified via `TelegramClientTest`).
 

@@ -21,6 +21,7 @@ use Tueen\Telegram\Flow\Storage\StateStoreInterface;
 use Tueen\Telegram\Formatting\Text;
 use Tueen\Telegram\Methods\Method;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
+use Tueen\Telegram\Routing\Route;
 use Tueen\Telegram\Routing\Router;
 use Tueen\Telegram\Running\AutoMode;
 use Tueen\Telegram\Running\PollingMode;
@@ -109,8 +110,11 @@ class Telegram
     }
 
     public Router $router {
-        get => $this->_router ??= new Router();
-        set (Router $router) => $this->_router = $router;
+        get => $this->_router ??= new Router($this);
+        set (Router $router) {
+            $router->bot = $this;
+            $this->_router = $router;
+        }
     }
 
     public ?int $chatId {
@@ -195,6 +199,30 @@ class Telegram
         if (!empty($this->config->flowAllowedUpdates)) {
             $this->flowManager->setDefaultAllowedUpdates($this->config->flowAllowedUpdates);
         }
+    }
+
+    public function __clone()
+    {
+        if (isset($this->context)) {
+            $this->context = clone $this->context;
+        }
+        if (isset($this->client)) {
+            $this->client = clone $this->client;
+            if (isset($this->context)) {
+                $this->client->contextResolver = $this->context;
+            }
+        }
+    }
+
+    /**
+     * Creates an isolated, thread-safe scoped client instance bound to a specific Update.
+     * Prevents race conditions and state leakage across concurrent requests in long-running runtimes.
+     */
+    public function scoped(?Update $update = null): static
+    {
+        $scoped = clone $this;
+        $scoped->update = $update;
+        return $scoped;
     }
 
     /**
@@ -383,6 +411,53 @@ class Telegram
         return $this->sendMessage($params);
     }
 
+    /**
+     * Sends a long text message split safely into sequential messages adhering to Telegram limits.
+     *
+     * @param string|Text $text
+     * @param int $chunkSize Maximum character length per chunk (default: 4096)
+     * @param int|string|null $chatId Target chat ID (optional if active in context)
+     * @return list<mixed>
+     */
+    public function sendMessageChunked(string|Text $text, int $chunkSize = 4096, int|string|null $chatId = null, mixed ...$args): array
+    {
+        $rawText = (string)$text;
+        $chunks = Text::chunk($rawText, $chunkSize);
+        $sent = [];
+
+        foreach ($chunks as $chunk) {
+            $params = ['text' => $chunk];
+            if ($chatId !== null) {
+                $params['chatId'] = $chatId;
+            }
+            foreach ($args as $k => $v) {
+                if (is_array($v) && is_int($k)) {
+                    $params = array_merge($params, $v);
+                } else {
+                    $params[$k] = $v;
+                }
+            }
+            if ($text instanceof Text && !isset($params['parseMode']) && !isset($params['parse_mode'])) {
+                $params['parseMode'] = $text->parseMode;
+            }
+            $sent[] = $this->sendMessage($params);
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Replies with a long text message split safely into sequential messages.
+     *
+     * @param string|Text $text
+     * @param int $chunkSize
+     * @return list<mixed>
+     */
+    public function replyChunked(string|Text $text, int $chunkSize = 4096, mixed ...$args): array
+    {
+        return $this->sendMessageChunked($text, $chunkSize, null, ...$args);
+    }
+
     public function bindDefault(string $param, callable $resolver): static
     {
         $this->context->bind($param, $resolver);
@@ -552,10 +627,11 @@ class Telegram
      * @param bool $priority When true, allows this route to execute even if a Flow is active
      * @return static
      */
-    public function onCommand(string $command, mixed $handler, bool $priority = false): static
+    public function onCommand(string $command, mixed $handler, bool $priority = false): Route
     {
-        $this->router->onCommand($command, $handler, $priority);
-        return $this;
+        $route = $this->router->onCommand($command, $handler, $priority);
+        $route->bot = $this;
+        return $route;
     }
 
     /**
@@ -564,12 +640,13 @@ class Telegram
      * @param string|null $pattern Regex pattern to match against callback_data, or null for any
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
      * @param bool $priority When true, allows this route to execute even if a Flow is active
-     * @return static
+     * @return Route
      */
-    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->router->onCallbackQuery($pattern, $handler, $priority);
-        return $this;
+        $route = $this->router->onCallbackQuery($pattern, $handler, $priority);
+        $route->bot = $this;
+        return $route;
     }
 
     /**
@@ -578,12 +655,21 @@ class Telegram
      * @param string|null $pattern Regex pattern to match against text, or null for any message
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
      * @param bool $priority When true, allows this route to execute even if a Flow is active
-     * @return static
+     * @return Route
      */
-    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->router->onMessage($pattern, $handler, $priority);
-        return $this;
+        $route = $this->router->onMessage($pattern, $handler, $priority);
+        $route->bot = $this;
+        return $route;
+    }
+
+    /**
+     * Convenience alias for onMessage.
+     */
+    public function onText(?string $pattern, mixed $handler, bool $priority = false): Route
+    {
+        return $this->onMessage($pattern, $handler, $priority);
     }
 
     /**
@@ -592,12 +678,13 @@ class Telegram
      * @param string|null $pattern Regex pattern to match against query text, or null for any
      * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
      * @param bool $priority When true, allows this route to execute even if a Flow is active
-     * @return static
+     * @return Route
      */
-    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->router->onInlineQuery($pattern, $handler, $priority);
-        return $this;
+        $route = $this->router->onInlineQuery($pattern, $handler, $priority);
+        $route->bot = $this;
+        return $route;
     }
 
     /**
@@ -611,6 +698,26 @@ class Telegram
     public function on(UpdateType|string $type, mixed $handler, bool $priority = false): static
     {
         $this->router->on($type, $handler, $priority);
+        return $this;
+    }
+
+    /**
+     * Groups related routes with shared attributes (prefix, middleware, chat_type).
+     *
+     * @param array<string, mixed>|callable $attributesOrCallback
+     * @param (callable(Telegram): void)|null $callback
+     */
+    public function group(array|callable $attributesOrCallback, ?callable $callback = null): static
+    {
+        $actualCallback = is_callable($attributesOrCallback) ? $attributesOrCallback : $callback;
+        $attributes = is_array($attributesOrCallback) ? $attributesOrCallback : [];
+
+        $this->router->group($attributes, function () use ($actualCallback) {
+            if ($actualCallback !== null) {
+                $actualCallback($this);
+            }
+        });
+
         return $this;
     }
 

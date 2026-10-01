@@ -24,82 +24,184 @@ class Router
     /** @var list<Route> */
     private array $routes = [];
 
+    /** @var list<array<string, mixed>> */
+    private array $groupStack = [];
+
     private mixed $fallbackHandler = null;
+
+    public ?Telegram $bot = null;
+
+    public function __construct(?Telegram $bot = null)
+    {
+        $this->bot = $bot;
+    }
+
+    /**
+     * Groups related routes with shared attributes (prefix, middleware, chat_type).
+     *
+     * @param array<string, mixed>|callable $attributesOrCallback
+     * @param (callable(Router): void)|null $callback
+     */
+    public function group(array|callable $attributesOrCallback, ?callable $callback = null): static
+    {
+        if (is_callable($attributesOrCallback) && $callback === null) {
+            $attributes = [];
+            $cb = $attributesOrCallback;
+        } else {
+            $attributes = is_array($attributesOrCallback) ? $attributesOrCallback : [];
+            $cb = $callback;
+        }
+
+        $this->groupStack[] = $attributes;
+
+        try {
+            if ($cb !== null) {
+                $cb($this);
+            }
+        } finally {
+            array_pop($this->groupStack);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Adds and registers a Route, automatically applying active group attributes.
+     */
+    public function addRoute(Route $route): Route
+    {
+        if (!empty($this->groupStack)) {
+            $combinedPrefix = '';
+            $combinedMiddlewares = [];
+            $combinedChatType = null;
+
+            foreach ($this->groupStack as $group) {
+                if (!empty($group['prefix'])) {
+                    $combinedPrefix .= $group['prefix'];
+                }
+                if (!empty($group['middleware'])) {
+                    $mws = is_array($group['middleware']) ? $group['middleware'] : [$group['middleware']];
+                    foreach ($mws as $mw) {
+                        $combinedMiddlewares[] = $mw;
+                    }
+                }
+                if (!empty($group['chat_type'])) {
+                    $combinedChatType = (string)$group['chat_type'];
+                }
+            }
+
+            if ($combinedPrefix !== '' && $route->pattern !== null) {
+                if ($route->isCommand()) {
+                    $cleanPrefix = ltrim($combinedPrefix, '/');
+                    if (!str_ends_with($cleanPrefix, '_') && !str_ends_with($cleanPrefix, ' ') && $cleanPrefix !== '') {
+                        $cleanPrefix .= '_';
+                    }
+                    $cleanPrefix = rtrim($cleanPrefix, ' ');
+                    $newPattern = $cleanPrefix . ltrim($route->pattern, '/');
+                } else {
+                    $newPattern = $combinedPrefix . $route->pattern;
+                }
+
+                $route = new Route(
+                    type: $route->typeString,
+                    pattern: $newPattern,
+                    handler: $route->handler,
+                    isCommand: $route->isCommand(),
+                    isPriority: $route->isPriority()
+                );
+            }
+
+            if (!empty($combinedMiddlewares)) {
+                $route->middleware(...$combinedMiddlewares);
+            }
+
+            if ($combinedChatType !== null && $route->chatType === null) {
+                $route->filterChatType($combinedChatType);
+            }
+        }
+
+        $route->bot = $this->bot;
+        $this->routes[] = $route;
+        return $route;
+    }
 
     /**
      * Registers a bot command route (e.g. 'start', '/help').
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onCommand(string $command, mixed $handler, bool $priority = false): static
+    public function onCommand(string $command, mixed $handler, bool $priority = false): Route
     {
-        $this->routes[] = new Route(
+        return $this->addRoute(new Route(
             type: UpdateType::MESSAGE,
             pattern: ltrim($command, '/'),
             handler: $handler,
             isCommand: true,
             isPriority: $priority
-        );
-        return $this;
+        ));
     }
 
     /**
      * Registers a callback query route by exact match, placeholder ('item:{id}'), or regex.
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->routes[] = new Route(
+        return $this->addRoute(new Route(
             type: UpdateType::CALLBACK_QUERY,
             pattern: $pattern,
             handler: $handler,
             isPriority: $priority
-        );
-        return $this;
+        ));
     }
 
     /**
-     * Registers a message text route by regex or substring.
+     * Registers a message text route by regex or exact match.
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onMessage(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->routes[] = new Route(
+        return $this->addRoute(new Route(
             type: UpdateType::MESSAGE,
             pattern: $pattern,
             handler: $handler,
             isPriority: $priority
-        );
-        return $this;
+        ));
+    }
+
+    /**
+     * Convenience alias for onMessage.
+     */
+    public function onText(?string $pattern, mixed $handler, bool $priority = false): Route
+    {
+        return $this->onMessage($pattern, $handler, $priority);
     }
 
     /**
      * Registers an inline query route.
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): static
+    public function onInlineQuery(?string $pattern, mixed $handler, bool $priority = false): Route
     {
-        $this->routes[] = new Route(
+        return $this->addRoute(new Route(
             type: UpdateType::INLINE_QUERY,
             pattern: $pattern,
             handler: $handler,
             isPriority: $priority
-        );
-        return $this;
+        ));
     }
 
     /**
      * Registers a route for any specific UpdateType.
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
-    public function on(UpdateType|string $type, mixed $handler, bool $priority = false): static
+    public function on(UpdateType|string $type, mixed $handler, bool $priority = false): Route
     {
-        $this->routes[] = new Route(
+        return $this->addRoute(new Route(
             type: $type,
             pattern: null,
             handler: $handler,
             isPriority: $priority
-        );
-        return $this;
+        ));
     }
 
     /**
@@ -200,11 +302,25 @@ class Router
     }
 
     /**
-     * Dispatches a single matching route directly.
+     * Dispatches a single matching route directly, executing its route-level middlewares.
      */
     public function dispatchRoute(Route $route, Update $update, Telegram $bot, array $parameters = []): mixed
     {
-        return $this->invokeHandler($route->handler, $update, $bot, $parameters);
+        if (empty($route->middlewares)) {
+            return $this->invokeHandler($route->handler, $update, $bot, $parameters);
+        }
+
+        $pipeline = array_reduce(
+            array_reverse($route->middlewares),
+            function (callable $next, callable $middleware) use ($parameters) {
+                return function (Update $up, Telegram $b) use ($middleware, $next, $parameters) {
+                    return $middleware($up, $b, fn(Update $u, Telegram $botInst) => $next($u, $botInst), $parameters);
+                };
+            },
+            fn(Update $up, Telegram $b) => $this->invokeHandler($route->handler, $up, $b, $parameters)
+        );
+
+        return $pipeline($update, $bot);
     }
 
     /**
@@ -220,7 +336,7 @@ class Router
         foreach ($this->routes as $route) {
             $parameters = [];
             if ($route->matches($update, $bot, $parameters)) {
-                return $this->invokeHandler($route->handler, $update, $bot, $parameters);
+                return $this->dispatchRoute($route, $update, $bot, $parameters);
             }
         }
 
@@ -245,21 +361,21 @@ class Router
         if (is_array($handler) && count($handler) === 2) {
             [$target, $method] = $handler;
             $instance = is_object($target) ? $target : $this->instantiateController($target, $bot);
-            return $instance->{$method}($update, $bot, ...$parameters);
+            return $bot->dispatcher->invokeHandler([$instance, $method], $update, $bot, null, $parameters);
         }
 
         // If it's an invokable class string
         if (is_string($handler) && class_exists($handler)) {
             $instance = $this->instantiateController($handler, $bot);
             if (is_callable($instance)) {
-                return $instance($update, $bot, ...$parameters);
+                return $bot->dispatcher->invokeHandler($instance, $update, $bot, null, $parameters);
             }
             throw new TelegramException("Handler class [{$handler}] is not invokable.");
         }
 
         // If it's a closure / callable
         if (is_callable($handler)) {
-            return $handler($update, $bot, ...$parameters);
+            return $bot->dispatcher->invokeHandler($handler, $update, $bot, null, $parameters);
         }
 
         throw new TelegramException("Invalid route handler provided.");
