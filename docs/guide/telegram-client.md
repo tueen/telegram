@@ -161,10 +161,10 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 <ApiGroup description="Core version identifiers and subsystem properties protected by PHP 8.4 asymmetric visibility and property hooks.">
   <ApiCard
     type="constant"
-    sig="public const string BOT_API_VERSION = '10.3'"
+    sig="public const string BOT_API_VERSION"
     returns="string"
     badge="Constant"
-    desc="Canonical Telegram Bot API version currently supported and validated against (10.3)."
+    desc="Canonical Telegram Bot API version currently supported and validated against."
   />
   <ApiCard
     type="constant"

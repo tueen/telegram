@@ -4,7 +4,7 @@
 
 ---
 
-## 1. File Uploads with `InputFile`
+## 📤 1. File Uploads with `InputFile`
 
 `InputFile` can wrap local files, streams, raw strings, or PSR-7 streams:
 
@@ -44,7 +44,7 @@ $bot->sendDocument(
 
 ---
 
-## 2. Sending Media Groups (Albums)
+## 🖼️ 2. Sending Media Groups (Albums)
 
 To send multiple photos or videos as an album in a single message:
 
@@ -67,7 +67,7 @@ $bot->sendMediaGroup(
 
 ---
 
-## 3. Real-Time Upload Progress
+## ⚡ 3. Real-Time Upload Progress
 
 You can track upload progress per-request:
 
@@ -88,7 +88,7 @@ $bot->send(
 
 ---
 
-## 4. Streaming File Downloads with Progress
+## 📥 4. Streaming File Downloads with Progress
 
 Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
 
@@ -99,7 +99,55 @@ $bot->downloadFile(
     file: 'photos/file_0.jpg', // or File object / file_id
     destination: '/local/path/saved.jpg',
     progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {
-        printf("Download: %.2f%%\r", $percentage);
+        printf("Downloading: %.2f%%\r", $percentage);
     }
 );
 ```
+
+---
+
+## 🧭 5. File Transfer API Catalog
+
+Below is the complete reference of file transfer methods and factory functions.
+
+### 📦 `InputFile` Wrapper (`Tueen\Telegram\Types\Custom\InputFile`)
+
+<ApiGroup description="Universal multipart file wrapper supporting local paths, PHP streams, raw strings, and PSR-7.">
+  <ApiCard
+    sig="InputFile::fromPath(string $path, ?string $filename = null, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps a local filesystem file path. Infers filename and MIME content type automatically if omitted."
+  />
+  <ApiCard
+    sig="InputFile::fromResource(resource $resource, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps an active PHP stream resource (e.g. from fopen, php://temp) for memory-efficient streaming."
+  />
+  <ApiCard
+    sig="InputFile::fromString(string $contents, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps raw in-memory string data (e.g. generated CSV, PDF bytes, or image blobs)."
+  />
+  <ApiCard
+    sig="InputFile::fromStream(StreamInterface $stream, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps any PSR-7 StreamInterface instance for integration with Guzzle or Nyholm streams."
+  />
+</ApiGroup>
+
+---
+
+### 📥 Client Download APIs (`Telegram`)
+
+<ApiGroup description="Streaming download methods available on the Telegram client facade.">
+  <ApiCard
+    sig="downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult|Error"
+    returns="BooleanResult|Error"
+    badge="Streaming"
+    desc="Downloads a file by file_id, file path, or File object directly to local disk with optional progress tracking."
+  />
+</ApiGroup>

@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Update Helpers (`Update`)
+## ⚡ 1. Update Helpers (`Update`)
 
 ### Checking Update Types (`isType`)
 The `Update` object exposes a `$type` property and a variadic `isType` method that accepts multiple enums or string names:
@@ -71,7 +71,7 @@ $inlineId  = $update->inlineMessageId;
 
 ---
 
-## 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
+## 🌐 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
 
 The `Telegram` client facade and `Context` instance expose modern PHP 8.4 Property Hooks that proxy the active update without empty parentheses:
 
@@ -90,7 +90,7 @@ $message = $bot->message; // ?Message
 
 ---
 
-## 2. Message Helpers (`Message`)
+## 💬 3. Message Helpers (`Message`)
 
 ### Checking Message Types (`isType` & `isMessage`)
 Check message contents using property hooks or the variadic `isType` / `isMessage` helpers:
@@ -195,7 +195,7 @@ if ($message->isCommand()) {
 
 ---
 
-## 3. Chat & User Helpers
+## 👤 4. Chat & User Helpers
 
 ### Automatic `fullName`
 `Chat` and `User` models provide an automatic `$fullName` property:
@@ -207,3 +207,210 @@ echo $chat->fullName;
 // On User: Returns "first_name last_name" (or just first_name)
 echo $user->fullName;
 ```
+
+---
+
+## 🧭 5. Complete Helpers API Catalog
+
+Below is the complete reference of all computed property hooks and helper methods provided by the `HasUpdateHelpers`, `HasMessageHelpers`, `HasChatHelpers`, and `HasUserHelpers` traits.
+
+### ⚡ `Update` Helpers (`HasUpdateHelpers`)
+
+<ApiGroup description="Computed property hooks and multi-branch finders available on every Update instance.">
+  <ApiCard
+    type="property"
+    sig="public ?UpdateType $type"
+    returns="?UpdateType"
+    badge="Property Hook"
+    desc="Active update type classified into an UpdateType backed enum."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $chatId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved Telegram Chat ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $userId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved acting Telegram User ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $messageId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved primary message ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $fileId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved media file ID attached to incoming message or callback payload."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $businessConnectionId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved business connection identifier for Telegram Business updates."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $messageThreadId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved forum topic thread ID for supergroup topics."
+  />
+  <ApiCard
+    sig="isType(UpdateType|string ...$types): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the update matches any of the specified UpdateType enums or string names."
+  />
+  <ApiCard
+    sig="findMessage(): ?Message"
+    returns="?Message"
+    badge="Smart Finder"
+    desc="Inspects all update branches (message, edited_message, channel_post, callback_query->message, business_message) to find the active Message."
+  />
+  <ApiCard
+    sig="findUser(): ?User"
+    returns="?User"
+    badge="Smart Finder"
+    desc="Finds the acting User across messages, callbacks, inline queries, chat members, or reactions."
+  />
+  <ApiCard
+    sig="findChat(): ?Chat"
+    returns="?Chat"
+    badge="Smart Finder"
+    desc="Finds the target Chat across messages, channel posts, callbacks, chat join requests, or boosts."
+  />
+</ApiGroup>
+
+---
+
+### 💬 `Message` Helpers (`HasMessageHelpers`)
+
+<ApiGroup description="Computed property hooks and payload inspection methods on Message instances.">
+  <ApiCard
+    type="property"
+    sig="public ?MessageType $type"
+    returns="?MessageType"
+    badge="Property Hook"
+    desc="Classifies message payload into a MessageType backed enum (TEXT, PHOTO, VIDEO, DOCUMENT, etc.)."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isCommand"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if the message begins with a Telegram bot command (/command)."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $command"
+    returns="?string"
+    badge="Property Hook"
+    desc="Extracted bot command name, stripped of leading slash and @botusername suffix (e.g. 'start')."
+  />
+  <ApiCard
+    type="property"
+    sig="public array $args"
+    returns="array<int, string>"
+    badge="Property Hook"
+    desc="Extracted command arguments split by whitespace into a clean list of strings."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $textOrCaption"
+    returns="?string"
+    badge="Property Hook"
+    desc="Normalized text content: returns message text, media caption, or recursively extracted text from rich blocks."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $fileId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Highest-resolution file ID extracted from photo, video, document, audio, voice, sticker, animation, or video note."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?PhotoSize $largestPhoto"
+    returns="?PhotoSize"
+    badge="Property Hook"
+    desc="Returns the highest-resolution PhotoSize instance if the message contains a photo array."
+  />
+  <ApiCard
+    sig="isType(MessageType|string ...$types): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the message content matches any of the given MessageType enums or string names."
+  />
+  <ApiCard
+    sig="isRepliedToMessage(int|Message|null $target = null): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the message is a reply to any message, or matches a specific target message ID or Message instance."
+  />
+  <ApiCard
+    sig="findAnyText(): ?string"
+    returns="?string"
+    badge="Helper"
+    desc="Recursively extracts text from text, caption, or rich message structured blocks."
+  />
+</ApiGroup>
+
+---
+
+### 👤 `Chat` & `User` Helpers (`HasChatHelpers` & `HasUserHelpers`)
+
+<ApiGroup description="Computed identity and chat type property hooks on Chat and User objects.">
+  <ApiCard
+    type="property"
+    sig="public string $fullName"
+    returns="string"
+    badge="Property Hook"
+    desc="On User: 'First Last' or 'First'. On Chat: chat title for groups/channels, or user full name for private chats."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isPrivate"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'private'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isGroup"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'group'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isSupergroup"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'supergroup'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isChannel"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'channel'."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $mention"
+    returns="?string"
+    badge="Property Hook"
+    desc="Returns '@username' if present, or an HTML mention link 'tg://user?id=...' otherwise."
+  />
+</ApiGroup>

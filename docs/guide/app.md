@@ -1,72 +1,12 @@
 # Zero-Config App & Web Dashboard
 
-`tueen/telegram` provides the **`App`** orchestrator, a high-level application layer designed for effortless zero-config bot development, instant deployment on shared hosting or CLI, automated conversation flow session storage, and an interactive **Web Setup & Management Dashboard**.
+`Tueen\Telegram\App` is the high-level application bootstrapper and orchestrator for `tueen/telegram`. It eliminates boilerplate configuration, automatically sets up file-based conversation flow storage, auto-discovers attribute controllers, and provides a built-in Web Setup Wizard and CLI tooling.
 
 ---
 
-## 🚀 Quick Start in 60 Seconds
+## 🚀 1. The Single-File Entry Point
 
-Create a standard bot project directory:
-
-```text
-my-bot/
-├── config.php        # Configuration array (token, secret, etc.)
-├── routes.php        # Bot commands and update handlers
-├── index.php         # Entry point script
-└── storage/          # Automatically created for flow sessions
-    └── flow/
-```
-
-### 1. `config.php`
-
-Return your configuration array:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'token' => '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
-    'secret_token' => 'super-secret-token', // Optional Telegram secret token header
-    'mode' => 'auto',                      // 'auto', 'polling', or 'webhook'
-];
-```
-
-### 2. `routes.php`
-
-Define your commands and message handlers by returning a closure:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Types\Update;
-
-return function (Telegram $bot): void {
-    $bot->onCommand('start', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "👋 Welcome! Send /help to see available commands.");
-    });
-
-    $bot->onMessage('ping', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "pong 🏓");
-    });
-};
-```
-
-::: tip Recommended Pattern: Closure-Based Routes
-Returning a closure `return function (Telegram $bot): void { ... };` is the recommended best practice:
-- **Direct Execution Safety:** If accessed directly via a web browser, it safely returns a closure without throwing fatal errors or executing side effects.
-- **Bot-First & Optional App:** `$bot` is the primary argument. If you also need access to the `App` orchestrator, simply add `?App $app = null` (or `App $app`) as the second argument (`return function (Telegram $bot, App $app): void`). Leaving it out causes no error.
-- **Native Type Safety:** Full IDE autocompletion and static analysis without needing `/** @var */` PHPDoc annotations.
-- **Scope Isolation:** Avoids polluting any global or calling scope.
-:::
-
-### 3. `index.php`
-
-Initialize the App and call `run()`:
+With `App`, you can launch a complete, production-ready Telegram bot from a single file:
 
 ```php
 <?php
@@ -87,19 +27,31 @@ While `index.php` is standard, you can freely name your entry point file whateve
 
 ---
 
-## ⚡ Adaptive Execution Environments
+## ⚡ 2. Adaptive Execution Environments
 
 When `$app->run()` is invoked, it intelligently detects the execution context:
 
-| Environment | Trigger | Behavior |
-| :--- | :--- | :--- |
-| **CLI / Terminal** | `php index.php` | Runs interactive Long-Polling or CLI helper commands (`webhook:set`, etc.). |
-| **HTTP POST** | Incoming Telegram Webhook | Verifies `secret_token`, executes update handlers/flows, and returns `200 OK`. |
-| **HTTP GET** | Opened in Web Browser | Launches the **Royal Web Dashboard** or **First-Time Setup Wizard**. |
+<ApiGroup description="Automatic runtime detection based on server sapi and request method.">
+  <ApiCard
+    sig="CLI / Terminal"
+    badge="CLI Mode"
+    desc="Triggered by 'php index.php'. Runs interactive Long-Polling or CLI helper commands (webhook:set, doctor, etc.)."
+  />
+  <ApiCard
+    sig="HTTP POST (Webhook)"
+    badge="Webhook Mode"
+    desc="Triggered by incoming Telegram webhook requests. Validates secret_token, dispatches update handlers and flows, and returns 200 OK."
+  />
+  <ApiCard
+    sig="HTTP GET (Browser)"
+    badge="Web Dashboard"
+    desc="Triggered when index.php is opened in a web browser. Launches the interactive Web Setup Wizard or live Management Console."
+  />
+</ApiGroup>
 
 ---
 
-## 🌐 Web Setup Wizard & Management Console
+## 🌐 3. Web Setup Wizard & Management Console
 
 Opening `index.php` in a web browser activates the **Royal Web Dashboard**:
 
@@ -136,7 +88,7 @@ return [
 
 ---
 
-## 💾 Automatic Flow State Storage (`storage/flow`)
+## 💾 4. Automatic Flow State Storage (`storage/flow`)
 
 `App` automatically configures persistent conversation flow storage:
 
@@ -155,58 +107,7 @@ return [
 
 ---
 
-## 💻 CLI Commands
-
-You can run administrative operations directly from your terminal:
-
-```bash
-# Start polling mode with a styled welcome banner
-php index.php
-
-# Set webhook URL
-php index.php webhook:set https://example.com/index.php
-
-# Set webhook and drop pending updates
-php index.php webhook:set https://example.com/index.php --drop
-
-# Delete active webhook
-php index.php webhook:delete
-
-# Delete webhook and drop all pending updates
-php index.php webhook:delete --drop
-
-# Inspect current webhook status and errors
-php index.php webhook:info
-
-# View bot profile and permissions
-php index.php bot:info
-
-# Run system self-diagnostics
-php index.php doctor
-
-# Show help
-php index.php --help
-```
-
----
-
-## 🔑 Environment Variables (`.env`)
-
-`App` includes a zero-dependency `.env` reader that automatically loads configuration from your project's `.env` file if present:
-
-```ini
-TELEGRAM_BOT_TOKEN="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ"
-TELEGRAM_SECRET_TOKEN="my-secret-token"
-TELEGRAM_WEBHOOK_URL="https://yourdomain.com/index.php"
-```
-
-If these keys are present in `.env`, `App` automatically uses them as default fallback values without requiring hardcoded tokens in `config.php`.
-
-You can also read environment values using `Tueen\Telegram\App\Env::get('KEY', default: null)`.
-
----
-
-## 📁 Automatic Controller Discovery
+## 📁 5. Automatic Controller Discovery
 
 If your bot project has a `controllers/` directory in its project root, `App` automatically scans all PHP files inside it. Any class decorated with routing attributes (`#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`) is registered automatically with zero boilerplate!
 
@@ -230,7 +131,7 @@ class StartController
 
 ---
 
-## 🩺 System Diagnostics (`doctor`)
+## 🩺 6. System Diagnostics (`doctor`)
 
 To troubleshoot webhook issues, SSL certificate mismatches, or file permission errors on shared hosting:
 
@@ -246,22 +147,127 @@ It verifies:
 
 ---
 
-## 🛡️ Update Error Handling & Quick Replies
+## 🧭 7. App & CLI API Reference
 
-You can register global exception handlers directly on `$app`:
+Below is the complete reference of methods and properties available on `Tueen\Telegram\App`, along with terminal CLI commands.
 
-```php
-// In routes.php or index.php:
-$app->catch(function (Throwable $e, Update $update, Telegram $bot) {
-    error_log("Update error: " . $e->getMessage());
-    $app->reply('⚠️ An unexpected error occurred. Please try again later.');
-});
+### 🏛️ `App` Class (`Tueen\Telegram\App`)
 
-// Or catch specific exception types:
-$app->catch(DatabaseException::class, function ($e, $update, $bot) use ($app) {
-    $app->reply('Database connection error. Admin notified.');
-});
-```
+<ApiGroup description="High-level application orchestrator methods and property hooks.">
+  <ApiCard
+    sig="App::create(string $basePath, array $config = []): static"
+    returns="App"
+    badge="Factory"
+    desc="Initializes and boots the App instance for the given project base root path."
+  />
+  <ApiCard
+    sig="App::boot(string $basePath, array $config = []): static"
+    returns="App"
+    badge="Alias"
+    aliasFor="App::create()"
+    desc="Expressive shorthand alias for App::create()."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) Telegram $bot"
+    returns="Telegram"
+    badge="Asymmetric Visibility"
+    desc="Underlying Telegram client facade instance."
+  />
+  <ApiCard
+    type="property"
+    sig="public Router $router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Active update Router instance proxied directly from $bot->router."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowManager $flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Active FlowManager state orchestrator proxied directly from $bot->flowManager."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $basePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Resolved absolute root directory path of the bot project."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $storagePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Directory path for application storage ($basePath/storage)."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $flowStoragePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Directory path for persistent conversational flow state files ($basePath/storage/flow)."
+  />
+  <ApiCard
+    sig="run(mixed ...$handlers): mixed"
+    returns="mixed"
+    badge="Runner"
+    desc="Executes the bot using adaptive environment detection (CLI polling, HTTP webhook, or Web dashboard)."
+  />
+  <ApiCard
+    sig="reply(string|Text $text, mixed ...$args): mixed"
+    returns="mixed"
+    badge="Helper"
+    desc="Quick reply helper to send a text message to the active chat in context."
+  />
+  <ApiCard
+    sig="catch(string|callable $exceptionOrHandler, ?callable $handler = null): static"
+    returns="static"
+    badge="Error Handling"
+    desc="Registers a global exception handler for incoming update processing errors."
+  />
+  <ApiCard
+    sig="reloadConfig(array $overrides = []): static"
+    returns="static"
+    badge="Lifecycle"
+    desc="Reloads configuration from config.php and rebuilds client and flow storage instances."
+  />
+</ApiGroup>
 
-The `$app->reply($text, ...)` helper automatically resolves the active chat from context and dispatches `sendMessage` without requiring you to manually resolve chat IDs.
+---
 
+### 💻 CLI Administrative Commands
+
+<ApiGroup description="Terminal operations executed via 'php index.php <command>'.">
+  <ApiCard
+    sig="php index.php"
+    badge="CLI Command"
+    desc="Starts interactive Long-Polling mode with real-time log output in terminal."
+  />
+  <ApiCard
+    sig="php index.php webhook:set <url> [--drop]"
+    badge="CLI Command"
+    desc="Sets Telegram webhook URL with optional --drop flag to discard pending updates."
+  />
+  <ApiCard
+    sig="php index.php webhook:delete [--drop]"
+    badge="CLI Command"
+    desc="Deletes active webhook from Telegram servers."
+  />
+  <ApiCard
+    sig="php index.php webhook:info"
+    badge="CLI Command"
+    desc="Inspects current webhook status, URL, pending update count, and error telemetry."
+  />
+  <ApiCard
+    sig="php index.php bot:info"
+    badge="CLI Command"
+    desc="Displays bot profile, username, Bot API ping latency, and group permissions."
+  />
+  <ApiCard
+    sig="php index.php doctor"
+    badge="CLI Command"
+    desc="Runs complete system self-diagnostics (PHP version, extensions, writable storage, HTTPS)."
+  />
+</ApiGroup>

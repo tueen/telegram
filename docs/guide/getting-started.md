@@ -70,7 +70,7 @@ You can inspect the supported Telegram Bot API version programmatically at runti
 ```php
 use Tueen\Telegram\Telegram;
 
-echo Telegram::BOT_API_VERSION; // "10.3"
+echo Telegram::BOT_API_VERSION;
 ```
 
 ---

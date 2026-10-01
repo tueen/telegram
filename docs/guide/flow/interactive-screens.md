@@ -54,15 +54,50 @@ public function render(): Screen
 
 ### Screen Builder Methods
 
-| Method | Description |
-| :--- | :--- |
-| `text(string $text)` | Sets the message body text. |
-| `parseMode(ParseMode\|string $mode)` | Sets HTML or MarkdownV2 formatting. |
-| `inline(callable\|InlineKeyboard $keyboard)` | Attaches an inline keyboard with callback actions. |
-| `reply(callable\|ReplyKeyboard $keyboard)` | Switches to native Telegram reply keyboard buttons. |
-| `removeKeyboard(bool $selective = false)` | Dispatches a `ReplyKeyboardRemove` markup. |
-| `withNavigation(...)` | Appends language-neutral navigation buttons (`🔙` Back, `🏠` Home). |
-| `editIfPossible(bool $edit = true)` | Enables or disables in-place message editing. |
+<ApiGroup description="Methods on the Screen builder for constructing zero-flicker conversational displays.">
+  <ApiCard
+    sig="text(string $text): static"
+    returns="static"
+    badge="Content"
+    desc="Sets the message body text."
+  />
+  <ApiCard
+    sig="parseMode(ParseMode|string $mode): static"
+    returns="static"
+    badge="Formatting"
+    desc="Sets HTML or MarkdownV2 formatting mode."
+  />
+  <ApiCard
+    sig="inline(callable|InlineKeyboard $keyboard): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Attaches an inline keyboard with callback actions."
+  />
+  <ApiCard
+    sig="reply(callable|ReplyKeyboard $keyboard): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Switches to native Telegram reply keyboard buttons."
+  />
+  <ApiCard
+    sig="removeKeyboard(bool $selective = false): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Dispatches a ReplyKeyboardRemove markup."
+  />
+  <ApiCard
+    sig="withNavigation(bool $back = true, bool $home = true): static"
+    returns="static"
+    badge="Navigation"
+    desc="Appends language-neutral navigation buttons (🔙 Back, 🏠 Home)."
+  />
+  <ApiCard
+    sig="editIfPossible(bool $edit = true): static"
+    returns="static"
+    badge="Modifier"
+    desc="Enables or disables in-place message editing."
+  />
+</ApiGroup>
 
 ---
 

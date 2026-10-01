@@ -6,7 +6,7 @@ Testing Telegram bots often poses challenges: calling real Telegram API servers 
 
 ---
 
-## 1. Quick Example
+## 🧪 1. Quick Example
 
 ```php
 use PHPUnit\Framework\TestCase;
@@ -52,43 +52,7 @@ class WelcomeBotTest extends TestCase
 
 ---
 
-## 2. Available Assertion Methods
-
-All assertions can be called directly on the `$bot` fake instance:
-
-### `assertSent(string $method, ?callable $callback = null)`
-Asserts that an API method was invoked at least once. If a callback is provided, it receives the `$params` array and must return `true`.
-
-```php
-$bot->assertSent('sendMessage');
-
-$bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Hello!');
-```
-
-### `assertNotSent(string $method, ?callable $callback = null)`
-Asserts that an API method was never called, or was never called with matching parameters.
-
-```php
-$bot->assertNotSent('deleteMessage');
-```
-
-### `assertSentCount(string $method, int $expectedCount)`
-Asserts that an API method was invoked exactly `$expectedCount` times.
-
-```php
-$bot->assertSentCount('sendMessage', 2);
-```
-
-### `assertNothingSent()`
-Asserts that zero API calls were made to Telegram during the test.
-
-```php
-$bot->assertNothingSent();
-```
-
----
-
-## 3. Response Stubbing
+## 🛠️ 2. Response Stubbing
 
 By default, `Telegram::fake()` provides a generic success response (`['ok' => true, 'result' => []]`) for any method called.
 
@@ -130,7 +94,7 @@ $bot->sendMessage(chatId: 123, text: 'Hello');
 
 ---
 
-## 4. Inspecting Sent Requests
+## 🔍 3. Inspecting Sent Requests
 
 You can inspect the recorded requests directly:
 
@@ -141,3 +105,75 @@ $lastRequest = $bot->lastSentRequest();
 echo $lastRequest->method; // e.g. "sendMessage"
 print_r($lastRequest->params);
 ```
+
+---
+
+## 🧭 4. Testing & Fakes API Catalog
+
+Below is the complete reference of assertion methods, stubbing helpers, and inspection APIs available on `Tueen\Telegram\Testing\TelegramFake`.
+
+### 🛡️ Assertion Methods (`TelegramFake`)
+
+<ApiGroup description="In-memory test assertions for verifying outbound Telegram API method invocations.">
+  <ApiCard
+    sig="assertSent(string $method, ?callable $callback = null): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was invoked at least once, optionally matching callback predicate."
+  />
+  <ApiCard
+    sig="assertNotSent(string $method, ?callable $callback = null): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was never invoked, or never matched the callback predicate."
+  />
+  <ApiCard
+    sig="assertSentCount(string $method, int $expectedCount): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was called exactly the expected number of times."
+  />
+  <ApiCard
+    sig="assertNothingSent(): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that zero outbound API requests were dispatched to Telegram during test execution."
+  />
+</ApiGroup>
+
+---
+
+### 🎭 Stubbing & Inspection Methods (`TelegramFake`)
+
+<ApiGroup description="Methods for mocking API responses and inspecting recorded request objects.">
+  <ApiCard
+    sig="Telegram::fake(array $responses = [], string $botToken = 'FAKE_BOT_TOKEN'): TelegramFake"
+    returns="TelegramFake"
+    badge="Factory"
+    desc="Creates an in-memory recording fake client pre-seeded with optional response stubs."
+  />
+  <ApiCard
+    sig="fakeResponse(string $method, array $response): static"
+    returns="static"
+    badge="Stubbing"
+    desc="Registers a mock successful response array to be returned when the given method is called."
+  />
+  <ApiCard
+    sig="fakeError(string $method, string $description, int $errorCode = 400): static"
+    returns="static"
+    badge="Stubbing"
+    desc="Configures the fake to simulate a Telegram API error with HTTP status code and error description."
+  />
+  <ApiCard
+    sig="sentRequests(): array<int, Request>"
+    returns="array<int, Request>"
+    badge="Inspection"
+    desc="Returns all recorded HTTP Request instances dispatched during the test lifecycle."
+  />
+  <ApiCard
+    sig="lastSentRequest(): ?Request"
+    returns="?Request"
+    badge="Inspection"
+    desc="Returns the most recently recorded Request instance, or null if no calls were made."
+  />
+</ApiGroup>

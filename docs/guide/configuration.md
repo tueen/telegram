@@ -316,12 +316,36 @@ $fastConfig = $baseConfig
 
 `Config` provides convenient properties powered by PHP 8.4 property hooks to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
 
-| Property | Return Type | Output Example |
-| :--- | :--- | :--- |
-| **`$config->baseApiUrl`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
-| **`$config->baseFileUrl`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
-| **`$config->apiUri`** | `Uri\|string` | RFC 3986 URI instance for the API base |
-| **`$config->fileUri`** | `Uri\|string` | RFC 3986 URI instance for the File base |
+<ApiGroup description="Computed URL and RFC 3986 URI properties available on Config instances.">
+  <ApiCard
+    type="property"
+    sig="public string $baseApiUrl"
+    returns="string"
+    badge="Property Hook"
+    desc="Fully qualified Telegram Bot API base URL (e.g. 'https://api.telegram.org/bot<token>')."
+  />
+  <ApiCard
+    type="property"
+    sig="public string $baseFileUrl"
+    returns="string"
+    badge="Property Hook"
+    desc="Fully qualified Telegram File download base URL (e.g. 'https://api.telegram.org/file/bot<token>')."
+  />
+  <ApiCard
+    type="property"
+    sig="public Uri|string $apiUri"
+    returns="Uri|string"
+    badge="Property Hook"
+    desc="RFC 3986 URI object instance for the Bot API base endpoint."
+  />
+  <ApiCard
+    type="property"
+    sig="public Uri|string $fileUri"
+    returns="Uri|string"
+    badge="Property Hook"
+    desc="RFC 3986 URI object instance for the File download base endpoint."
+  />
+</ApiGroup>
 
 ```php
 $config = Telegram::create('123456:ABC')->build();

@@ -71,7 +71,7 @@ You can inspect the supported Telegram Bot API version programmatically at runti
 ```php
 use Tueen\Telegram\Telegram;
 
-echo Telegram::BOT_API_VERSION; // "10.3"
+echo Telegram::BOT_API_VERSION;
 ```
 
 ---
@@ -312,10 +312,10 @@ Below is the comprehensive catalog of all constants, properties, and methods pro
 <ApiGroup description="Core version identifiers and subsystem properties protected by PHP 8.4 asymmetric visibility and property hooks.">
   <ApiCard
     type="constant"
-    sig="public const string BOT_API_VERSION = '10.3'"
+    sig="public const string BOT_API_VERSION"
     returns="string"
     badge="Constant"
-    desc="Canonical Telegram Bot API version currently supported and validated against (10.3)."
+    desc="Canonical Telegram Bot API version currently supported and validated against."
   />
   <ApiCard
     type="constant"
@@ -1176,12 +1176,36 @@ $fastConfig = $baseConfig
 
 `Config` provides convenient properties powered by PHP 8.4 property hooks to resolve target URLs and standards-compliant `Uri\Rfc3986\Uri` objects:
 
-| Property | Return Type | Output Example |
-| :--- | :--- | :--- |
-| **`$config->baseApiUrl`** | `string` | `https://api.telegram.org/bot<token>` (or `.../bot<token>/test`) |
-| **`$config->baseFileUrl`** | `string` | `https://api.telegram.org/file/bot<token>` (or `.../test`) |
-| **`$config->apiUri`** | `Uri\|string` | RFC 3986 URI instance for the API base |
-| **`$config->fileUri`** | `Uri\|string` | RFC 3986 URI instance for the File base |
+<ApiGroup description="Computed URL and RFC 3986 URI properties available on Config instances.">
+  <ApiCard
+    type="property"
+    sig="public string $baseApiUrl"
+    returns="string"
+    badge="Property Hook"
+    desc="Fully qualified Telegram Bot API base URL (e.g. 'https://api.telegram.org/bot<token>')."
+  />
+  <ApiCard
+    type="property"
+    sig="public string $baseFileUrl"
+    returns="string"
+    badge="Property Hook"
+    desc="Fully qualified Telegram File download base URL (e.g. 'https://api.telegram.org/file/bot<token>')."
+  />
+  <ApiCard
+    type="property"
+    sig="public Uri|string $apiUri"
+    returns="Uri|string"
+    badge="Property Hook"
+    desc="RFC 3986 URI object instance for the Bot API base endpoint."
+  />
+  <ApiCard
+    type="property"
+    sig="public Uri|string $fileUri"
+    returns="Uri|string"
+    badge="Property Hook"
+    desc="RFC 3986 URI object instance for the File download base endpoint."
+  />
+</ApiGroup>
 
 ```php
 $config = Telegram::create('123456:ABC')->build();
@@ -1323,20 +1347,20 @@ $bot->run(App\Handlers\BotHandler::class);
 
 # ==============================================================================
 # File: /guide/methods-and-types
-# Section: Core Essentials > Methods & Types
+# Section: Core Essentials > Calling Methods & Types
 # ==============================================================================
 
-# Methods & Types
+# Calling Methods & Types
 
-`tueen/telegram` provides native, strictly typed support for Telegram Bot API methods and types with full IDE autocompletion and enums.
+`tueen/telegram` provides native, strictly typed support for Telegram Bot API methods and types with full IDE autocompletion, enums, computed property hooks, and forward-compatible fallbacks.
 
 ---
 
-## Method Invocations
+## 🚀 1. Method Invocations
 
 You can invoke API methods either dynamically or via dedicated Method classes:
 
-### 1. Dynamic Method Calls (Recommended)
+### Dynamic Method Calls (Recommended)
 
 Call any Telegram method directly using camelCase and named arguments:
 
@@ -1371,9 +1395,9 @@ $bot->sendMessage(123456, "Hello", null, null, null, null, 'HTML');
 4. **Self-Documenting:** Code is clear and easy to read during code review.
 :::
 
-Full IDE autocompletion and parameter docblocks are provided via the `@mixin TelegramMethods` contract.
+Full IDE autocompletion and parameter docblocks are provided via the `@mixin \Tueen\Telegram\Contracts\TelegramMethods` contract.
 
-### 2. Method Objects (For Custom Pipelines & Architecture)
+### Method Objects (For Custom Pipelines & Architecture)
 
 Every Telegram Bot API method has a dedicated class in `Tueen\Telegram\Methods`:
 
@@ -1388,7 +1412,7 @@ $method = new SendMessage(
 $message = $bot->send($method);
 ```
 
-### 3. Forward-Compatible Unknown / New Parameters
+### Forward-Compatible Unknown / New Parameters
 
 If Telegram introduces a new parameter before the library updates, you can pass it immediately as a named parameter or via variadic `$extra`:
 
@@ -1401,7 +1425,7 @@ $message = $bot->sendMessage(
 );
 ```
 
-### 4. Passing Complex & Nested Types (Objects or Arrays)
+### Passing Complex & Nested Types (Objects or Arrays)
 
 Methods that accept complex structures (such as `reply_markup`, `link_preview_options`, or `reply_parameters`) accept both **strongly-typed Type objects** and **associative arrays**:
 
@@ -1445,123 +1469,319 @@ $bot->sendMessage(
 
 ---
 
-## 🎯 Contextual Default Parameter Injection
+## 🏛️ 2. The Universal Base `Type` Class
 
-In bot applications, repetitive parameters like `chat_id`, `business_connection_id`, `message_thread_id`, or `user_id` are already present in the incoming `Update`. `tueen/telegram` features an **intelligent Context Resolver** that automatically extracts and injects these parameters whenever they are omitted or `null`.
+All Telegram Bot API response models (over 400 types such as `Message`, `User`, `Chat`, `Update`) extend the base class `Tueen\Telegram\Types\Type`.
 
-### 1. Automatic `chat_id` Injection
-Inside any update handler or flow step, you never have to specify `chat_id` manually:
-
-```php
-$bot->onCommand('start', function (Update $update, Telegram $bot) {
-    // chatId is automatically resolved from $update!
-    // Always use named parameters:
-    $bot->sendMessage(text: "Welcome to our bot!");
-    $bot->sendMessage(
-        text: "Please select an option from the menu below:",
-        replyMarkup: $inlineKeyboard
-    );
-});
-```
-
-### 2. Supported Contextual Parameters
-The following parameters are automatically inferred from the active update:
-
-| Parameter | Automatically Inferred From |
-| :--- | :--- |
-| `chat_id` | Active chat from message, callback query, business message, channel post, or reaction |
-| `business_connection_id` | Business connection or business message update |
-| `message_thread_id` | Forum topic thread ID from the incoming message |
-| `user_id` | Acting user ID (for `getUserProfilePhotos`, `getUserGifts`, etc.) |
-| `message_id` | Primary message ID (for `deleteMessage`, `pinChatMessage`, etc.) |
-| `inline_message_id` | Inline message ID from callback queries |
-| `callback_query_id` | Query ID for `answerCallbackQuery(text: 'Done!')` |
-| `inline_query_id` | Query ID for `answerInlineQuery(results: [...])` |
-| `shipping_query_id` | Query ID for `answerShippingQuery(ok: true)` |
-| `pre_checkout_query_id` | Query ID for `answerPreCheckoutQuery(ok: true)` |
-
-### 3. Dual Resolution for Message Edits
-Methods that can edit either a chat message or an inline query message (`editMessageText`, `editMessageCaption`, `editMessageReplyMarkup`, etc.) automatically detect whether the update came from an inline callback or a regular message:
-
-```php
-$bot->onCallbackQuery('confirm', function (Update $update, Telegram $bot) {
-    // Automatically injects either inline_message_id OR (chat_id + message_id)
-    $bot->editMessageText(text: "Confirmed!");
-});
-```
-
-### 4. Custom Parameter Binding
-You can bind custom default values or dynamic resolvers using `bindDefault`:
-
-```php
-// Always default parse_mode to HTML across all methods
-$bot->bindDefault('parse_mode', fn(?Update $u, ?string $endpoint) => 'HTML');
-
-// Send message without parse_mode parameter; HTML is injected automatically
-$bot->sendMessage(text: "<b>Order</b> confirmed successfully.");
-```
+### Core Features of `Type`:
+1. **Universal `ok(): bool` and `isOk(): bool`:** Every response object guarantees a boolean success check. Real response types always return `true`, while `Tueen\Telegram\Types\Error` objects return `false`.
+2. **Dual Property Access:** Access properties using camelCase (`$message->messageId`) or snake_case (`$message->message_id`).
+3. **`ArrayAccess` Support:** Access properties using bracket syntax (`$message['chat']['id']`).
+4. **`JsonSerializable` & Stringable:** Passing any type to `json_encode($type)` or `(string)$type` produces clean, unescaped JSON.
+5. **Array Transformation:** Call `toArray()` or `toJson()` to recursively convert the type and all nested objects into primitive arrays or JSON strings.
+6. **Bulletproof Forward-Compatibility:** If Telegram introduces new fields in the future, they are preserved inside `$extra` and accessible dynamically. If Telegram returns an entirely new, unmapped object type, Tueen falls back gracefully to the base `Type` class without crashing.
 
 ---
 
-## Types & Property Access
+## ⚙️ 3. The Base `Method` Class
 
-All API responses are automatically deserialized into strongly-typed objects in `Tueen\Telegram\Types`.
+Every Telegram Bot API method is represented by a class extending `Tueen\Telegram\Methods\Method`.
 
-### Dual Access: camelCase and snake_case
-
-```php
-// CamelCase property access
-echo $message->messageId;
-echo $message->chat->firstName;
-
-// Snake_case property access
-echo $message->message_id;
-
-// ArrayAccess with snake_case
-echo $message['message_id'];
-echo $message['chat']['first_name'];
-```
+### Core Responsibilities of `Method`:
+1. **Endpoint Resolution:** Defines the API method name (e.g. `'sendMessage'`).
+2. **Payload Serialization:** Prepares and filters parameters, converting nested `Type` objects, Enums, and JSON-encoded fields.
+3. **Multipart & File Upload Detection:** Inspects parameters for `InputFile` instances. If any file is present, `isMultipart()` returns `true` and the HTTP client uploads via `multipart/form-data`.
+4. **Typed Return Resolution:** Defines `returnType()` so the HTTP client automatically instantiates and deserializes the response into the appropriate concrete `Type` (e.g. `Message::class`, `BooleanResult::class`).
 
 ---
 
-## Custom Result Wrapper Types
+## 🧩 4. Concerns & Computed Helpers
 
-Methods that return primitive types (such as `boolean`, `integer`, or arrays) are wrapped in typed classes inside `Tueen\Telegram\Types\Custom\` so you can always check `$result->ok()`:
+Rather than bloating generated classes, helper methods and computed properties are organized into reusable traits inside `Tueen\Telegram\Types\Concerns\`:
 
-- **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`)
-  ```php
-  $result = $bot->deleteMessage(chatId: 123, messageId: 456);
-  if ($result->ok() && $result->value) {
-      echo "Deleted successfully";
-  }
-  ```
-- **`IntegerResult`** (e.g. from `getChatMemberCount`)
-  ```php
-  $count = $bot->getChatMemberCount(chatId: -100123);
-  echo "Members: " . $count->value;
-  ```
-- **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`)
-  ```php
-  $link = $bot->exportChatInviteLink(chatId: -100123);
-  echo "Invite link: " . $link->value;
-  ```
-- **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`)
-  ```php
-  $updates = $bot->getUpdates();
-  foreach ($updates as $update) {
-    echo $update->updateId;
-  }
-  ```
+<ApiGroup description="Reusable traits enhancing generated Telegram Bot API types with computed property hooks and helpers.">
+  <ApiCard
+    sig="HasUpdateHelpers"
+    returns="Trait on Update"
+    badge="Concern Trait"
+    desc="Equips Update with $type, $chatId, $userId, $messageId, $fileId, findMessage(), findUser(), findChat(), and isType()."
+  />
+  <ApiCard
+    sig="HasMessageHelpers"
+    returns="Trait on Message"
+    badge="Concern Trait"
+    desc="Equips Message with $isCommand, $command, $args, $textOrCaption, $fileId, $largestPhoto, isRepliedToMessage(), and findAnyText()."
+  />
+  <ApiCard
+    sig="HasChatHelpers"
+    returns="Trait on Chat"
+    badge="Concern Trait"
+    desc="Equips Chat with computed $fullName, $isPrivate, $isGroup, $isSupergroup, and $isChannel."
+  />
+  <ApiCard
+    sig="HasUserHelpers"
+    returns="Trait on User"
+    badge="Concern Trait"
+    desc="Equips User with computed $fullName and HTML $mention."
+  />
+  <ApiCard
+    sig="HasInlineKeyboardHelpers"
+    returns="Trait on InlineKeyboardMarkup"
+    badge="Concern Trait"
+    desc="Equips InlineKeyboardMarkup with button query and row inspection helpers."
+  />
+  <ApiCard
+    sig="HasReplyKeyboardHelpers"
+    returns="Trait on ReplyKeyboardMarkup"
+    badge="Concern Trait"
+    desc="Equips ReplyKeyboardMarkup with button grid inspection helpers."
+  />
+</ApiGroup>
+
+> For a complete guide and code examples of these helpers, see [Update & Message Helpers](./update-and-message-helpers).
 
 ---
 
-## Forward Compatibility & Dynamic Fallback
+## 📦 5. Custom Result Wrapper Types
 
-If Telegram adds new fields or entire response types in future API versions, your application will **never crash**:
+When Telegram Bot API methods return primitives (such as boolean values, integer counts, or plain strings), Tueen wraps them in dedicated classes inside `Tueen\Telegram\Types\Custom\` so you can always check `$result->ok()`:
 
-- The unknown field is preserved in `$extra` storage.
-- You can access it immediately via `$message->newField` or `$message['new_field']`.
-- If Telegram returns an entirely new Type object, it seamlessly falls back to the base `Type` class.
+- **`BooleanResult`** (e.g. from `setWebhook`, `deleteMessage`, `pinChatMessage`): Wraps a `bool $value`.
+- **`IntegerResult`** (e.g. from `getChatMemberCount`): Wraps an `int $value`.
+- **`StringResult`** (e.g. from `exportChatInviteLink`, `createInvoiceLink`): Wraps a `string $value`.
+- **`ArrayResult<T>`** (e.g. from `getUpdates`, `forwardMessages`): An iterable collection wrapping arrays of typed objects.
+- **`InputFile`**: Universal multipart file wrapper for uploads (`fromPath`, `fromResource`, `fromString`, `fromStream`).
+
+---
+
+## 🧭 6. Methods & Types API Reference
+
+Below is the comprehensive catalog of core methods and properties across the Base `Type`, Base `Method`, Contextual Auto-Injection, and Custom Wrapper types.
+
+### 🏛️ Base `Type` Class (`Tueen\Telegram\Types\Type`)
+
+<ApiGroup description="Universal base class for all 400 Telegram Bot API response types with dual error handling, serialization, and ArrayAccess.">
+  <ApiCard
+    sig="ok(): bool"
+    returns="bool"
+    badge="Universal Check"
+    desc="Determines whether the API response succeeded. Always returns true for valid Type instances and false for Error objects."
+  />
+  <ApiCard
+    sig="isOk(): bool"
+    returns="bool"
+    badge="Alias"
+    aliasFor="ok()"
+    desc="Shorthand alias for ok() adhering to standard boolean accessor naming."
+  />
+  <ApiCard
+    type="property"
+    sig="public array $rawData"
+    returns="array"
+    badge="Property Hook"
+    desc="Virtual property returning the original raw payload array received from Telegram API."
+  />
+  <ApiCard
+    type="property"
+    sig="protected(set) array $raw"
+    returns="array"
+    badge="Asymmetric Visibility"
+    desc="Internal raw array populated during type construction."
+  />
+  <ApiCard
+    sig="toArray(): array"
+    returns="array"
+    badge="Serialization"
+    desc="Recursively converts the type instance and all nested Type objects and Enums into a clean associative array."
+  />
+  <ApiCard
+    sig="toJson(int $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT): string"
+    returns="string"
+    badge="Serialization"
+    desc="Serializes the type instance into formatted JSON."
+  />
+  <ApiCard
+    sig="offsetGet(mixed $offset): mixed"
+    returns="mixed"
+    badge="ArrayAccess"
+    desc="ArrayAccess getter supporting snake_case field access (e.g. $message['chat']['id'])."
+  />
+  <ApiCard
+    sig="offsetExists(mixed $offset): bool"
+    returns="bool"
+    badge="ArrayAccess"
+    desc="ArrayAccess isset check for verifying whether a property exists."
+  />
+  <ApiCard
+    sig="offsetSet(mixed $offset, mixed $value): void"
+    returns="void"
+    badge="ArrayAccess"
+    desc="ArrayAccess setter for modifying or injecting dynamic fields."
+  />
+  <ApiCard
+    sig="offsetUnset(mixed $offset): void"
+    returns="void"
+    badge="ArrayAccess"
+    desc="ArrayAccess unsetter for clearing fields."
+  />
+</ApiGroup>
+
+---
+
+### ⚙️ Base `Method` Class (`Tueen\Telegram\Methods\Method`)
+
+<ApiGroup description="Base request class for all 150 Telegram Bot API methods handling multipart encoding and serialization.">
+  <ApiCard
+    sig="endpoint(): string"
+    returns="string"
+    badge="Contract"
+    desc="Returns the Telegram Bot API endpoint method name (e.g. 'sendMessage', 'sendPhoto')."
+  />
+  <ApiCard
+    sig="getPayload(): array"
+    returns="array"
+    badge="Contract"
+    desc="Prepares and serializes method parameters into a normalized array ready for JSON or multipart transmission."
+  />
+  <ApiCard
+    sig="hasUploads(): bool"
+    returns="bool"
+    badge="Multipart"
+    desc="Detects whether any parameter contains an InputFile or file stream requiring multipart/form-data encoding."
+  />
+  <ApiCard
+    sig="isMultipart(): bool"
+    returns="bool"
+    badge="Alias"
+    aliasFor="hasUploads()"
+    desc="Convenience alias to check if request must be dispatched using multipart encoding."
+  />
+  <ApiCard
+    sig="returnType(): string"
+    returns="class-string"
+    badge="Contract"
+    desc="Returns the concrete Type class name to deserialize the response into (e.g. Message::class, BooleanResult::class)."
+  />
+</ApiGroup>
+
+---
+
+### 🎯 Contextual Parameter Auto-Injection
+
+<ApiGroup description="Repetitive parameters automatically resolved and injected from the active Update when omitted from method calls.">
+  <ApiCard
+    sig="chat_id"
+    returns="int|string"
+    badge="Contextual"
+    desc="Inferred from active message, callback query, business message, channel post, or reaction."
+  />
+  <ApiCard
+    sig="business_connection_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred from incoming business connection or business message update."
+  />
+  <ApiCard
+    sig="message_thread_id"
+    returns="int"
+    badge="Contextual"
+    desc="Inferred from forum topic thread ID on incoming message."
+  />
+  <ApiCard
+    sig="user_id"
+    returns="int"
+    badge="Contextual"
+    desc="Inferred from acting user (for getUserProfilePhotos, getUserGifts, etc.)."
+  />
+  <ApiCard
+    sig="message_id"
+    returns="int"
+    badge="Contextual"
+    desc="Inferred from primary message (for deleteMessage, pinChatMessage, etc.)."
+  />
+  <ApiCard
+    sig="inline_message_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred from inline callback queries for editMessageText, editMessageReplyMarkup, etc."
+  />
+  <ApiCard
+    sig="callback_query_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred query ID for answerCallbackQuery(text: 'Done!')."
+  />
+  <ApiCard
+    sig="inline_query_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred query ID for answerInlineQuery(results: [...])."
+  />
+  <ApiCard
+    sig="shipping_query_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred query ID for answerShippingQuery(ok: true)."
+  />
+  <ApiCard
+    sig="pre_checkout_query_id"
+    returns="string"
+    badge="Contextual"
+    desc="Inferred query ID for answerPreCheckoutQuery(ok: true)."
+  />
+</ApiGroup>
+
+---
+
+### 📦 Custom Wrapper Types (`Tueen\Telegram\Types\Custom\`)
+
+<ApiGroup description="Typed wrappers for primitive results and multipart file transfers.">
+  <ApiCard
+    type="property"
+    sig="public readonly bool $value"
+    returns="bool"
+    badge="BooleanResult"
+    desc="Underlying boolean outcome for methods like deleteMessage, setWebhook, or pinChatMessage."
+  />
+  <ApiCard
+    type="property"
+    sig="public readonly int $value"
+    returns="int"
+    badge="IntegerResult"
+    desc="Underlying integer counter for methods like getChatMemberCount."
+  />
+  <ApiCard
+    type="property"
+    sig="public readonly string $value"
+    returns="string"
+    badge="StringResult"
+    desc="Underlying string for methods like exportChatInviteLink or createInvoiceLink."
+  />
+  <ApiCard
+    sig="InputFile::fromPath(string $path, ?string $filename = null, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="InputFile Factory"
+    desc="Creates a multipart file upload wrapper from a local filesystem path."
+  />
+  <ApiCard
+    sig="InputFile::fromResource(resource $resource, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="InputFile Factory"
+    desc="Creates a multipart file upload wrapper from an open PHP stream resource (e.g. fopen)."
+  />
+  <ApiCard
+    sig="InputFile::fromString(string $contents, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="InputFile Factory"
+    desc="Creates an in-memory multipart file upload wrapper from raw string contents."
+  />
+  <ApiCard
+    sig="InputFile::fromStream(StreamInterface $stream, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="InputFile Factory"
+    desc="Creates a multipart file upload wrapper from any PSR-7 StreamInterface instance."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -1575,7 +1795,7 @@ If Telegram adds new fields or entire response types in future API versions, you
 
 ---
 
-## 1. Inline Keyboards (`InlineKeyboard`)
+## 🔘 1. Inline Keyboards (`InlineKeyboard`)
 
 Inline keyboards appear directly attached to a specific message. Buttons trigger actions such as callback queries, opening URLs, launching Telegram Web Apps, or initiating payments.
 
@@ -1603,7 +1823,7 @@ $bot->sendMessage(
 
 ### Supported Button Types
 
-`InlineKeyboard` supports all Telegram Bot API 10.3 inline button types:
+`InlineKeyboard` supports all Telegram Bot API inline button types:
 
 ```php
 $keyboard = InlineKeyboard::make()
@@ -1619,7 +1839,7 @@ $keyboard = InlineKeyboard::make()
     // Seamless Telegram Login URL
     ->loginUrl('Login with Telegram', 'https://example.com/auth/telegram')
 
-    // Copy text to clipboard on tap (Bot API 7.5+)
+    // Copy text to clipboard on tap
     ->copyText('Copy Promo Code', 'TUEEN-VIP-2026')
 
     // Telegram Payments Pay button
@@ -1654,7 +1874,7 @@ $grid = $builder->chunk(3)->build();
 
 ---
 
-## 2. Reply Keyboards (`ReplyKeyboard`)
+## ⌨️ 2. Reply Keyboards (`ReplyKeyboard`)
 
 Reply keyboards replace the user's regular keyboard with custom option buttons.
 
@@ -1704,7 +1924,7 @@ $keyboard = ReplyKeyboard::make()
     ->build();
 ```
 
-### Removing Keyboards (`ReplyKeyboard::remove`)
+### Dismissing Keyboards (`ReplyKeyboard::remove`)
 
 To hide an active reply keyboard from the user's interface:
 
@@ -1715,6 +1935,168 @@ $bot->sendMessage(
     replyMarkup: ReplyKeyboard::remove()
 );
 ```
+
+---
+
+## 🧭 3. Keyboard Builders API Reference
+
+Below is the complete reference of methods available on `InlineKeyboard` and `ReplyKeyboard`.
+
+### 🔘 `InlineKeyboard` Builder (`Tueen\Telegram\Keyboards\InlineKeyboard`)
+
+<ApiGroup description="Fluent builder for constructing Telegram InlineKeyboardMarkup payloads.">
+  <ApiCard
+    sig="InlineKeyboard::make(): self"
+    returns="InlineKeyboard"
+    badge="Factory"
+    desc="Initializes a new inline keyboard builder instance."
+  />
+  <ApiCard
+    sig="row(): self"
+    returns="self"
+    badge="Layout"
+    desc="Starts a new button row in the inline keyboard."
+  />
+  <ApiCard
+    sig="callback(string $text, string $callbackData): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that sends callback_data back to the bot when clicked."
+  />
+  <ApiCard
+    sig="url(string $text, string $url): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that opens an external HTTP/HTTPS URL in the user's browser."
+  />
+  <ApiCard
+    sig="webApp(string $text, string $url): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that launches a Telegram Mini App (Web App) modal."
+  />
+  <ApiCard
+    sig="loginUrl(string $text, string|LoginUrl $loginUrl): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that authorizes the user via Telegram Login Widget."
+  />
+  <ApiCard
+    sig="copyText(string $text, string $copyText): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that copies the specified text to clipboard on tap."
+  />
+  <ApiCard
+    sig="pay(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a Telegram Payments invoice payment button (must be the first button in first row)."
+  />
+  <ApiCard
+    sig="switchInlineQuery(string $text, string $query = ''): self"
+    returns="self"
+    badge="Button"
+    desc="Prompts user to select a chat and inserts '@bot query' into the chat input bar."
+  />
+  <ApiCard
+    sig="switchInlineQueryCurrentChat(string $text, string $query = ''): self"
+    returns="self"
+    badge="Button"
+    desc="Inserts '@bot query' directly into the current chat's input bar."
+  />
+  <ApiCard
+    sig="chunk(int $size): self"
+    returns="self"
+    badge="Layout"
+    desc="Automatically groups all queued buttons into uniform rows of the specified size."
+  />
+  <ApiCard
+    sig="build(): InlineKeyboardMarkup"
+    returns="InlineKeyboardMarkup"
+    badge="Terminal"
+    desc="Compiles and returns the finalized InlineKeyboardMarkup type instance."
+  />
+</ApiGroup>
+
+---
+
+### ⌨️ `ReplyKeyboard` Builder (`Tueen\Telegram\Keyboards\ReplyKeyboard`)
+
+<ApiGroup description="Fluent builder for constructing Telegram ReplyKeyboardMarkup and ReplyKeyboardRemove payloads.">
+  <ApiCard
+    sig="ReplyKeyboard::make(): self"
+    returns="ReplyKeyboard"
+    badge="Factory"
+    desc="Initializes a new reply keyboard builder instance."
+  />
+  <ApiCard
+    sig="row(): self"
+    returns="self"
+    badge="Layout"
+    desc="Starts a new button row in the reply keyboard."
+  />
+  <ApiCard
+    sig="text(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a regular text button that sends the button text as a user message."
+  />
+  <ApiCard
+    sig="requestContact(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button prompting the user to share their verified phone number."
+  />
+  <ApiCard
+    sig="requestLocation(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button prompting the user to share their current GPS location."
+  />
+  <ApiCard
+    sig="requestPoll(string $text, ?string $type = null): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button allowing the user to create and send a regular poll or quiz."
+  />
+  <ApiCard
+    sig="resize(bool $resize = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Scales the reply keyboard vertically to fit the button rows neatly."
+  />
+  <ApiCard
+    sig="oneTime(bool $oneTime = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Hides the reply keyboard automatically as soon as any button is tapped."
+  />
+  <ApiCard
+    sig="persistent(bool $persistent = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Keeps the reply keyboard visible even when the regular software keyboard is opened or closed."
+  />
+  <ApiCard
+    sig="placeholder(string $placeholder): self"
+    returns="self"
+    badge="Modifier"
+    desc="Sets custom placeholder text inside the chat input bar when this keyboard is active."
+  />
+  <ApiCard
+    sig="build(): ReplyKeyboardMarkup"
+    returns="ReplyKeyboardMarkup"
+    badge="Terminal"
+    desc="Compiles and returns the finalized ReplyKeyboardMarkup type instance."
+  />
+  <ApiCard
+    sig="ReplyKeyboard::remove(bool $selective = false): ReplyKeyboardRemove"
+    returns="ReplyKeyboardRemove"
+    badge="Removal"
+    desc="Creates a ReplyKeyboardRemove instance to dismiss active reply keyboards."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -1732,7 +2114,7 @@ Telegram supports rich text formatting via **HTML**, **MarkdownV2**, and legacy 
 
 ---
 
-## 1. Fluent `Text` Builder
+## 🎨 1. Fluent `Text` Builder
 
 The `Text` builder lets you chain formatting methods while automatically escaping any dynamic or user-supplied variables.
 
@@ -1769,7 +2151,7 @@ $message = Text::html()
 
 ### MarkdownV2 Formatting (`Text::markdownV2`)
 
-You can generate bulletproof MarkdownV2 without manually escaping the 18 reserved Telegram characters:
+You can generate MarkdownV2 without manually escaping the 18 reserved Telegram characters:
 
 ```php
 $message = Text::markdownV2()
@@ -1782,7 +2164,7 @@ $message = Text::markdownV2()
 
 ---
 
-## 2. Nested Formatting Styles
+## 🔗 2. Nested Formatting Styles
 
 Telegram allows entities to be nested (e.g. bold italic text or links with bold labels). `Text` supports nesting using **Closures**, sub-`Text` instances, or strings:
 
@@ -1799,94 +2181,162 @@ $link = Text::html()->link(fn(Text $t) => $t->bold('Click Here'), 'https://examp
 
 ---
 
-## 3. Supported Formatting Styles
+## 🛡️ 3. Low-Level Escaping with `Escape`
 
-Both `Text::html()` and `Text::markdownV2()` support the full range of Telegram formatting features:
-
-| Method | HTML Output | MarkdownV2 Output | Description |
-| :--- | :--- | :--- | :--- |
-| `->bold($content)` | `<b>...</b>` | `*...*` | Bold weight text (supports nesting) |
-| `->italic($content)` | `<i>...</i>` | `_..._` | Italicized text (supports nesting) |
-| `->underline($content)` | `<u>...</u>` | `__...__` | Underlined text (supports nesting) |
-| `->strikethrough($content)` | `<s>...</s>` | `~...~` | Strikethrough text (supports nesting) |
-| `->spoiler($content)` | `<tg-spoiler>...</tg-spoiler>` | `\|\|...\|\|` | Hidden spoiler text (supports nesting) |
-| `->blockquote($content)` | `<blockquote>...</blockquote>` | `>...` | Block quotation |
-| `->expandableBlockquote($content)` | `<blockquote expandable>...</blockquote>` | `**>...` | Collapsible block quote |
-| `->code($code)` | `<code>...</code>` | `` `...` `` | Inline monospace code |
-| `->pre($code, $lang)` | `<pre><code class="...">...</code></pre>` | ```` ```lang ... ``` ```` | Pre-formatted code block |
-| `->link($content, $url)` | `<a href="...">...</a>` | `[...] (...)` | Inline hyperlink (supports styled labels) |
-| `->userMention($content, $userId)` | `<a href="tg://user?id=...">...</a>` | `[...] (tg://user?id=...)` | Mention user by Telegram ID |
-| `->customEmoji($emoji, $id)` | `<tg-emoji emoji-id="...">...</tg-emoji>` | `![emoji](tg://emoji?id=...)` | Custom animated Telegram emoji |
-| `->plain($text)` | Escaped text | Escaped text | Regular text, automatically escaped |
-| `->raw($string)` | Unescaped string | Unescaped string | Raw text without escaping |
-
----
-
-## 4. Entity Helpers & Dividers
-
-```php
-$text = Text::html()
-    ->mention('@my_bot')                     // Adds @my_bot
-    ->space()
-    ->hashtag('#tueen')                      // Adds #tueen
-    ->space()
-    ->cashtag('$TON')                        // Adds $TON
-    ->space()
-    ->botCommand('/help')                    // Adds /help
-    ->line()
-    ->email('support@tueen.org')             // Creates mailto: link
-    ->line()
-    ->phone('+1234567890')                   // Creates tel: link
-    ->br(2)                                  // Appends 2 blank lines
-    ->hr(25);                                // Appends a horizontal divider (—————————)
-```
-
----
-
-## 5. Length & Character Limit Utilities
-
-Telegram enforces strict character limits (e.g. 4096 characters for messages, 1024 characters for media captions):
-
-```php
-$text = Text::html()->bold('Very long text...');
-
-echo $text->length;                         // UTF-8 character count
-$text->isEmpty;                             // bool
-$text->isNotEmpty;                          // bool
-$text->isWithinLimit(4096);                 // true if <= 4096 characters
-
-// Safely truncate to a maximum length with suffix:
-$text->truncate(4096, '... [read more]');
-```
-
----
-
-## 6. Low-Level `Escape` Utility
-
-When assembling strings manually or using existing templates, use `Escape` to sanitize user input:
+When constructing strings manually or templating with Blade/Twig, use `Tueen\Telegram\Formatting\Escape`:
 
 ```php
 use Tueen\Telegram\Formatting\Escape;
 
-// HTML escaping: replaces <, >, &, and " with &lt;, &gt;, &amp;, &quot;
-$safeUserName = Escape::html($userInput);
+// 1. Escaping for HTML
+$safeHtml = Escape::html("<script>alert('xss');</script> & Bob");
+// Returns: &lt;script&gt;alert('xss');&lt;/script&gt; &amp; Bob
 
-// MarkdownV2 escaping: escapes all 18 Telegram special characters:
-// _, *, [, ], (, ), ~, `, >, #, +, -, =, |, {, }, ., !
-$safeComment = Escape::markdownV2($userInput);
+// 2. Escaping for MarkdownV2 (escapes 18 reserved Telegram characters)
+$safeMarkdown = Escape::markdownV2("Price is [10.00$] *special*");
+// Returns: Price is \[10\.00\$\] \*special\*
 
-// Code and Pre escaping: inside code blocks, only ` and \ need escaping
-$safeCode = Escape::markdownV2Code($rawCode);
-
-// Inline link URL escaping: inside link URLs, only ) and \ need escaping
-$safeUrl = Escape::markdownV2Link($userUrl);
-
-// Custom Emoji escaping: inside [...] only ] and \ need escaping
-$safeEmoji = Escape::markdownV2CustomEmoji($rawEmoji);
-
-// Legacy Markdown escaping
-$safeLegacy = Escape::markdown($userInput);
+// 3. Escaping URL query components
+$safeUrl = Escape::urlParam("https://example.com?query=hello world");
 ```
+
+---
+
+## 🧭 4. Formatting API Catalog
+
+Below is the complete reference of methods available on the `Text` builder and `Escape` helper.
+
+### 🎨 `Text` Builder (`Tueen\Telegram\Formatting\Text`)
+
+<ApiGroup description="Fluent builder for safe HTML and MarkdownV2 styled messages.">
+  <ApiCard
+    sig="bold(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in bold weight text."
+  />
+  <ApiCard
+    sig="italic(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in italicized text."
+  />
+  <ApiCard
+    sig="underline(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in underlined text."
+  />
+  <ApiCard
+    sig="strikethrough(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in strikethrough text."
+  />
+  <ApiCard
+    sig="spoiler(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in hidden spoiler tags."
+  />
+  <ApiCard
+    sig="blockquote(string|callable|Text $content): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a block quote quotation."
+  />
+  <ApiCard
+    sig="expandableBlockquote(string|callable|Text $content): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a collapsible expandable block quote."
+  />
+  <ApiCard
+    sig="code(string $code): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders inline monospace code."
+  />
+  <ApiCard
+    sig="pre(string $code, ?string $language = null): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a pre-formatted syntax code block with optional language highlighting."
+  />
+  <ApiCard
+    sig="link(string|callable|Text $content, string $url): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders an inline hyperlink with clickable label text."
+  />
+  <ApiCard
+    sig="userMention(string|callable|Text $content, int $userId): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders a direct user mention link targeting a Telegram user ID."
+  />
+  <ApiCard
+    sig="customEmoji(string $emoji, string $customEmojiId): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders an animated custom Telegram emoji with its unique custom emoji ID."
+  />
+  <ApiCard
+    sig="plain(string $text): self"
+    returns="self"
+    badge="Content"
+    desc="Appends plain text, automatically escaping any reserved formatting characters."
+  />
+  <ApiCard
+    sig="raw(string $string): self"
+    returns="self"
+    badge="Content"
+    desc="Appends raw text without escaping (use only with pre-sanitized strings)."
+  />
+  <ApiCard
+    sig="line(string|callable|Text|null $content = null): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends content followed by a newline."
+  />
+  <ApiCard
+    sig="br(int $count = 1): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends one or more blank line breaks."
+  />
+  <ApiCard
+    sig="hr(int $length = 25): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends a horizontal rule divider line."
+  />
+</ApiGroup>
+
+---
+
+### 🛡️ `Escape` Helper (`Tueen\Telegram\Formatting\Escape`)
+
+<ApiGroup description="Low-level escaping routines adhering to the Telegram Bot API specification.">
+  <ApiCard
+    sig="Escape::html(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes HTML special characters (&amp;, &lt;, &gt;, &quot;) for Telegram HTML parse mode."
+  />
+  <ApiCard
+    sig="Escape::markdownV2(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes all 18 reserved characters for MarkdownV2."
+  />
+  <ApiCard
+    sig="Escape::markdown(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes legacy Markdown characters."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -1900,7 +2350,7 @@ $safeLegacy = Escape::markdown($userInput);
 
 ---
 
-## 1. File Uploads with `InputFile`
+## 📤 1. File Uploads with `InputFile`
 
 `InputFile` can wrap local files, streams, raw strings, or PSR-7 streams:
 
@@ -1940,7 +2390,7 @@ $bot->sendDocument(
 
 ---
 
-## 2. Sending Media Groups (Albums)
+## 🖼️ 2. Sending Media Groups (Albums)
 
 To send multiple photos or videos as an album in a single message:
 
@@ -1963,7 +2413,7 @@ $bot->sendMediaGroup(
 
 ---
 
-## 3. Real-Time Upload Progress
+## ⚡ 3. Real-Time Upload Progress
 
 You can track upload progress per-request:
 
@@ -1984,7 +2434,7 @@ $bot->send(
 
 ---
 
-## 4. Streaming File Downloads with Progress
+## 📥 4. Streaming File Downloads with Progress
 
 Telegram allows downloading files up to 20MB (or up to 2GB when using a self-hosted Bot API server).
 
@@ -1995,10 +2445,58 @@ $bot->downloadFile(
     file: 'photos/file_0.jpg', // or File object / file_id
     destination: '/local/path/saved.jpg',
     progress: function (int $bytesDownloaded, int $totalBytes, float $percentage) {
-        printf("Download: %.2f%%\r", $percentage);
+        printf("Downloading: %.2f%%\r", $percentage);
     }
 );
 ```
+
+---
+
+## 🧭 5. File Transfer API Catalog
+
+Below is the complete reference of file transfer methods and factory functions.
+
+### 📦 `InputFile` Wrapper (`Tueen\Telegram\Types\Custom\InputFile`)
+
+<ApiGroup description="Universal multipart file wrapper supporting local paths, PHP streams, raw strings, and PSR-7.">
+  <ApiCard
+    sig="InputFile::fromPath(string $path, ?string $filename = null, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps a local filesystem file path. Infers filename and MIME content type automatically if omitted."
+  />
+  <ApiCard
+    sig="InputFile::fromResource(resource $resource, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps an active PHP stream resource (e.g. from fopen, php://temp) for memory-efficient streaming."
+  />
+  <ApiCard
+    sig="InputFile::fromString(string $contents, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps raw in-memory string data (e.g. generated CSV, PDF bytes, or image blobs)."
+  />
+  <ApiCard
+    sig="InputFile::fromStream(StreamInterface $stream, string $filename, ?string $contentType = null): self"
+    returns="InputFile"
+    badge="Factory"
+    desc="Wraps any PSR-7 StreamInterface instance for integration with Guzzle or Nyholm streams."
+  />
+</ApiGroup>
+
+---
+
+### 📥 Client Download APIs (`Telegram`)
+
+<ApiGroup description="Streaming download methods available on the Telegram client facade.">
+  <ApiCard
+    sig="downloadFile(mixed $file, mixed $destination, ?callable $progress = null): BooleanResult|Error"
+    returns="BooleanResult|Error"
+    badge="Streaming"
+    desc="Downloads a file by file_id, file path, or File object directly to local disk with optional progress tracking."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -2520,6 +3018,73 @@ file_get_contents('php://input')
 3. **Callable & Hook Synergy:** Seamlessly integrates with Tueen's first-class callable methods (`$bot->parseUpdate(...)`, `$bot->sendMessage(...)`) and property hooks.
 4. **Graceful Early Exits:** Steps can return `null` or specialized result types to short-circuit subsequent stages without deeply nested `if/else` checks.
 
+---
+
+## 🧭 6. Running Modes API Catalog
+
+Below is the complete reference of running mode runners and client execution methods.
+
+### 🌐 `WebhookMode` Runner (`Tueen\Telegram\Running\WebhookMode`)
+
+<ApiGroup description="Handles incoming HTTP webhook payloads with secret token validation and safe response rendering.">
+  <ApiCard
+    sig="__construct(?string $secretToken = null, bool $ipCheck = false, bool $safeResponse = true)"
+    returns="WebhookMode"
+    badge="Constructor"
+    desc="Initializes Webhook runner. Configures Telegram X-Telegram-Bot-Api-Secret-Token validation and 200 OK output buffering."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): mixed"
+    returns="mixed"
+    badge="Execution"
+    desc="Reads php://input, validates headers, parses Update, dispatches handler, and emits safe 200 OK HTTP response."
+  />
+</ApiGroup>
+
+---
+
+### 🔄 `PollingMode` Runner (`Tueen\Telegram\Running\PollingMode`)
+
+<ApiGroup description="Continuous long-polling runner with automatic offset tracking, exponential backoff, and generator streaming.">
+  <ApiCard
+    sig="__construct(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null, bool $autoBackoff = true, bool $dropPendingUpdates = false, bool $forkProcess = false)"
+    returns="PollingMode"
+    badge="Constructor"
+    desc="Configures long-polling parameters, auto-backoff on connection errors, and optional process forking."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): void"
+    returns="void"
+    badge="Execution"
+    desc="Starts continuous update ingestion loop, fetching updates from Telegram and dispatching to handlers."
+  />
+  <ApiCard
+    sig="getUpdatesGenerator(Telegram $bot): Generator<int, Update>"
+    returns="Generator<int, Update>"
+    badge="Streaming"
+    desc="Returns a lazy PHP Generator yielding incoming Update instances one by one via long-polling."
+  />
+</ApiGroup>
+
+---
+
+### 🔀 `AutoMode` Runner (`Tueen\Telegram\Running\AutoMode`)
+
+<ApiGroup description="Adaptive runner that automatically toggles between PollingMode in CLI and WebhookMode in HTTP.">
+  <ApiCard
+    sig="__construct(?PollingMode $pollingMode = null, ?WebhookMode $webhookMode = null, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)"
+    returns="AutoMode"
+    badge="Constructor"
+    desc="Initializes adaptive runner with optional custom child runners and webhook cleanup on CLI start."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): mixed"
+    returns="mixed"
+    badge="Execution"
+    desc="Detects execution environment (CLI vs Web) and delegates execution to the appropriate child runner."
+  />
+</ApiGroup>
+
 
 # ==============================================================================
 # File: /guide/routing
@@ -2534,7 +3099,7 @@ The router supports both **Fluent Route Definitions** and **Attribute-Driven Con
 
 ---
 
-## 1. Fluent Routing
+## ⚡ 1. Fluent Routing
 
 You can register routes directly on your `Telegram` client instance.
 
@@ -2590,7 +3155,7 @@ $bot->run();
 
 ---
 
-## 2. Parameter Extraction in Routes
+## 🎯 2. Parameter Extraction in Routes
 
 The router provides first-class support for parameterized patterns using `{paramName}`:
 
@@ -2620,7 +3185,7 @@ $bot->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', functi
 
 ---
 
-## 3. Attribute-Driven Controllers
+## 🏛️ 3. Attribute-Driven Controllers
 
 For medium to large applications, you can organize your routes into dedicated Controller classes decorated with PHP 8 Attributes:
 
@@ -2689,15 +3254,105 @@ If a PSR-11 container is configured (`$bot->setContainer($container)`), controll
 
 ---
 
-## 4. Available Routing Attributes
+## 🧭 4. Routing API Catalog
 
-| Attribute | Matches | Example |
-| :--- | :--- | :--- |
-| `#[OnCommand('name')]` | Bot commands (`/name` or `/name@bot`) | `#[OnCommand('help')]` |
-| `#[OnCallbackQuery('pattern')]` | Callback queries matching pattern or regex | `#[OnCallbackQuery('confirm:{id}')]` |
-| `#[OnMessage('pattern')]` | Text messages matching string or regex | `#[OnMessage('/hi\|hello/i')]` |
-| `#[OnInlineQuery('pattern')]` | Inline queries matching optional pattern | `#[OnInlineQuery]` |
-| `#[OnUpdate('type')]` | Specific update types (`channel_post`, etc.) | `#[OnUpdate('edited_message')]` |
+Below is the complete reference of routing attributes and router configuration methods.
+
+### 🏷️ Routing Attributes (`Tueen\Telegram\Routing\Attributes\`)
+
+<ApiGroup description="Declarative attributes for decorating controller methods.">
+  <ApiCard
+    sig="#[OnCommand(string $command)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches Telegram bot commands (e.g. /start, /help). Bot username suffix (@bot) is handled automatically."
+  />
+  <ApiCard
+    sig="#[OnCallbackQuery(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches inline keyboard callback queries against an exact string, parameterized pattern ('item:{id}'), or regex."
+  />
+  <ApiCard
+    sig="#[OnMessage(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches text messages against an exact string, regex (/pattern/i), or matches all messages if pattern is null."
+  />
+  <ApiCard
+    sig="#[OnInlineQuery(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches incoming Telegram inline queries matching an optional query string pattern."
+  />
+  <ApiCard
+    sig="#[OnUpdate(UpdateType|string $type)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches specific Telegram update types (e.g. UpdateType::CHANNEL_POST, 'chat_member', etc.)."
+  />
+  <ApiCard
+    sig="#[Fallback]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Marks a method as the default fallback handler when no other routes or active conversational flows match."
+  />
+</ApiGroup>
+
+---
+
+### 🛣️ `Router` Methods (`Tueen\Telegram\Routing\Router`)
+
+<ApiGroup description="Methods on the Router instance (also proxied directly on the Telegram client facade).">
+  <ApiCard
+    sig="onCommand(string $command, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for a bot command name (e.g. 'start', '/help')."
+  />
+  <ApiCard
+    sig="onCallbackQuery(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for callback queries matching an optional pattern or regex."
+  />
+  <ApiCard
+    sig="onMessage(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for messages matching an optional pattern or regex."
+  />
+  <ApiCard
+    sig="onInlineQuery(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for inline queries matching an optional pattern."
+  />
+  <ApiCard
+    sig="on(UpdateType|string $type, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route targeting a specific UpdateType enum or string."
+  />
+  <ApiCard
+    sig="onFallback(mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a fallback handler when no other routes or active conversational flows match."
+  />
+  <ApiCard
+    sig="registerController(string|object $controller): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers an attribute-decorated controller class name or object instance."
+  />
+  <ApiCard
+    sig="dispatch(Update $update, ?Telegram $bot = null): bool"
+    returns="bool"
+    badge="Execution"
+    desc="Dispatches an incoming update to the first matching route. Returns true if handled."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -2711,7 +3366,7 @@ If a PSR-11 container is configured (`$bot->setContainer($container)`), controll
 
 ---
 
-## 1. Update Helpers (`Update`)
+## ⚡ 1. Update Helpers (`Update`)
 
 ### Checking Update Types (`isType`)
 The `Update` object exposes a `$type` property and a variadic `isType` method that accepts multiple enums or string names:
@@ -2778,7 +3433,7 @@ $inlineId  = $update->inlineMessageId;
 
 ---
 
-## 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
+## 🌐 2. Client-Level Contextual Shortcuts (`Telegram` & `Context`)
 
 The `Telegram` client facade and `Context` instance expose modern PHP 8.4 Property Hooks that proxy the active update without empty parentheses:
 
@@ -2797,7 +3452,7 @@ $message = $bot->message; // ?Message
 
 ---
 
-## 2. Message Helpers (`Message`)
+## 💬 3. Message Helpers (`Message`)
 
 ### Checking Message Types (`isType` & `isMessage`)
 Check message contents using property hooks or the variadic `isType` / `isMessage` helpers:
@@ -2902,7 +3557,7 @@ if ($message->isCommand()) {
 
 ---
 
-## 3. Chat & User Helpers
+## 👤 4. Chat & User Helpers
 
 ### Automatic `fullName`
 `Chat` and `User` models provide an automatic `$fullName` property:
@@ -2914,6 +3569,213 @@ echo $chat->fullName;
 // On User: Returns "first_name last_name" (or just first_name)
 echo $user->fullName;
 ```
+
+---
+
+## 🧭 5. Complete Helpers API Catalog
+
+Below is the complete reference of all computed property hooks and helper methods provided by the `HasUpdateHelpers`, `HasMessageHelpers`, `HasChatHelpers`, and `HasUserHelpers` traits.
+
+### ⚡ `Update` Helpers (`HasUpdateHelpers`)
+
+<ApiGroup description="Computed property hooks and multi-branch finders available on every Update instance.">
+  <ApiCard
+    type="property"
+    sig="public ?UpdateType $type"
+    returns="?UpdateType"
+    badge="Property Hook"
+    desc="Active update type classified into an UpdateType backed enum."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $chatId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved Telegram Chat ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $userId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved acting Telegram User ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $messageId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved primary message ID extracted across all update payload branches."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $fileId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved media file ID attached to incoming message or callback payload."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $businessConnectionId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved business connection identifier for Telegram Business updates."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $messageThreadId"
+    returns="?int"
+    badge="Property Hook"
+    desc="Resolved forum topic thread ID for supergroup topics."
+  />
+  <ApiCard
+    sig="isType(UpdateType|string ...$types): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the update matches any of the specified UpdateType enums or string names."
+  />
+  <ApiCard
+    sig="findMessage(): ?Message"
+    returns="?Message"
+    badge="Smart Finder"
+    desc="Inspects all update branches (message, edited_message, channel_post, callback_query->message, business_message) to find the active Message."
+  />
+  <ApiCard
+    sig="findUser(): ?User"
+    returns="?User"
+    badge="Smart Finder"
+    desc="Finds the acting User across messages, callbacks, inline queries, chat members, or reactions."
+  />
+  <ApiCard
+    sig="findChat(): ?Chat"
+    returns="?Chat"
+    badge="Smart Finder"
+    desc="Finds the target Chat across messages, channel posts, callbacks, chat join requests, or boosts."
+  />
+</ApiGroup>
+
+---
+
+### 💬 `Message` Helpers (`HasMessageHelpers`)
+
+<ApiGroup description="Computed property hooks and payload inspection methods on Message instances.">
+  <ApiCard
+    type="property"
+    sig="public ?MessageType $type"
+    returns="?MessageType"
+    badge="Property Hook"
+    desc="Classifies message payload into a MessageType backed enum (TEXT, PHOTO, VIDEO, DOCUMENT, etc.)."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isCommand"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if the message begins with a Telegram bot command (/command)."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $command"
+    returns="?string"
+    badge="Property Hook"
+    desc="Extracted bot command name, stripped of leading slash and @botusername suffix (e.g. 'start')."
+  />
+  <ApiCard
+    type="property"
+    sig="public array $args"
+    returns="array<int, string>"
+    badge="Property Hook"
+    desc="Extracted command arguments split by whitespace into a clean list of strings."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $textOrCaption"
+    returns="?string"
+    badge="Property Hook"
+    desc="Normalized text content: returns message text, media caption, or recursively extracted text from rich blocks."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $fileId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Highest-resolution file ID extracted from photo, video, document, audio, voice, sticker, animation, or video note."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?PhotoSize $largestPhoto"
+    returns="?PhotoSize"
+    badge="Property Hook"
+    desc="Returns the highest-resolution PhotoSize instance if the message contains a photo array."
+  />
+  <ApiCard
+    sig="isType(MessageType|string ...$types): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the message content matches any of the given MessageType enums or string names."
+  />
+  <ApiCard
+    sig="isRepliedToMessage(int|Message|null $target = null): bool"
+    returns="bool"
+    badge="Helper"
+    desc="Checks whether the message is a reply to any message, or matches a specific target message ID or Message instance."
+  />
+  <ApiCard
+    sig="findAnyText(): ?string"
+    returns="?string"
+    badge="Helper"
+    desc="Recursively extracts text from text, caption, or rich message structured blocks."
+  />
+</ApiGroup>
+
+---
+
+### 👤 `Chat` & `User` Helpers (`HasChatHelpers` & `HasUserHelpers`)
+
+<ApiGroup description="Computed identity and chat type property hooks on Chat and User objects.">
+  <ApiCard
+    type="property"
+    sig="public string $fullName"
+    returns="string"
+    badge="Property Hook"
+    desc="On User: 'First Last' or 'First'. On Chat: chat title for groups/channels, or user full name for private chats."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isPrivate"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'private'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isGroup"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'group'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isSupergroup"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'supergroup'."
+  />
+  <ApiCard
+    type="property"
+    sig="public bool $isChannel"
+    returns="bool"
+    badge="Property Hook"
+    desc="Returns true if chat type is 'channel'."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $mention"
+    returns="?string"
+    badge="Property Hook"
+    desc="Returns '@username' if present, or an HTML mention link 'tg://user?id=...' otherwise."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -3272,15 +4134,50 @@ public function render(): Screen
 
 ### Screen Builder Methods
 
-| Method | Description |
-| :--- | :--- |
-| `text(string $text)` | Sets the message body text. |
-| `parseMode(ParseMode\|string $mode)` | Sets HTML or MarkdownV2 formatting. |
-| `inline(callable\|InlineKeyboard $keyboard)` | Attaches an inline keyboard with callback actions. |
-| `reply(callable\|ReplyKeyboard $keyboard)` | Switches to native Telegram reply keyboard buttons. |
-| `removeKeyboard(bool $selective = false)` | Dispatches a `ReplyKeyboardRemove` markup. |
-| `withNavigation(...)` | Appends language-neutral navigation buttons (`🔙` Back, `🏠` Home). |
-| `editIfPossible(bool $edit = true)` | Enables or disables in-place message editing. |
+<ApiGroup description="Methods on the Screen builder for constructing zero-flicker conversational displays.">
+  <ApiCard
+    sig="text(string $text): static"
+    returns="static"
+    badge="Content"
+    desc="Sets the message body text."
+  />
+  <ApiCard
+    sig="parseMode(ParseMode|string $mode): static"
+    returns="static"
+    badge="Formatting"
+    desc="Sets HTML or MarkdownV2 formatting mode."
+  />
+  <ApiCard
+    sig="inline(callable|InlineKeyboard $keyboard): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Attaches an inline keyboard with callback actions."
+  />
+  <ApiCard
+    sig="reply(callable|ReplyKeyboard $keyboard): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Switches to native Telegram reply keyboard buttons."
+  />
+  <ApiCard
+    sig="removeKeyboard(bool $selective = false): static"
+    returns="static"
+    badge="Keyboard"
+    desc="Dispatches a ReplyKeyboardRemove markup."
+  />
+  <ApiCard
+    sig="withNavigation(bool $back = true, bool $home = true): static"
+    returns="static"
+    badge="Navigation"
+    desc="Appends language-neutral navigation buttons (🔙 Back, 🏠 Home)."
+  />
+  <ApiCard
+    sig="editIfPossible(bool $edit = true): static"
+    returns="static"
+    badge="Modifier"
+    desc="Enables or disables in-place message editing."
+  />
+</ApiGroup>
 
 ---
 
@@ -4007,73 +4904,13 @@ $bot->setFlowStore(new Psr16StateStore($psr16CachePool));
 
 # Zero-Config App & Web Dashboard
 
-`tueen/telegram` provides the **`App`** orchestrator, a high-level application layer designed for effortless zero-config bot development, instant deployment on shared hosting or CLI, automated conversation flow session storage, and an interactive **Web Setup & Management Dashboard**.
+`Tueen\Telegram\App` is the high-level application bootstrapper and orchestrator for `tueen/telegram`. It eliminates boilerplate configuration, automatically sets up file-based conversation flow storage, auto-discovers attribute controllers, and provides a built-in Web Setup Wizard and CLI tooling.
 
 ---
 
-## 🚀 Quick Start in 60 Seconds
+## 🚀 1. The Single-File Entry Point
 
-Create a standard bot project directory:
-
-```text
-my-bot/
-├── config.php        # Configuration array (token, secret, etc.)
-├── routes.php        # Bot commands and update handlers
-├── index.php         # Entry point script
-└── storage/          # Automatically created for flow sessions
-    └── flow/
-```
-
-### 1. `config.php`
-
-Return your configuration array:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'token' => '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ',
-    'secret_token' => 'super-secret-token', // Optional Telegram secret token header
-    'mode' => 'auto',                      // 'auto', 'polling', or 'webhook'
-];
-```
-
-### 2. `routes.php`
-
-Define your commands and message handlers by returning a closure:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Tueen\Telegram\Telegram;
-use Tueen\Telegram\Types\Update;
-
-return function (Telegram $bot): void {
-    $bot->onCommand('start', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "👋 Welcome! Send /help to see available commands.");
-    });
-
-    $bot->onMessage('ping', function (Update $update, Telegram $bot) {
-        $bot->sendMessage(text: "pong 🏓");
-    });
-};
-```
-
-::: tip Recommended Pattern: Closure-Based Routes
-Returning a closure `return function (Telegram $bot): void { ... };` is the recommended best practice:
-- **Direct Execution Safety:** If accessed directly via a web browser, it safely returns a closure without throwing fatal errors or executing side effects.
-- **Bot-First & Optional App:** `$bot` is the primary argument. If you also need access to the `App` orchestrator, simply add `?App $app = null` (or `App $app`) as the second argument (`return function (Telegram $bot, App $app): void`). Leaving it out causes no error.
-- **Native Type Safety:** Full IDE autocompletion and static analysis without needing `/** @var */` PHPDoc annotations.
-- **Scope Isolation:** Avoids polluting any global or calling scope.
-:::
-
-### 3. `index.php`
-
-Initialize the App and call `run()`:
+With `App`, you can launch a complete, production-ready Telegram bot from a single file:
 
 ```php
 <?php
@@ -4094,19 +4931,31 @@ While `index.php` is standard, you can freely name your entry point file whateve
 
 ---
 
-## ⚡ Adaptive Execution Environments
+## ⚡ 2. Adaptive Execution Environments
 
 When `$app->run()` is invoked, it intelligently detects the execution context:
 
-| Environment | Trigger | Behavior |
-| :--- | :--- | :--- |
-| **CLI / Terminal** | `php index.php` | Runs interactive Long-Polling or CLI helper commands (`webhook:set`, etc.). |
-| **HTTP POST** | Incoming Telegram Webhook | Verifies `secret_token`, executes update handlers/flows, and returns `200 OK`. |
-| **HTTP GET** | Opened in Web Browser | Launches the **Royal Web Dashboard** or **First-Time Setup Wizard**. |
+<ApiGroup description="Automatic runtime detection based on server sapi and request method.">
+  <ApiCard
+    sig="CLI / Terminal"
+    badge="CLI Mode"
+    desc="Triggered by 'php index.php'. Runs interactive Long-Polling or CLI helper commands (webhook:set, doctor, etc.)."
+  />
+  <ApiCard
+    sig="HTTP POST (Webhook)"
+    badge="Webhook Mode"
+    desc="Triggered by incoming Telegram webhook requests. Validates secret_token, dispatches update handlers and flows, and returns 200 OK."
+  />
+  <ApiCard
+    sig="HTTP GET (Browser)"
+    badge="Web Dashboard"
+    desc="Triggered when index.php is opened in a web browser. Launches the interactive Web Setup Wizard or live Management Console."
+  />
+</ApiGroup>
 
 ---
 
-## 🌐 Web Setup Wizard & Management Console
+## 🌐 3. Web Setup Wizard & Management Console
 
 Opening `index.php` in a web browser activates the **Royal Web Dashboard**:
 
@@ -4143,7 +4992,7 @@ return [
 
 ---
 
-## 💾 Automatic Flow State Storage (`storage/flow`)
+## 💾 4. Automatic Flow State Storage (`storage/flow`)
 
 `App` automatically configures persistent conversation flow storage:
 
@@ -4162,58 +5011,7 @@ return [
 
 ---
 
-## 💻 CLI Commands
-
-You can run administrative operations directly from your terminal:
-
-```bash
-# Start polling mode with a styled welcome banner
-php index.php
-
-# Set webhook URL
-php index.php webhook:set https://example.com/index.php
-
-# Set webhook and drop pending updates
-php index.php webhook:set https://example.com/index.php --drop
-
-# Delete active webhook
-php index.php webhook:delete
-
-# Delete webhook and drop all pending updates
-php index.php webhook:delete --drop
-
-# Inspect current webhook status and errors
-php index.php webhook:info
-
-# View bot profile and permissions
-php index.php bot:info
-
-# Run system self-diagnostics
-php index.php doctor
-
-# Show help
-php index.php --help
-```
-
----
-
-## 🔑 Environment Variables (`.env`)
-
-`App` includes a zero-dependency `.env` reader that automatically loads configuration from your project's `.env` file if present:
-
-```ini
-TELEGRAM_BOT_TOKEN="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ"
-TELEGRAM_SECRET_TOKEN="my-secret-token"
-TELEGRAM_WEBHOOK_URL="https://yourdomain.com/index.php"
-```
-
-If these keys are present in `.env`, `App` automatically uses them as default fallback values without requiring hardcoded tokens in `config.php`.
-
-You can also read environment values using `Tueen\Telegram\App\Env::get('KEY', default: null)`.
-
----
-
-## 📁 Automatic Controller Discovery
+## 📁 5. Automatic Controller Discovery
 
 If your bot project has a `controllers/` directory in its project root, `App` automatically scans all PHP files inside it. Any class decorated with routing attributes (`#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`) is registered automatically with zero boilerplate!
 
@@ -4237,7 +5035,7 @@ class StartController
 
 ---
 
-## 🩺 System Diagnostics (`doctor`)
+## 🩺 6. System Diagnostics (`doctor`)
 
 To troubleshoot webhook issues, SSL certificate mismatches, or file permission errors on shared hosting:
 
@@ -4253,49 +5051,155 @@ It verifies:
 
 ---
 
-## 🛡️ Update Error Handling & Quick Replies
+## 🧭 7. App & CLI API Reference
 
-You can register global exception handlers directly on `$app`:
+Below is the complete reference of methods and properties available on `Tueen\Telegram\App`, along with terminal CLI commands.
 
-```php
-// In routes.php or index.php:
-$app->catch(function (Throwable $e, Update $update, Telegram $bot) {
-    error_log("Update error: " . $e->getMessage());
-    $app->reply('⚠️ An unexpected error occurred. Please try again later.');
-});
+### 🏛️ `App` Class (`Tueen\Telegram\App`)
 
-// Or catch specific exception types:
-$app->catch(DatabaseException::class, function ($e, $update, $bot) use ($app) {
-    $app->reply('Database connection error. Admin notified.');
-});
-```
+<ApiGroup description="High-level application orchestrator methods and property hooks.">
+  <ApiCard
+    sig="App::create(string $basePath, array $config = []): static"
+    returns="App"
+    badge="Factory"
+    desc="Initializes and boots the App instance for the given project base root path."
+  />
+  <ApiCard
+    sig="App::boot(string $basePath, array $config = []): static"
+    returns="App"
+    badge="Alias"
+    aliasFor="App::create()"
+    desc="Expressive shorthand alias for App::create()."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) Telegram $bot"
+    returns="Telegram"
+    badge="Asymmetric Visibility"
+    desc="Underlying Telegram client facade instance."
+  />
+  <ApiCard
+    type="property"
+    sig="public Router $router"
+    returns="Router"
+    badge="Property Hook"
+    desc="Active update Router instance proxied directly from $bot->router."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowManager $flowManager"
+    returns="FlowManager"
+    badge="Property Hook"
+    desc="Active FlowManager state orchestrator proxied directly from $bot->flowManager."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $basePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Resolved absolute root directory path of the bot project."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $storagePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Directory path for application storage ($basePath/storage)."
+  />
+  <ApiCard
+    type="property"
+    sig="private(set) string $flowStoragePath"
+    returns="string"
+    badge="Asymmetric Visibility"
+    desc="Directory path for persistent conversational flow state files ($basePath/storage/flow)."
+  />
+  <ApiCard
+    sig="run(mixed ...$handlers): mixed"
+    returns="mixed"
+    badge="Runner"
+    desc="Executes the bot using adaptive environment detection (CLI polling, HTTP webhook, or Web dashboard)."
+  />
+  <ApiCard
+    sig="reply(string|Text $text, mixed ...$args): mixed"
+    returns="mixed"
+    badge="Helper"
+    desc="Quick reply helper to send a text message to the active chat in context."
+  />
+  <ApiCard
+    sig="catch(string|callable $exceptionOrHandler, ?callable $handler = null): static"
+    returns="static"
+    badge="Error Handling"
+    desc="Registers a global exception handler for incoming update processing errors."
+  />
+  <ApiCard
+    sig="reloadConfig(array $overrides = []): static"
+    returns="static"
+    badge="Lifecycle"
+    desc="Reloads configuration from config.php and rebuilds client and flow storage instances."
+  />
+</ApiGroup>
 
-The `$app->reply($text, ...)` helper automatically resolves the active chat from context and dispatches `sendMessage` without requiring you to manually resolve chat IDs.
+---
+
+### 💻 CLI Administrative Commands
+
+<ApiGroup description="Terminal operations executed via 'php index.php <command>'.">
+  <ApiCard
+    sig="php index.php"
+    badge="CLI Command"
+    desc="Starts interactive Long-Polling mode with real-time log output in terminal."
+  />
+  <ApiCard
+    sig="php index.php webhook:set <url> [--drop]"
+    badge="CLI Command"
+    desc="Sets Telegram webhook URL with optional --drop flag to discard pending updates."
+  />
+  <ApiCard
+    sig="php index.php webhook:delete [--drop]"
+    badge="CLI Command"
+    desc="Deletes active webhook from Telegram servers."
+  />
+  <ApiCard
+    sig="php index.php webhook:info"
+    badge="CLI Command"
+    desc="Inspects current webhook status, URL, pending update count, and error telemetry."
+  />
+  <ApiCard
+    sig="php index.php bot:info"
+    badge="CLI Command"
+    desc="Displays bot profile, username, Bot API ping latency, and group permissions."
+  />
+  <ApiCard
+    sig="php index.php doctor"
+    badge="CLI Command"
+    desc="Runs complete system self-diagnostics (PHP version, extensions, writable storage, HTTPS)."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
 # File: /guide/pipeline-middleware
-# Section: Application & Production > Pipeline & Middleware
+# Section: Application & Production > Pipeline & Middlewares
 # ==============================================================================
 
-# Pipeline & Middleware
+# Pipeline & Middlewares
 
-## Overview
+Every outbound API request in `tueen/telegram` passes through an extensible onion middleware pipeline before reaching the underlying HTTP transport. This allows you to transparently handle retries, rate limits, request logging, tracing, and metric collection.
 
-Every request in `tueen/telegram` passes through an extensible onion pipeline before hitting the HTTP transport.
+---
 
-## Native Middlewares Included
+## ⚡ 1. Native Built-In Middlewares
 
-1. **`RetryMiddleware`**:
-   Automatically retries requests upon network drops or Telegram 429 Flood Control with exponential backoff and adherence to `retry_after`.
-2. **`LoggingMiddleware`**:
-   Integrates with any PSR-3 logger (Monolog, etc.) to log endpoint calls, parameters, and execution durations.
-3. **`RateLimitMiddleware`**:
-   Enforces Telegram's official rate limits locally to prevent `429 Too Many Requests` penalties.
-   Features include:
-   - **Global Pacing**: Token-bucket algorithm (default: 30 requests/second globally).
-   - **Per-Chat Pacing**: Enforces minimum interval between messages to the same chat (default: 1.0 second per chat).
-   - **Automatic 429 Retry Backoff**: If Telegram still returns a 429, it automatically sleeps for `retry_after` seconds and replays the request seamlessly.
+`tueen/telegram` includes three battle-tested middlewares out of the box:
+
+### 1. `RetryMiddleware`
+Automatically retries requests upon network dropouts or Telegram `429 Too Many Requests` penalties with exponential backoff and strict adherence to Telegram's `retry_after` header.
+
+### 2. `RateLimitMiddleware`
+Enforces Telegram's official rate limits locally using an in-memory token-bucket algorithm, preventing rate limit penalties before they occur:
+- **Global Pacing:** Default 30 requests per second across all chats.
+- **Per-Chat Pacing:** Enforces minimum interval between consecutive messages to the same chat (default: 1.0 second per chat).
+- **Automatic 429 Sleep Backoff:** If Telegram still responds with 429, sleeps for `retry_after` seconds and replays automatically.
 
 ```php
 use Tueen\Telegram\Telegram;
@@ -4306,7 +5210,7 @@ $bot = new Telegram('YOUR_BOT_TOKEN');
 // Attach rate limiter with default Telegram limits (30 req/sec, 1 sec/chat):
 $bot->pipe(new RateLimitMiddleware());
 
-// Or customize limits:
+// Or customize limits for high-volume broadcast bots:
 $bot->pipe(new RateLimitMiddleware(
     maxRequestsPerSecond: 25.0,
     chatIntervalSeconds: 1.2,
@@ -4314,40 +5218,88 @@ $bot->pipe(new RateLimitMiddleware(
 ));
 ```
 
+### 3. `LoggingMiddleware`
+Integrates with any PSR-3 logger (Monolog, Laravel Log, etc.) to log endpoint calls, parameters, and execution durations:
 
-## Registering Custom Middleware
+```php
+use Tueen\Telegram\Pipeline\LoggingMiddleware;
+
+$bot->pipe(new LoggingMiddleware($logger));
+```
+
+---
+
+## 🛠️ 2. Authoring Custom Middleware
 
 Create a class implementing `Tueen\Telegram\Pipeline\MiddlewareInterface`:
 
 ```php
+namespace App\Middleware;
+
 use Tueen\Telegram\Client\Request;
 use Tueen\Telegram\Client\Response;
 use Tueen\Telegram\Config;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 
-class CustomHeaderMiddleware implements MiddlewareInterface
+class ExecutionTimerMiddleware implements MiddlewareInterface
 {
     public function handle(Request $request, Config $config, callable $next): Response
     {
-        // Pre-request logic
+        // 1. Pre-request hook
         $startTime = hrtime(true);
 
+        // 2. Delegate to next middleware in onion pipeline
         $response = $next($request, $config);
 
-        // Post-response logic
+        // 3. Post-response hook
         $durationMs = (hrtime(true) - $startTime) / 1e6;
-        
+        error_log("API call [{$request->method}] completed in {$durationMs}ms");
+
         return $response;
     }
 }
 ```
 
-Attach it to your client:
+Attach your custom middleware using `$bot->pipe(...)`:
 
 ```php
-$bot = new Telegram('TOKEN');
-$bot->pipe(new CustomHeaderMiddleware());
+$bot->pipe(new ExecutionTimerMiddleware());
 ```
+
+---
+
+## 🧭 3. Pipeline API Catalog
+
+Below is the complete reference of built-in pipeline middlewares and registration methods.
+
+### 🧱 Pipeline Middlewares (`Tueen\Telegram\Pipeline\`)
+
+<ApiGroup description="Extensible middlewares for outbound Telegram Bot API requests.">
+  <ApiCard
+    sig="RetryMiddleware::__construct(int $maxRetries = 3, float $initialDelay = 1.0, float $multiplier = 2.0)"
+    returns="RetryMiddleware"
+    badge="Middleware"
+    desc="Exponential backoff retry middleware with automatic retry_after parsing."
+  />
+  <ApiCard
+    sig="RateLimitMiddleware::__construct(float $maxRequestsPerSecond = 30.0, float $chatIntervalSeconds = 1.0, bool $autoRetryOn429 = true)"
+    returns="RateLimitMiddleware"
+    badge="Middleware"
+    desc="Token-bucket rate limiter enforcing local pacing per-second and per-chat."
+  />
+  <ApiCard
+    sig="LoggingMiddleware::__construct(LoggerInterface $logger, string $level = 'info')"
+    returns="LoggingMiddleware"
+    badge="Middleware"
+    desc="PSR-3 request/response logger with latency measurements and sanitized parameters."
+  />
+  <ApiCard
+    sig="pipe(MiddlewareInterface|Closure $middleware): static"
+    returns="static"
+    badge="Pipeline"
+    desc="Appends a middleware class instance or closure into the client's outbound request pipeline."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -4634,6 +5586,67 @@ $bot->reply(
 );
 ```
 
+---
+
+## 🧭 9. Error Handling & Hooks API Catalog
+
+Below is the complete reference of lifecycle hooks, exception catchers, and typed error inspection methods.
+
+### 🪝 Lifecycle Request Hooks (`Telegram`)
+
+<ApiGroup description="Hooks for intercepting outbound HTTP requests, responses, and network exceptions.">
+  <ApiCard
+    sig="onBeforeRequest(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Request, Config): void) executed right before an HTTP request is dispatched."
+  />
+  <ApiCard
+    sig="onAfterRequest(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Response, Request): void) executed immediately after a raw HTTP response is received."
+  />
+  <ApiCard
+    sig="onError(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(\Throwable, Request): void) triggered whenever a request or transport error occurs."
+  />
+  <ApiCard
+    sig="onResponse(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Type, Request): void) triggered after a final Type or Error result is produced."
+  />
+</ApiGroup>
+
+---
+
+### 🛡️ Incoming Update Exception Catchers (`Telegram`)
+
+<ApiGroup description="Exception dispatching and error handling routines for incoming updates.">
+  <ApiCard
+    sig="catch(string|callable $exceptionOrHandler, ?callable $handler = null): static"
+    returns="static"
+    badge="Exception Catcher"
+    desc="Registers an exception handler for incoming update processing errors. Supports typed exception filtering."
+  />
+  <ApiCard
+    sig="onUpdateError(callable $handler): static"
+    returns="static"
+    badge="Alias"
+    aliasFor="catch()"
+    desc="Convenience shorthand alias for catch() with a universal \Throwable catch-all handler."
+  />
+  <ApiCard
+    sig="reply(string|Text $text, mixed ...$args): mixed"
+    returns="mixed"
+    badge="Helper"
+    desc="Sends a quick text message to the active chat in context without manually resolving chatId."
+  />
+</ApiGroup>
+
 
 # ==============================================================================
 # File: /guide/testing
@@ -4648,7 +5661,7 @@ Testing Telegram bots often poses challenges: calling real Telegram API servers 
 
 ---
 
-## 1. Quick Example
+## 🧪 1. Quick Example
 
 ```php
 use PHPUnit\Framework\TestCase;
@@ -4694,43 +5707,7 @@ class WelcomeBotTest extends TestCase
 
 ---
 
-## 2. Available Assertion Methods
-
-All assertions can be called directly on the `$bot` fake instance:
-
-### `assertSent(string $method, ?callable $callback = null)`
-Asserts that an API method was invoked at least once. If a callback is provided, it receives the `$params` array and must return `true`.
-
-```php
-$bot->assertSent('sendMessage');
-
-$bot->assertSent('sendMessage', fn(array $params) => $params['text'] === 'Hello!');
-```
-
-### `assertNotSent(string $method, ?callable $callback = null)`
-Asserts that an API method was never called, or was never called with matching parameters.
-
-```php
-$bot->assertNotSent('deleteMessage');
-```
-
-### `assertSentCount(string $method, int $expectedCount)`
-Asserts that an API method was invoked exactly `$expectedCount` times.
-
-```php
-$bot->assertSentCount('sendMessage', 2);
-```
-
-### `assertNothingSent()`
-Asserts that zero API calls were made to Telegram during the test.
-
-```php
-$bot->assertNothingSent();
-```
-
----
-
-## 3. Response Stubbing
+## 🛠️ 2. Response Stubbing
 
 By default, `Telegram::fake()` provides a generic success response (`['ok' => true, 'result' => []]`) for any method called.
 
@@ -4772,7 +5749,7 @@ $bot->sendMessage(chatId: 123, text: 'Hello');
 
 ---
 
-## 4. Inspecting Sent Requests
+## 🔍 3. Inspecting Sent Requests
 
 You can inspect the recorded requests directly:
 
@@ -4783,6 +5760,78 @@ $lastRequest = $bot->lastSentRequest();
 echo $lastRequest->method; // e.g. "sendMessage"
 print_r($lastRequest->params);
 ```
+
+---
+
+## 🧭 4. Testing & Fakes API Catalog
+
+Below is the complete reference of assertion methods, stubbing helpers, and inspection APIs available on `Tueen\Telegram\Testing\TelegramFake`.
+
+### 🛡️ Assertion Methods (`TelegramFake`)
+
+<ApiGroup description="In-memory test assertions for verifying outbound Telegram API method invocations.">
+  <ApiCard
+    sig="assertSent(string $method, ?callable $callback = null): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was invoked at least once, optionally matching callback predicate."
+  />
+  <ApiCard
+    sig="assertNotSent(string $method, ?callable $callback = null): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was never invoked, or never matched the callback predicate."
+  />
+  <ApiCard
+    sig="assertSentCount(string $method, int $expectedCount): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that a specific Telegram API method was called exactly the expected number of times."
+  />
+  <ApiCard
+    sig="assertNothingSent(): void"
+    returns="void"
+    badge="Assertion"
+    desc="Asserts that zero outbound API requests were dispatched to Telegram during test execution."
+  />
+</ApiGroup>
+
+---
+
+### 🎭 Stubbing & Inspection Methods (`TelegramFake`)
+
+<ApiGroup description="Methods for mocking API responses and inspecting recorded request objects.">
+  <ApiCard
+    sig="Telegram::fake(array $responses = [], string $botToken = 'FAKE_BOT_TOKEN'): TelegramFake"
+    returns="TelegramFake"
+    badge="Factory"
+    desc="Creates an in-memory recording fake client pre-seeded with optional response stubs."
+  />
+  <ApiCard
+    sig="fakeResponse(string $method, array $response): static"
+    returns="static"
+    badge="Stubbing"
+    desc="Registers a mock successful response array to be returned when the given method is called."
+  />
+  <ApiCard
+    sig="fakeError(string $method, string $description, int $errorCode = 400): static"
+    returns="static"
+    badge="Stubbing"
+    desc="Configures the fake to simulate a Telegram API error with HTTP status code and error description."
+  />
+  <ApiCard
+    sig="sentRequests(): array<int, Request>"
+    returns="array<int, Request>"
+    badge="Inspection"
+    desc="Returns all recorded HTTP Request instances dispatched during the test lifecycle."
+  />
+  <ApiCard
+    sig="lastSentRequest(): ?Request"
+    returns="?Request"
+    badge="Inspection"
+    desc="Returns the most recently recorded Request instance, or null if no calls were made."
+  />
+</ApiGroup>
 
 
 # ==============================================================================
@@ -4884,7 +5933,7 @@ echo "Result value: {$res->dice->value}\n";
 ```
 
 ### `ButtonStyle`
-Telegram Bot API 10.3 button colors for inline keyboards:
+Button colors for inline keyboards:
 ```php
 use Tueen\Telegram\Enums\ButtonStyle;
 

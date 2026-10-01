@@ -6,7 +6,7 @@ The router supports both **Fluent Route Definitions** and **Attribute-Driven Con
 
 ---
 
-## 1. Fluent Routing
+## ⚡ 1. Fluent Routing
 
 You can register routes directly on your `Telegram` client instance.
 
@@ -62,7 +62,7 @@ $bot->run();
 
 ---
 
-## 2. Parameter Extraction in Routes
+## 🎯 2. Parameter Extraction in Routes
 
 The router provides first-class support for parameterized patterns using `{paramName}`:
 
@@ -92,7 +92,7 @@ $bot->onCallbackQuery('/^order_(?P<action>approve|reject)_(?P<id>\d+)$/', functi
 
 ---
 
-## 3. Attribute-Driven Controllers
+## 🏛️ 3. Attribute-Driven Controllers
 
 For medium to large applications, you can organize your routes into dedicated Controller classes decorated with PHP 8 Attributes:
 
@@ -161,12 +161,102 @@ If a PSR-11 container is configured (`$bot->setContainer($container)`), controll
 
 ---
 
-## 4. Available Routing Attributes
+## 🧭 4. Routing API Catalog
 
-| Attribute | Matches | Example |
-| :--- | :--- | :--- |
-| `#[OnCommand('name')]` | Bot commands (`/name` or `/name@bot`) | `#[OnCommand('help')]` |
-| `#[OnCallbackQuery('pattern')]` | Callback queries matching pattern or regex | `#[OnCallbackQuery('confirm:{id}')]` |
-| `#[OnMessage('pattern')]` | Text messages matching string or regex | `#[OnMessage('/hi\|hello/i')]` |
-| `#[OnInlineQuery('pattern')]` | Inline queries matching optional pattern | `#[OnInlineQuery]` |
-| `#[OnUpdate('type')]` | Specific update types (`channel_post`, etc.) | `#[OnUpdate('edited_message')]` |
+Below is the complete reference of routing attributes and router configuration methods.
+
+### 🏷️ Routing Attributes (`Tueen\Telegram\Routing\Attributes\`)
+
+<ApiGroup description="Declarative attributes for decorating controller methods.">
+  <ApiCard
+    sig="#[OnCommand(string $command)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches Telegram bot commands (e.g. /start, /help). Bot username suffix (@bot) is handled automatically."
+  />
+  <ApiCard
+    sig="#[OnCallbackQuery(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches inline keyboard callback queries against an exact string, parameterized pattern ('item:{id}'), or regex."
+  />
+  <ApiCard
+    sig="#[OnMessage(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches text messages against an exact string, regex (/pattern/i), or matches all messages if pattern is null."
+  />
+  <ApiCard
+    sig="#[OnInlineQuery(?string $pattern = null)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches incoming Telegram inline queries matching an optional query string pattern."
+  />
+  <ApiCard
+    sig="#[OnUpdate(UpdateType|string $type)]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Matches specific Telegram update types (e.g. UpdateType::CHANNEL_POST, 'chat_member', etc.)."
+  />
+  <ApiCard
+    sig="#[Fallback]"
+    returns="Attribute"
+    badge="Attribute"
+    desc="Marks a method as the default fallback handler when no other routes or active conversational flows match."
+  />
+</ApiGroup>
+
+---
+
+### 🛣️ `Router` Methods (`Tueen\Telegram\Routing\Router`)
+
+<ApiGroup description="Methods on the Router instance (also proxied directly on the Telegram client facade).">
+  <ApiCard
+    sig="onCommand(string $command, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for a bot command name (e.g. 'start', '/help')."
+  />
+  <ApiCard
+    sig="onCallbackQuery(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for callback queries matching an optional pattern or regex."
+  />
+  <ApiCard
+    sig="onMessage(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for messages matching an optional pattern or regex."
+  />
+  <ApiCard
+    sig="onInlineQuery(?string $pattern, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route for inline queries matching an optional pattern."
+  />
+  <ApiCard
+    sig="on(UpdateType|string $type, mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a route targeting a specific UpdateType enum or string."
+  />
+  <ApiCard
+    sig="onFallback(mixed $handler): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers a fallback handler when no other routes or active conversational flows match."
+  />
+  <ApiCard
+    sig="registerController(string|object $controller): static"
+    returns="static"
+    badge="Registration"
+    desc="Registers an attribute-decorated controller class name or object instance."
+  />
+  <ApiCard
+    sig="dispatch(Update $update, ?Telegram $bot = null): bool"
+    returns="bool"
+    badge="Execution"
+    desc="Dispatches an incoming update to the first matching route. Returns true if handled."
+  />
+</ApiGroup>

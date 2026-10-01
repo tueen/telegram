@@ -276,3 +276,65 @@ $bot->reply(
     replyMarkup: InlineKeyboard::make()->url('Support', 'https://example.com/support')
 );
 ```
+
+---
+
+## 🧭 9. Error Handling & Hooks API Catalog
+
+Below is the complete reference of lifecycle hooks, exception catchers, and typed error inspection methods.
+
+### 🪝 Lifecycle Request Hooks (`Telegram`)
+
+<ApiGroup description="Hooks for intercepting outbound HTTP requests, responses, and network exceptions.">
+  <ApiCard
+    sig="onBeforeRequest(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Request, Config): void) executed right before an HTTP request is dispatched."
+  />
+  <ApiCard
+    sig="onAfterRequest(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Response, Request): void) executed immediately after a raw HTTP response is received."
+  />
+  <ApiCard
+    sig="onError(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(\Throwable, Request): void) triggered whenever a request or transport error occurs."
+  />
+  <ApiCard
+    sig="onResponse(callable $callback): static"
+    returns="static"
+    badge="Lifecycle Hook"
+    desc="Registers a callback (callable(Type, Request): void) triggered after a final Type or Error result is produced."
+  />
+</ApiGroup>
+
+---
+
+### 🛡️ Incoming Update Exception Catchers (`Telegram`)
+
+<ApiGroup description="Exception dispatching and error handling routines for incoming updates.">
+  <ApiCard
+    sig="catch(string|callable $exceptionOrHandler, ?callable $handler = null): static"
+    returns="static"
+    badge="Exception Catcher"
+    desc="Registers an exception handler for incoming update processing errors. Supports typed exception filtering."
+  />
+  <ApiCard
+    sig="onUpdateError(callable $handler): static"
+    returns="static"
+    badge="Alias"
+    aliasFor="catch()"
+    desc="Convenience shorthand alias for catch() with a universal \Throwable catch-all handler."
+  />
+  <ApiCard
+    sig="reply(string|Text $text, mixed ...$args): mixed"
+    returns="mixed"
+    badge="Helper"
+    desc="Sends a quick text message to the active chat in context without manually resolving chatId."
+  />
+</ApiGroup>
+

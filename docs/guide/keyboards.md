@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Inline Keyboards (`InlineKeyboard`)
+## 🔘 1. Inline Keyboards (`InlineKeyboard`)
 
 Inline keyboards appear directly attached to a specific message. Buttons trigger actions such as callback queries, opening URLs, launching Telegram Web Apps, or initiating payments.
 
@@ -32,7 +32,7 @@ $bot->sendMessage(
 
 ### Supported Button Types
 
-`InlineKeyboard` supports all Telegram Bot API 10.3 inline button types:
+`InlineKeyboard` supports all Telegram Bot API inline button types:
 
 ```php
 $keyboard = InlineKeyboard::make()
@@ -48,7 +48,7 @@ $keyboard = InlineKeyboard::make()
     // Seamless Telegram Login URL
     ->loginUrl('Login with Telegram', 'https://example.com/auth/telegram')
 
-    // Copy text to clipboard on tap (Bot API 7.5+)
+    // Copy text to clipboard on tap
     ->copyText('Copy Promo Code', 'TUEEN-VIP-2026')
 
     // Telegram Payments Pay button
@@ -83,7 +83,7 @@ $grid = $builder->chunk(3)->build();
 
 ---
 
-## 2. Reply Keyboards (`ReplyKeyboard`)
+## ⌨️ 2. Reply Keyboards (`ReplyKeyboard`)
 
 Reply keyboards replace the user's regular keyboard with custom option buttons.
 
@@ -133,7 +133,7 @@ $keyboard = ReplyKeyboard::make()
     ->build();
 ```
 
-### Removing Keyboards (`ReplyKeyboard::remove`)
+### Dismissing Keyboards (`ReplyKeyboard::remove`)
 
 To hide an active reply keyboard from the user's interface:
 
@@ -144,3 +144,165 @@ $bot->sendMessage(
     replyMarkup: ReplyKeyboard::remove()
 );
 ```
+
+---
+
+## 🧭 3. Keyboard Builders API Reference
+
+Below is the complete reference of methods available on `InlineKeyboard` and `ReplyKeyboard`.
+
+### 🔘 `InlineKeyboard` Builder (`Tueen\Telegram\Keyboards\InlineKeyboard`)
+
+<ApiGroup description="Fluent builder for constructing Telegram InlineKeyboardMarkup payloads.">
+  <ApiCard
+    sig="InlineKeyboard::make(): self"
+    returns="InlineKeyboard"
+    badge="Factory"
+    desc="Initializes a new inline keyboard builder instance."
+  />
+  <ApiCard
+    sig="row(): self"
+    returns="self"
+    badge="Layout"
+    desc="Starts a new button row in the inline keyboard."
+  />
+  <ApiCard
+    sig="callback(string $text, string $callbackData): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that sends callback_data back to the bot when clicked."
+  />
+  <ApiCard
+    sig="url(string $text, string $url): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that opens an external HTTP/HTTPS URL in the user's browser."
+  />
+  <ApiCard
+    sig="webApp(string $text, string $url): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that launches a Telegram Mini App (Web App) modal."
+  />
+  <ApiCard
+    sig="loginUrl(string $text, string|LoginUrl $loginUrl): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that authorizes the user via Telegram Login Widget."
+  />
+  <ApiCard
+    sig="copyText(string $text, string $copyText): self"
+    returns="self"
+    badge="Button"
+    desc="Appends an inline button that copies the specified text to clipboard on tap."
+  />
+  <ApiCard
+    sig="pay(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a Telegram Payments invoice payment button (must be the first button in first row)."
+  />
+  <ApiCard
+    sig="switchInlineQuery(string $text, string $query = ''): self"
+    returns="self"
+    badge="Button"
+    desc="Prompts user to select a chat and inserts '@bot query' into the chat input bar."
+  />
+  <ApiCard
+    sig="switchInlineQueryCurrentChat(string $text, string $query = ''): self"
+    returns="self"
+    badge="Button"
+    desc="Inserts '@bot query' directly into the current chat's input bar."
+  />
+  <ApiCard
+    sig="chunk(int $size): self"
+    returns="self"
+    badge="Layout"
+    desc="Automatically groups all queued buttons into uniform rows of the specified size."
+  />
+  <ApiCard
+    sig="build(): InlineKeyboardMarkup"
+    returns="InlineKeyboardMarkup"
+    badge="Terminal"
+    desc="Compiles and returns the finalized InlineKeyboardMarkup type instance."
+  />
+</ApiGroup>
+
+---
+
+### ⌨️ `ReplyKeyboard` Builder (`Tueen\Telegram\Keyboards\ReplyKeyboard`)
+
+<ApiGroup description="Fluent builder for constructing Telegram ReplyKeyboardMarkup and ReplyKeyboardRemove payloads.">
+  <ApiCard
+    sig="ReplyKeyboard::make(): self"
+    returns="ReplyKeyboard"
+    badge="Factory"
+    desc="Initializes a new reply keyboard builder instance."
+  />
+  <ApiCard
+    sig="row(): self"
+    returns="self"
+    badge="Layout"
+    desc="Starts a new button row in the reply keyboard."
+  />
+  <ApiCard
+    sig="text(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a regular text button that sends the button text as a user message."
+  />
+  <ApiCard
+    sig="requestContact(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button prompting the user to share their verified phone number."
+  />
+  <ApiCard
+    sig="requestLocation(string $text): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button prompting the user to share their current GPS location."
+  />
+  <ApiCard
+    sig="requestPoll(string $text, ?string $type = null): self"
+    returns="self"
+    badge="Button"
+    desc="Appends a button allowing the user to create and send a regular poll or quiz."
+  />
+  <ApiCard
+    sig="resize(bool $resize = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Scales the reply keyboard vertically to fit the button rows neatly."
+  />
+  <ApiCard
+    sig="oneTime(bool $oneTime = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Hides the reply keyboard automatically as soon as any button is tapped."
+  />
+  <ApiCard
+    sig="persistent(bool $persistent = true): self"
+    returns="self"
+    badge="Modifier"
+    desc="Keeps the reply keyboard visible even when the regular software keyboard is opened or closed."
+  />
+  <ApiCard
+    sig="placeholder(string $placeholder): self"
+    returns="self"
+    badge="Modifier"
+    desc="Sets custom placeholder text inside the chat input bar when this keyboard is active."
+  />
+  <ApiCard
+    sig="build(): ReplyKeyboardMarkup"
+    returns="ReplyKeyboardMarkup"
+    badge="Terminal"
+    desc="Compiles and returns the finalized ReplyKeyboardMarkup type instance."
+  />
+  <ApiCard
+    sig="ReplyKeyboard::remove(bool $selective = false): ReplyKeyboardRemove"
+    returns="ReplyKeyboardRemove"
+    badge="Removal"
+    desc="Creates a ReplyKeyboardRemove instance to dismiss active reply keyboards."
+  />
+</ApiGroup>

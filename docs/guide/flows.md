@@ -35,16 +35,50 @@ Every conversational interaction is defined as a dedicated class extending `Tuee
 
 ## 📦 2. Properties Injected into Flow
 
-When a Flow is executed, the following properties are automatically initialized and accessible via `$this`:
-
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| **`$this->bot`** | `Telegram` | The active Telegram client instance for calling methods, sending keyboards, etc. |
-| **`$this->update`** | `Update` | The incoming Telegram `Update` object that triggered the current step. |
-| **`$this->chatId`** | `int\|string` | Resolved Telegram Chat ID for the conversation. |
-| **`$this->userId`** | `?int` | Resolved Telegram User ID (enables distinct user sessions inside group chats). |
-| **`$this->state`** | `FlowState` | Underlying state object storing `flowClass`, `currentStep`, `data`, and `history`. |
-| **`$this->manager`** | `FlowManager` | The orchestrating `FlowManager` instance handling persistence and step transitions. |
+<ApiGroup description="Injected properties accessible via $this inside any conversational Flow method.">
+  <ApiCard
+    type="property"
+    sig="public Telegram $bot"
+    returns="Telegram"
+    badge="Injected Property"
+    desc="Active Telegram client instance for calling Bot API methods, sending keyboards, etc."
+  />
+  <ApiCard
+    type="property"
+    sig="public Update $update"
+    returns="Update"
+    badge="Injected Property"
+    desc="Incoming Telegram Update object that triggered the current step execution."
+  />
+  <ApiCard
+    type="property"
+    sig="public int|string $chatId"
+    returns="int|string"
+    badge="Injected Property"
+    desc="Resolved Telegram Chat ID for the conversation session."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?int $userId"
+    returns="?int"
+    badge="Injected Property"
+    desc="Resolved Telegram User ID (enables distinct user sessions in group chats)."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowState $state"
+    returns="FlowState"
+    badge="Injected Property"
+    desc="Underlying state value object storing flowClass, currentStep, data, and step history."
+  />
+  <ApiCard
+    type="property"
+    sig="public FlowManager $manager"
+    returns="FlowManager"
+    badge="Injected Property"
+    desc="Orchestrating FlowManager instance handling persistence and step transitions."
+  />
+</ApiGroup>
 
 ### Configurable Protected Properties
 
@@ -222,16 +256,44 @@ Determines if an incoming update matches any of the registered `$exitCommands`.
 
 ### 💾 State Data Management Methods
 
-All data gathered across conversation steps is stored in the persistent session. `Flow` provides both expressive methods and magic property access:
-
-| Method | Return Type | Description |
-| :--- | :--- | :--- |
-| **`set(string $key, mixed $value)`** | `static` | Stores a key-value pair and persists the state. |
-| **`get(string $key, mixed $default = null)`** | `mixed` | Retrieves a stored key with an optional default value. |
-| **`has(string $key)`** | `bool` | Checks if a key exists in the flow state. |
-| **`remove(string $key)`** | `static` | Removes a key and updates persistent storage. |
-| **`all()`** | `array<string, mixed>` | Returns all stored state data as an associative array. |
-| **`clearData()`** | `static` | Clears all data while retaining the current step and history. |
+<ApiGroup description="Methods for persisting, reading, and clearing session data across conversational steps.">
+  <ApiCard
+    sig="set(string $key, mixed $value): static"
+    returns="static"
+    badge="State Mutation"
+    desc="Stores a key-value pair and persists the flow session state immediately."
+  />
+  <ApiCard
+    sig="get(string $key, mixed $default = null): mixed"
+    returns="mixed"
+    badge="State Access"
+    desc="Retrieves a stored key value from session state, returning default if omitted."
+  />
+  <ApiCard
+    sig="has(string $key): bool"
+    returns="bool"
+    badge="State Check"
+    desc="Checks whether a specific key exists in the persistent session data."
+  />
+  <ApiCard
+    sig="remove(string $key): static"
+    returns="static"
+    badge="State Mutation"
+    desc="Removes a stored key from the session state and updates storage."
+  />
+  <ApiCard
+    sig="all(): array<string, mixed>"
+    returns="array<string, mixed>"
+    badge="State Access"
+    desc="Returns all gathered session state data as an associative array."
+  />
+  <ApiCard
+    sig="clearData(): static"
+    returns="static"
+    badge="State Mutation"
+    desc="Clears all gathered session data while retaining current step position and history stack."
+  />
+</ApiGroup>
 
 #### Magic Property Syntax
 You can also read, write, and check flow state data using standard PHP object properties:

@@ -8,7 +8,7 @@ Telegram supports rich text formatting via **HTML**, **MarkdownV2**, and legacy 
 
 ---
 
-## 1. Fluent `Text` Builder
+## 🎨 1. Fluent `Text` Builder
 
 The `Text` builder lets you chain formatting methods while automatically escaping any dynamic or user-supplied variables.
 
@@ -45,7 +45,7 @@ $message = Text::html()
 
 ### MarkdownV2 Formatting (`Text::markdownV2`)
 
-You can generate bulletproof MarkdownV2 without manually escaping the 18 reserved Telegram characters:
+You can generate MarkdownV2 without manually escaping the 18 reserved Telegram characters:
 
 ```php
 $message = Text::markdownV2()
@@ -58,7 +58,7 @@ $message = Text::markdownV2()
 
 ---
 
-## 2. Nested Formatting Styles
+## 🔗 2. Nested Formatting Styles
 
 Telegram allows entities to be nested (e.g. bold italic text or links with bold labels). `Text` supports nesting using **Closures**, sub-`Text` instances, or strings:
 
@@ -75,91 +75,159 @@ $link = Text::html()->link(fn(Text $t) => $t->bold('Click Here'), 'https://examp
 
 ---
 
-## 3. Supported Formatting Styles
+## 🛡️ 3. Low-Level Escaping with `Escape`
 
-Both `Text::html()` and `Text::markdownV2()` support the full range of Telegram formatting features:
-
-| Method | HTML Output | MarkdownV2 Output | Description |
-| :--- | :--- | :--- | :--- |
-| `->bold($content)` | `<b>...</b>` | `*...*` | Bold weight text (supports nesting) |
-| `->italic($content)` | `<i>...</i>` | `_..._` | Italicized text (supports nesting) |
-| `->underline($content)` | `<u>...</u>` | `__...__` | Underlined text (supports nesting) |
-| `->strikethrough($content)` | `<s>...</s>` | `~...~` | Strikethrough text (supports nesting) |
-| `->spoiler($content)` | `<tg-spoiler>...</tg-spoiler>` | `\|\|...\|\|` | Hidden spoiler text (supports nesting) |
-| `->blockquote($content)` | `<blockquote>...</blockquote>` | `>...` | Block quotation |
-| `->expandableBlockquote($content)` | `<blockquote expandable>...</blockquote>` | `**>...` | Collapsible block quote |
-| `->code($code)` | `<code>...</code>` | `` `...` `` | Inline monospace code |
-| `->pre($code, $lang)` | `<pre><code class="...">...</code></pre>` | ```` ```lang ... ``` ```` | Pre-formatted code block |
-| `->link($content, $url)` | `<a href="...">...</a>` | `[...] (...)` | Inline hyperlink (supports styled labels) |
-| `->userMention($content, $userId)` | `<a href="tg://user?id=...">...</a>` | `[...] (tg://user?id=...)` | Mention user by Telegram ID |
-| `->customEmoji($emoji, $id)` | `<tg-emoji emoji-id="...">...</tg-emoji>` | `![emoji](tg://emoji?id=...)` | Custom animated Telegram emoji |
-| `->plain($text)` | Escaped text | Escaped text | Regular text, automatically escaped |
-| `->raw($string)` | Unescaped string | Unescaped string | Raw text without escaping |
-
----
-
-## 4. Entity Helpers & Dividers
-
-```php
-$text = Text::html()
-    ->mention('@my_bot')                     // Adds @my_bot
-    ->space()
-    ->hashtag('#tueen')                      // Adds #tueen
-    ->space()
-    ->cashtag('$TON')                        // Adds $TON
-    ->space()
-    ->botCommand('/help')                    // Adds /help
-    ->line()
-    ->email('support@tueen.org')             // Creates mailto: link
-    ->line()
-    ->phone('+1234567890')                   // Creates tel: link
-    ->br(2)                                  // Appends 2 blank lines
-    ->hr(25);                                // Appends a horizontal divider (—————————)
-```
-
----
-
-## 5. Length & Character Limit Utilities
-
-Telegram enforces strict character limits (e.g. 4096 characters for messages, 1024 characters for media captions):
-
-```php
-$text = Text::html()->bold('Very long text...');
-
-echo $text->length;                         // UTF-8 character count
-$text->isEmpty;                             // bool
-$text->isNotEmpty;                          // bool
-$text->isWithinLimit(4096);                 // true if <= 4096 characters
-
-// Safely truncate to a maximum length with suffix:
-$text->truncate(4096, '... [read more]');
-```
-
----
-
-## 6. Low-Level `Escape` Utility
-
-When assembling strings manually or using existing templates, use `Escape` to sanitize user input:
+When constructing strings manually or templating with Blade/Twig, use `Tueen\Telegram\Formatting\Escape`:
 
 ```php
 use Tueen\Telegram\Formatting\Escape;
 
-// HTML escaping: replaces <, >, &, and " with &lt;, &gt;, &amp;, &quot;
-$safeUserName = Escape::html($userInput);
+// 1. Escaping for HTML
+$safeHtml = Escape::html("<script>alert('xss');</script> & Bob");
+// Returns: &lt;script&gt;alert('xss');&lt;/script&gt; &amp; Bob
 
-// MarkdownV2 escaping: escapes all 18 Telegram special characters:
-// _, *, [, ], (, ), ~, `, >, #, +, -, =, |, {, }, ., !
-$safeComment = Escape::markdownV2($userInput);
+// 2. Escaping for MarkdownV2 (escapes 18 reserved Telegram characters)
+$safeMarkdown = Escape::markdownV2("Price is [10.00$] *special*");
+// Returns: Price is \[10\.00\$\] \*special\*
 
-// Code and Pre escaping: inside code blocks, only ` and \ need escaping
-$safeCode = Escape::markdownV2Code($rawCode);
-
-// Inline link URL escaping: inside link URLs, only ) and \ need escaping
-$safeUrl = Escape::markdownV2Link($userUrl);
-
-// Custom Emoji escaping: inside [...] only ] and \ need escaping
-$safeEmoji = Escape::markdownV2CustomEmoji($rawEmoji);
-
-// Legacy Markdown escaping
-$safeLegacy = Escape::markdown($userInput);
+// 3. Escaping URL query components
+$safeUrl = Escape::urlParam("https://example.com?query=hello world");
 ```
+
+---
+
+## 🧭 4. Formatting API Catalog
+
+Below is the complete reference of methods available on the `Text` builder and `Escape` helper.
+
+### 🎨 `Text` Builder (`Tueen\Telegram\Formatting\Text`)
+
+<ApiGroup description="Fluent builder for safe HTML and MarkdownV2 styled messages.">
+  <ApiCard
+    sig="bold(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in bold weight text."
+  />
+  <ApiCard
+    sig="italic(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in italicized text."
+  />
+  <ApiCard
+    sig="underline(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in underlined text."
+  />
+  <ApiCard
+    sig="strikethrough(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in strikethrough text."
+  />
+  <ApiCard
+    sig="spoiler(string|callable|Text $content): self"
+    returns="self"
+    badge="Formatting"
+    desc="Wraps content in hidden spoiler tags."
+  />
+  <ApiCard
+    sig="blockquote(string|callable|Text $content): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a block quote quotation."
+  />
+  <ApiCard
+    sig="expandableBlockquote(string|callable|Text $content): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a collapsible expandable block quote."
+  />
+  <ApiCard
+    sig="code(string $code): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders inline monospace code."
+  />
+  <ApiCard
+    sig="pre(string $code, ?string $language = null): self"
+    returns="self"
+    badge="Block"
+    desc="Renders a pre-formatted syntax code block with optional language highlighting."
+  />
+  <ApiCard
+    sig="link(string|callable|Text $content, string $url): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders an inline hyperlink with clickable label text."
+  />
+  <ApiCard
+    sig="userMention(string|callable|Text $content, int $userId): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders a direct user mention link targeting a Telegram user ID."
+  />
+  <ApiCard
+    sig="customEmoji(string $emoji, string $customEmojiId): self"
+    returns="self"
+    badge="Inline"
+    desc="Renders an animated custom Telegram emoji with its unique custom emoji ID."
+  />
+  <ApiCard
+    sig="plain(string $text): self"
+    returns="self"
+    badge="Content"
+    desc="Appends plain text, automatically escaping any reserved formatting characters."
+  />
+  <ApiCard
+    sig="raw(string $string): self"
+    returns="self"
+    badge="Content"
+    desc="Appends raw text without escaping (use only with pre-sanitized strings)."
+  />
+  <ApiCard
+    sig="line(string|callable|Text|null $content = null): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends content followed by a newline."
+  />
+  <ApiCard
+    sig="br(int $count = 1): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends one or more blank line breaks."
+  />
+  <ApiCard
+    sig="hr(int $length = 25): self"
+    returns="self"
+    badge="Layout"
+    desc="Appends a horizontal rule divider line."
+  />
+</ApiGroup>
+
+---
+
+### 🛡️ `Escape` Helper (`Tueen\Telegram\Formatting\Escape`)
+
+<ApiGroup description="Low-level escaping routines adhering to the Telegram Bot API specification.">
+  <ApiCard
+    sig="Escape::html(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes HTML special characters (&amp;, &lt;, &gt;, &quot;) for Telegram HTML parse mode."
+  />
+  <ApiCard
+    sig="Escape::markdownV2(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes all 18 reserved characters for MarkdownV2."
+  />
+  <ApiCard
+    sig="Escape::markdown(string $text): string"
+    returns="string"
+    badge="Escaping"
+    desc="Escapes legacy Markdown characters."
+  />
+</ApiGroup>

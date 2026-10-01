@@ -92,7 +92,7 @@ echo "Result value: {$res->dice->value}\n";
 ```
 
 ### `ButtonStyle`
-Telegram Bot API 10.3 button colors for inline keyboards:
+Button colors for inline keyboards:
 ```php
 use Tueen\Telegram\Enums\ButtonStyle;
 

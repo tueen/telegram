@@ -512,4 +512,72 @@ file_get_contents('php://input')
 3. **Callable & Hook Synergy:** Seamlessly integrates with Tueen's first-class callable methods (`$bot->parseUpdate(...)`, `$bot->sendMessage(...)`) and property hooks.
 4. **Graceful Early Exits:** Steps can return `null` or specialized result types to short-circuit subsequent stages without deeply nested `if/else` checks.
 
+---
+
+## 🧭 6. Running Modes API Catalog
+
+Below is the complete reference of running mode runners and client execution methods.
+
+### 🌐 `WebhookMode` Runner (`Tueen\Telegram\Running\WebhookMode`)
+
+<ApiGroup description="Handles incoming HTTP webhook payloads with secret token validation and safe response rendering.">
+  <ApiCard
+    sig="__construct(?string $secretToken = null, bool $ipCheck = false, bool $safeResponse = true)"
+    returns="WebhookMode"
+    badge="Constructor"
+    desc="Initializes Webhook runner. Configures Telegram X-Telegram-Bot-Api-Secret-Token validation and 200 OK output buffering."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): mixed"
+    returns="mixed"
+    badge="Execution"
+    desc="Reads php://input, validates headers, parses Update, dispatches handler, and emits safe 200 OK HTTP response."
+  />
+</ApiGroup>
+
+---
+
+### 🔄 `PollingMode` Runner (`Tueen\Telegram\Running\PollingMode`)
+
+<ApiGroup description="Continuous long-polling runner with automatic offset tracking, exponential backoff, and generator streaming.">
+  <ApiCard
+    sig="__construct(int $timeout = 30, int $limit = 100, ?array $allowedUpdates = null, bool $autoBackoff = true, bool $dropPendingUpdates = false, bool $forkProcess = false)"
+    returns="PollingMode"
+    badge="Constructor"
+    desc="Configures long-polling parameters, auto-backoff on connection errors, and optional process forking."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): void"
+    returns="void"
+    badge="Execution"
+    desc="Starts continuous update ingestion loop, fetching updates from Telegram and dispatching to handlers."
+  />
+  <ApiCard
+    sig="getUpdatesGenerator(Telegram $bot): Generator<int, Update>"
+    returns="Generator<int, Update>"
+    badge="Streaming"
+    desc="Returns a lazy PHP Generator yielding incoming Update instances one by one via long-polling."
+  />
+</ApiGroup>
+
+---
+
+### 🔀 `AutoMode` Runner (`Tueen\Telegram\Running\AutoMode`)
+
+<ApiGroup description="Adaptive runner that automatically toggles between PollingMode in CLI and WebhookMode in HTTP.">
+  <ApiCard
+    sig="__construct(?PollingMode $pollingMode = null, ?WebhookMode $webhookMode = null, bool $autoDeleteWebhook = false, bool $dropPendingUpdatesOnDelete = false, ?callable $detector = null)"
+    returns="AutoMode"
+    badge="Constructor"
+    desc="Initializes adaptive runner with optional custom child runners and webhook cleanup on CLI start."
+  />
+  <ApiCard
+    sig="processUpdate(Telegram $bot, ?callable $handler = null): mixed"
+    returns="mixed"
+    badge="Execution"
+    desc="Detects execution environment (CLI vs Web) and delegates execution to the appropriate child runner."
+  />
+</ApiGroup>
+
+
 
