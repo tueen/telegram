@@ -127,11 +127,42 @@ for (const item of versions.archived) {
 }
 
 // Determine base path for GitHub Pages or custom domain:
-// 1. Explicit VITEPRESS_BASE environment variable
-// 2. In GitHub Actions without a custom CNAME, default to '/telegram/'
-// 3. Otherwise default to '/' (local development or custom domain)
+// 1. If public/CNAME exists, custom domain is used -> '/'
+// 2. Explicit non-empty VITEPRESS_BASE environment variable -> normalized with leading & trailing slashes
+// 3. In GitHub Actions without a custom CNAME:
+//    - if repo is <user>.github.io -> '/'
+//    - otherwise -> '/<repo>/' (e.g. '/telegram/')
+// 4. Otherwise default to '/' (local development or preview)
 const hasCustomDomain = fs.existsSync(path.resolve(__dirname, '../public/CNAME'))
-const base = process.env.VITEPRESS_BASE ?? (process.env.GITHUB_ACTIONS && !hasCustomDomain ? '/telegram/' : '/')
+
+function resolveBase(): string {
+  if (hasCustomDomain) {
+    return '/'
+  }
+
+  const envBase = process.env.VITEPRESS_BASE?.trim()
+  if (envBase) {
+    const withLeading = envBase.startsWith('/') ? envBase : `/${envBase}`
+    return withLeading.endsWith('/') ? withLeading : `${withLeading}/`
+  }
+
+  if (process.env.GITHUB_ACTIONS) {
+    if (process.env.GITHUB_REPOSITORY) {
+      const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/')
+      if (repo && owner && repo.toLowerCase() === `${owner.toLowerCase()}.github.io`) {
+        return '/'
+      }
+      if (repo) {
+        return `/${repo}/`
+      }
+    }
+    return '/telegram/'
+  }
+
+  return '/'
+}
+
+const base = resolveBase()
 
 export default defineConfig({
   base,
@@ -141,7 +172,7 @@ export default defineConfig({
     plugins: [llmsPlugin()]
   },
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: `${base.replace(/\/$/, '')}/icon.png` }]
+    ['link', { rel: 'icon', type: 'image/png', href: `${base === '/' ? '' : base.replace(/\/$/, '')}/icon.png` }]
   ],
   markdown: {
     config(md) {
