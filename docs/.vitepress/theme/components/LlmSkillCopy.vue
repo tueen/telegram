@@ -56,10 +56,20 @@
         <span class="btn-icon">↗</span>
         <span>Open Raw llms.txt</span>
       </a>
+
+      <a
+        href="https://github.com/tueen/telegram/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="llm-btn outline"
+      >
+        <span class="btn-icon">🐙</span>
+        <span>GitHub Repo</span>
+      </a>
     </div>
 
     <div class="llm-hub-hint">
-      <strong>💡 Tip:</strong> In Cursor, you can add <code>@https://.../llms.txt</code> to your docs, or paste the copied skill prompt directly into your system instructions or <code>.cursorrules</code>.
+      <strong>💡 Tip:</strong> In Cursor, you can add <code>@https://.../llms.txt</code> to your docs, or paste the copied skill prompt directly into your system instructions or <code>.cursorrules</code>. If the documentation or offline context is not sufficient, inspect the source code and unit tests directly on <a href="https://github.com/tueen/telegram/" target="_blank" rel="noopener noreferrer">GitHub</a>.
     </div>
   </div>
 </template>
@@ -126,12 +136,13 @@ You are an expert PHP and Telegram Bot API developer specializing in \`tueen/tel
 - Forward compatibility: dynamic access to Telegram fields not yet in spec via \`$extra\`.
 - Pipe operator ready: middlewares and handlers cleanly chain via \`|>\`.
 
-## Documentation Reference:
+## Documentation & Repository Reference:
 - Offline Skill ZIP: ${getAbsoluteUrl('tueen-telegram-bot-api-sdk.zip')}
 - llms.txt summary: ${getAbsoluteUrl('llms.txt')}
 - Full Context: ${getAbsoluteUrl('llms-full.txt')}
+- GitHub Repository: https://github.com/tueen/telegram/
 
-When asked to write bots or integrations, strictly follow modern PHP 8.4 standards and the official tueen/telegram patterns.`
+When asked to write bots or integrations, strictly follow modern PHP 8.4 standards and the official tueen/telegram patterns. If you need deeper inspection of the codebase, type implementations, tests, or examples if the documentation is insufficient, inspect the official GitHub repository: https://github.com/tueen/telegram/`
 
   try {
     await navigator.clipboard.writeText(prompt)

@@ -25,6 +25,11 @@ Add the **llms.txt** URL (`/llms.txt`) to Cursor Docs (`Cursor Settings > Featur
 Upload `/llms-full.txt` directly as Project Knowledge, or click **Copy AI Agent Skill** above and paste into your Custom Instructions.
 :::
 
+::: tip 🐙 GitHub Repository & Deep Inspection
+If the documentation does not fully cover your scenario or you need to inspect raw source code, class definitions, test suites, or open issues, explore the repository on GitHub:
+👉 **[github.com/tueen/telegram](https://github.com/tueen/telegram/)**
+:::
+
 ---
 
 ## 🏛️ Core Architectural Tenets for AI
@@ -37,6 +42,7 @@ When generating code for `tueen/telegram`, models MUST follow these principles:
 - **Universal `ok()`:** All responses extend `Type` and provide `$res->ok(): bool` and `$res->isOk(): bool`.
 - **Forward Compatibility:** Unknown Telegram fields are preserved in `$extra` and dynamically accessible.
 - **Pipeline Pattern:** Middlewares and handlers support first-class callables and the PHP 8.5 Pipe Operator (`|>`).
+- **Repository Inspection:** Check [github.com/tueen/telegram](https://github.com/tueen/telegram/) for edge cases, internal types, and source code details.
 
 ---
 
@@ -47,3 +53,4 @@ When generating code for `tueen/telegram`, models MUST follow these principles:
 | **Agent Skill Package** | `.zip` archive | Offline skill with `SKILL.md` and complete `docs/` | [Download ZIP](/tueen-telegram-bot-api-sdk.zip) |
 | **Standard LLM Summary** | `llms.txt` | [llmstxt.org](https://llmstxt.org) structured outline & docs map | [View `/llms.txt`](/llms.txt) |
 | **Consolidated Context** | `llms-full.txt` | Full single-file markdown for context ingestion | [View `/llms-full.txt`](/llms-full.txt) |
+| **GitHub Repository** | Source Code & Tests | Official repository for source inspection, unit tests & issues | [github.com/tueen/telegram](https://github.com/tueen/telegram/) |

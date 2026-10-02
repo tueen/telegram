@@ -191,11 +191,16 @@ Welcome to the **tueen/telegram** agent skill. This skill packages the complete 
 ## 👑 Library Identity & Tenets
 
 - **Package Name:** \`tueen/telegram\`
+- **GitHub Repository:** [tueen/telegram on GitHub](https://github.com/tueen/telegram/)
 - **Slogan:** *The Royal Telegram Bot SDK for Modern PHP*
 - **Target Runtime:** PHP 8.4+ (strict types, property hooks, asymmetric visibility \`private(set)\`, pipeline pattern).
 - **Coverage:** Complete Telegram Bot API (all methods, types, and property enums).
 - **Bot API Version Constant:** \`Telegram::BOT_API_VERSION\`
 - **Online Documentation Base URL:** ${siteUrl}/
+
+> **🔎 Deep Source Inspection & Repository Fallback:**
+> If the bundled documentation guides or offline references are not sufficient for your use case, or if you need to inspect raw class implementations, method signatures, test suites, or latest features, refer directly to the official GitHub repository:
+> **https://github.com/tueen/telegram/**
 
 ---
 
@@ -224,6 +229,8 @@ When writing, refactoring, or generating code using \`tueen/telegram\`, AI assis
    Unknown future Telegram fields are captured in \`$extra\` and accessible via magic property access or \`ArrayAccess\`.
 7. **Pipeline Pattern & Middleware:**
    All middlewares implement \`MiddlewareInterface\`. Handlers and updates are callable-friendly and support the PHP 8.5 Pipe Operator (\`|>\`).
+8. **Repository & Source Inspection Fallback:**
+   If the documentation or guides do not cover a specific edge case, advanced configuration, or internal implementation details, inspect the source code, unit tests, and examples directly on GitHub: https://github.com/tueen/telegram/
 
 ---
 
@@ -259,7 +266,15 @@ export async function generateLlms() {
   fs.mkdirSync(publicDir, { recursive: true })
 
   const parsedSections = []
-  let fullConcatenatedContent = ''
+  let fullConcatenatedContent = `# tueen/telegram - Full Documentation Context
+# The Royal Telegram Bot SDK for Modern PHP (PHP 8.4+)
+# Official Repository: https://github.com/tueen/telegram/
+# Documentation Base URL: ${siteUrl}/
+#
+# Note for AI Models: If any detail, method signature, or edge-case behavior is not
+# fully covered in this documentation, consult the official GitHub repository:
+# https://github.com/tueen/telegram/
+\n`
 
   for (const section of docSections) {
     const items = []
@@ -294,12 +309,13 @@ export async function generateLlms() {
 > The Royal Telegram Bot SDK for Modern PHP (PHP 8.4+)
 
 Package Name: tueen/telegram
+GitHub Repository: https://github.com/tueen/telegram/
 Base URL: ${siteUrl}/
 Documentation Root: ${siteUrl}/guide/
 Coverage: Complete Telegram Bot API (all methods, types, and property enums)
 Bot API Constant: Telegram::BOT_API_VERSION
 
-> Note: All documentation links below are relative to \`Base URL\`.
+> Note: All documentation links below are relative to \`Base URL\`. If the documentation or guides are not sufficient for your task, inspect the source code, tests, and examples directly on GitHub: https://github.com/tueen/telegram/
 
 ## AI Agent Skill & Coding Guidelines
 When writing code for \`tueen/telegram\`, AI assistants and agents MUST adhere to these architectural rules:
@@ -310,6 +326,7 @@ When writing code for \`tueen/telegram\`, AI assistants and agents MUST adhere t
 5. Error Handling: Default mode throws typed exceptions; or use \`withErrorObjectMode()\` to receive typed \`Error\` objects.
 6. Forward compatibility: Unknown future Telegram fields are dynamically accessed or retrieved via \`$extra\`.
 7. Pipeline pattern: Callables and middlewares support the Pipe Operator (\`|>\`) and fluent config builder.
+8. Repository Inspection Fallback: If documentation is insufficient or missing edge-case details, check the GitHub repository at https://github.com/tueen/telegram/ for full source code, types, and test suites.
 
 ## Complete Documentation Map & Topic Outline
 `
@@ -327,9 +344,10 @@ When writing code for \`tueen/telegram\`, AI assistants and agents MUST adhere t
     }
   }
 
-  llmsTxt += `\n## Downloadable Packages & Full Context\n`
+  llmsTxt += `\n## Downloadable Packages, Full Context & Source Code\n`
   llmsTxt += `- [Download Complete Agent Skill ZIP](/tueen-telegram-bot-api-sdk.zip): Standalone skill folder (tueen-telegram-bot-api-sdk/) with SKILL.md and offline docs/.\n`
   llmsTxt += `- [Full Documentation (Single Context)](/llms-full.txt): Complete, concatenated markdown documentation for one-shot LLM ingestion.\n`
+  llmsTxt += `- [GitHub Repository (Source Code, Tests & Examples)](https://github.com/tueen/telegram/): Official GitHub repository for source code inspection, test suites, and issue tracking when documentation is insufficient.\n`
 
   // 2. Build ZIP Archive (tueen-telegram-bot-api-sdk.zip)
   const zip = new JSZip()
@@ -392,6 +410,11 @@ Add the **llms.txt** URL (\`/llms.txt\`) to Cursor Docs (\`Cursor Settings > Fea
 Upload \`/llms-full.txt\` directly as Project Knowledge, or click **Copy AI Agent Skill** above and paste into your Custom Instructions.
 :::
 
+::: tip 🐙 GitHub Repository & Deep Inspection
+If the documentation does not fully cover your scenario or you need to inspect raw source code, class definitions, test suites, or open issues, explore the repository on GitHub:
+👉 **[github.com/tueen/telegram](https://github.com/tueen/telegram/)**
+:::
+
 ---
 
 ## 🏛️ Core Architectural Tenets for AI
@@ -404,6 +427,7 @@ When generating code for \`tueen/telegram\`, models MUST follow these principles
 - **Universal \`ok()\`:** All responses extend \`Type\` and provide \`$res->ok(): bool\` and \`$res->isOk(): bool\`.
 - **Forward Compatibility:** Unknown Telegram fields are preserved in \`$extra\` and dynamically accessible.
 - **Pipeline Pattern:** Middlewares and handlers support first-class callables and the PHP 8.5 Pipe Operator (\`|>\`).
+- **Repository Inspection:** Check [github.com/tueen/telegram](https://github.com/tueen/telegram/) for edge cases, internal types, and source code details.
 
 ---
 
@@ -414,6 +438,7 @@ When generating code for \`tueen/telegram\`, models MUST follow these principles
 | **Agent Skill Package** | \`.zip\` archive | Offline skill with \`SKILL.md\` and complete \`docs/\` | [Download ZIP](/tueen-telegram-bot-api-sdk.zip) |
 | **Standard LLM Summary** | \`llms.txt\` | [llmstxt.org](https://llmstxt.org) structured outline & docs map | [View \`/llms.txt\`](/llms.txt) |
 | **Consolidated Context** | \`llms-full.txt\` | Full single-file markdown for context ingestion | [View \`/llms-full.txt\`](/llms-full.txt) |
+| **GitHub Repository** | Source Code & Tests | Official repository for source inspection, unit tests & issues | [github.com/tueen/telegram](https://github.com/tueen/telegram/) |
 `
 
   // Safe file write helper

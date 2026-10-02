@@ -2,12 +2,13 @@
 > The Royal Telegram Bot SDK for Modern PHP (PHP 8.4+)
 
 Package Name: tueen/telegram
+GitHub Repository: https://github.com/tueen/telegram/
 Base URL: https://tueen.github.io/telegram/
 Documentation Root: https://tueen.github.io/telegram/guide/
 Coverage: Complete Telegram Bot API (all methods, types, and property enums)
 Bot API Constant: Telegram::BOT_API_VERSION
 
-> Note: All documentation links below are relative to `Base URL`.
+> Note: All documentation links below are relative to `Base URL`. If the documentation or guides are not sufficient for your task, inspect the source code, tests, and examples directly on GitHub: https://github.com/tueen/telegram/
 
 ## AI Agent Skill & Coding Guidelines
 When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to these architectural rules:
@@ -18,6 +19,7 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
 5. Error Handling: Default mode throws typed exceptions; or use `withErrorObjectMode()` to receive typed `Error` objects.
 6. Forward compatibility: Unknown future Telegram fields are dynamically accessed or retrieved via `$extra`.
 7. Pipeline pattern: Callables and middlewares support the Pipe Operator (`|>`) and fluent config builder.
+8. Repository Inspection Fallback: If documentation is insufficient or missing edge-case details, check the GitHub repository at https://github.com/tueen/telegram/ for full source code, types, and test suites.
 
 ## Complete Documentation Map & Topic Outline
 
@@ -338,6 +340,7 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [`MessageType`](/guide/enums#messagetype)
   - [3. Complete Enums Reference](/guide/enums#3-complete-enums-reference)
 
-## Downloadable Packages & Full Context
+## Downloadable Packages, Full Context & Source Code
 - [Download Complete Agent Skill ZIP](/tueen-telegram-bot-api-sdk.zip): Standalone skill folder (tueen-telegram-bot-api-sdk/) with SKILL.md and offline docs/.
 - [Full Documentation (Single Context)](/llms-full.txt): Complete, concatenated markdown documentation for one-shot LLM ingestion.
+- [GitHub Repository (Source Code, Tests & Examples)](https://github.com/tueen/telegram/): Official GitHub repository for source code inspection, test suites, and issue tracking when documentation is insufficient.

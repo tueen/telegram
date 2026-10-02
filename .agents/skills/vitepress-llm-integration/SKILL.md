@@ -188,6 +188,7 @@ Provide developers with one-click actions:
 - **🔗 Copy llms.txt URL:** Copies the absolute URL to `/llms.txt`.
 - **📚 Copy llms-full.txt URL:** Copies the link to the concatenated context file.
 - **↗ Open Raw:** Direct link to inspect the plain text version.
+- **🐙 GitHub Repo Link:** Direct link to repository for deep inspection of source code, types, and unit tests when docs are insufficient.
 
 Register the component globally in `docs/.vitepress/theme/index.ts`:
 
@@ -223,3 +224,5 @@ export default {
    VitePress converts headers to lowercase and strips special characters (`!`, `@`, `#`, `?`, etc.). The generator must replicate this so links like `[Client Initialization](/guide/getting-started#client-initialization)` resolve directly to the DOM anchor.
 4. **Top Navbar Accessibility:**
    The `🤖 LLMs` nav item ensures both AI scrapers and developers can discover the machine-readable context and skill download immediately upon visiting the documentation root.
+5. **Repository & Source Inspection Fallback:**
+   Always embed the official GitHub repository link (`https://github.com/tueen/telegram/`) into generated skills (`SKILL.md`), prompt templates, `llms.txt`, `llms-full.txt`, and the `/llms` hub page. This guarantees that AI models and developers have a direct fallback to inspect the latest raw classes, method signatures, test cases, and edge-case implementations whenever documentation guides are not fully comprehensive.

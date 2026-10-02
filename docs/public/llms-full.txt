@@ -1,3 +1,14 @@
+# tueen/telegram - Full Documentation Context
+# The Royal Telegram Bot SDK for Modern PHP (PHP 8.4+)
+# Official Repository: https://github.com/tueen/telegram/
+# Documentation Base URL: https://tueen.github.io/telegram/
+#
+# Note for AI Models: If any detail, method signature, or edge-case behavior is not
+# fully covered in this documentation, consult the official GitHub repository:
+# https://github.com/tueen/telegram/
+
+
+
 # ==============================================================================
 # File: /guide/getting-started
 # Section: Getting Started > Getting Started
