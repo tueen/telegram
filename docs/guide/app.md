@@ -74,7 +74,7 @@ Once configured, visiting the URL in a browser displays a real-time status conso
 - **Storage & Flow Metrics:** Displays active flow session files and storage path.
 
 ### Securing the Dashboard
-To protect the web dashboard with a password, specify `setup.password` in your `config.php`:
+To protect the web dashboard with a password, specify `setup.password` in your `config.php`, or set `SETUP_PASSWORD` in your `.env` file:
 
 ```php
 return [
@@ -85,6 +85,13 @@ return [
     ],
 ];
 ```
+
+Or in `.env`:
+```env
+SETUP_PASSWORD=my-secure-dashboard-password
+```
+
+Once logged in, an active session is securely maintained. You can click **🔒 Logout** in the header at any time to lock the dashboard again.
 
 ---
 

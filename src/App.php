@@ -130,6 +130,31 @@ class App
             $envDefaults['webhook_url'] = (string)$webhookUrl;
         }
 
+        $setupPassword = Env::get('TELEGRAM_SETUP_PASSWORD', Env::get('SETUP_PASSWORD', Env::get('DASHBOARD_PASSWORD')));
+        if ($setupPassword !== null) {
+            $envDefaults['setup']['password'] = (string)$setupPassword;
+        }
+
+        $setupEnabled = Env::get('TELEGRAM_SETUP_ENABLED', Env::get('SETUP_ENABLED'));
+        if ($setupEnabled !== null) {
+            $envDefaults['setup']['enabled'] = filter_var($setupEnabled, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $allowUnauth = Env::get('TELEGRAM_ALLOW_UNAUTHENTICATED', Env::get('ALLOW_UNAUTHENTICATED'));
+        if ($allowUnauth !== null) {
+            $envDefaults['setup']['allow_unauthenticated'] = filter_var($allowUnauth, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $proxy = Env::get('TELEGRAM_PROXY', Env::get('HTTPS_PROXY', Env::get('HTTP_PROXY', Env::get('PROXY'))));
+        if ($proxy !== null) {
+            $envDefaults['proxy'] = (string)$proxy;
+        }
+
+        $apiServer = Env::get('TELEGRAM_API_SERVER', Env::get('API_SERVER'));
+        if ($apiServer !== null) {
+            $envDefaults['api_server'] = (string)$apiServer;
+        }
+
         $this->config = array_replace_recursive($envDefaults, $loaded, $overrides);
 
         // Resolve storage directories
@@ -177,11 +202,11 @@ class App
             ->withRetryCount((int)($this->config['retry_count'] ?? 3));
 
         if (!empty($this->config['proxy'])) {
-            $builder->withProxy((string)$this->config['proxy']);
+            $builder = $builder->withProxy((string)$this->config['proxy']);
         }
 
         if (isset($this->config['verify_ssl'])) {
-            $builder->withVerifySsl((bool)$this->config['verify_ssl']);
+            $builder = $builder->withVerifySsl((bool)$this->config['verify_ssl']);
         }
 
         // Configure default running mode
@@ -277,24 +302,19 @@ class App
             return (new CliHandler($this))->handle($handlers);
         }
 
-        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
-
-        // 2. HTTP GET request (Browser - Web Dashboard or Setup)
-        if ($method === 'GET') {
-            if ($this->isSetupEnabled()) {
-                (new WebDashboard($this))->handle();
-                return null;
-            }
-
-            http_response_code(200);
-            header('Content-Type: text/plain; charset=UTF-8');
-            echo "Tueen Telegram Bot is active.\n";
+        // 2. Browser / Web Dashboard or Setup Wizard requests
+        if ($this->isDashboardRequest()) {
+            (new WebDashboard($this))->handle();
             return null;
         }
 
-        // 3. HTTP POST request: Check if it's a Dashboard action
-        if (isset($_REQUEST['action']) && $this->isSetupEnabled()) {
-            (new WebDashboard($this))->handle();
+        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+
+        // 3. HTTP GET request when Setup Dashboard is disabled
+        if ($method === 'GET') {
+            http_response_code(200);
+            header('Content-Type: text/plain; charset=UTF-8');
+            echo "Tueen Telegram Bot is active.\n";
             return null;
         }
 
@@ -330,6 +350,42 @@ class App
     }
 
     /**
+     * Checks if the current incoming HTTP request is targeted for the Web Dashboard or Setup Wizard.
+     */
+    #[\NoDiscard]
+    public function isDashboardRequest(): bool
+    {
+        if (!$this->isSetupEnabled()) {
+            return false;
+        }
+
+        // If Telegram Webhook secret token header is present, it's a webhook update
+        if (isset($_SERVER['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN'])) {
+            return false;
+        }
+
+        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+
+        // All HTTP GET requests when setup is enabled are routed to WebDashboard
+        if ($method === 'GET') {
+            return true;
+        }
+
+        // Dashboard POST requests (form submissions, password login, wizard setup, webhook management)
+        if (
+            isset($_REQUEST['action']) ||
+            isset($_POST['dashboard_password']) ||
+            isset($_POST['bot_token']) ||
+            isset($_POST['webhook_url']) ||
+            !empty($_POST)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Detects public HTTPS URL pointing to the active bot script.
      */
     #[\NoDiscard]
@@ -351,7 +407,8 @@ class App
         );
 
         $scheme = $isHttps ? 'https' : 'http';
-        $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $rawHost = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $host = trim(explode(',', (string)$rawHost)[0]);
         $script = $_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? '/index.php';
 
         return "{$scheme}://{$host}{$script}";

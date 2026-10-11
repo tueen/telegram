@@ -15,9 +15,19 @@ use Tueen\Telegram\Types\Error;
  */
 class WebDashboard
 {
+    /** Whether to terminate script execution after rendering HTML or redirecting. */
+    public bool $terminate = true;
+
     public function __construct(
         private readonly App $app
     ) {}
+
+    protected function terminate(): void
+    {
+        if ($this->terminate) {
+            exit;
+        }
+    }
 
     /**
      * Handles incoming Web Dashboard requests (GET or dashboard action POST).
@@ -25,16 +35,53 @@ class WebDashboard
     public function handle(): void
     {
         $action = $_REQUEST['action'] ?? null;
-        $notice = null;
-        $error = null;
 
-        // Verify password protection if configured
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
+        }
+
+        $notice = $_SESSION['tueen_dashboard_notice'] ?? null;
+        $error = $_SESSION['tueen_dashboard_error'] ?? null;
+        unset($_SESSION['tueen_dashboard_notice'], $_SESSION['tueen_dashboard_error']);
+
+        // 1. Handle Logout action
+        if ($action === 'logout') {
+            unset($_SESSION['tueen_dashboard_auth']);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                @session_destroy();
+            }
+            $this->renderPasswordScreen(notice: 'You have been logged out successfully.');
+            return;
+        }
+
+        // 2. Handle Login Submission
+        if ($action === 'login' || isset($_POST['dashboard_password'])) {
+            $loginSuccess = $this->attemptLogin();
+            if ($loginSuccess) {
+                // Post-Redirect-Get (PRG) to prevent form resubmission prompts on refresh
+                if (!headers_sent()) {
+                    if (session_status() === PHP_SESSION_ACTIVE) {
+                        session_write_close();
+                    }
+                    $cleanUrl = strtok($_SERVER['REQUEST_URI'] ?? '', '?') ?: ($_SERVER['SCRIPT_NAME'] ?? '/');
+                    header("Location: {$cleanUrl}", true, 303);
+                    $this->terminate();
+                    return;
+                }
+                $notice = '🎉 Successfully unlocked dashboard!';
+            } else {
+                $this->renderPasswordScreen(error: 'Invalid dashboard password. Please try again.');
+                return;
+            }
+        }
+
+        // 3. Verify password protection or remote IP restriction
         if (!$this->isAuthorized()) {
             $this->renderPasswordScreen();
             return;
         }
 
-        // Process setup submission when token is empty
+        // 4. Process setup submission when token is empty
         if ($action === 'setup') {
             $token = trim((string)($_POST['bot_token'] ?? $_GET['bot_token'] ?? ''));
             $secret = trim((string)($_POST['secret_token'] ?? $_GET['secret_token'] ?? ''));
@@ -46,7 +93,7 @@ class WebDashboard
                 $error = 'Invalid Telegram bot token format. Bot tokens must match <id>:<secret>.';
             } else {
                 try {
-                    $testBot = new Telegram($token);
+                    $testBot = $this->createBotClient($token);
                     $me = $testBot->getMe();
 
                     if ($me instanceof Error || !$me->ok()) {
@@ -59,7 +106,7 @@ class WebDashboard
                         if (!empty($url)) {
                             $res = $testBot->setWebhook(url: $url, secretToken: $secret !== '' ? $secret : null);
                             if ($res instanceof Error || !$res->ok()) {
-                                $notice = "Bot @{$me->username} verified, but setting webhook failed: " . ($res instanceof Error ? $res->description : 'Unknown error');
+                                $error = "Bot @{$me->username} verified and saved, but setting webhook failed: " . ($res instanceof Error ? $res->description : 'Unknown error');
                             } else {
                                 $notice = "🎉 Bot @{$me->username} successfully configured and webhook set!";
                             }
@@ -90,6 +137,12 @@ class WebDashboard
                     $error = 'Failed to set webhook: ' . ($res instanceof Error ? $res->description : 'API Error');
                 } else {
                     $notice = "Webhook successfully set to [{$url}]!";
+                    // Update webhook_url in config.php so it remains persistent
+                    $token = (string)($this->app->config['token'] ?? $this->app->config['bot_token'] ?? '');
+                    if (!empty($token)) {
+                        $this->saveConfig($token, $secret, $url);
+                        $this->app->reloadConfig();
+                    }
                 }
             } catch (Throwable $e) {
                 $error = 'Error setting webhook: ' . $e->getMessage();
@@ -102,9 +155,35 @@ class WebDashboard
                     $error = 'Failed to delete webhook: ' . ($res instanceof Error ? $res->description : 'API Error');
                 } else {
                     $notice = "Webhook deleted successfully." . ($drop ? ' (Pending updates dropped)' : '');
+                    // Clear webhook_url from config.php if configured
+                    $token = (string)($this->app->config['token'] ?? $this->app->config['bot_token'] ?? '');
+                    if (!empty($token)) {
+                        $this->saveConfig($token, $this->app->config['secret_token'] ?? null, null);
+                        $this->app->reloadConfig();
+                    }
                 }
             } catch (Throwable $e) {
                 $error = 'Error deleting webhook: ' . $e->getMessage();
+            }
+        }
+
+        // Post-Redirect-Get (PRG) for dashboard action submissions
+        $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+        if ($method === 'POST' && in_array($action, ['setup', 'set_webhook', 'delete_webhook'], true)) {
+            if ($notice !== null) {
+                $_SESSION['tueen_dashboard_notice'] = $notice;
+            }
+            if ($error !== null) {
+                $_SESSION['tueen_dashboard_error'] = $error;
+            }
+            if (!headers_sent()) {
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
+                $cleanUrl = strtok($_SERVER['REQUEST_URI'] ?? '', '?') ?: ($_SERVER['SCRIPT_NAME'] ?? '/');
+                header("Location: {$cleanUrl}", true, 303);
+                $this->terminate();
+                return;
             }
         }
 
@@ -112,45 +191,104 @@ class WebDashboard
     }
 
     /**
+     * Creates a Telegram client instance configured with active application options (proxy, api_server, timeouts).
+     */
+    private function createBotClient(string $token): Telegram
+    {
+        $builder = \Tueen\Telegram\Config::builder($token)
+            ->withApiServer($this->app->config['api_server'] ?? 'https://api.telegram.org')
+            ->withTimeout((float)($this->app->config['timeout'] ?? 30.0))
+            ->withConnectTimeout((float)($this->app->config['connect_timeout'] ?? 10.0));
+
+        if (!empty($this->app->config['proxy'])) {
+            $builder = $builder->withProxy((string)$this->app->config['proxy']);
+        }
+
+        if (isset($this->app->config['verify_ssl'])) {
+            $builder = $builder->withVerifySsl((bool)$this->app->config['verify_ssl']);
+        }
+
+        return new Telegram($builder->build());
+    }
+
+    /**
+     * Resolves the configured dashboard password from various config locations.
+     */
+    private function getSetupPassword(): ?string
+    {
+        $pass = $this->app->config['setup']['password']
+            ?? $this->app->config['setup_password']
+            ?? $this->app->config['password']
+            ?? null;
+
+        return $pass !== null && $pass !== '' ? (string)$pass : null;
+    }
+
+    /**
+     * Checks if the incoming request originates from a local or private network address.
+     */
+    private function isLocalRequest(): bool
+    {
+        $remote = $_SERVER['REMOTE_ADDR'] ?? '';
+        return in_array($remote, ['127.0.0.1', '::1', 'localhost', ''], true)
+            || str_starts_with($remote, '192.168.')
+            || str_starts_with($remote, '10.')
+            || str_starts_with($remote, '172.');
+    }
+
+    /**
+     * Validates submitted password and establishes authenticated session.
+     */
+    private function attemptLogin(): bool
+    {
+        $password = $this->getSetupPassword();
+        if ($password === null) {
+            return false;
+        }
+
+        $submitted = $_POST['dashboard_password'] ?? null;
+        if (!is_string($submitted) || $submitted === '') {
+            return false;
+        }
+
+        if (hash_equals($password, $submitted)) {
+            if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+                @session_start();
+            }
+            $_SESSION['tueen_dashboard_auth'] = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Checks if current request is authorized to view/use the dashboard.
      */
     private function isAuthorized(): bool
     {
-        $password = $this->app->config['setup']['password'] ?? null;
+        $password = $this->getSetupPassword();
 
-        // If password is configured, require authentication
-        if (!empty($password)) {
+        // 1. If password is configured, require authentication session
+        if ($password !== null) {
             if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
                 @session_start();
-            }
-
-            if (isset($_POST['dashboard_password'])) {
-                if (hash_equals((string)$password, (string)$_POST['dashboard_password'])) {
-                    $_SESSION['tueen_dashboard_auth'] = true;
-                    return true;
-                }
             }
 
             return !empty($_SESSION['tueen_dashboard_auth']);
         }
 
-        // If no password configured: allow only on local loopback / private IP,
-        // or if explicitly permitted via config
+        // 2. If unauthenticated access is explicitly allowed via config
         if (!empty($this->app->config['setup']['allow_unauthenticated'])) {
             return true;
         }
 
-        $remote = $_SERVER['REMOTE_ADDR'] ?? '';
-        $isLocal = in_array($remote, ['127.0.0.1', '::1', 'localhost', ''], true)
-            || str_starts_with($remote, '192.168.')
-            || str_starts_with($remote, '10.')
-            || str_starts_with($remote, '172.');
-
-        return $isLocal;
+        // 3. If no password configured: allow only on local loopback / private IP
+        return $this->isLocalRequest();
     }
 
     /**
-     * Saves bot credentials into config.php.
+     * Saves bot credentials into config.php, preserving any custom configuration options.
      */
     private function saveConfig(string $token, ?string $secret, ?string $webhookUrl): bool
     {
@@ -160,21 +298,41 @@ class WebDashboard
 
         $configFile = $this->app->basePath . '/config.php';
 
-        $tokenExport = var_export($token, true);
-        $secretExport = var_export($secret, true);
-        $urlExport = var_export($webhookUrl, true);
+        $existing = [];
+        if (file_exists($configFile)) {
+            $loaded = @include $configFile;
+            if (is_array($loaded)) {
+                $existing = $loaded;
+            }
+        }
+
+        $existing['token'] = $token;
+        if ($secret !== null) {
+            $existing['secret_token'] = $secret;
+        } elseif (array_key_exists('secret_token', $existing)) {
+            $existing['secret_token'] = null;
+        }
+
+        if ($webhookUrl !== null) {
+            $existing['webhook_url'] = $webhookUrl;
+        } elseif (array_key_exists('webhook_url', $existing)) {
+            $existing['webhook_url'] = null;
+        }
+
+        $existing['mode'] = $existing['mode'] ?? 'auto';
+
+        if (!empty($this->app->config['setup'])) {
+            $existing['setup'] = array_replace_recursive($existing['setup'] ?? [], $this->app->config['setup']);
+        }
+
+        $exported = var_export($existing, true);
 
         $content = <<<PHP
 <?php
 
 declare(strict_types=1);
 
-return [
-    'token' => {$tokenExport},
-    'secret_token' => {$secretExport},
-    'webhook_url' => {$urlExport},
-    'mode' => 'auto',
-];
+return {$exported};
 
 PHP;
 
@@ -195,11 +353,12 @@ PHP;
     }
 
     /**
-     * Renders password gate screen.
+     * Renders password gate screen or remote access restriction notice.
      */
-    private function renderPasswordScreen(): void
+    private function renderPasswordScreen(?string $error = null, ?string $notice = null): void
     {
         $this->sendHtmlHeaders();
+        $configuredPassword = $this->getSetupPassword();
         ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -210,23 +369,66 @@ PHP;
             <style><?= $this->getCss() ?></style>
         </head>
         <body>
-            <div class="container" style="max-width: 440px; margin-top: 100px;">
-                <div class="card header-card" style="text-align: center;">
+            <div class="container" style="max-width: 460px; margin-top: 80px;">
+                <div class="card header-card" style="text-align: center; flex-direction: column; align-items: center;">
                     <div class="logo">👑</div>
                     <h1 class="title">Tueen Telegram</h1>
-                    <p class="subtitle">Enter dashboard password to continue</p>
-                    <form method="POST" style="margin-top: 24px;">
-                        <div class="form-group">
-                            <input type="password" name="dashboard_password" class="input" placeholder="Password" required autofocus>
+                    <p class="subtitle">The Royal Telegram Bot SDK • Web Dashboard</p>
+
+                    <?php if ($configuredPassword !== null): ?>
+                        <p style="color: #cbd5e1; font-size: 14px; margin-top: 16px;">
+                            Enter dashboard password to continue:
+                        </p>
+
+                        <?php if ($error): ?>
+                            <div class="alert alert-danger" style="margin-top: 16px; width: 100%; text-align: left;">
+                                ⚠️ <?= htmlspecialchars($error) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($notice): ?>
+                            <div class="alert alert-success" style="margin-top: 16px; width: 100%; text-align: left;">
+                                <?= htmlspecialchars($notice) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <form method="POST" action="?action=login" style="margin-top: 20px; width: 100%;">
+                            <input type="hidden" name="action" value="login">
+                            <div class="form-group" style="text-align: left;">
+                                <label class="label">Password</label>
+                                <input type="password" name="dashboard_password" class="input" placeholder="Enter password" required autofocus autocomplete="current-password">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+                                🔓 Unlock Dashboard
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <!-- Remote Access Protection Notice -->
+                        <div class="alert alert-danger" style="margin-top: 20px; width: 100%; text-align: left; display: block;">
+                            <strong style="display: block; margin-bottom: 6px;">🔒 Remote Access Protected</strong>
+                            <span>Direct remote access without authentication is disabled for IP <code><?= htmlspecialchars($_SERVER['REMOTE_ADDR'] ?? 'unknown') ?></code>.</span>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Unlock Dashboard</button>
-                    </form>
+                        <div style="text-align: left; background: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #334155; margin-top: 16px; width: 100%;">
+                            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 8px;">To enable remote access, configure a setup password:</p>
+                            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 6px;">
+                                <strong>1. In <code>.env</code>:</strong><br>
+                                <code>SETUP_PASSWORD=your_secure_password</code>
+                            </p>
+                            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 8px;">
+                                <strong>2. In <code>config.php</code>:</strong><br>
+                                <code>'setup' => ['password' => 'your_secure_password']</code>
+                            </p>
+                            <p style="font-size: 12px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 8px; margin-top: 8px;">
+                                Or access via localhost (<code>127.0.0.1</code>) or set <code>allow_unauthenticated =&gt; true</code>.
+                            </p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </body>
         </html>
         <?php
-        exit;
+        $this->terminate();
     }
 
     /**
@@ -247,6 +449,10 @@ PHP;
                 $botInfo = $this->app->bot->getMe();
                 $pingMs = round((microtime(true) - $start) * 1000, 1);
                 $webhookInfo = $this->app->bot->getWebhookInfo();
+
+                if ($botInfo instanceof Error || ($botInfo !== null && !$botInfo->ok())) {
+                    $error ??= 'Telegram API Error: ' . ($botInfo instanceof Error ? $botInfo->description : 'Invalid bot token or failed to connect.');
+                }
             } catch (Throwable $e) {
                 $error ??= 'API Connection Error: ' . $e->getMessage();
             }
@@ -276,11 +482,17 @@ PHP;
                             <p class="subtitle">The Royal Telegram Bot SDK • Bot API v<?= Telegram::BOT_API_VERSION ?></p>
                         </div>
                     </div>
-                    <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
                         <?php if ($isConfigured && $botInfo && $botInfo->ok()): ?>
                             <span class="badge badge-success">● Connected: @<?= htmlspecialchars($botInfo->username ?? 'Unknown') ?></span>
                         <?php else: ?>
                             <span class="badge badge-warning">● Setup Required</span>
+                        <?php endif; ?>
+
+                        <?php if ($this->getSetupPassword() !== null): ?>
+                            <a href="?action=logout" class="btn btn-secondary" style="font-size: 12px; padding: 4px 10px; text-decoration: none;" title="Logout from dashboard">
+                                🔒 Logout
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -314,9 +526,14 @@ PHP;
                                 </small>
                             </div>
                             <div class="form-group">
-                                <label class="label">Webhook URL (Auto-detected)</label>
-                                <input type="url" name="webhook_url" class="input" value="<?= htmlspecialchars($detectedUrl) ?>" required>
-                                <small style="display: block; color: #64748b; margin-top: 4px;">Must be a public HTTPS URL accessible by Telegram servers.</small>
+                                <label class="label">Webhook URL (Optional - Auto-detected)</label>
+                                <input type="url" name="webhook_url" class="input" value="<?= htmlspecialchars($detectedUrl) ?>" placeholder="https://example.com/index.php">
+                                <small style="display: block; color: #64748b; margin-top: 4px;">
+                                    Must be a public HTTPS URL accessible by Telegram servers. Leave empty if using Long-Polling.
+                                    <?php if (!str_starts_with(strtolower($detectedUrl), 'https://')): ?>
+                                        <span style="display: block; color: #f59e0b; margin-top: 2px;">⚠️ Note: Detected URL is not HTTPS. Telegram requires a public HTTPS URL for webhooks.</span>
+                                    <?php endif; ?>
+                                </small>
                             </div>
                             <div style="margin-top: 24px;">
                                 <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 15px;">
@@ -503,16 +720,25 @@ PHP;
 
             <script>
                 function generateSecret() {
-                    const arr = new Uint8Array(24);
-                    window.crypto.getRandomValues(arr);
-                    const hex = Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
-                    document.getElementById('secret_token').value = hex;
+                    let secret = '';
+                    if (window.crypto && window.crypto.getRandomValues) {
+                        const arr = new Uint8Array(24);
+                        window.crypto.getRandomValues(arr);
+                        secret = Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+                    } else {
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+                        for (let i = 0; i < 48; i++) {
+                            secret += chars.charAt(Math.floor(Math.random() * chars.length));
+                        }
+                    }
+                    const el = document.getElementById('secret_token');
+                    if (el) el.value = secret;
                 }
             </script>
         </body>
         </html>
         <?php
-        exit;
+        $this->terminate();
     }
 
     private function sendHtmlHeaders(): void
