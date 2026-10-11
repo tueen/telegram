@@ -282,6 +282,50 @@ class RunningModesTest extends TestCase
         $bot = new Telegram($config);
         $this->assertSame($mode, $bot->runningMode);
     }
+
+    public function testTelegramUsePollingModeConfiguresRunningMode(): void
+    {
+        $bot = new Telegram('TEST_TOKEN');
+        $returned = $bot->usePollingMode(
+            timeout: 45,
+            limit: 50,
+            allowedUpdates: ['message', 'callback_query'],
+            errorBackoffSeconds: 5,
+            forkProcess: true,
+            maxForkWorkers: 8,
+            stopOnError: true
+        );
+
+        $this->assertSame($bot, $returned);
+        $this->assertInstanceOf(PollingMode::class, $bot->runningMode);
+
+        /** @var PollingMode $mode */
+        $mode = $bot->runningMode;
+        $this->assertTrue($mode->isForkProcess());
+        $this->assertSame(8, $mode->maxForkWorkers);
+        $this->assertTrue($mode->isStopOnError());
+    }
+
+    public function testTelegramUseWebhookModeConfiguresRunningMode(): void
+    {
+        $bot = new Telegram('TEST_TOKEN');
+        $returned = $bot->useWebhookMode(
+            secretToken: 'my_secret_token',
+            rawInput: '{"update_id":123}',
+            headers: ['X-Telegram-Bot-Api-Secret-Token' => 'my_secret_token'],
+            safeExceptions: false
+        );
+
+        $this->assertSame($bot, $returned);
+        $this->assertInstanceOf(WebhookMode::class, $bot->runningMode);
+
+        /** @var WebhookMode $mode */
+        $mode = $bot->runningMode;
+        $this->assertSame('my_secret_token', $mode->secretToken);
+        $this->assertSame('{"update_id":123}', $mode->rawInput);
+        $this->assertSame(['X-Telegram-Bot-Api-Secret-Token' => 'my_secret_token'], $mode->headers);
+        $this->assertFalse($mode->safeExceptions);
+    }
 }
 
 class TestInvokableUpdateHandler

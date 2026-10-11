@@ -192,7 +192,18 @@ class CliHandler
         $this->line("  \033[90mListening for updates... Press Ctrl+C to stop.\033[0m");
         $this->line("");
 
-        // Switch to polling mode and run
+        // Switch to polling mode and optionally delete existing webhook
+        $autoDelete = (bool)($this->app->config['auto_delete_webhook'] ?? true);
+        if ($autoDelete) {
+            try {
+                $dropPending = (bool)($this->app->config['drop_pending_updates'] ?? false);
+                $bot->deleteWebhook(dropPendingUpdates: $dropPending);
+                $this->info("Automatically cleared webhook before starting polling.");
+            } catch (Throwable) {
+                // Non-blocking in polling start
+            }
+        }
+
         $bot->usePollingMode();
         return $bot->run(...$handlers);
     }

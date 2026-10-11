@@ -384,6 +384,56 @@ class Telegram
     }
 
     /**
+     * Configures the client to use long-polling mode (PollingMode).
+     *
+     * @param array<string>|null $allowedUpdates
+     */
+    public function usePollingMode(
+        int $timeout = 30,
+        int $limit = 100,
+        ?array $allowedUpdates = null,
+        int $errorBackoffSeconds = 2,
+        bool $forkProcess = false,
+        ?callable $processDispatcher = null,
+        int $maxForkWorkers = 16,
+        bool $stopOnError = false,
+    ): static {
+        $this->runningMode = new PollingMode(
+            timeout: $timeout,
+            limit: $limit,
+            allowedUpdates: $allowedUpdates,
+            errorBackoffSeconds: $errorBackoffSeconds,
+            forkProcess: $forkProcess,
+            processDispatcher: $processDispatcher,
+            maxForkWorkers: $maxForkWorkers,
+            stopOnError: $stopOnError,
+        );
+
+        return $this;
+    }
+
+    /**
+     * Configures the client to use webhook mode (WebhookMode).
+     *
+     * @param array<string, list<string>|string>|null $headers
+     */
+    public function useWebhookMode(
+        ?string $secretToken = null,
+        ?string $rawInput = null,
+        ?array $headers = null,
+        bool $safeExceptions = true,
+    ): static {
+        $this->runningMode = new WebhookMode(
+            secretToken: $secretToken,
+            rawInput: $rawInput,
+            headers: $headers,
+            safeExceptions: $safeExceptions,
+        );
+
+        return $this;
+    }
+
+    /**
      * Manually updates the active Update instance and context.
      */
     public function setUpdate(?Update $update): static
