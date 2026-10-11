@@ -190,6 +190,33 @@ class FlowSession
     }
 
     /**
+     * Finishes any active flow in this session, safely cleans up its active screen message,
+     * and starts a fresh flow.
+     *
+     * @param class-string<Flow> $flowClass
+     */
+    public function replaceFlow(
+        string $flowClass,
+        string $initialStep = 'start',
+        array $initialData = [],
+        bool $deletePreviousScreen = true
+    ): ?Flow {
+        $update = $this->update ?? $this->bot->update;
+        if ($update === null) {
+            return null;
+        }
+
+        return $this->manager->replaceFlow(
+            flowClass: $flowClass,
+            update: $update,
+            bot: $this->bot,
+            initialStep: $initialStep,
+            initialData: $initialData,
+            deletePreviousScreen: $deletePreviousScreen
+        );
+    }
+
+    /**
      * Cancels the active flow and optionally notifies the user.
      *
      * @param string|null $replyMessage Message to send, or null for default cancellation notice

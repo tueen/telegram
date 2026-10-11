@@ -12,6 +12,7 @@ use Tueen\Telegram\Flow\Attributes\Breadcrumb;
 use Tueen\Telegram\Flow\Attributes\Debounce;
 use Tueen\Telegram\Flow\Attributes\Input;
 use Tueen\Telegram\Flow\Attributes\RequireMember;
+use Tueen\Telegram\Flow\Attributes\SingleScreen;
 use Tueen\Telegram\Keyboards\InlineKeyboard;
 use Tueen\Telegram\Types\InlineKeyboardMarkup;
 use Tueen\Telegram\Types\Message;
@@ -37,6 +38,21 @@ abstract class InteractiveFlow extends Flow
             $this->state->messageId = $value;
         }
     }
+
+    /**
+     * Whether to delete the previous screen message upon starting this flow.
+     */
+    protected bool $clearPreviousScreen = false;
+
+    /**
+     * Explicit override for clearPreviousScreen set during initialization.
+     */
+    protected(set) ?bool $clearPreviousScreenOverride = null;
+
+    /**
+     * Active message ID from the previous flow or screen session, if any.
+     */
+    public ?int $previousMessageId = null;
 
     /**
      * Resolves the human-readable breadcrumb label for this flow.
@@ -187,11 +203,71 @@ abstract class InteractiveFlow extends Flow
     }
 
     /**
+     * Sets an explicit override for clearing the previous screen message.
+     */
+    public function setClearPreviousScreen(?bool $clear): static
+    {
+        $this->clearPreviousScreenOverride = $clear;
+        return $this;
+    }
+
+    /**
+     * Determines whether previous screen message clearing is enabled.
+     */
+    public function shouldClearPreviousScreen(): bool
+    {
+        if ($this->clearPreviousScreenOverride !== null) {
+            return $this->clearPreviousScreenOverride;
+        }
+
+        if ($this->clearPreviousScreen) {
+            return true;
+        }
+
+        $reflection = new ReflectionClass($this);
+        $attributes = $reflection->getAttributes(SingleScreen::class, \ReflectionAttribute::IS_INSTANCEOF);
+        if (!empty($attributes)) {
+            /** @var SingleScreen $singleScreen */
+            $singleScreen = $attributes[0]->newInstance();
+            return $singleScreen->clearPrevious;
+        }
+
+        return false;
+    }
+
+    /**
+     * Clears any previous screen message if single-screen cleanup is enabled.
+     */
+    public function clearPreviousScreenIfNeeded(): void
+    {
+        if (!$this->shouldClearPreviousScreen()) {
+            return;
+        }
+
+        $messageIdToDelete = $this->previousMessageId ?? $this->messageId;
+        if ($messageIdToDelete === null) {
+            return;
+        }
+
+        try {
+            $this->bot->deleteMessage(chatId: $this->chatId, messageId: $messageIdToDelete);
+        } catch (Throwable) {
+            // Silently suppress deletion failures (e.g. message already deleted or expired)
+        }
+
+        $this->previousMessageId = null;
+        if ($this->messageId === $messageIdToDelete) {
+            $this->messageId = null;
+        }
+    }
+
+    /**
      * Default entry point for interactive flows.
      */
     #[\Override]
     public function start(Update $update): void
     {
+        $this->clearPreviousScreenIfNeeded();
         $this->onCreate();
         $this->onStart();
         $this->renderScreen();
@@ -202,7 +278,7 @@ abstract class InteractiveFlow extends Flow
      */
     public function onCreate(): void
     {
-        // Child classes can override this for initial data loading
+        $this->clearPreviousScreenIfNeeded();
     }
 
     /**

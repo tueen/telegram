@@ -73,8 +73,11 @@ This skill provides step-by-step procedures and rules for developing, testing, a
 - Declarative PHP 8 Attributes: `#[OnCommand]`, `#[OnCallbackQuery]`, `#[OnMessage]`, `#[OnInlineQuery]`, `#[OnUpdate]`.
 - Controller registration via `$bot->registerController(...)` with PSR-11 container dependency injection.
 
-### 10. Multi-Step Conversation Flows (Flow)
+### 10. Multi-Step Conversation Flows (Flow) & Interactive Screens
 - `Flow`: Class-based conversational state machine where steps are methods.
+- `InteractiveFlow`: Screen-based component flows with in-place rendering (`renderScreen()`), action routing (`#[Action]`), and state tracking (`$this->messageId`).
+- `#[SingleScreen]`: Decorates `InteractiveFlow` classes to automatically delete previous screen messages upon starting.
+- `$bot->replaceFlow($flowClass)`: Atomically terminates the active flow, cleans up its screen message, and launches a fresh flow.
 - Navigation methods: `$this->to()`, `$this->stay()`, `$this->back()`, `$this->jumpTo()`, `$this->finish()`, `$this->cancel()`.
 - State storage drivers implementing `StateStoreInterface`: `MemoryStateStore`, `FileStateStore`.
 - Auto-prioritization: Active flows intercept incoming updates before reaching general bot routes.

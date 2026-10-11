@@ -131,6 +131,7 @@ class FlowManager
      * @param Telegram $bot
      * @param string $initialStep
      * @param array<string, mixed> $initialData
+     * @param bool|null $clearPreviousScreen
      * @return Flow
      */
     public function startFlow(
@@ -138,7 +139,8 @@ class FlowManager
         Update $update,
         Telegram $bot,
         string $initialStep = 'start',
-        array $initialData = []
+        array $initialData = [],
+        ?bool $clearPreviousScreen = null
     ): Flow {
         $chat = $update->findChat();
         if ($chat === null) {
@@ -150,6 +152,9 @@ class FlowManager
         $userId = $user?->id;
         $sessionKey = self::resolveSessionKey($chatId, $userId);
 
+        $existingState = $this->store->get($sessionKey);
+        $previousMessageId = $existingState?->messageId;
+
         $state = new FlowState(
             flowClass: $flowClass,
             currentStep: $initialStep,
@@ -158,6 +163,19 @@ class FlowManager
 
         $flow = $this->createFlowInstance($flowClass, $bot);
         $flow->init($bot, $update, $chatId, $userId, $state, $this);
+
+        if ($flow instanceof InteractiveFlow) {
+            $flow->previousMessageId = $previousMessageId;
+            if ($clearPreviousScreen !== null) {
+                $flow->setClearPreviousScreen($clearPreviousScreen);
+            }
+        } elseif ($clearPreviousScreen === true && $previousMessageId !== null) {
+            try {
+                $bot->deleteMessage(chatId: $chatId, messageId: $previousMessageId);
+            } catch (\Throwable) {
+                // Silently ignore deletion failures
+            }
+        }
 
         // Persist initial state
         $this->saveState($sessionKey, $state);
@@ -168,6 +186,63 @@ class FlowManager
         }
 
         return $flow;
+    }
+
+    /**
+     * Finishes any active flow in this session, safely cleans up its active screen message,
+     * and starts a fresh flow.
+     *
+     * @param class-string<Flow> $flowClass
+     */
+    public function replaceFlow(
+        string $flowClass,
+        Update $update,
+        Telegram $bot,
+        string $initialStep = 'start',
+        array $initialData = [],
+        bool $deletePreviousScreen = true
+    ): Flow {
+        $chat = $update->findChat();
+        if ($chat === null) {
+            throw new TelegramException("Cannot replace Flow: unable to resolve chat from Update.");
+        }
+
+        $user = $update->findUser();
+        $chatId = $chat->id;
+        $userId = $user?->id;
+        $sessionKey = self::resolveSessionKey($chatId, $userId);
+
+        $existingState = $this->store->get($sessionKey);
+
+        if ($existingState !== null) {
+            if ($deletePreviousScreen && $existingState->messageId !== null) {
+                try {
+                    $bot->deleteMessage(chatId: $chatId, messageId: $existingState->messageId);
+                } catch (\Throwable) {
+                    // Silently ignore deletion failures
+                }
+            }
+
+            try {
+                $activeFlow = $this->getActiveFlowInstance($chatId, $userId, $bot, $update);
+                if ($activeFlow !== null) {
+                    $activeFlow->finish();
+                } else {
+                    $this->store->delete($sessionKey);
+                }
+            } catch (\Throwable) {
+                $this->store->delete($sessionKey);
+            }
+        }
+
+        return $this->startFlow(
+            flowClass: $flowClass,
+            update: $update,
+            bot: $bot,
+            initialStep: $initialStep,
+            initialData: $initialData,
+            clearPreviousScreen: false
+        );
     }
 
     /**

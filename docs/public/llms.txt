@@ -238,6 +238,10 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [Toggling Checklist Items](/guide/flow/interactive-screens#toggling-checklist-items)
   - [🪜 Step Wizard & Progress Stepper (`withStepper`)](/guide/flow/interactive-screens#step-wizard-progress-stepper-withstepper)
     * [Supported Stepper Styles](/guide/flow/interactive-screens#supported-stepper-styles)
+  - [📺 Single-Screen Support & `replaceFlow()`](/guide/flow/interactive-screens#single-screen-support-replaceflow)
+    * [The `#[SingleScreen]` Attribute](/guide/flow/interactive-screens#the-singlescreen-attribute)
+    * [Dedicated `$bot->replaceFlow()` API](/guide/flow/interactive-screens#dedicated-bot-replaceflow-api)
+    * [Overriding at Runtime via `startFlow()`](/guide/flow/interactive-screens#overriding-at-runtime-via-startflow)
 - [Lifecycle Hooks](/guide/flow/lifecycle-hooks): InteractiveFlow provides a predictable, component-based lifecycle. You can hook into each phase to load data, persist state, intercept exits, or update screens.
   - [🪝 Lifecycle Reference](/guide/flow/lifecycle-hooks#lifecycle-reference)
     * [`onCreate(): void`](/guide/flow/lifecycle-hooks#oncreate-void)

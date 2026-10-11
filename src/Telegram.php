@@ -547,7 +547,8 @@ class Telegram
         string $flowClass,
         ?Update $update = null,
         string $initialStep = 'start',
-        array $initialData = []
+        array $initialData = [],
+        ?bool $clearPreviousScreen = null
     ): Flow {
         $resolvedUpdate = $update ?? $this->update;
         if ($resolvedUpdate === null) {
@@ -559,7 +560,36 @@ class Telegram
             update: $resolvedUpdate,
             bot: $this,
             initialStep: $initialStep,
-            initialData: $initialData
+            initialData: $initialData,
+            clearPreviousScreen: $clearPreviousScreen
+        );
+    }
+
+    /**
+     * Finishes any active flow in this session, safely cleans up its active screen message,
+     * and starts a fresh flow.
+     *
+     * @param class-string<Flow> $flowClass
+     */
+    public function replaceFlow(
+        string $flowClass,
+        ?Update $update = null,
+        string $initialStep = 'start',
+        array $initialData = [],
+        bool $deletePreviousScreen = true
+    ): Flow {
+        $resolvedUpdate = $update ?? $this->update;
+        if ($resolvedUpdate === null) {
+            throw new TelegramException("Cannot replace Flow: no active Update found. Pass Update explicitly or run inside an update handler.");
+        }
+
+        return $this->flowManager->replaceFlow(
+            flowClass: $flowClass,
+            update: $resolvedUpdate,
+            bot: $this,
+            initialStep: $initialStep,
+            initialData: $initialData,
+            deletePreviousScreen: $deletePreviousScreen
         );
     }
 

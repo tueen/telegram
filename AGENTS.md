@@ -40,8 +40,10 @@ tueen/telegram/
 │   │   └── Attributes/                # Routing attributes (#[OnCommand], #[OnCallbackQuery], etc.)
 │   ├── Flow/                          # Multi-step conversation flows & state machine
 │   │   ├── Flow.php                   # Base Flow class with to, stay, back, jumpTo, finish
-│   │   ├── FlowManager.php            # Active flow dispatcher & lifecycle orchestrator
+│   │   ├── InteractiveFlow.php        # Screen-based UI flow with single-screen lifecycle
+│   │   ├── FlowManager.php            # Active flow dispatcher & lifecycle orchestrator (startFlow, replaceFlow)
 │   │   ├── FlowState.php              # Serialized flow state value object
+│   │   ├── Attributes/                # Flow attributes (#[SingleScreen], #[Action], #[Input], #[RequireMember])
 │   │   └── Storage/                   # State store drivers (MemoryStateStore, FileStateStore)
 │   ├── Keyboards/                     # Fluent keyboard builders
 │   │   ├── InlineKeyboard.php         # Fluent builder for InlineKeyboardMarkup

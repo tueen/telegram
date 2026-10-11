@@ -4566,6 +4566,84 @@ Please enter your shipping address:
 | `'circles'` | `🟢` / `⚪` | `[Step 2 of 4] 🟢🟢⚪⚪` |
 | `'numbers'` | `(X/Y)` | `[Step 2 of 4]` |
 
+---
+
+## 📺 Single-Screen Support & `replaceFlow()`
+
+In interactive Telegram bots, users frequently type commands like `/start`, `/tasks`, or `/settings` while already viewing an active screen. In traditional bots, spinning up a new flow leaves redundant menu messages behind in the chat history, cluttering the conversation and breaking the single-screen paradigm.
+
+Tueen provides first-class architectural support for **Single-Screen flows** and a dedicated `$bot->replaceFlow()` API to cleanly terminate previous screens.
+
+### The `#[SingleScreen]` Attribute
+
+Decorate an `InteractiveFlow` with `#[SingleScreen]` to automatically delete the previous active screen message whenever the flow starts:
+
+```php
+use Tueen\Telegram\Flow\Attributes\SingleScreen;
+use Tueen\Telegram\Flow\InteractiveFlow;
+use Tueen\Telegram\Flow\Screen;
+
+#[SingleScreen]
+class DashboardFlow extends InteractiveFlow
+{
+    public function render(): Screen
+    {
+        return Screen::make("👑 *Main Dashboard*")
+            ->inline(...);
+    }
+}
+```
+
+Whenever `$bot->startFlow(DashboardFlow::class)` is invoked, Tueen inspects the current session. If a previous screen message was active, it is safely deleted with `deleteMessage(chatId, messageId)` before rendering the new screen. Any deletion failures (such as the message already being removed by the user or the 48-hour window expiring) are silently suppressed.
+
+You can also control this behavior via the protected property or the attribute argument:
+
+```php
+// Via attribute argument
+#[SingleScreen(clearPrevious: false)]
+class ModalFlow extends InteractiveFlow { ... }
+
+// Or via protected property
+class CustomDashboardFlow extends InteractiveFlow
+{
+    protected bool $clearPreviousScreen = true;
+}
+```
+
+### Dedicated `$bot->replaceFlow()` API
+
+In command handlers (e.g. `#[OnCommand('start')]`), use `$bot->replaceFlow()` to terminate the existing flow session, delete its active screen, and start a fresh flow in a single atomic call:
+
+```php
+use Tueen\Telegram\Routing\Attributes\OnCommand;
+use Tueen\Telegram\Telegram;
+
+#[OnCommand('start')]
+public function handleStart(Telegram $bot): void
+{
+    // Safely deletes the old screen and launches DashboardFlow
+    $bot->replaceFlow(DashboardFlow::class);
+}
+```
+
+If you wish to retain the previous screen message in chat history while resetting the session state, pass `deletePreviousScreen: false`:
+
+```php
+$bot->replaceFlow(DashboardFlow::class, deletePreviousScreen: false);
+```
+
+### Overriding at Runtime via `startFlow()`
+
+You can also explicitly override screen clearing at call-time by passing `clearPreviousScreen`:
+
+```php
+// Force-clear previous screen even if the flow is not decorated with #[SingleScreen]
+$bot->startFlow(SettingsFlow::class, clearPreviousScreen: true);
+
+// Preserve previous screen even if the flow has #[SingleScreen]
+$bot->startFlow(DashboardFlow::class, clearPreviousScreen: false);
+```
+
 
 # ==============================================================================
 # File: /guide/flow/lifecycle-hooks
