@@ -34,11 +34,13 @@ class Php85FeaturesTest extends TestCase
         $modifiedBoth = $modifiedTimeout
             ->withToken('TOKEN_B')
             ->withProxy('http://127.0.0.1:8080')
+            ->withVerifySsl(true)
             ->withTestEnvironment(true)
             ->withErrorHandlingMode(ErrorHandlingMode::ERROR_OBJECT);
 
         $this->assertSame('TOKEN_B', $modifiedBoth->botToken);
         $this->assertSame('http://127.0.0.1:8080', $modifiedBoth->proxy);
+        $this->assertTrue($modifiedBoth->verifySsl);
         $this->assertTrue($modifiedBoth->testEnvironment);
         $this->assertSame(ErrorHandlingMode::ERROR_OBJECT, $modifiedBoth->errorHandlingMode);
         $this->assertSame(45.5, $modifiedBoth->timeout);

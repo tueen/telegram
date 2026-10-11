@@ -32,6 +32,7 @@ class GuzzleHttpClient implements HttpClientInterface
             'timeout' => $config->timeout,
             'connect_timeout' => $config->connectTimeout,
             'http_errors' => false,
+            'verify' => $config->verifySsl ?? false,
         ];
 
         if ($config->proxy !== null) {

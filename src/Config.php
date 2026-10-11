@@ -71,6 +71,7 @@ class Config
         public readonly float $timeout = 30.0,
         public readonly float $connectTimeout = 10.0,
         public readonly ?string $proxy = null,
+        public readonly bool|string $verifySsl = false,
         public readonly ?HttpClientInterface $httpClient = null,
         public readonly ?LoggerInterface $logger = null,
         public readonly ?Closure $uploadProgress = null,
@@ -101,6 +102,7 @@ class Config
             timeout: $overrides['timeout'] ?? $this->timeout,
             connectTimeout: $overrides['connectTimeout'] ?? $this->connectTimeout,
             proxy: array_key_exists('proxy', $overrides) ? $overrides['proxy'] : $this->proxy,
+            verifySsl: $overrides['verifySsl'] ?? $this->verifySsl,
             httpClient: array_key_exists('httpClient', $overrides) ? $overrides['httpClient'] : $this->httpClient,
             logger: array_key_exists('logger', $overrides) ? $overrides['logger'] : $this->logger,
             uploadProgress: array_key_exists('uploadProgress', $overrides) ? $overrides['uploadProgress'] : $this->uploadProgress,
@@ -144,6 +146,12 @@ class Config
     public function withProxy(?string $proxy): self
     {
         return $this->copyWith(['proxy' => $proxy]);
+    }
+
+    #[\NoDiscard]
+    public function withVerifySsl(bool|string $verifySsl = true): self
+    {
+        return $this->copyWith(['verifySsl' => $verifySsl]);
     }
 
     #[\NoDiscard]

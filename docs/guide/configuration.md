@@ -98,6 +98,12 @@ Below is the exhaustive catalog of all configuration options available on `Confi
     desc="HTTP, HTTPS, or SOCKS5 proxy URL (e.g. socks5h://127.0.0.1:9050 or http://proxy.corp.internal:8080)."
   />
   <ApiCard
+    sig="withVerifySsl(bool|string $verifySsl = true)"
+    returns="static"
+    badge="default: false"
+    desc="Controls SSL certificate verification for HTTP requests (verify in Guzzle / CURLOPT_SSL_VERIFYPEER in cURL). Can be a boolean, or a string specifying the path to a custom CA bundle file (.pem/.crt). Defaults to false."
+  />
+  <ApiCard
     sig="withHttpClient(?HttpClientInterface $client)"
     returns="static"
     badge="default: GuzzleHttpClient"

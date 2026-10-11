@@ -80,6 +80,15 @@ class CurlHttpClient implements HttpClientInterface
             curl_setopt($ch, CURLOPT_PROXY, $config->proxy);
         }
 
+        if (is_string($config->verifySsl)) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_CAINFO, $config->verifySsl);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $config->verifySsl);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $config->verifySsl ? 2 : 0);
+        }
+
         $headers = [];
 
         $uploadCb = $request->uploadProgress ?? $config->uploadProgress;
@@ -216,6 +225,15 @@ class CurlHttpClient implements HttpClientInterface
 
         if ($config->proxy !== null) {
             curl_setopt($ch, CURLOPT_PROXY, $config->proxy);
+        }
+
+        if (is_string($config->verifySsl)) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_CAINFO, $config->verifySsl);
+        } else {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $config->verifySsl);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $config->verifySsl ? 2 : 0);
         }
 
         $downloadCb = $progress ?? $config->downloadProgress;

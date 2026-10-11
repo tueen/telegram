@@ -180,6 +180,10 @@ class App
             $builder->withProxy((string)$this->config['proxy']);
         }
 
+        if (isset($this->config['verify_ssl'])) {
+            $builder->withVerifySsl((bool)$this->config['verify_ssl']);
+        }
+
         // Configure default running mode
         $secretToken = $this->config['secret_token'] ?? null;
         $autoDelete = (bool)($this->config['auto_delete_webhook'] ?? true);

@@ -30,12 +30,14 @@ class TelegramClientTest extends TestCase
         $config = Telegram::create('TEST_TOKEN_123')
             ->withTimeout(45.0)
             ->withProxy('http://127.0.0.1:10809')
+            ->withVerifySsl(true)
             ->withRetryCount(5)
             ->build();
 
         $this->assertSame('TEST_TOKEN_123', $config->botToken);
         $this->assertSame(45.0, $config->timeout);
         $this->assertSame('http://127.0.0.1:10809', $config->proxy);
+        $this->assertTrue($config->verifySsl);
         $this->assertSame(5, $config->retryCount);
         $this->assertSame('https://api.telegram.org/botTEST_TOKEN_123', $config->baseApiUrl);
     }

@@ -22,6 +22,7 @@ class ConfigBuilder
     private float $timeout = 30.0;
     private float $connectTimeout = 10.0;
     private ?string $proxy = null;
+    private bool|string $verifySsl = false;
     private ?HttpClientInterface $httpClient = null;
     private ?LoggerInterface $logger = null;
     private ?Closure $uploadProgress = null;
@@ -76,6 +77,13 @@ class ConfigBuilder
     public function withProxy(?string $proxy): static
     {
         $this->proxy = $proxy;
+        return $this;
+    }
+
+    #[\NoDiscard]
+    public function withVerifySsl(bool|string $verifySsl = true): static
+    {
+        $this->verifySsl = $verifySsl;
         return $this;
     }
 
@@ -274,6 +282,7 @@ class ConfigBuilder
             timeout: $this->timeout,
             connectTimeout: $this->connectTimeout,
             proxy: $this->proxy,
+            verifySsl: $this->verifySsl,
             httpClient: $this->httpClient,
             logger: $this->logger,
             uploadProgress: $this->uploadProgress,
