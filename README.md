@@ -51,8 +51,6 @@ composer require tueen/telegram
 
 ## 🚀 Quickstart
 
-### 1. Interactive Command & Callback Bot
-
 Build an interactive bot with command routing, inline buttons, and safe HTML formatting:
 
 ```php
@@ -97,27 +95,7 @@ $bot->usePollingMode();
 $bot->run();
 ```
 
----
-
-### 2. Zero-Config App & Web Dashboard
-
-For standalone bot projects, `App` provides an instant bootstrapper with an embedded management dashboard:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Tueen\Telegram\App;
-
-require __DIR__ . '/vendor/autoload.php';
-
-// Automatically selects Webhook in HTTP, Polling in CLI, and Web Dashboard in browser
-App::run(__DIR__);
-```
-
-- **In the Browser:** Access the **Web Setup Wizard & Management Console** to configure your bot token, verify webhook delivery, and view telemetry.
-- **In the Terminal:** Run `php index.php` for long-polling, or `php index.php doctor` for system self-diagnostics.
+> 💡 **Looking for zero-config single-file bootstrapping and the embedded Web Dashboard?** Check out the [Zero-Config App & Web Dashboard Guide](https://tueen.github.io/telegram/guide/app.html).
 
 ---
 
