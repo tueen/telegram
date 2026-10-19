@@ -26,11 +26,24 @@ class WebDashboardTest extends TestCase
         $_SESSION = [];
         $_POST = [];
         $_GET = [];
-        $_REQUEST = [];
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_URI'] = '/index.php';
+
+        unset(
+            $_SERVER['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN'],
+            $_ENV['SETUP_PASSWORD'],
+            $_ENV['TELEGRAM_SETUP_PASSWORD'],
+            $_ENV['DASHBOARD_PASSWORD'],
+            $_ENV['SETUP_ENABLED'],
+            $_ENV['TELEGRAM_SETUP_ENABLED']
+        );
+        putenv('SETUP_PASSWORD');
+        putenv('TELEGRAM_SETUP_PASSWORD');
+        putenv('DASHBOARD_PASSWORD');
+        putenv('SETUP_ENABLED');
+        putenv('TELEGRAM_SETUP_ENABLED');
     }
 
     protected function tearDown(): void

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/tueen/telegram">
+  <a href="https://tueen.github.io/telegram/">
     <img src="art/logo.png" alt="Tueen Telegram Logo" width="260">
   </a>
 </p>
@@ -13,37 +13,35 @@
 
 <p align="center">
   <a href="https://php.net"><img src="https://img.shields.io/badge/php-%3E%3D%208.4-8892BF.svg?style=flat-square" alt="PHP Version"></a>
-  <a href="https://github.com/tueen/telegram/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tueen/telegram/ci.yml?branch=main&label=CI&style=flat-square" alt="Continuous Integration"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://core.telegram.org/bots/api"><img src="https://img.shields.io/badge/Telegram%20Bot%20API-10.3-2CA5E0.svg?style=flat-square&logo=telegram" alt="Telegram Bot API"></a>
+  <a href="https://github.com/tueen/telegram/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tueen/telegram/ci.yml?branch=main&label=CI&style=flat-square" alt="CI Status"></a>
+  <a href="https://tueen.github.io/telegram/"><img src="https://img.shields.io/badge/docs-online-success.svg?style=flat-square" alt="Documentation"></a>
+  <a href="https://tueen.github.io/telegram/llms.html"><img src="https://img.shields.io/badge/AI%20%2F%20LLMs-llms.txt-orange.svg?style=flat-square" alt="LLM Hub"></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
 </p>
-
----
-
-`tueen/telegram` is a high-performance, strictly-typed Telegram Bot SDK crafted for modern PHP (8.4+). Built with zero legacy overhead, it pairs complete Bot API coverage with declarative attribute routing, stateful conversation flows, an embedded real-time web dashboard, reusable connection pooling, and royal developer ergonomics.
 
 ---
 
 ## ⚡ Highlights
 
-- 🚀 **Zero-Config App & Web Dashboard:** Instant boot with `App::run()`, CLI toolkit, and a live web UI for webhook inspection and bot health.
-- 👑 **Complete Coverage:** All Telegram Bot API 10.3 methods and types with 100% strict typing.
-- 💎 **Modern PHP Architecture:** Property hooks, asymmetric visibility (`private(set)`), pipe operator support, and typed enums.
-- 🧭 **Expressive Routing & Groups:** Declarative routing with `#[OnCommand]`, `group()`, route-level middlewares, parameter regex constraints (`where`), and automatic dependency injection.
-- 💬 **Conversation Flows:** Stateful multi-step user dialogues (`to()`, `stay()`, `back()`, `finish()`) with pluggable state stores.
-- 🔄 **Adaptive Running Modes:** Seamlessly switch between `WebhookMode` (with secret token & `safeResponse`), `PollingMode`, and `AutoMode`.
-- ⌨️ **Fluent Keyboards & Formatting:** Intuitive Inline/Reply keyboard builders with direct JSON serialization and Telegram-compliant HTML/MarkdownV2 builders.
-- 🔌 **Resilient Pipeline & Connection Pooling:** Persistent TCP/TLS cURL handle pooling, token-bucket 429 rate limiting, automatic retries, and PSR-3 logging.
-- 🎯 **Thread-Safe Scoped Execution:** Isolate concurrent requests in persistent worker engines (`FrankenPHP`, `RoadRunner`, `Swoole`, `Laravel Octane`) via `$bot->scoped($update)`.
-- 🛡️ **Dual Error Modes & ok():** Universal `ok()` checks across all models. Choose between standard exceptions or typed `Error` objects.
-- 🧪 **In-Memory Testing:** Test bots with zero HTTP calls using `TelegramFake`, stub responses, and expressive assertions (`assertSent`, `assertReplyText`).
+- 👑 **Complete Bot API Coverage** — Strictly-typed methods, models, and enums for all Telegram features.
+- 💎 **Modern PHP 8.4+ Architecture** — Built with property hooks, asymmetric visibility, and zero legacy baggage.
+- 🧭 **Expressive Routing** — Commands, callback queries, regex matchers, and PHP 8 attribute controllers.
+- ⌨️ **Fluent Keyboards & Safe Formatting** — Intuitive Inline/Reply builders and entity-safe HTML/MarkdownV2 styling.
+- 💬 **Conversational Flows & Navigation** — Multi-step state machines, hierarchical screen stacks, and zero-flicker UI transitions.
+- 🔄 **Production Webhook & Polling** — Secret token validation and persistent worker support (FrankenPHP, Swoole, RoadRunner).
+- 🚀 **Zero-Config App & Web Dashboard** — Instant bot launcher with a CLI toolkit and an embedded management dashboard.
+- 🔌 **Resilient HTTP Pipeline** — Persistent connection pooling, automatic rate-limit backoff, and PSR-3 logging.
+- 🛡️ **Dual Error Modes** — Choose between traditional exceptions or typed error objects with universal status checks.
+- 🧪 **In-Memory Testing** — First-class testing fakes with expressive assertions and zero HTTP overhead.
 
 ---
 
 ## 📦 Requirements & Installation
 
-- **PHP 8.4+** (with full PHP 8.5+ support)
-- Composer 2.x
+- **PHP 8.4** or higher (fully compatible with PHP 8.5+)
+- **Composer 2.x**
+- Extensions: `json`, `curl` or stream wrappers, `mbstring`
 
 ```bash
 composer require tueen/telegram
@@ -53,65 +51,85 @@ composer require tueen/telegram
 
 ## 🚀 Quickstart
 
-### 1. Simple Polling Bot
+### 1. Interactive Command & Callback Bot
+
+Build an interactive bot with command routing, inline buttons, and safe HTML formatting:
 
 ```php
 <?php
 
+declare(strict_types=1);
+
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\User;
+use Tueen\Telegram\Types\Update;
+use Tueen\Telegram\Keyboards\InlineKeyboard;
+use Tueen\Telegram\Formatting\Text;
 
 require __DIR__ . '/vendor/autoload.php';
 
 $bot = new Telegram('YOUR_BOT_TOKEN');
 
-// Auto-wired parameters: User, Chat, Message, and Telegram are injected automatically
+// Handle /start command with auto-wired User parameter
 $bot->onCommand('start', function (User $user, Telegram $bot) {
-    $bot->reply("Welcome to Tueen, {$user->firstName}! 👑");
+    $keyboard = InlineKeyboard::make()
+        ->row()
+            ->callback('✨ Explore', 'action:explore')
+            ->url('📚 Documentation', 'https://tueen.github.io/telegram/')
+        ->build();
+
+    $bot->reply(
+        Text::html()
+            ->bold("Welcome, {$user->firstName}! 👋")->line()
+            ->plain("Ready to build modern Telegram bots with PHP 8.4+?"),
+        replyMarkup: $keyboard
+    );
 });
 
-// Route groups with middlewares and parameter constraints
-$bot->group(['prefix' => 'order_'], function (Telegram $bot) {
-    $bot->onText('{id}', function (int $id, Telegram $bot) {
-        $bot->reply("Order #{$id} confirmed!");
-    })->where('id', '[0-9]+');
+// Handle callback query button tap
+$bot->onCallbackQuery('action:explore', function (Update $update, Telegram $bot) {
+    $bot->answerCallbackQuery($update->callbackQuery->id);
+    $bot->reply('Explore full guides and examples at https://tueen.github.io/telegram/');
 });
 
-// Run continuous long-polling
+// Start long-polling (or configure WebhookMode for production)
 $bot->run();
 ```
 
-### 2. Zero-Config App with Web Dashboard & Webhooks
+---
+
+### 2. Zero-Config App & Web Dashboard
+
+For standalone bot projects, `App` provides an instant bootstrapper with an embedded management dashboard:
 
 ```php
 <?php
+
+declare(strict_types=1);
 
 use Tueen\Telegram\App;
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Automatically selects Webhook in HTTP and Polling in CLI
+// Automatically selects Webhook in HTTP, Polling in CLI, and Web Dashboard in browser
 App::run(__DIR__);
 ```
+
+- **In the Browser:** Access the **Web Setup Wizard & Management Console** to configure your bot token, verify webhook delivery, and view telemetry.
+- **In the Terminal:** Run `php index.php` for long-polling, or `php index.php doctor` for system self-diagnostics.
 
 ---
 
 ## 📖 Documentation
 
-All detailed guides, real-world examples, configuration options, and running modes are available in our official documentation:
+Complete guides, real-world examples, configuration options, and API catalogs are available in our official documentation:
 
-👉 **[Explore Full Documentation](./docs)**
+👉 **[https://tueen.github.io/telegram/](https://tueen.github.io/telegram/)**
 
-To run the interactive docs locally:
-
-```bash
-cd docs
-npm install
-npm run docs:dev
-```
+For AI coding assistants (Cursor, Claude, ChatGPT), machine-readable context and offline skill packages are available at the **[AI & LLM Context Hub](https://tueen.github.io/telegram/llms.html)**.
 
 ---
 
 ## 📜 License
 
-Licensed under the [MIT License](LICENSE.md).
+`tueen/telegram` is open-sourced software licensed under the [MIT License](LICENSE.md).
