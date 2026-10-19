@@ -93,6 +93,7 @@ $bot->onCallbackQuery('action:explore', function (Update $update, Telegram $bot)
 });
 
 // Start long-polling (or configure WebhookMode for production)
+$bot->usePollingMode();
 $bot->run();
 ```
 
