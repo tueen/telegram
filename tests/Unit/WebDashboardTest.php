@@ -20,8 +20,12 @@ class WebDashboardTest extends TestCase
         $this->tempDir = realpath($this->tempDir) ?: $this->tempDir;
 
         // Clean up session and superglobals before each test
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
+        }
+        $_SESSION = [];
         if (session_status() === PHP_SESSION_ACTIVE) {
-            session_destroy();
+            @session_destroy();
         }
         $_SESSION = [];
         $_POST = [];
@@ -50,8 +54,12 @@ class WebDashboardTest extends TestCase
     {
         $this->removeDirectory($this->tempDir);
 
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            @session_start();
+        }
+        $_SESSION = [];
         if (session_status() === PHP_SESSION_ACTIVE) {
-            session_destroy();
+            @session_destroy();
         }
         $_SESSION = [];
         $_POST = [];

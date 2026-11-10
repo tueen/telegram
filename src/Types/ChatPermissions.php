@@ -62,7 +62,7 @@ class ChatPermissions extends Type
     private(set) ?bool $canSendPolls = null;
 
     /**
-     * Optional. True, if the user is allowed to send animations, games, stickers and use inline bots
+     * Optional. True, if the user is allowed to send animations, games, stickers, widgets and use inline bots
      */
     #[Field('can_send_other_messages', required: false)]
     private(set) ?bool $canSendOtherMessages = null;

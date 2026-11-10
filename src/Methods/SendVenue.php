@@ -40,40 +40,40 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendVenue extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-     */
-    #[Field('chat_id', required: true)]
-    public int|string|null $chatId = null;
-
-    /**
      * Latitude of the venue
      */
     #[Field('latitude', required: true)]
-    public ?float $latitude = null;
+    public float $latitude;
 
     /**
      * Longitude of the venue
      */
     #[Field('longitude', required: true)]
-    public ?float $longitude = null;
+    public float $longitude;
 
     /**
      * Name of the venue
      */
     #[Field('title', required: true)]
-    public ?string $title = null;
+    public string $title;
 
     /**
      * Address of the venue
      */
     #[Field('address', required: true)]
-    public ?string $address = null;
+    public string $address;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: false)]
     public ?string $businessConnectionId = null;
+
+    /**
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+     */
+    #[Field('chat_id', required: false)]
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -160,12 +160,12 @@ class SendVenue extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string|null $chatId = null,
-        ?float $latitude = null,
-        ?float $longitude = null,
-        ?string $title = null,
-        ?string $address = null,
+        float $latitude,
+        float $longitude,
+        string $title,
+        string $address,
         ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
@@ -183,12 +183,12 @@ class SendVenue extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($latitude !== null) $this->latitude = $latitude;
-        if ($longitude !== null) $this->longitude = $longitude;
-        if ($title !== null) $this->title = $title;
-        if ($address !== null) $this->address = $address;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
+        $this->title = $title;
+        $this->address = $address;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($ephemeralMessageParameters !== null) $this->ephemeralMessageParameters = $ephemeralMessageParameters;

@@ -108,6 +108,18 @@ class Update extends Type
     private(set) ?CallbackQuery $callbackQuery = null;
 
     /**
+     * Optional. New incoming query from a widget in a message sent by the bot or via the bot
+     */
+    #[Field('widget_query', required: false)]
+    private(set) ?WidgetQuery $widgetQuery = null;
+
+    /**
+     * Optional. New incoming query from a forwarded message with a shared widget
+     */
+    #[Field('shared_widget_query', required: false)]
+    private(set) ?SharedWidgetQuery $sharedWidgetQuery = null;
+
+    /**
      * Optional. New incoming shipping query. Only for invoices with flexible price.
      */
     #[Field('shipping_query', required: false)]

@@ -40,14 +40,30 @@ class VerifyUser extends Method
     #[Field('custom_description', required: false)]
     public ?string $customDescription = null;
 
+    /**
+     * Mode for parsing entities in the custom description. See formatting options for more details. Only "text_link" entities are supported.
+     */
+    #[Field('custom_description_parse_mode', required: false)]
+    public ?string $customDescriptionParseMode = null;
+
+    /**
+     * A JSON-serialized list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only "text_link" entities are supported.
+     */
+    #[Field('custom_description_entities', required: false)]
+    public ?array $customDescriptionEntities = null;
+
     public function __construct(
         ?int $userId = null,
         ?string $customDescription = null,
+        ?string $customDescriptionParseMode = null,
+        ?array $customDescriptionEntities = null,
         mixed ...$extra
     )
     {
         if ($userId !== null) $this->userId = $userId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
+        if ($customDescriptionParseMode !== null) $this->customDescriptionParseMode = $customDescriptionParseMode;
+        if ($customDescriptionEntities !== null) $this->customDescriptionEntities = $customDescriptionEntities;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

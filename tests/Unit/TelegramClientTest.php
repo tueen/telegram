@@ -21,7 +21,7 @@ class TelegramClientTest extends TestCase
 {
     public function testBotApiVersionConstant(): void
     {
-        $this->assertSame('10.3', Telegram::BOT_API_VERSION);
+        $this->assertSame('10.4', Telegram::BOT_API_VERSION);
         $this->assertSame(Telegram::BOT_API_VERSION, Telegram::API_VERSION);
     }
 

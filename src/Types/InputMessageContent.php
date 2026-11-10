@@ -12,6 +12,8 @@ namespace Tueen\Telegram\Types;
  * - InputVenueMessageContent
  * - InputContactMessageContent
  * - InputInvoiceMessageContent
+ * - InputWidgetMessageContent
+ * - InputSharedWidgetMessageContent
  *
  * @link https://core.telegram.org/bots/api#inputmessagecontent
  */

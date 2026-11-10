@@ -67,6 +67,7 @@ $bizId     = $update->businessConnectionId;
 $threadId  = $update->messageThreadId;
 $cbQueryId = $update->callbackQueryId;
 $inlineId  = $update->inlineMessageId;
+$widgetId  = $update->widgetQueryId;
 ```
 
 ---
@@ -267,10 +268,37 @@ Below is the complete reference of all computed property hooks and helper method
     desc="Resolved forum topic thread ID for supergroup topics."
   />
   <ApiCard
+    type="property"
+    sig="public ?string $widgetQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved widget query identifier for incoming HTML/shared widget queries (Bot API 10.4)."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $callbackQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved callback query ID attached to incoming inline keyboard callbacks."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $inlineQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved inline query identifier from inline query updates."
+  />
+  <ApiCard
     sig="isType(UpdateType|string ...$types): bool"
     returns="bool"
     badge="Helper"
     desc="Checks whether the update matches any of the specified UpdateType enums or string names."
+  />
+  <ApiCard
+    sig="findWidgetQueryId(): ?string"
+    returns="?string"
+    badge="Smart Finder"
+    desc="Extracts the query ID from widget_query or shared_widget_query payloads (Bot API 10.4)."
   />
   <ApiCard
     sig="findMessage(): ?Message"

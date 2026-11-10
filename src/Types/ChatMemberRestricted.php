@@ -87,7 +87,7 @@ class ChatMemberRestricted extends ChatMember
     private(set) ?bool $canSendPolls = null;
 
     /**
-     * True, if the user is allowed to send animations, games, stickers and use inline bots
+     * True, if the user is allowed to send animations, games, stickers, widgets and use inline bots
      */
     #[Field('can_send_other_messages', required: true)]
     private(set) ?bool $canSendOtherMessages = null;

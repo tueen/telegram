@@ -31,13 +31,13 @@ use Tueen\Telegram\Types\MessageId;
 class ForwardMessages extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;
 
     /**
-     * Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup or channel in the format @username)
+     * Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format @username)
      */
     #[Field('from_chat_id', required: true)]
     public int|string|null $fromChatId = null;

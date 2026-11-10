@@ -41,7 +41,7 @@ use Tueen\Telegram\Types\ReplyParameters;
 class SendPoll extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Polls can't be sent to channel direct messages chats.
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username. Polls can't be sent to channel direct messages chats.
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;

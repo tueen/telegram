@@ -56,7 +56,7 @@ class EditMessageLiveLocation extends Method
     public ?string $businessConnectionId = null;
 
     /**
-     * Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username.
+     * Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username.
      */
     #[Field('chat_id', required: false)]
     public int|string|null $chatId = null;

@@ -34,7 +34,7 @@ use Tueen\Telegram\Types\Poll;
 class StopPoll extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;

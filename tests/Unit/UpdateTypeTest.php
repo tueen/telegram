@@ -179,4 +179,92 @@ class UpdateTypeTest extends TestCase
         $this->assertNull($textUpdate->findFileId());
         $this->assertNull($textUpdate->fileId);
     }
+
+    public function testWidgetQueryUpdateType(): void
+    {
+        $update = new Update([
+            'update_id' => 1007,
+            'widget_query' => [
+                'id' => 'wq_999',
+                'chat_instance' => 'ci_1',
+                'data' => 'widget_payload_test',
+                'from' => [
+                    'id' => 555,
+                    'is_bot' => false,
+                    'first_name' => 'David',
+                ],
+                'chat' => [
+                    'id' => -1005555,
+                    'type' => 'supergroup',
+                    'title' => 'Widget Group',
+                ],
+                'message_id' => 42,
+                'type' => [
+                    'type' => 'data',
+                ],
+            ],
+        ]);
+
+        $this->assertSame(UpdateType::WIDGET_QUERY, $update->type);
+        $this->assertTrue($update->isType(UpdateType::WIDGET_QUERY));
+        $this->assertSame('wq_999', $update->widgetQueryId);
+        $this->assertSame('wq_999', $update->findWidgetQueryId());
+        $this->assertSame(555, $update->findUser()?->id);
+        $this->assertSame(-1005555, $update->findChat()?->id);
+        $this->assertSame(42, $update->findMessageId());
+        $this->assertSame('widget_payload_test', $update->findAnyText());
+    }
+
+    public function testSharedWidgetQueryUpdateType(): void
+    {
+        $update = new Update([
+            'update_id' => 1008,
+            'shared_widget_query' => [
+                'id' => 'swq_888',
+                'data' => 'shared_widget_data',
+                'widget_id' => 'wid_123',
+                'from' => [
+                    'id' => 666,
+                    'is_bot' => false,
+                    'first_name' => 'Eve',
+                ],
+                'type' => [
+                    'type' => 'data',
+                ],
+            ],
+        ]);
+
+        $this->assertSame(UpdateType::SHARED_WIDGET_QUERY, $update->type);
+        $this->assertTrue($update->isType(UpdateType::SHARED_WIDGET_QUERY));
+        $this->assertSame('swq_888', $update->widgetQueryId);
+        $this->assertSame('swq_888', $update->findWidgetQueryId());
+        $this->assertSame(666, $update->findUser()?->id);
+        $this->assertSame('shared_widget_data', $update->findAnyText());
+    }
+
+    public function testGuestMessageUpdateType(): void
+    {
+        $update = new Update([
+            'update_id' => 1009,
+            'guest_message' => [
+                'message_id' => 99,
+                'date' => 1700000000,
+                'chat' => [
+                    'id' => 777111,
+                    'type' => 'private',
+                ],
+                'from' => [
+                    'id' => 777111,
+                    'is_bot' => false,
+                    'first_name' => 'Guest',
+                ],
+                'text' => 'Guest message text',
+            ],
+        ]);
+
+        $this->assertSame(UpdateType::GUEST_MESSAGE, $update->type);
+        $this->assertTrue($update->isType(UpdateType::GUEST_MESSAGE));
+        $this->assertSame(777111, $update->findUser()?->id);
+        $this->assertSame(777111, $update->findChat()?->id);
+    }
 }

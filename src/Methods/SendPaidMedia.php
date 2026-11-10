@@ -44,7 +44,7 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendPaidMedia extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance.
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;

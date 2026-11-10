@@ -115,6 +115,25 @@ $bot->sendMessage(
 );
 ```
 
+### 🧩 Bot API 10.4 HTML Widgets & Queries
+
+Telegram Bot API 10.4 introduces interactive HTML widgets and queries (`sendWidget`, `sendSharedWidget`, `answerWidgetQuery`, `editMessageWidgetData`):
+
+```php
+use Tueen\Telegram\Enums\UpdateType;
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+
+// Handling incoming WidgetQuery (widget_query_id is auto-injected from context):
+$bot->on(UpdateType::WIDGET_QUERY, function (Update $update, Telegram $bot) {
+    // 1. Inspect incoming widget query payload
+    $queryData = $update->widgetQuery->data;
+
+    // 2. Respond to the widget within 15 seconds (auto-resolves widgetQueryId):
+    $bot->answerWidgetQuery(data: 'acknowledged_payload');
+});
+```
+
 ---
 
 ## 🏛️ 2. The Universal Base `Type` Class

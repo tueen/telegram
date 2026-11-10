@@ -51,6 +51,10 @@ class ContextResolver
         get => $this->resolveCallbackQueryId();
     }
 
+    public ?string $widgetQueryId {
+        get => $this->resolveWidgetQueryId();
+    }
+
     /**
      * Custom parameter resolver callbacks.
      * @var array<string, callable>
@@ -91,6 +95,8 @@ class ContextResolver
         'preCheckoutQueryId',
         'guest_query_id',
         'guestQueryId',
+        'widget_query_id',
+        'widgetQueryId',
     ];
 
     /**
@@ -104,6 +110,7 @@ class ContextResolver
         'stopPoll',
         'editMessageLiveLocation',
         'stopMessageLiveLocation',
+        'editMessageWidgetData',
     ];
 
     public function __construct(?Update $update = null)
@@ -227,6 +234,14 @@ class ContextResolver
     }
 
     /**
+     * Resolves the widget query ID from the active update.
+     */
+    public function resolveWidgetQueryId(): ?string
+    {
+        return $this->update?->findWidgetQueryId();
+    }
+
+    /**
      * Resolves a contextual parameter value by name.
      */
     public function resolveParameter(string $paramName, ?string $endpoint = null): mixed
@@ -255,6 +270,7 @@ class ContextResolver
             'preCheckoutQueryId' => $this->resolvePreCheckoutQueryId(),
             'directMessagesTopicId' => $this->resolveDirectMessagesTopicId(),
             'guestQueryId' => $this->resolveGuestQueryId(),
+            'widgetQueryId' => $this->resolveWidgetQueryId(),
             default => null,
         };
     }
@@ -464,6 +480,10 @@ class ContextResolver
 
                 case 'answerCallbackQuery':
                     $mapped['text'] = $arg0;
+                    return $mapped;
+
+                case 'answerWidgetQuery':
+                    $mapped['data'] = $arg0;
                     return $mapped;
 
                 case 'answerInlineQuery':

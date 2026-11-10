@@ -338,4 +338,16 @@ class ChatFullInfo extends Type
     #[Field('community', required: false)]
     private(set) ?Community $community = null;
 
+    /**
+     * Optional. For private chats, the TON wallet card of the user, which is shown on their profile page
+     */
+    #[Field('ton_wallet_card', required: false)]
+    private(set) ?TonWalletCard $tonWalletCard = null;
+
+    /**
+     * Optional. For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used
+     */
+    #[Field('share_theme', required: false)]
+    private(set) ?ChatShareTheme $shareTheme = null;
+
 }

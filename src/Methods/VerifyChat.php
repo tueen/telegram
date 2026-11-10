@@ -29,7 +29,7 @@ use Tueen\Telegram\Types\Custom\BooleanResult;
 class VerifyChat extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username. Channel direct messages chats can't be verified.
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username. Channel direct messages chats can't be verified.
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;
@@ -40,14 +40,30 @@ class VerifyChat extends Method
     #[Field('custom_description', required: false)]
     public ?string $customDescription = null;
 
+    /**
+     * Mode for parsing entities in the custom description. See formatting options for more details. Only "text_link" entities are supported.
+     */
+    #[Field('custom_description_parse_mode', required: false)]
+    public ?string $customDescriptionParseMode = null;
+
+    /**
+     * A JSON-serialized list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only "text_link" entities are supported.
+     */
+    #[Field('custom_description_entities', required: false)]
+    public ?array $customDescriptionEntities = null;
+
     public function __construct(
         int|string|null $chatId = null,
         ?string $customDescription = null,
+        ?string $customDescriptionParseMode = null,
+        ?array $customDescriptionEntities = null,
         mixed ...$extra
     )
     {
         if ($chatId !== null) $this->chatId = $chatId;
         if ($customDescription !== null) $this->customDescription = $customDescription;
+        if ($customDescriptionParseMode !== null) $this->customDescriptionParseMode = $customDescriptionParseMode;
+        if ($customDescriptionEntities !== null) $this->customDescriptionEntities = $customDescriptionEntities;
         if ($extra) $this->handleExtraParameters($extra);
     }
 }

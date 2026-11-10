@@ -46,7 +46,7 @@ class SendGift extends Method
     public ?int $userId = null;
 
     /**
-     * Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format @username) that will receive the gift.
+     * Required if user_id is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format @username.
      */
     #[Field('chat_id', required: false)]
     public int|string|null $chatId = null;

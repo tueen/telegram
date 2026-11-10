@@ -85,7 +85,7 @@ class MethodTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Extra parameters must be named arguments');
 
-        $method = new SendMessage(112233, 'Hello');
+        $method = new SendMessage(chatId: 112233, text: 'Hello');
         // Manually simulate positional extra argument
         $method->handleExtraParameters([0 => 'invalid_positional']);
     }

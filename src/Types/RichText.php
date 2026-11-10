@@ -23,6 +23,7 @@ namespace Tueen\Telegram\Types;
  * - RichTextEmailAddress
  * - RichTextPhoneNumber
  * - RichTextBankCardNumber
+ * - RichTextTonAddress
  * - RichTextMention
  * - RichTextHashtag
  * - RichTextCashtag
@@ -61,6 +62,7 @@ class RichText extends Type
         if (($data['type'] ?? '') === 'email_address') return RichTextEmailAddress::class;
         if (($data['type'] ?? '') === 'phone_number') return RichTextPhoneNumber::class;
         if (($data['type'] ?? '') === 'bank_card_number') return RichTextBankCardNumber::class;
+        if (($data['type'] ?? '') === 'ton_address') return RichTextTonAddress::class;
         if (($data['type'] ?? '') === 'mention') return RichTextMention::class;
         if (($data['type'] ?? '') === 'hashtag') return RichTextHashtag::class;
         if (($data['type'] ?? '') === 'cashtag') return RichTextCashtag::class;

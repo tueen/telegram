@@ -10,7 +10,7 @@ use Tueen\Telegram\Enums\ParseMode;
 
 /**
  * Fluent builder for safe, structured Telegram formatted text.
- * Strictly adheres to Telegram Bot API 10.3 formatting rules.
+ * Strictly adheres to Telegram Bot API 10.4 formatting rules.
  *
  * @link https://core.telegram.org/bots/api#formatting-options
  */

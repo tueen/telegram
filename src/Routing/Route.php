@@ -206,6 +206,18 @@ class Route
             return $this->matchPattern($this->pattern, $query, $parameters);
         }
 
+        // 5. Widget Query matching
+        if ($updateType === UpdateType::WIDGET_QUERY->value) {
+            $data = $update->widgetQuery?->data ?? '';
+            return $this->matchPattern($this->pattern, $data, $parameters);
+        }
+
+        // 6. Shared Widget Query matching
+        if ($updateType === UpdateType::SHARED_WIDGET_QUERY->value) {
+            $data = $update->sharedWidgetQuery?->data ?? '';
+            return $this->matchPattern($this->pattern, $data, $parameters);
+        }
+
         // 5. Message text matching (including edited messages, channel posts, and business messages)
         $msg = $update->findMessage();
         if ($msg !== null) {

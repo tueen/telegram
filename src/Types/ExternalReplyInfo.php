@@ -107,6 +107,12 @@ class ExternalReplyInfo extends Type
     private(set) ?Voice $voice = null;
 
     /**
+     * Optional. Message is an HTML widget, information about the widget
+     */
+    #[Field('widget', required: false)]
+    private(set) ?Widget $widget = null;
+
+    /**
      * Optional. True, if the message media is covered by a spoiler animation
      */
     #[Field('has_media_spoiler', required: false)]

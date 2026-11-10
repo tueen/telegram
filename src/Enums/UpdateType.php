@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Enums;
 
 /**
- * Backed enum representing all Telegram Bot API 10.3 Update types.
+ * Backed enum representing all Telegram Bot API 10.4 Update types.
  */
 enum UpdateType: string
 {
@@ -17,11 +17,14 @@ enum UpdateType: string
     case BUSINESS_MESSAGE = 'business_message';
     case EDITED_BUSINESS_MESSAGE = 'edited_business_message';
     case DELETED_BUSINESS_MESSAGES = 'deleted_business_messages';
+    case GUEST_MESSAGE = 'guest_message';
     case MESSAGE_REACTION = 'message_reaction';
     case MESSAGE_REACTION_COUNT = 'message_reaction_count';
     case INLINE_QUERY = 'inline_query';
     case CHOSEN_INLINE_RESULT = 'chosen_inline_result';
     case CALLBACK_QUERY = 'callback_query';
+    case WIDGET_QUERY = 'widget_query';
+    case SHARED_WIDGET_QUERY = 'shared_widget_query';
     case SHIPPING_QUERY = 'shipping_query';
     case PRE_CHECKOUT_QUERY = 'pre_checkout_query';
     case PURCHASED_PAID_MEDIA = 'purchased_paid_media';
@@ -33,7 +36,7 @@ enum UpdateType: string
     case CHAT_BOOST = 'chat_boost';
     case REMOVED_CHAT_BOOST = 'removed_chat_boost';
     case MANAGED_BOT = 'managed_bot';
-    case BOT_SUBSCRIPTION = 'bot_subscription';
-    case MESSAGE_GENERATION_STOPPED = 'message_generation_stopped';
+    case SUBSCRIPTION = 'subscription';
+    case STOPPED_MESSAGE_GENERATION = 'stopped_message_generation';
     case UNKNOWN = 'unknown';
 }

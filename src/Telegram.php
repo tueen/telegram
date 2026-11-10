@@ -46,7 +46,7 @@ class Telegram
     /**
      * Supported Telegram Bot API version.
      */
-    public const string BOT_API_VERSION = '10.3';
+    public const string BOT_API_VERSION = '10.4';
 
     /**
      * Shorthand alias for {@see self::BOT_API_VERSION}.
@@ -725,6 +725,21 @@ class Telegram
     public function onCallbackQuery(?string $pattern, mixed $handler, bool $priority = false): Route
     {
         $route = $this->router->onCallbackQuery($pattern, $handler, $priority);
+        $route->bot = $this;
+        return $route;
+    }
+
+    /**
+     * Registers a widget query route handler matching an optional pattern against widget data.
+     *
+     * @param string|null $pattern Pattern to match against data (exact, placeholder like 'action:{id}', or regex)
+     * @param mixed $handler Closure, callable, or [ControllerClass, 'method']
+     * @param bool $priority When true, allows this route to execute even if a Flow is active
+     * @return Route
+     */
+    public function onWidgetQuery(?string $pattern, mixed $handler, bool $priority = false): Route
+    {
+        $route = $this->router->onWidgetQuery($pattern, $handler, $priority);
         $route->bot = $this;
         return $route;
     }

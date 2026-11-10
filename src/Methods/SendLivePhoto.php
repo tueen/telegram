@@ -29,30 +29,30 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendLivePhoto extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-     */
-    #[Field('chat_id', required: true)]
-    public int|string|null $chatId = null;
-
-    /**
      * Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Sending live photos by a URL is currently unsupported.
      */
     #[Field('live_photo', required: true)]
     #[RequiresUpload]
-    public InputFile|string|null $livePhoto = null;
+    public InputFile|string $livePhoto;
 
     /**
      * The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files. Sending live photos by a URL is currently unsupported.
      */
     #[Field('photo', required: true)]
     #[RequiresUpload]
-    public InputFile|string|null $photo = null;
+    public InputFile|string $photo;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: false)]
     public ?string $businessConnectionId = null;
+
+    /**
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+     */
+    #[Field('chat_id', required: false)]
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -145,10 +145,10 @@ class SendLivePhoto extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string|null $chatId = null,
-        InputFile|string|null $livePhoto = null,
-        InputFile|string|null $photo = null,
+        InputFile|string $livePhoto,
+        InputFile|string $photo,
         ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
@@ -167,10 +167,10 @@ class SendLivePhoto extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($livePhoto !== null) $this->livePhoto = $livePhoto;
-        if ($photo !== null) $this->photo = $photo;
+        $this->livePhoto = $livePhoto;
+        $this->photo = $photo;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($ephemeralMessageParameters !== null) $this->ephemeralMessageParameters = $ephemeralMessageParameters;

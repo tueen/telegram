@@ -42,23 +42,23 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendAudio extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-     */
-    #[Field('chat_id', required: true)]
-    public int|string|null $chatId = null;
-
-    /**
      * Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files: https://core.telegram.org/bots/api#sending-files
      */
     #[Field('audio', required: true)]
     #[RequiresUpload]
-    public InputFile|string|null $audio = null;
+    public InputFile|string $audio;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: false)]
     public ?string $businessConnectionId = null;
+
+    /**
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+     */
+    #[Field('chat_id', required: false)]
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -164,9 +164,9 @@ class SendAudio extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string|null $chatId = null,
-        InputFile|string|null $audio = null,
+        InputFile|string $audio,
         ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
@@ -187,9 +187,9 @@ class SendAudio extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($audio !== null) $this->audio = $audio;
+        $this->audio = $audio;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($ephemeralMessageParameters !== null) $this->ephemeralMessageParameters = $ephemeralMessageParameters;

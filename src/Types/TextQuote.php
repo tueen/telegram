@@ -15,7 +15,7 @@ use Tueen\Telegram\Attributes\Field;
 class TextQuote extends Type
 {
     /**
-     * Text of the quoted part of a message that is replied to by the given message
+     * Text of the quoted part of a message that is replied to by the given message; may be empty if the quote was chosen from a rich message
      */
     #[Field('text', required: true)]
     private(set) ?string $text = null;
@@ -29,7 +29,15 @@ class TextQuote extends Type
     private(set) ?array $entities = null;
 
     /**
-     * Approximate quote position in the original message in UTF-16 code units as specified by the sender
+     * Optional. Rich text of the quote if it was chosen from a rich message. May contain only plain text, RichTextBold, RichTextItalic, RichTextUnderline, RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript, RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression, and arrays of them.
+     * @var RichText[]|null
+     */
+    #[Field('rich_texts', required: false)]
+    #[ArrayOf(RichText::class)]
+    private(set) ?array $richTexts = null;
+
+    /**
+     * Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds.
      */
     #[Field('position', required: true)]
     private(set) ?int $position = null;

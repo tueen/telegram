@@ -13,6 +13,7 @@ use Tueen\Telegram\Routing\Attributes\OnCommand;
 use Tueen\Telegram\Routing\Attributes\OnInlineQuery;
 use Tueen\Telegram\Routing\Attributes\OnMessage;
 use Tueen\Telegram\Routing\Attributes\OnUpdate;
+use Tueen\Telegram\Routing\Attributes\OnWidgetQuery;
 use Tueen\Telegram\Telegram;
 use Tueen\Telegram\Types\Update;
 
@@ -155,6 +156,20 @@ class Router
     }
 
     /**
+     * Registers a widget query route by exact match, placeholder ('action:{id}'), or regex.
+     * Set $priority to true to allow this route to execute even if an active Flow is running.
+     */
+    public function onWidgetQuery(?string $pattern, mixed $handler, bool $priority = false): Route
+    {
+        return $this->addRoute(new Route(
+            type: UpdateType::WIDGET_QUERY,
+            pattern: $pattern,
+            handler: $handler,
+            isPriority: $priority
+        ));
+    }
+
+    /**
      * Registers a message text route by regex or exact match.
      * Set $priority to true to allow this route to execute even if an active Flow is running.
      */
@@ -259,7 +274,14 @@ class Router
                 $this->onInlineQuery($instance->pattern, $methodHandler, $instance->priority);
             }
 
-            // 5. #[OnUpdate]
+            // 5. #[OnWidgetQuery]
+            foreach ($method->getAttributes(OnWidgetQuery::class) as $attr) {
+                /** @var OnWidgetQuery $instance */
+                $instance = $attr->newInstance();
+                $this->onWidgetQuery($instance->pattern, $methodHandler, $instance->priority);
+            }
+
+            // 6. #[OnUpdate]
             foreach ($method->getAttributes(OnUpdate::class) as $attr) {
                 /** @var OnUpdate $instance */
                 $instance = $attr->newInstance();

@@ -96,6 +96,13 @@ trait HasUpdateHelpers
     }
 
     /**
+     * Widget query ID associated with this update, or null.
+     */
+    public ?string $widgetQueryId {
+        get => $this->findWidgetQueryId();
+    }
+
+    /**
      * Resolves the UpdateType enum for this update.
      */
     public function resolveUpdateType(): UpdateType
@@ -109,11 +116,14 @@ trait HasUpdateHelpers
             $this->businessMessage !== null => UpdateType::BUSINESS_MESSAGE,
             $this->editedBusinessMessage !== null => UpdateType::EDITED_BUSINESS_MESSAGE,
             $this->deletedBusinessMessages !== null => UpdateType::DELETED_BUSINESS_MESSAGES,
+            $this->guestMessage !== null => UpdateType::GUEST_MESSAGE,
             $this->messageReaction !== null => UpdateType::MESSAGE_REACTION,
             $this->messageReactionCount !== null => UpdateType::MESSAGE_REACTION_COUNT,
             $this->inlineQuery !== null => UpdateType::INLINE_QUERY,
             $this->chosenInlineResult !== null => UpdateType::CHOSEN_INLINE_RESULT,
             $this->callbackQuery !== null => UpdateType::CALLBACK_QUERY,
+            $this->widgetQuery !== null => UpdateType::WIDGET_QUERY,
+            $this->sharedWidgetQuery !== null => UpdateType::SHARED_WIDGET_QUERY,
             $this->shippingQuery !== null => UpdateType::SHIPPING_QUERY,
             $this->preCheckoutQuery !== null => UpdateType::PRE_CHECKOUT_QUERY,
             $this->purchasedPaidMedia !== null => UpdateType::PURCHASED_PAID_MEDIA,
@@ -125,8 +135,8 @@ trait HasUpdateHelpers
             $this->chatBoost !== null => UpdateType::CHAT_BOOST,
             $this->removedChatBoost !== null => UpdateType::REMOVED_CHAT_BOOST,
             isset($this->managedBot) && $this->managedBot !== null => UpdateType::MANAGED_BOT,
-            isset($this->botSubscription) && $this->botSubscription !== null => UpdateType::BOT_SUBSCRIPTION,
-            isset($this->messageGenerationStopped) && $this->messageGenerationStopped !== null => UpdateType::MESSAGE_GENERATION_STOPPED,
+            isset($this->subscription) && $this->subscription !== null => UpdateType::SUBSCRIPTION,
+            isset($this->stoppedMessageGeneration) && $this->stoppedMessageGeneration !== null => UpdateType::STOPPED_MESSAGE_GENERATION,
             default => UpdateType::UNKNOWN,
         };
     }
@@ -177,6 +187,8 @@ trait HasUpdateHelpers
             ?? $this->editedBusinessMessage?->from
             ?? $this->guestMessage?->from
             ?? $this->callbackQuery?->from
+            ?? $this->widgetQuery?->from
+            ?? $this->sharedWidgetQuery?->from
             ?? $this->inlineQuery?->from
             ?? $this->chosenInlineResult?->from
             ?? $this->shippingQuery?->from
@@ -206,6 +218,7 @@ trait HasUpdateHelpers
             ?? $this->deletedBusinessMessages?->chat
             ?? $this->guestMessage?->chat
             ?? $this->callbackQuery?->message?->chat
+            ?? $this->widgetQuery?->chat
             ?? $this->myChatMember?->chat
             ?? $this->chatMember?->chat
             ?? $this->chatJoinRequest?->chat
@@ -254,7 +267,8 @@ trait HasUpdateHelpers
      */
     public function findMessageId(): ?int
     {
-        return $this->findMessage()?->messageId;
+        return $this->findMessage()?->messageId
+            ?? $this->widgetQuery?->messageId;
     }
 
     /**
@@ -292,6 +306,7 @@ trait HasUpdateHelpers
     {
         return $this->chosenInlineResult?->inlineMessageId
             ?? $this->callbackQuery?->inlineMessageId
+            ?? $this->widgetQuery?->inlineMessageId
             ?? null;
     }
 
@@ -334,6 +349,16 @@ trait HasUpdateHelpers
     {
         return $this->findMessage()?->directMessagesTopicId
             ?? $this->findMessage()?->directMessagesTopic?->topicId
+            ?? null;
+    }
+
+    /**
+     * Smart widget query ID finder.
+     */
+    public function findWidgetQueryId(): ?string
+    {
+        return $this->widgetQuery?->id
+            ?? $this->sharedWidgetQuery?->id
             ?? null;
     }
 
@@ -381,6 +406,8 @@ trait HasUpdateHelpers
         return $this->findMessage()?->findAnyText()
             ?? $this->callbackQuery?->data
             ?? $this->inlineQuery?->query
+            ?? $this->widgetQuery?->data
+            ?? $this->sharedWidgetQuery?->data
             ?? null;
     }
 }

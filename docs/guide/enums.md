@@ -140,11 +140,14 @@ Every update received from Telegram is classified into an `UpdateType` enum:
 | `UpdateType::BUSINESS_MESSAGE` | `'business_message'` | Message in Telegram Business chat |
 | `UpdateType::EDITED_BUSINESS_MESSAGE` | `'edited_business_message'` | Edited Business message |
 | `UpdateType::DELETED_BUSINESS_MESSAGES` | `'deleted_business_messages'` | Deleted Business messages |
+| `UpdateType::GUEST_MESSAGE` | `'guest_message'` | New guest message |
 | `UpdateType::MESSAGE_REACTION` | `'message_reaction'` | User reacted to a message |
 | `UpdateType::MESSAGE_REACTION_COUNT` | `'message_reaction_count'` | Anonymous reaction tally changed |
 | `UpdateType::INLINE_QUERY` | `'inline_query'` | Inline query typed (`@bot query`) |
 | `UpdateType::CHOSEN_INLINE_RESULT` | `'chosen_inline_result'` | Inline result clicked |
 | `UpdateType::CALLBACK_QUERY` | `'callback_query'` | Inline keyboard button tapped |
+| `UpdateType::WIDGET_QUERY` | `'widget_query'` | Incoming query from an HTML widget (Bot API 10.4) |
+| `UpdateType::SHARED_WIDGET_QUERY` | `'shared_widget_query'` | Incoming query from a shared widget (Bot API 10.4) |
 | `UpdateType::SHIPPING_QUERY` | `'shipping_query'` | Shipping query for invoice |
 | `UpdateType::PRE_CHECKOUT_QUERY` | `'pre_checkout_query'` | Final order verification before payment |
 | `UpdateType::PURCHASED_PAID_MEDIA` | `'purchased_paid_media'` | Telegram Stars paid media purchased |
@@ -155,6 +158,9 @@ Every update received from Telegram is classified into an `UpdateType` enum:
 | `UpdateType::CHAT_JOIN_REQUEST` | `'chat_join_request'` | User requested to join a private group/channel |
 | `UpdateType::CHAT_BOOST` | `'chat_boost'` | Premium user boosted the chat |
 | `UpdateType::REMOVED_CHAT_BOOST` | `'removed_chat_boost'` | Boost expired or removed |
+| `UpdateType::MANAGED_BOT` | `'managed_bot'` | Managed bot created or updated |
+| `UpdateType::SUBSCRIPTION` | `'subscription'` | User payment subscription updated |
+| `UpdateType::STOPPED_MESSAGE_GENERATION` | `'stopped_message_generation'` | User stopped AI message generation |
 
 ---
 

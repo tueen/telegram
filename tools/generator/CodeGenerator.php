@@ -21,6 +21,7 @@ class CodeGenerator
         'pre_checkout_query_id',
         'guest_query_id',
         'inline_message_id',
+        'widget_query_id',
     ];
 
     private array $spec;
@@ -771,12 +772,12 @@ PHP;
             mkdir($contractsDir, 0777, true);
         }
 
-        // Extract clean version string from schema (e.g. "Bot API 10.3" -> "10.3")
-        $rawVersion = (string) ($this->spec['version'] ?? '10.3');
+        // Extract clean version string from schema (e.g. "Bot API 10.4" -> "10.4")
+        $rawVersion = (string) ($this->spec['version'] ?? '10.4');
         if (preg_match('/(\d+(?:\.\d+)+)/', $rawVersion, $matches)) {
             $apiVersion = $matches[1];
         } else {
-            $apiVersion = trim(str_ireplace('Bot API', '', $rawVersion)) ?: '10.3';
+            $apiVersion = trim(str_ireplace('Bot API', '', $rawVersion)) ?: '10.4';
         }
 
         $mixinCode = <<<PHP

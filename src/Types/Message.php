@@ -322,7 +322,13 @@ class Message extends MaybeInaccessibleMessage
     private(set) ?Voice $voice = null;
 
     /**
-     * Optional. Caption for the animation, audio, document, paid media, photo, video or voice
+     * Optional. Message is an HTML widget, information about the widget
+     */
+    #[Field('widget', required: false)]
+    private(set) ?Widget $widget = null;
+
+    /**
+     * Optional. Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget
      */
     #[Field('caption', required: false)]
     private(set) ?string $caption = null;
@@ -336,7 +342,7 @@ class Message extends MaybeInaccessibleMessage
     private(set) ?array $captionEntities = null;
 
     /**
-     * Optional. True, if the caption must be shown above the message media
+     * Optional. True, if the caption must be shown above the message media or the widget
      */
     #[Field('show_caption_above_media', required: false)]
     private(set) ?bool $showCaptionAboveMedia = null;
@@ -670,6 +676,12 @@ class Message extends MaybeInaccessibleMessage
     private(set) ?PaidMessagePriceChanged $paidMessagePriceChanged = null;
 
     /**
+     * Optional. Service message: the sender of the message used a link of the other user, which allows sending messages to the user without paying Telegram Stars
+     */
+    #[Field('paid_messages_waived', required: false)]
+    private(set) ?PaidMessagesWaived $paidMessagesWaived = null;
+
+    /**
      * Optional. Service message: answer option was added to a poll
      */
     #[Field('poll_option_added', required: false)]
@@ -710,6 +722,12 @@ class Message extends MaybeInaccessibleMessage
      */
     #[Field('suggested_post_refunded', required: false)]
     private(set) ?SuggestedPostRefunded $suggestedPostRefunded = null;
+
+    /**
+     * Optional. Service message: a transfer with a TON wallet
+     */
+    #[Field('ton_wallet_transfer', required: false)]
+    private(set) ?TonWalletTransfer $tonWalletTransfer = null;
 
     /**
      * Optional. Service message: video chat scheduled

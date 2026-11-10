@@ -24,7 +24,7 @@ use Tueen\Telegram\Types\ReplyParameters;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 
 /**
- * Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
+ * Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success.
  *
  * @link https://core.telegram.org/bots/api#copymessage
  *
@@ -40,13 +40,13 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class CopyMessage extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username
      */
     #[Field('chat_id', required: true)]
     public int|string|null $chatId = null;
 
     /**
-     * Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup or channel in the format @username)
+     * Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup, or channel in the format @username)
      */
     #[Field('from_chat_id', required: true)]
     public int|string|null $fromChatId = null;

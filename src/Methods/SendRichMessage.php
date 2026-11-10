@@ -27,22 +27,22 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendRichMessage extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-     */
-    #[Field('chat_id', required: true)]
-    public int|string|null $chatId = null;
-
-    /**
      * The message to be sent
      */
     #[Field('rich_message', required: true)]
-    public ?InputRichMessage $richMessage = null;
+    public InputRichMessage $richMessage;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages.
      */
     #[Field('business_connection_id', required: false)]
     public ?string $businessConnectionId = null;
+
+    /**
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+     */
+    #[Field('chat_id', required: false)]
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -105,9 +105,9 @@ class SendRichMessage extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string|null $chatId = null,
-        ?InputRichMessage $richMessage = null,
+        InputRichMessage $richMessage,
         ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
@@ -121,9 +121,9 @@ class SendRichMessage extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($richMessage !== null) $this->richMessage = $richMessage;
+        $this->richMessage = $richMessage;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($ephemeralMessageParameters !== null) $this->ephemeralMessageParameters = $ephemeralMessageParameters;

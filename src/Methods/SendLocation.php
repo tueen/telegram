@@ -38,28 +38,28 @@ use Tueen\Telegram\Types\SuggestedPostParameters;
 class SendLocation extends Method
 {
     /**
-     * Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username
-     */
-    #[Field('chat_id', required: true)]
-    public int|string|null $chatId = null;
-
-    /**
      * Latitude of the location
      */
     #[Field('latitude', required: true)]
-    public ?float $latitude = null;
+    public float $latitude;
 
     /**
      * Longitude of the location
      */
     #[Field('longitude', required: true)]
-    public ?float $longitude = null;
+    public float $longitude;
 
     /**
      * Unique identifier of the business connection on behalf of which the message will be sent
      */
     #[Field('business_connection_id', required: false)]
     public ?string $businessConnectionId = null;
+
+    /**
+     * Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format @username; required unless the message is sent as an ephemeral reply to a callback query
+     */
+    #[Field('chat_id', required: false)]
+    public int|string|null $chatId = null;
 
     /**
      * Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only
@@ -146,10 +146,10 @@ class SendLocation extends Method
     public InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null;
 
     public function __construct(
-        int|string|null $chatId = null,
-        ?float $latitude = null,
-        ?float $longitude = null,
+        float $latitude,
+        float $longitude,
         ?string $businessConnectionId = null,
+        int|string|null $chatId = null,
         ?int $messageThreadId = null,
         ?int $directMessagesTopicId = null,
         ?EphemeralMessageParameters $ephemeralMessageParameters = null,
@@ -167,10 +167,10 @@ class SendLocation extends Method
         mixed ...$extra
     )
     {
-        if ($chatId !== null) $this->chatId = $chatId;
-        if ($latitude !== null) $this->latitude = $latitude;
-        if ($longitude !== null) $this->longitude = $longitude;
+        $this->latitude = $latitude;
+        $this->longitude = $longitude;
         if ($businessConnectionId !== null) $this->businessConnectionId = $businessConnectionId;
+        if ($chatId !== null) $this->chatId = $chatId;
         if ($messageThreadId !== null) $this->messageThreadId = $messageThreadId;
         if ($directMessagesTopicId !== null) $this->directMessagesTopicId = $directMessagesTopicId;
         if ($ephemeralMessageParameters !== null) $this->ephemeralMessageParameters = $ephemeralMessageParameters;

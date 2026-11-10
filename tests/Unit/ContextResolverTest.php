@@ -489,4 +489,38 @@ final class ContextResolverTest extends TestCase
         $this->assertInstanceOf(Chat::class, $context->chat);
         $this->assertInstanceOf(Message::class, $context->message);
     }
+
+    public function testWidgetQueryIdAutoInjected(): void
+    {
+        $bot = Telegram::fake([
+            'answerWidgetQuery' => true,
+        ]);
+
+        $update = new Update([
+            'update_id' => 1010,
+            'widget_query' => [
+                'id' => 'wq_test_id_123',
+                'chat_instance' => 'ci_1',
+                'data' => 'init_query',
+                'from' => [
+                    'id' => 112233,
+                    'is_bot' => false,
+                    'first_name' => 'Alice',
+                ],
+                'type' => [
+                    'type' => 'data',
+                ],
+            ],
+        ]);
+
+        $bot->setUpdate($update);
+
+        // Auto-inject widget_query_id via positional single argument shortcut
+        $bot->answerWidgetQuery('acknowledged_data');
+
+        $bot->assertSent('answerWidgetQuery', function (Request $req): bool {
+            return $req->parameters['widget_query_id'] === 'wq_test_id_123'
+                && $req->parameters['data'] === 'acknowledged_data';
+        });
+    }
 }

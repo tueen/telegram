@@ -1558,6 +1558,25 @@ $bot->sendMessage(
 );
 ```
 
+### 🧩 Bot API 10.4 HTML Widgets & Queries
+
+Telegram Bot API 10.4 introduces interactive HTML widgets and queries (`sendWidget`, `sendSharedWidget`, `answerWidgetQuery`, `editMessageWidgetData`):
+
+```php
+use Tueen\Telegram\Enums\UpdateType;
+use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\Update;
+
+// Handling incoming WidgetQuery (widget_query_id is auto-injected from context):
+$bot->on(UpdateType::WIDGET_QUERY, function (Update $update, Telegram $bot) {
+    // 1. Inspect incoming widget query payload
+    $queryData = $update->widgetQuery->data;
+
+    // 2. Respond to the widget within 15 seconds (auto-resolves widgetQueryId):
+    $bot->answerWidgetQuery(data: 'acknowledged_payload');
+});
+```
+
 ---
 
 ## 🏛️ 2. The Universal Base `Type` Class
@@ -3612,6 +3631,7 @@ $bizId     = $update->businessConnectionId;
 $threadId  = $update->messageThreadId;
 $cbQueryId = $update->callbackQueryId;
 $inlineId  = $update->inlineMessageId;
+$widgetId  = $update->widgetQueryId;
 ```
 
 ---
@@ -3812,10 +3832,37 @@ Below is the complete reference of all computed property hooks and helper method
     desc="Resolved forum topic thread ID for supergroup topics."
   />
   <ApiCard
+    type="property"
+    sig="public ?string $widgetQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved widget query identifier for incoming HTML/shared widget queries (Bot API 10.4)."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $callbackQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved callback query ID attached to incoming inline keyboard callbacks."
+  />
+  <ApiCard
+    type="property"
+    sig="public ?string $inlineQueryId"
+    returns="?string"
+    badge="Property Hook"
+    desc="Resolved inline query identifier from inline query updates."
+  />
+  <ApiCard
     sig="isType(UpdateType|string ...$types): bool"
     returns="bool"
     badge="Helper"
     desc="Checks whether the update matches any of the specified UpdateType enums or string names."
+  />
+  <ApiCard
+    sig="findWidgetQueryId(): ?string"
+    returns="?string"
+    badge="Smart Finder"
+    desc="Extracts the query ID from widget_query or shared_widget_query payloads (Bot API 10.4)."
   />
   <ApiCard
     sig="findMessage(): ?Message"
@@ -6347,11 +6394,14 @@ Every update received from Telegram is classified into an `UpdateType` enum:
 | `UpdateType::BUSINESS_MESSAGE` | `'business_message'` | Message in Telegram Business chat |
 | `UpdateType::EDITED_BUSINESS_MESSAGE` | `'edited_business_message'` | Edited Business message |
 | `UpdateType::DELETED_BUSINESS_MESSAGES` | `'deleted_business_messages'` | Deleted Business messages |
+| `UpdateType::GUEST_MESSAGE` | `'guest_message'` | New guest message |
 | `UpdateType::MESSAGE_REACTION` | `'message_reaction'` | User reacted to a message |
 | `UpdateType::MESSAGE_REACTION_COUNT` | `'message_reaction_count'` | Anonymous reaction tally changed |
 | `UpdateType::INLINE_QUERY` | `'inline_query'` | Inline query typed (`@bot query`) |
 | `UpdateType::CHOSEN_INLINE_RESULT` | `'chosen_inline_result'` | Inline result clicked |
 | `UpdateType::CALLBACK_QUERY` | `'callback_query'` | Inline keyboard button tapped |
+| `UpdateType::WIDGET_QUERY` | `'widget_query'` | Incoming query from an HTML widget (Bot API 10.4) |
+| `UpdateType::SHARED_WIDGET_QUERY` | `'shared_widget_query'` | Incoming query from a shared widget (Bot API 10.4) |
 | `UpdateType::SHIPPING_QUERY` | `'shipping_query'` | Shipping query for invoice |
 | `UpdateType::PRE_CHECKOUT_QUERY` | `'pre_checkout_query'` | Final order verification before payment |
 | `UpdateType::PURCHASED_PAID_MEDIA` | `'purchased_paid_media'` | Telegram Stars paid media purchased |
@@ -6362,6 +6412,9 @@ Every update received from Telegram is classified into an `UpdateType` enum:
 | `UpdateType::CHAT_JOIN_REQUEST` | `'chat_join_request'` | User requested to join a private group/channel |
 | `UpdateType::CHAT_BOOST` | `'chat_boost'` | Premium user boosted the chat |
 | `UpdateType::REMOVED_CHAT_BOOST` | `'removed_chat_boost'` | Boost expired or removed |
+| `UpdateType::MANAGED_BOT` | `'managed_bot'` | Managed bot created or updated |
+| `UpdateType::SUBSCRIPTION` | `'subscription'` | User payment subscription updated |
+| `UpdateType::STOPPED_MESSAGE_GENERATION` | `'stopped_message_generation'` | User stopped AI message generation |
 
 ---
 

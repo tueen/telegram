@@ -45,7 +45,7 @@ class InlineKeyboardButton extends Type
     private(set) ?string $callbackData = null;
 
     /**
-     * Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account.
+     * Optional. Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages.
      */
     #[Field('web_app', required: false)]
     private(set) ?WebAppInfo $webApp = null;
