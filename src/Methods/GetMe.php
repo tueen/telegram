@@ -11,10 +11,10 @@ use Tueen\Telegram\Enums\TelegramErrorCode;
 use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Exceptions\UnauthorizedException;
-use Tueen\Telegram\Types\User;
+use Tueen\Telegram\Types\BotFullInfo;
 
 /**
- * A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object.
+ * A simple method for testing your bot's authentication token. Requires no parameters. Returns information about the bot in form of a BotFullInfo object.
  *
  * @link https://core.telegram.org/bots/api#getme
  *
@@ -23,7 +23,7 @@ use Tueen\Telegram\Types\User;
  * @throws ApiException
  */
 #[ApiMethod('getMe', 'POST')]
-#[ReturnType(User::class, isArray: false)]
+#[ReturnType(BotFullInfo::class, isArray: false)]
 #[ApiErrors([TelegramErrorCode::Unauthorized, TelegramErrorCode::FloodWait])]
 class GetMe extends Method
 {

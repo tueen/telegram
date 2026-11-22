@@ -538,7 +538,7 @@ class Message extends MaybeInaccessibleMessage
     private(set) ?string $connectedWebsite = null;
 
     /**
-     * Optional. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess
+     * Optional. Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess, or the user was invited to the private chat with the bot by the owner of the bot
      */
     #[Field('write_access_allowed', required: false)]
     private(set) ?WriteAccessAllowed $writeAccessAllowed = null;

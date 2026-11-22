@@ -11,7 +11,7 @@ This file serves as the **Master Architectural Reference and Sitemap** for AI ag
 - **Package Name:** `tueen/telegram`
 - **Slogan:** *The Royal Telegram Bot SDK for Modern PHP*
 - **Target Runtime:** PHP 8.4+ (strict types, property hooks, asymmetric visibility, modern pipeline pattern, compatible with PHP 8.5+ enhancements).
-- **Coverage:** Complete Telegram Bot API 10.4 (all methods, types, and property enums).
+- **Coverage:** Complete Telegram Bot API 10.5 (all methods, types, and property enums).
 - **Bot API Version Constant:** `Telegram::BOT_API_VERSION` (alias `Telegram::API_VERSION`).
 
 ---

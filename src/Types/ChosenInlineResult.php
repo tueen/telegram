@@ -8,7 +8,7 @@ use Tueen\Telegram\Attributes\Field;
 
 /**
  * Represents a result of an inline query that was chosen by the user and sent to their chat partner.
- * Note: It is necessary to enable inline feedback via @BotFather in order to receive these objects in updates.
+ * Note: It is necessary to enable inline feedback via @BotFather or using the parameter inline_feedback_share_denominator of the method setMySettings in order to receive these objects in updates.
  *
  * @link https://core.telegram.org/bots/api#choseninlineresult
  */
@@ -27,7 +27,7 @@ class ChosenInlineResult extends Type
     private(set) ?User $from = null;
 
     /**
-     * Optional. Sender location, only for bots that require user location
+     * Optional. Sender location, only for bots that enabled user location requests via @BotFather or using the parameter needs_inline_query_location of the method setMySettings
      */
     #[Field('location', required: false)]
     private(set) ?Location $location = null;

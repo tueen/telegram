@@ -59,6 +59,7 @@ use Tueen\Telegram\Types\BotAccessSettings;
 use Tueen\Telegram\Types\BotCommand;
 use Tueen\Telegram\Types\BotCommandScope;
 use Tueen\Telegram\Types\BotDescription;
+use Tueen\Telegram\Types\BotFullInfo;
 use Tueen\Telegram\Types\BotName;
 use Tueen\Telegram\Types\BotShortDescription;
 use Tueen\Telegram\Types\BusinessConnection;
@@ -113,14 +114,13 @@ use Tueen\Telegram\Types\Story;
 use Tueen\Telegram\Types\SuggestedPostParameters;
 use Tueen\Telegram\Types\UniqueGift;
 use Tueen\Telegram\Types\Update;
-use Tueen\Telegram\Types\User;
 use Tueen\Telegram\Types\UserChatBoosts;
 use Tueen\Telegram\Types\UserProfileAudios;
 use Tueen\Telegram\Types\UserProfilePhotos;
 use Tueen\Telegram\Types\WebhookInfo;
 
 /**
- * Dynamic Telegram Bot API 10.4 Methods Mixin.
+ * Dynamic Telegram Bot API 10.5 Methods Mixin.
  *
  * This contract defines all Telegram Bot API method signatures for IDE autocompletion,
  * parameter hints, and type safety, keeping the core Telegram client facade lightweight.
@@ -129,7 +129,7 @@ use Tueen\Telegram\Types\WebhookInfo;
  * @method BooleanResult|Error setWebhook(string $url, ?InputFile $certificate = null, ?string $ipAddress = null, ?int $maxConnections = null, ?array $allowedUpdates = null, ?bool $dropPendingUpdates = null, ?string $secretToken = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error deleteWebhook(?bool $dropPendingUpdates = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method WebhookInfo|Error getWebhookInfo(RequestOptions|array|null $_ = null, mixed ...$extra)
- * @method User|Error getMe(RequestOptions|array|null $_ = null, mixed ...$extra)
+ * @method BotFullInfo|Error getMe(RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error logOut(RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error close(RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method Message|Error sendMessage(string $text, ?string $businessConnectionId = null, int|string|null $chatId = null, ?int $messageThreadId = null, ?int $directMessagesTopicId = null, ?EphemeralMessageParameters $ephemeralMessageParameters = null, ParseMode|string|null $parseMode = null, ?array $entities = null, ?LinkPreviewOptions $linkPreviewOptions = null, ?bool $disableNotification = null, ?bool $protectContent = null, ?bool $allowPaidBroadcast = null, ?string $messageEffectId = null, ?SuggestedPostParameters $suggestedPostParameters = null, ?ReplyParameters $replyParameters = null, InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply|null $replyMarkup = null, RequestOptions|array|null $_ = null, mixed ...$extra)
@@ -219,6 +219,7 @@ use Tueen\Telegram\Types\WebhookInfo;
  * @method StringResult|Error replaceManagedBotToken(?int $userId = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BotAccessSettings|Error getManagedBotAccessSettings(?int $userId = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error setManagedBotAccessSettings(?int $userId = null, ?bool $isAccessRestricted = null, ?array $addedUserIds = null, RequestOptions|array|null $_ = null, mixed ...$extra)
+ * @method BooleanResult|Error setMySettings(?bool $supportsInlineQueries = null, ?string $inlineQueryPlaceholder = null, ?bool $needsInlineQueryLocation = null, ?int $inlineFeedbackShareDenominator = null, ?bool $canJoinGroups = null, ?bool $canReadAllGroupMessages = null, ?bool $canConnectToBusiness = null, ?bool $canManageBots = null, ?bool $supportsGuestQueries = null, ?bool $supportsJoinRequestQueries = null, ?bool $hasTopicsEnabled = null, ?bool $allowsUsersToCreateTopics = null, ?bool $hasTopicSidebar = null, ?bool $canCommunicateWithBots = null, ?string $callbackQueryMode = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error setMyCommands(array $commands, ?BotCommandScope $scope = null, ?string $languageCode = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method BooleanResult|Error deleteMyCommands(?BotCommandScope $scope = null, ?string $languageCode = null, RequestOptions|array|null $_ = null, mixed ...$extra)
  * @method ArrayResult<BotCommand>|Error getMyCommands(?BotCommandScope $scope = null, ?string $languageCode = null, RequestOptions|array|null $_ = null, mixed ...$extra)

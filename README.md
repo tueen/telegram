@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://php.net"><img src="https://img.shields.io/badge/php-%3E%3D%208.4-8892BF.svg?style=flat-square" alt="PHP Version"></a>
-  <a href="https://core.telegram.org/bots/api"><img src="https://img.shields.io/badge/Telegram%20Bot%20API-10.4-2CA5E0.svg?style=flat-square&logo=telegram" alt="Telegram Bot API"></a>
+  <a href="https://core.telegram.org/bots/api"><img src="https://img.shields.io/badge/Telegram%20Bot%20API-10.5-2CA5E0.svg?style=flat-square&logo=telegram" alt="Telegram Bot API"></a>
   <a href="https://github.com/tueen/telegram/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tueen/telegram/ci.yml?branch=main&label=CI&style=flat-square" alt="CI Status"></a>
   <a href="https://tueen.github.io/telegram/"><img src="https://img.shields.io/badge/docs-online-success.svg?style=flat-square" alt="Documentation"></a>
   <a href="https://tueen.github.io/telegram/llms.html"><img src="https://img.shields.io/badge/AI%20%2F%20LLMs-llms.txt-orange.svg?style=flat-square" alt="LLM Hub"></a>

@@ -13,15 +13,15 @@ use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Exceptions\RateLimitException;
 use Tueen\Telegram\Pipeline\MiddlewareInterface;
 use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\BotFullInfo;
 use Tueen\Telegram\Types\Message;
 use Tueen\Telegram\Types\Update;
-use Tueen\Telegram\Types\User;
 
 class TelegramClientTest extends TestCase
 {
     public function testBotApiVersionConstant(): void
     {
-        $this->assertSame('10.4', Telegram::BOT_API_VERSION);
+        $this->assertSame('10.5', Telegram::BOT_API_VERSION);
         $this->assertSame(Telegram::BOT_API_VERSION, Telegram::API_VERSION);
     }
 
@@ -74,10 +74,10 @@ class TelegramClientTest extends TestCase
 
         $bot = new Telegram($config);
 
-        /** @var User $botUser */
+        /** @var BotFullInfo $botUser */
         $botUser = $bot->getMe();
 
-        $this->assertInstanceOf(User::class, $botUser);
+        $this->assertInstanceOf(BotFullInfo::class, $botUser);
         $this->assertSame(12345678, $botUser->id);
         $this->assertTrue($botUser->isBot);
         $this->assertSame('QueenBot', $botUser->firstName);

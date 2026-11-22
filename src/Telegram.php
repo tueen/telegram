@@ -46,7 +46,7 @@ class Telegram
     /**
      * Supported Telegram Bot API version.
      */
-    public const string BOT_API_VERSION = '10.4';
+    public const string BOT_API_VERSION = '10.5';
 
     /**
      * Shorthand alias for {@see self::BOT_API_VERSION}.

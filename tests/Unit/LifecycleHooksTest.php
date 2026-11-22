@@ -12,9 +12,9 @@ use Tueen\Telegram\Client\Response;
 use Tueen\Telegram\Config;
 use Tueen\Telegram\Exceptions\ApiException;
 use Tueen\Telegram\Telegram;
+use Tueen\Telegram\Types\BotFullInfo;
 use Tueen\Telegram\Types\Error;
 use Tueen\Telegram\Types\Type;
-use Tueen\Telegram\Types\User;
 
 class LifecycleHooksTest extends TestCase
 {
@@ -65,11 +65,11 @@ class LifecycleHooksTest extends TestCase
             $capturedResponse = [$result, $req];
         });
 
-        /** @var User $botUser */
+        /** @var BotFullInfo $botUser */
         $botUser = $bot->getMe();
 
         $this->assertSame(['before', 'after', 'response'], $executionOrder);
-        $this->assertInstanceOf(User::class, $botUser);
+        $this->assertInstanceOf(BotFullInfo::class, $botUser);
         $this->assertSame(987654, $botUser->id);
 
         $this->assertInstanceOf(Request::class, $capturedBefore[0]);
@@ -79,7 +79,7 @@ class LifecycleHooksTest extends TestCase
         $this->assertInstanceOf(Response::class, $capturedAfter[0]);
         $this->assertTrue($capturedAfter[0]->isOk);
 
-        $this->assertInstanceOf(User::class, $capturedResponse[0]);
+        $this->assertInstanceOf(BotFullInfo::class, $capturedResponse[0]);
         $this->assertSame($botUser, $capturedResponse[0]);
     }
 

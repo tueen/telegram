@@ -93,6 +93,7 @@ When writing code for `tueen/telegram`, AI assistants and agents MUST adhere to 
     * [Forward-Compatible Unknown / New Parameters](/guide/methods-and-types#forward-compatible-unknown-new-parameters)
     * [Passing Complex & Nested Types (Objects or Arrays)](/guide/methods-and-types#passing-complex-nested-types-objects-or-arrays)
     * [🧩 Bot API 10.4 HTML Widgets & Queries](/guide/methods-and-types#bot-api-104-html-widgets-queries)
+    * [⚙️ Bot API 10.5 Bot Settings & `BotFullInfo`](/guide/methods-and-types#bot-api-105-bot-settings-botfullinfo)
   - [🏛️ 2. The Universal Base `Type` Class](/guide/methods-and-types#2-the-universal-base-type-class)
     * [Core Features of `Type`:](/guide/methods-and-types#core-features-of-type)
   - [⚙️ 3. The Base `Method` Class](/guide/methods-and-types#3-the-base-method-class)

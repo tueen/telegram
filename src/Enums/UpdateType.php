@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tueen\Telegram\Enums;
 
 /**
- * Backed enum representing all Telegram Bot API 10.4 Update types.
+ * Backed enum representing all Telegram Bot API 10.5 Update types.
  */
 enum UpdateType: string
 {

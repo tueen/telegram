@@ -44,7 +44,7 @@ class InlineQuery extends Type
     private(set) ?string $chatType = null;
 
     /**
-     * Optional. Sender location, only for bots that request user location
+     * Optional. Sender location, only for bots that enabled user location requests via @BotFather or using the parameter needs_inline_query_location of the method setMySettings
      */
     #[Field('location', required: false)]
     private(set) ?Location $location = null;

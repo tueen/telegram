@@ -96,7 +96,7 @@ class Update extends Type
     private(set) ?InlineQuery $inlineQuery = null;
 
     /**
-     * Optional. The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot.
+     * Optional. The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot. The updates can also be enabled using the parameter inline_feedback_share_denominator of the method setMySettings.
      */
     #[Field('chosen_inline_result', required: false)]
     private(set) ?ChosenInlineResult $chosenInlineResult = null;

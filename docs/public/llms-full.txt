@@ -1577,6 +1577,25 @@ $bot->on(UpdateType::WIDGET_QUERY, function (Update $update, Telegram $bot) {
 });
 ```
 
+### ⚙️ Bot API 10.5 Bot Settings & `BotFullInfo`
+
+Telegram Bot API 10.5 introduces [`BotFullInfo`](https://core.telegram.org/bots/api#botfullinfo) (returned by `getMe()`) and the [`setMySettings`](https://core.telegram.org/bots/api#setmysettings) method for configuring bot capabilities programmatically:
+
+```php
+// getMe() now returns BotFullInfo with full bot configuration details:
+$me = $bot->getMe();
+echo $me->firstName;
+var_dump($me->activeUsernames, $me->hasTopicSidebar);
+
+// Update bot settings programmatically:
+$bot->setMySettings(
+    supportsInlineQueries: true,
+    inlineQueryPlaceholder: 'Search...',
+    canJoinGroups: true,
+    hasTopicsEnabled: true,
+);
+```
+
 ---
 
 ## 🏛️ 2. The Universal Base `Type` Class

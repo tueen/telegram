@@ -45,7 +45,7 @@ class KeyboardButton extends Type
     private(set) ?KeyboardButtonRequestChat $requestChat = null;
 
     /**
-     * Optional. If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @BotFather Mini App. Available in private chats only.
+     * Optional. If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @BotFather Mini App or using the parameter can_manage_bots of the method setMySettings. Available in private chats only.
      */
     #[Field('request_managed_bot', required: false)]
     private(set) ?KeyboardButtonRequestManagedBot $requestManagedBot = null;

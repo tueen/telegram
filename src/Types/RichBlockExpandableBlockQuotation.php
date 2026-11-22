@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tueen\Telegram\Types;
 
+use Tueen\Telegram\Attributes\ArrayOf;
 use Tueen\Telegram\Attributes\Field;
 use Tueen\Telegram\Enums\RichBlockType;
 
@@ -22,9 +23,11 @@ class RichBlockExpandableBlockQuotation extends RichBlock
 
     /**
      * Content of the block
+     * @var RichBlock[]|null
      */
-    #[Field('text', required: true)]
-    private(set) ?RichText $text = null;
+    #[Field('blocks', required: true)]
+    #[ArrayOf(RichBlock::class)]
+    private(set) ?array $blocks = null;
 
     /**
      * Optional. Credit of the block
